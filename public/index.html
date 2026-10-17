@@ -1107,6 +1107,18 @@ td.today .schc:not(.f){background:color-mix(in srgb,var(--accent) 6%,var(--fill)
 .schline span{display:inline-flex;align-items:center;gap:5px;padding:4px 9px 4px 8px;border-radius:8px;background:color-mix(in srgb,var(--sc) 18%,var(--surface));box-shadow:inset 3px 0 0 var(--sc);font-size:13px;font-weight:600}
 .schline b{color:var(--ink-3);font-weight:800}
 @media (max-width:520px){table.sch{min-width:0;border-spacing:3px}table.sch th:first-child{width:38px}table.sch tbody th small{font-size:10px}.schc{font-size:12px;height:44px;padding:2px 3px}}
+/* 할 일 끌어 옮기기 */
+.wki[data-wdrag]{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;transition:background .3s,opacity .2s,scale .2s var(--spring)}
+.wki.press{scale:.96}
+.wki.lifting{opacity:.3}
+.wkghost{position:fixed;z-index:80;margin:0;pointer-events:none;animation:none;transform-origin:center;transition:box-shadow .2s,scale .22s var(--spring);opacity:.97}
+.wkghost.up{scale:1.05;box-shadow:0 18px 36px -12px rgba(0,0,0,.45)}
+.wkph{flex:none;border:2px dashed var(--accent);border-radius:8px;background:color-mix(in srgb,var(--accent) 8%,transparent);animation:fadeIn .15s ease both}
+.wkc{transition:background-color .2s,opacity .2s}
+.wkc.over{background-color:color-mix(in srgb,var(--accent) 8%,transparent)}
+.wkc.no{opacity:.4}
+html.wkdragging,html.wkdragging *{cursor:grabbing !important}
+.wki.lifting,.ttb.lifting{filter:opacity(.3)}
 #c-setup .row input{min-width:0}
 #c-setup .lb{margin-top:0}
 .serr{color:var(--red);margin-top:8px}
@@ -2006,7 +2018,7 @@ function wkItem(V,d,mode,x,t){
   if(sub)meta.push(esc(sub));
   if(x.ts!=null&&x.te>x.ts)meta.push(fmtHM(x.ts));
   if(p)meta.push(esc(shortDate(p.due))+' 마감'+(x.part?' '+esc(x.part):''));
-  var h='<div class="wki'+(x.done?' done':'')+(late?' late':'')+'" id="wi-'+esc(x.id)+'" style="--sc:'+goalCol(V,x)+'">';
+  var h='<div class="wki'+(x.done?' done':'')+(late?' late':'')+'" id="wi-'+esc(x.id)+'"'+(x.done?'':' data-wdrag="1"')+' data-d="'+d+'" data-id="'+esc(x.id)+'" style="--sc:'+goalCol(V,x)+'">';
   h+='<button class="wkchk'+(x.done?' on':'')+'" data-act="goal-toggle" data-date="'+d+'" data-id="'+esc(x.id)+'" aria-pressed="'+(x.done?'true':'false')+'" aria-label="'+esc(x.text)+' 완료 표시"'+(mode!=='full'?' disabled':'')+'><span></span></button>';
   h+='<button class="wkt" data-act="al-goal" data-d="'+d+'" data-id="'+esc(x.id)+'" aria-label="'+esc(x.text)+', 달력에서 열어 고치기"><span class="t">'+esc(x.text)+'</span>'+(meta.length||late?'<small>'+meta.join(' · ')+(late?'<em>못 끝냄</em>':'')+'</small>':'')+'</button>';
   return h+'</div>';
@@ -2014,7 +2026,7 @@ function wkItem(V,d,mode,x,t){
 function wkCell(V,d,t){
   var day=dayOf(V,V.me,d),g=day.goals,mode=modeOf(d),done=g.filter(isDone).length;
   var list=S.alLeft?g.filter(function(x){return !x.done;}):(S.gDoneLast?g.filter(function(x){return !x.done;}).concat(g.filter(isDone)):g);
-  var h='<div class="wkc'+(d===t?' today':'')+(d<t?' past':'')+'" id="wc-'+d+'">';
+  var h='<div class="wkc'+(d===t?' today':'')+(d<t?' past':'')+'" id="wc-'+d+'" data-d="'+d+'">';
   if(g.length)h+='<div class="wkbar" role="img" aria-label="'+g.length+'개 중 '+done+'개 완료"><i style="width:'+Math.round(done*100/g.length)+'%"></i></div>';
   (dueMap(V)[d]||[]).forEach(function(p){h+='<p class="wkdue">마감 · '+esc(p.label)+'</p>';});
   list.forEach(function(x){h+=wkItem(V,d,mode,x,t);});
@@ -2040,6 +2052,7 @@ function viewAgenda(V){
   days.forEach(function(d){h+=wkCell(V,d,t);});
   h+='</div></div>';
   if(!tot)h+='<p class="hint wkhint">이 주에는 적은 할 일이 없습니다. 날짜 칸의 추가를 눌러 적어 보세요.</p>';
+  else h+='<p class="hint wkhint">할 일을 꾹 눌러 끌면 다른 날로 옮기거나 순서를 바꿀 수 있습니다.</p>';
   return h+'</section></div></div>';
 }
 
@@ -2479,6 +2492,105 @@ function editDayOf(mid,date,fn){
   if(!d.certAt)delete d.certAt;if(!d.in)delete d.in;if(!d.focus)delete d.focus;
   save('days/'+mid+'_'+date,d);
 }
+
+/* ---------- 할 일(주간 달력)에서 끌어 옮기기 ---------- */
+var WD=null;
+function wdOk(){return S.vtab==='cal'&&S.calMode==='list'&&!S.modal;}
+function wkMove(from,id,to,beforeId){
+  var V=view(),t=today();if(!V.me||!need())return;
+  var g=dayOf(V,V.me,from).goals.filter(function(x){return x.id===id;})[0];if(!g)return;
+  function put(list,item){var j=beforeId?list.map(function(x){return x.id;}).indexOf(beforeId):-1;if(j<0)list.push(item);else list.splice(j,0,item);}
+  if(from===to){
+    editDay(from,function(d){var i=d.goals.map(function(x){return x.id;}).indexOf(id);if(i<0)return;var it=d.goals.splice(i,1)[0];put(d.goals,it);});
+    return;
+  }
+  if(to<t){flash('지난 날로는 옮길 수 없습니다.');return;}
+  if(dayOf(V,V.me,to).goals.length>=GMAX){flash(shortDate(to)+'에는 할 일이 가득 찼습니다.');return;}
+  var sn=snap(['days/'+V.me+'_'+from,'days/'+V.me+'_'+to]);
+  editDay(from,function(d){d.goals=d.goals.filter(function(x){return x.id!==id;});if(d.focus===id)d.focus=null;});
+  editDay(to,function(d){var c=clone(g);c.done=false;delete c.ts;delete c.te;put(d.goals,c);});
+  flash(shortDate(to)+' '+DOW[pd(to).getDay()]+'요일로 옮겼습니다.',sn);
+}
+function wdCancel(){if(!WD)return;clearTimeout(WD.timer);clearTimeout(WD.pt);if(WD.src)WD.src.classList.remove('press');WD=null;}
+function wdEnd(){
+  if(!WD)return;cancelAnimationFrame(WD.raf);clearTimeout(WD.timer);clearTimeout(WD.pt);
+  if(WD.gh)WD.gh.remove();if(WD.ph)WD.ph.remove();
+  if(WD.src)WD.src.classList.remove('lifting','press');
+  var cs=document.querySelectorAll('.wkc.over,.wkc.no');for(var i=0;i<cs.length;i++)cs[i].classList.remove('over','no');
+  document.documentElement.classList.remove('wkdragging');
+  S.drag=false;window.__ttDragEnd=Date.now();
+}
+function wdStart(){
+  var src=WD.src;clearTimeout(WD.timer);clearTimeout(WD.pt);src.classList.remove('press');
+  if(!document.body.contains(src)){WD=null;return;}
+  WD.on=true;S.drag=true;document.documentElement.classList.add('wkdragging');
+  WD.d=src.getAttribute('data-d');WD.id=src.getAttribute('data-id');WD.sc=src.closest('.wkscroll');
+  var r=src.getBoundingClientRect(),gh=src.cloneNode(true);
+  gh.removeAttribute('id');gh.classList.add('wkghost');gh.style.width=r.width+'px';gh.style.left=r.left+'px';gh.style.top=r.top+'px';
+  document.body.appendChild(gh);WD.gh=gh;WD.h=r.height;
+  var ph=document.createElement('div');ph.className='wkph';ph.style.height=r.height+'px';WD.ph=ph;
+  src.classList.add('lifting');
+  var t=today(),cs=document.querySelectorAll('.wkc[data-d]');
+  for(var i=0;i<cs.length;i++){var cd=cs[i].getAttribute('data-d');if(cd<t&&cd!==WD.d)cs[i].classList.add('no');}
+  requestAnimationFrame(function(){if(WD&&WD.gh)WD.gh.classList.add('up');});
+  wdAuto();wdMove();
+}
+function wdMove(){
+  if(!WD||!WD.on)return;
+  WD.gh.style.transform='translate3d('+(WD.x-WD.x0)+'px,'+(WD.y-WD.y0)+'px,0)';
+  var cell=null,els=document.elementsFromPoint?document.elementsFromPoint(WD.x,WD.y):[];
+  for(var i=0;i<els.length;i++){var c=els[i].closest&&els[i].closest('.wkc[data-d]');if(c){cell=c;break;}}
+  if(cell&&cell.classList.contains('no'))cell=null;
+  var prev=document.querySelector('.wkc.over');if(prev&&prev!==cell)prev.classList.remove('over');
+  if(!cell){if(WD.ph.parentNode)WD.ph.remove();WD.tgt=null;return;}
+  cell.classList.add('over');
+  var items=[].slice.call(cell.querySelectorAll('.wki')).filter(function(e){return e!==WD.src;}),before=null;
+  for(var j=0;j<items.length;j++){var rr=items[j].getBoundingClientRect();if(WD.y<rr.top+rr.height/2){before=items[j];break;}}
+  var anchor=before||cell.querySelector('.wkadd')||null;
+  if(anchor){if(WD.ph.nextSibling!==anchor||WD.ph.parentNode!==cell)cell.insertBefore(WD.ph,anchor);}
+  else if(WD.ph.parentNode!==cell||WD.ph.nextSibling)cell.appendChild(WD.ph);
+  WD.tgt={d:cell.getAttribute('data-d'),before:before?before.getAttribute('data-id'):null};
+}
+function wdAuto(){
+  if(!WD||!WD.on)return;
+  var E=70,dy=0,dx=0,H=window.innerHeight||800;
+  if(WD.y<E)dy=-Math.min(18,Math.ceil((E-WD.y)/4));else if(WD.y>H-E)dy=Math.min(18,Math.ceil((WD.y-(H-E))/4));
+  if(dy&&main){var y0=main.scrollTop;main.scrollTop+=dy;if(main.scrollTop!==y0)wdMove();}
+  var sc=WD.sc;
+  if(sc&&sc.scrollWidth>sc.clientWidth+2){var r=sc.getBoundingClientRect();
+    if(WD.x<r.left+40)dx=-Math.min(16,Math.ceil((r.left+40-WD.x)/3));else if(WD.x>r.right-40)dx=Math.min(16,Math.ceil((WD.x-(r.right-40))/3));
+    if(dx){var x0=sc.scrollLeft;sc.scrollLeft+=dx;if(sc.scrollLeft!==x0)wdMove();}}
+  WD.raf=requestAnimationFrame(wdAuto);
+}
+function wdDrop(){
+  var R=WD,tg=R.tgt;wdEnd();WD=null;
+  if(!tg){render();return;}
+  if(tg.d===R.d&&tg.before===R.next){render();return;}
+  wkMove(R.d,R.id,tg.d,tg.before);render();
+}
+document.addEventListener('pointerdown',function(e){
+  if(WD||!wdOk()||e.button>0||e.isPrimary===false)return;
+  var tg=e.target;if(!tg||!tg.closest)return;
+  var src=tg.closest('.wki[data-wdrag]');if(!src||tg.closest('.wkchk'))return;
+  var touch=e.pointerType==='touch',nx=src.nextElementSibling;
+  WD={src:src,quick:!touch,id0:e.pointerId,x0:e.clientX,y0:e.clientY,x:e.clientX,y:e.clientY,on:false,next:nx&&nx.classList.contains('wki')?nx.getAttribute('data-id'):null};
+  if(touch){WD.timer=setTimeout(function(){if(WD&&!WD.on)wdStart();},320);WD.pt=setTimeout(function(){if(WD&&!WD.on&&WD.src)WD.src.classList.add('press');},130);}
+});
+document.addEventListener('pointermove',function(e){
+  if(!WD||e.pointerId!==WD.id0)return;
+  WD.x=e.clientX;WD.y=e.clientY;
+  if(!WD.on){
+    var dist=Math.abs(WD.x-WD.x0)+Math.abs(WD.y-WD.y0);
+    if(!WD.quick){if(dist>12)wdCancel();return;}
+    if(dist<7)return;
+    wdStart();
+  }
+  if(WD&&WD.on){e.preventDefault();wdMove();}
+},{passive:false});
+document.addEventListener('pointerup',function(e){if(!WD||e.pointerId!==WD.id0)return;if(WD.on)wdDrop();else wdCancel();});
+document.addEventListener('pointercancel',function(e){if(!WD||e.pointerId!==WD.id0)return;if(WD.on){wdEnd();WD=null;render();}else wdCancel();});
+document.addEventListener('touchmove',function(e){if(WD&&WD.on)e.preventDefault();},{passive:false});
+document.addEventListener('contextmenu',function(e){if(WD)e.preventDefault();});
 
 /* ---------- 공부방 ---------- */
 function peopleCard(V,date,k){
