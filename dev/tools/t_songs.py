@@ -1,0 +1,33 @@
+import sys
+sys.path.insert(0,'/home/claude/planner/tools')
+from rig import *
+SH='/home/claude/planner/shots/'
+R=Rig();p=R.open(ls={'gbb_note':'1'});close_dlg(p)
+st=lambda expr:p.evaluate('()=>'+expr)
+print('badge:',repr(st("document.getElementById('chatBadge').textContent")),'hidden:',st("document.getElementById('chatBadge').hidden"))
+p.evaluate("()=>{const n=Date.now();window.__store['msgs/y1']={from:'m4',to:'m1',poke:true,text:'',at:n};window.__store['msgs/y2']={from:'m4',to:'m1',stk:'emotions-01',text:'',at:n+1};window.__fire();}");p.wait_for_timeout(500)
+print('badge after 2 more:',repr(st("document.getElementById('chatBadge').textContent")),'| notes:',st("[...document.querySelectorAll('.note')].map(e=>e.textContent.replace('닫기','')).join(' / ')"))
+p.screenshot(path=SH+'s_00_badge.png')
+click(p,'[data-tab="room"]',900)
+songs=lambda: st("[...document.querySelectorAll('.song')].map(e=>e.querySelector('.st').textContent+' ['+[...e.querySelectorAll('.smeta .tag')].map(t=>t.textContent).join(',')+'] '+e.querySelector('.smeta small').textContent+(e.querySelector('.snow')?' <'+e.querySelector('.snow span').textContent+'>':'')).join(' | ')")
+print('songs:',songs())
+print('people lines:',st("[...document.querySelectorAll('#c-people .frmain')].map(e=>e.textContent.replace(/\\s+/g,' ')).filter(t=>t.includes('노동요')).join(' | ')"))
+p.evaluate("()=>document.getElementById('c-songs').scrollIntoView()");p.wait_for_timeout(300);p.screenshot(path=SH+'s_01_songs.png')
+# 링크만 붙여넣기
+p.fill('#songIn','https://music.youtube.com/playlist?list=OLAK5uy_test');p.wait_for_timeout(300)
+print('preview(link only):',st("document.querySelector('#songNew .hint').textContent"))
+p.fill('#songIn','새벽 감성 플리 https://youtu.be/xyz987');p.wait_for_timeout(300)
+print('preview(title+link):',st("document.querySelector('#songNew .hint').textContent"),'| focus kept:',st("document.activeElement.id"))
+click(p,'[data-act="song-mood"][data-id="잔잔한"]');p.screenshot(path=SH+'s_02_add.png')
+p.focus('#songIn');p.keyboard.press('Enter');p.wait_for_timeout(500)
+print('added:',st("JSON.stringify(Object.values(window.__store).filter(x=>x&&x.title==='새벽 감성 플리')[0])"),'| input:',repr(st("document.getElementById('songIn').value")))
+# 제목 누르기 = 듣는 중 (링크 없는 곡)
+click(p,'.song button.st',400);print('my now:',st("JSON.stringify(window.__store['progress/m1'].now&&window.__store['progress/m1'].now.id)"),'|',songs()[:160])
+click(p,'[data-act="song-stop"]',400);print('stopped:',st("JSON.stringify(window.__store['progress/m1'].now||null)"))
+# 분위기 고르기, 아무거나 골라줘
+click(p,'[data-act="song-filter"][data-id="잔잔한"]',300);print('filtered:',st("document.querySelectorAll('.song').length"))
+click(p,'[data-act="song-filter"][data-id=""]',300)
+click(p,'[data-act="song-roll"]',600);p.screenshot(path=SH+'s_03_rolling.png');p.wait_for_timeout(3200)
+print('rolled:',st("(document.querySelector('.song.pick .st')||{}).textContent"),'| tag:',st("(document.querySelector('.song.pick .tag.a')||{}).textContent"))
+p.evaluate("()=>document.getElementById('c-songs').scrollIntoView()");p.wait_for_timeout(300);p.screenshot(path=SH+'s_04_rolled.png')
+print('errors:',R.errors);R.close()

@@ -1,0 +1,249 @@
+[
+ {
+  "id": "blue",
+  "name": "파랑",
+  "g": "b",
+  "l": {
+   "a": "#2B6DEF",
+   "on": "#FFFFFF",
+   "soft": "#E9F0FE",
+   "ink": "#2360DC",
+   "mark": "#2B6DEF"
+  },
+  "d": {
+   "a": "#6A9CFF",
+   "on": "#081226",
+   "soft": "#1C2A44",
+   "ink": "#6A9CFF",
+   "mark": "#6A9CFF"
+  }
+ },
+ {
+  "id": "green",
+  "name": "초록",
+  "g": "b",
+  "l": {
+   "a": "#0A8259",
+   "on": "#FFFFFF",
+   "soft": "#E2F5EC",
+   "ink": "#08744F",
+   "mark": "#0A8259"
+  },
+  "d": {
+   "a": "#4CCB9A",
+   "on": "#04231A",
+   "soft": "#14302A",
+   "ink": "#4CCB9A",
+   "mark": "#4CCB9A"
+  }
+ },
+ {
+  "id": "teal",
+  "name": "청록",
+  "g": "b",
+  "l": {
+   "a": "#08808C",
+   "on": "#FFFFFF",
+   "soft": "#E0F4F6",
+   "ink": "#06707B",
+   "mark": "#08808C"
+  },
+  "d": {
+   "a": "#4FCBD6",
+   "on": "#032226",
+   "soft": "#12313A",
+   "ink": "#4FCBD6",
+   "mark": "#4FCBD6"
+  }
+ },
+ {
+  "id": "purple",
+  "name": "보라",
+  "g": "b",
+  "l": {
+   "a": "#7447E0",
+   "on": "#FFFFFF",
+   "soft": "#EFEAFD",
+   "ink": "#7447E0",
+   "mark": "#7447E0"
+  },
+  "d": {
+   "a": "#A88BFF",
+   "on": "#150B33",
+   "soft": "#2A2147",
+   "ink": "#A88BFF",
+   "mark": "#A88BFF"
+  }
+ },
+ {
+  "id": "pink",
+  "name": "분홍",
+  "g": "b",
+  "l": {
+   "a": "#CF2F7A",
+   "on": "#FFFFFF",
+   "soft": "#FDE8F2",
+   "ink": "#C12670",
+   "mark": "#CF2F7A"
+  },
+  "d": {
+   "a": "#FF7DB5",
+   "on": "#33071C",
+   "soft": "#40192C",
+   "ink": "#FF7DB5",
+   "mark": "#FF7DB5"
+  }
+ },
+ {
+  "id": "orange",
+  "name": "주황",
+  "g": "b",
+  "l": {
+   "a": "#C2540A",
+   "on": "#FFFFFF",
+   "soft": "#FDEEDF",
+   "ink": "#AF4905",
+   "mark": "#C2540A"
+  },
+  "d": {
+   "a": "#FFA052",
+   "on": "#2B1400",
+   "soft": "#3D2710",
+   "ink": "#FFA052",
+   "mark": "#FFA052"
+  }
+ },
+ {
+  "id": "mono",
+  "name": "검정",
+  "g": "b",
+  "l": {
+   "a": "#1A1C20",
+   "on": "#FFFFFF",
+   "soft": "#E9EAEE",
+   "ink": "#1A1C20",
+   "mark": "#1A1C20"
+  },
+  "d": {
+   "a": "#F2F3F5",
+   "on": "#14151A",
+   "soft": "#2C2F36",
+   "ink": "#F2F3F5",
+   "mark": "#F2F3F5"
+  }
+ },
+ {
+  "id": "p-pink",
+  "name": "파스텔 분홍",
+  "g": "p",
+  "l": {
+   "a": "#F8BBD0",
+   "on": "#5A1736",
+   "soft": "#FDEEF4",
+   "ink": "#B02F66",
+   "mark": "#EE8FB3"
+  },
+  "d": {
+   "a": "#F8BBD0",
+   "on": "#4A1029",
+   "soft": "#3D2330",
+   "ink": "#F8BBD0",
+   "mark": "#F8BBD0"
+  }
+ },
+ {
+  "id": "p-peach",
+  "name": "파스텔 살구",
+  "g": "p",
+  "l": {
+   "a": "#FCC8AB",
+   "on": "#5A2A0E",
+   "soft": "#FEF1E8",
+   "ink": "#A8480F",
+   "mark": "#F4A47C"
+  },
+  "d": {
+   "a": "#FCC8AB",
+   "on": "#4A2109",
+   "soft": "#3E2B20",
+   "ink": "#FCC8AB",
+   "mark": "#FCC8AB"
+  }
+ },
+ {
+  "id": "p-butter",
+  "name": "파스텔 노랑",
+  "g": "p",
+  "l": {
+   "a": "#F8E08E",
+   "on": "#4A3800",
+   "soft": "#FDF7DE",
+   "ink": "#7D5F00",
+   "mark": "#E6BE45"
+  },
+  "d": {
+   "a": "#F8E08E",
+   "on": "#3F3000",
+   "soft": "#39331A",
+   "ink": "#F8E08E",
+   "mark": "#F8E08E"
+  }
+ },
+ {
+  "id": "p-mint",
+  "name": "파스텔 민트",
+  "g": "p",
+  "l": {
+   "a": "#AEE5CC",
+   "on": "#0D4A33",
+   "soft": "#E8F8F0",
+   "ink": "#167552",
+   "mark": "#74D0A8"
+  },
+  "d": {
+   "a": "#AEE5CC",
+   "on": "#0A3B28",
+   "soft": "#1F3A31",
+   "ink": "#AEE5CC",
+   "mark": "#AEE5CC"
+  }
+ },
+ {
+  "id": "p-sky",
+  "name": "파스텔 하늘",
+  "g": "p",
+  "l": {
+   "a": "#B8D8FA",
+   "on": "#123C6B",
+   "soft": "#EBF4FE",
+   "ink": "#2362AE",
+   "mark": "#88BAF1"
+  },
+  "d": {
+   "a": "#B8D8FA",
+   "on": "#0E3158",
+   "soft": "#203248",
+   "ink": "#B8D8FA",
+   "mark": "#B8D8FA"
+  }
+ },
+ {
+  "id": "p-lavender",
+  "name": "파스텔 보라",
+  "g": "p",
+  "l": {
+   "a": "#D2C4F8",
+   "on": "#36216F",
+   "soft": "#F3EFFE",
+   "ink": "#6646C0",
+   "mark": "#B09BEF"
+  },
+  "d": {
+   "a": "#D2C4F8",
+   "on": "#2B1A5C",
+   "soft": "#2E2748",
+   "ink": "#D2C4F8",
+   "mark": "#D2C4F8"
+  }
+ }
+]

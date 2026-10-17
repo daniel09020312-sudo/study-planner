@@ -1,0 +1,17 @@
+import sys
+sys.path.insert(0,'/home/claude/planner/tools')
+from rig import *
+R=Rig();p=R.open();close_dlg(p)
+st=lambda expr:p.evaluate('()=>'+expr)
+click(p,'[data-tab="chat"]',700);click(p,'[data-act="chan"][data-id="m2"]',700)
+p.fill('#msgInput','첫 메시지');p.keyboard.press('Enter');p.wait_for_timeout(400)
+print('after plain send value:',repr(st("document.getElementById('msgInput').value")))
+mine=st("[...document.querySelectorAll('#msgList .mrowx.mine')].pop().id.slice(2)")
+click(p,'#m-'+mine+' .bb');click(p,'[data-act="msg-edit"]')
+p.fill('#msgInput','고친 메시지')
+print('before send: active=',st("document.activeElement.id"),'inputs=',st("document.querySelectorAll('#msgInput').length"))
+click(p,'[data-act="msg-send"]',50)
+print('50ms after:',repr(st("document.getElementById('msgInput').value")),'| cinrow:',st("document.querySelector('.cinrow').className"),'| children:',st("[...document.querySelector('.cinrow').children].map(e=>e.tagName+(e.id?'#'+e.id:'')).join(',')"))
+p.wait_for_timeout(500)
+print('550ms after:',repr(st("document.getElementById('msgInput').value")))
+R.close()
