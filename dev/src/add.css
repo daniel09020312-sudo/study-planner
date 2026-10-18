@@ -596,4 +596,10 @@ td.today .schc:not(.f){background:color-mix(in srgb,var(--accent) 6%,var(--fill)
 .wkc.over{background-color:color-mix(in srgb,var(--accent) 8%,transparent)}
 .wkc.no{opacity:.4}
 html.wkdragging,html.wkdragging *{cursor:grabbing !important}
+.wkedge{position:fixed;z-index:79;width:44px;display:none;flex-direction:column;align-items:center;justify-content:center;gap:4px;border:2px dashed var(--accent);border-radius:12px;background:color-mix(in srgb,var(--accent) 10%,var(--surface));color:var(--accent-ink);font-size:12px;font-weight:700;pointer-events:none;overflow:hidden;box-shadow:0 8px 20px -10px rgba(0,0,0,.35)}
+.wkedge.on{display:flex;animation:fadeIn .15s ease both}
+.wkedge span{writing-mode:vertical-rl;letter-spacing:.12em;position:relative;z-index:1}
+.wkedge b{font-size:20px;line-height:1;position:relative;z-index:1}
+.wkedge::after{content:'';position:absolute;inset:0;background:color-mix(in srgb,var(--accent) 26%,transparent);transform:scaleY(0);transform-origin:bottom;transition:transform .12s}
+.wkedge.arm::after{transform:scaleY(1);transition:transform .52s linear}
 .wki.lifting,.ttb.lifting{filter:opacity(.3)}

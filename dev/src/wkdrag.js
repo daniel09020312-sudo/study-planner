@@ -20,10 +20,70 @@ function wdCancel(){if(!WD)return;clearTimeout(WD.timer);clearTimeout(WD.pt);if(
 function wdEnd(){
   if(!WD)return;cancelAnimationFrame(WD.raf);clearTimeout(WD.timer);clearTimeout(WD.pt);
   if(WD.gh)WD.gh.remove();if(WD.ph)WD.ph.remove();
+  if(WD.edges){WD.edges[-1].remove();WD.edges[1].remove();WD.edges=null;WD.er=null;}
   if(WD.src)WD.src.classList.remove('lifting','press');
   var cs=document.querySelectorAll('.wkc.over,.wkc.no');for(var i=0;i<cs.length;i++)cs[i].classList.remove('over','no');
   document.documentElement.classList.remove('wkdragging');
   S.drag=false;window.__ttDragEnd=Date.now();
+}
+function wdMarkPast(){
+  var t=today(),cs=document.querySelectorAll('.wkc[data-d]');
+  for(var i=0;i<cs.length;i++){var cd=cs[i].getAttribute('data-d');if(cd<t&&cd!==WD.d)cs[i].classList.add('no');}
+}
+/* 끄는 중에 주 바꾸기: 달력 양쪽 끝에 잠깐 대고 있으면 이전 주, 다음 주로 넘어간다 */
+var WD_DWELL=520;
+function wdCanFlip(dir){
+  var ws=S.alWeek,nw=alClamp(addDays(ws,7*dir));
+  if(nw===ws)return false;
+  if(dir<0&&addDays(nw,6)<today())return false;
+  return true;
+}
+function wdEdges(){
+  WD.edges={};WD.er={};
+  [-1,1].forEach(function(dir){
+    var e=document.createElement('div');e.className='wkedge '+(dir>0?'r':'l');e.setAttribute('aria-hidden','true');
+    e.innerHTML=dir>0?'<span>다음 주</span><b>&rsaquo;</b>':'<b>&lsaquo;</b><span>이전 주</span>';
+    document.body.appendChild(e);WD.edges[dir]=e;
+  });
+  wdEdgeUpdate();
+}
+function wdEdgeUpdate(){
+  if(!WD||!WD.edges)return;
+  var sc=WD.sc||document.querySelector('.wkscroll'),W=window.innerWidth||1000,H=window.innerHeight||800;
+  [-1,1].forEach(function(dir){
+    var e=WD.edges[dir],show=false,r=null;
+    if(sc&&document.body.contains(sc)&&wdCanFlip(dir)){
+      var b=sc.getBoundingClientRect(),can=sc.scrollWidth>sc.clientWidth+2;
+      var atEnd=!can||(dir>0?sc.scrollLeft+sc.clientWidth>=sc.scrollWidth-2:sc.scrollLeft<=1);
+      var top=Math.max(b.top,8),bot=Math.min(b.bottom,H-8);
+      if(atEnd&&bot-top>40){
+        if(bot-top<140){var mid=(top+bot)/2;top=Math.max(8,mid-70);bot=Math.min(H-8,mid+70);}
+        var left=dir>0?Math.min(b.right,W)-44:Math.max(b.left,0);
+        r={l:left,t:top,r:left+44,b:bot};show=true;
+      }
+    }
+    WD.er[dir]=r;
+    if(show){e.style.left=r.l+'px';e.style.top=r.t+'px';e.style.height=(r.b-r.t)+'px';}
+    if(e.classList.contains('on')!==show)e.classList.toggle('on',show);
+    if(!show)e.classList.remove('arm');
+  });
+}
+function wdInEdge(){
+  if(!WD||!WD.er)return 0;
+  for(var k=-1;k<=1;k+=2){var r=WD.er[k];if(r&&WD.x>=r.l-6&&WD.x<=r.r+6&&WD.y>=r.t&&WD.y<=r.b)return k;}
+  return 0;
+}
+function wdFlip(dir){
+  var ow=S.alWeek,nw=alClamp(addDays(ow,7*dir));if(nw===ow)return;
+  if(WD.ph&&WD.ph.parentNode)WD.ph.remove();
+  var prev=document.querySelector('.wkc.over');if(prev)prev.classList.remove('over');
+  S.alWeek=nw;S.vbDir=dir;S.drag=false;render();S.drag=true;
+  var sc=document.querySelector('.wkscroll');WD.sc=sc;
+  if(sc&&sc.scrollWidth>sc.clientWidth+2)sc.scrollLeft=dir>0?0:sc.scrollWidth;
+  var s2=document.getElementById('wi-'+WD.id);
+  if(s2&&s2.getAttribute('data-d')===WD.d){WD.src=s2;s2.classList.add('lifting');}
+  wdMarkPast();WD.tgt=null;
+  if(navigator.vibrate)try{navigator.vibrate(8);}catch(e){}
 }
 function wdStart(){
   var src=WD.src;clearTimeout(WD.timer);clearTimeout(WD.pt);src.classList.remove('press');
@@ -35,8 +95,7 @@ function wdStart(){
   document.body.appendChild(gh);WD.gh=gh;WD.h=r.height;
   var ph=document.createElement('div');ph.className='wkph';ph.style.height=r.height+'px';WD.ph=ph;
   src.classList.add('lifting');
-  var t=today(),cs=document.querySelectorAll('.wkc[data-d]');
-  for(var i=0;i<cs.length;i++){var cd=cs[i].getAttribute('data-d');if(cd<t&&cd!==WD.d)cs[i].classList.add('no');}
+  wdMarkPast();wdEdges();
   requestAnimationFrame(function(){if(WD&&WD.gh)WD.gh.classList.add('up');});
   wdAuto();wdMove();
 }
@@ -46,6 +105,7 @@ function wdMove(){
   var cell=null,els=document.elementsFromPoint?document.elementsFromPoint(WD.x,WD.y):[];
   for(var i=0;i<els.length;i++){var c=els[i].closest&&els[i].closest('.wkc[data-d]');if(c){cell=c;break;}}
   if(cell&&cell.classList.contains('no'))cell=null;
+  if(wdInEdge())cell=null;
   var prev=document.querySelector('.wkc.over');if(prev&&prev!==cell)prev.classList.remove('over');
   if(!cell){if(WD.ph.parentNode)WD.ph.remove();WD.tgt=null;return;}
   cell.classList.add('over');
@@ -65,6 +125,12 @@ function wdAuto(){
   if(sc&&sc.scrollWidth>sc.clientWidth+2){var r=sc.getBoundingClientRect();
     if(WD.x<r.left+40)dx=-Math.min(16,Math.ceil((r.left+40-WD.x)/3));else if(WD.x>r.right-40)dx=Math.min(16,Math.ceil((WD.x-(r.right-40))/3));
     if(dx){var x0=sc.scrollLeft;sc.scrollLeft+=dx;if(sc.scrollLeft!==x0)wdMove();}}
+  wdEdgeUpdate();
+  var ed=wdInEdge(),now=Date.now();
+  if(ed&&now>(WD.cool||0)){
+    if(!WD.fz||WD.fz.dir!==ed){if(WD.fz&&WD.edges[WD.fz.dir])WD.edges[WD.fz.dir].classList.remove('arm');WD.fz={dir:ed,t:now};WD.edges[ed].classList.add('arm');wdMove();}
+    else if(now-WD.fz.t>=WD_DWELL){WD.edges[ed].classList.remove('arm');WD.fz=null;WD.cool=now+380;wdFlip(ed);wdEdgeUpdate();wdMove();}
+  }else if(!ed&&WD.fz){if(WD.edges[WD.fz.dir])WD.edges[WD.fz.dir].classList.remove('arm');WD.fz=null;}
   WD.raf=requestAnimationFrame(wdAuto);
 }
 function wdDrop(){
