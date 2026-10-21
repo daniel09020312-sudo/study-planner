@@ -3,20 +3,24 @@
 # ㅁ 쓰는 순서: 왼쪽 세로 -> 위와 오른쪽(ㄱ) -> 아래. 그다음 머리줄, 고리 둘, 마지막에 체크.
 # 납작붓처럼 지나가는 방향에 따라 굵기가 바뀌고, 처음엔 눌러 시작해 끝은 가늘게 뺀다.
 # 다 그리고 앱도 준비되면, 달력 테두리 안쪽이 뚫리며 앱 화면이 보이고 그림이 커지면서 화면 전체로 열린다.
+# 앱을 새로 켤 때만 그린다. 같은 사용 중에 다시 읽힐 때(sessionStorage gbb_sp)는 바로 연다.
 # 화면 전체를 덮는 막(spcur)에 달력 안쪽 모양의 구멍이 있고, 그림과 막을 같이 키운다.
 _HOLE = 'M176 138 H336 A58 58 0 0 1 394 196 V338 A58 58 0 0 1 336 396 H176 A58 58 0 0 1 118 338 V196 A58 58 0 0 1 176 138 Z'
 _SP_HTML = """<div id="splash" role="status" aria-label="공부방을 여는 중"><svg class="spcv" aria-hidden="true"><defs><clipPath id="sp-cc"><rect x="112" y="132" width="288" height="270" rx="58"/></clipPath><filter id="sp-rough" x="-15%" y="-15%" width="130%" height="130%"><feTurbulence type="fractalNoise" baseFrequency="0.05" numOctaves="2" seed="4"/><feDisplacementMap in="SourceGraphic" scale="6" xChannelSelector="R" yChannelSelector="G"/></filter></defs><g class="spg"><path class="spcur" fill-rule="evenodd" d="M-30000 -30000H30000V30000H-30000Z HOLE"/><path class="sphole" d="HOLE"/><g clip-path="url(#sp-cc)"><rect class="spwash" x="112" y="132" width="288" height="80"/></g><g class="spink" filter="url(#sp-rough)"></g></g></svg><small class="spw">불러오는 중</small></div>
 <script>
 (function(){
 var sp0=document.getElementById('splash');if(!sp0)return;
-var TPL=sp0.outerHTML,NS='http://www.w3.org/2000/svg';
+// 같은 사용 중에 다시 읽힐 때(다른 앱에 있다가 돌아와 휴대폰이 화면을 새로 읽는 경우, 방 옮기기)는 그리지 않고 바로 연다
+var seen=false;try{seen=sessionStorage.getItem('gbb_sp')==='1';sessionStorage.setItem('gbb_sp','1');}catch(e){}
+if(seen){sp0.parentNode.removeChild(sp0);return;}
+var NS='http://www.w3.org/2000/svg';
 var red=false;try{red=window.matchMedia('(prefers-reduced-motion: reduce)').matches;}catch(e){}
 function out(t){return 1-Math.pow(1-t,3);}
 function sine(t){return .5-.5*Math.cos(Math.PI*t);}
 function seg(t,a,b){var x=(t-a)/(b-a);return x<0?0:x>1?1:x;}
 function press(a,inn,o,end){return function(t){return t<inn?a+(1-a)*out(t/inn):t>1-o?1-(1-end)*sine((t-(1-o))/o):1;};}
-function run(sp,again){
-var st=window.__sp={done:false,ready:!!again};
+function run(sp){
+var st=window.__sp={done:false,ready:false};
 var svg=sp.querySelector('.spcv'),g=sp.querySelector('.spg'),ink=sp.querySelector('.spink'),wash=sp.querySelector('.spwash'),hole=sp.querySelector('.sphole');
 var S0=.36,CX=256,CY=262;
 var DIM=null;function dims(){var r=svg.getBoundingClientRect();DIM=[r.width||window.innerWidth,r.height||window.innerHeight];}
@@ -84,16 +88,9 @@ try{
   // 앱 코드가 다 읽힌 뒤(DOMContentLoaded) 그리기 시작. 화면이 멈춘 동안은 그림도 멈춰서 건너뛰지 않는다
   var start=function(){requestAnimationFrame(loop);};
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){setTimeout(start,0);});else start();
-}catch(e){st.done=true;st.reveal=kill;if(again)kill();}
+}catch(e){st.done=true;st.reveal=kill;}
 }
 run(sp0,false);
-// 다른 앱에 5분 넘게 있다가 돌아오면(홈 화면 앱은 다시 읽지 않고 이어서 열림) 그림을 한 번 더 그리고 지금 화면을 연다
-if(!red){var hidAt=0;document.addEventListener('visibilitychange',function(){
-  if(document.hidden){hidAt=Date.now();return;}
-  var away=hidAt?Date.now()-hidAt:0;hidAt=0;if(away<300000||document.getElementById('splash'))return;
-  var ae=document.activeElement;if(ae&&/^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName))return;
-  var box=document.createElement('div');box.innerHTML=TPL;var el=box.firstChild;el.setAttribute('data-out','1');document.body.insertBefore(el,document.body.firstChild);run(el,true);
-});}
 })();
 </script>""".replace('HOLE', _HOLE)
 sub("<body>", "<body>\n" + _SP_HTML)
@@ -121,6 +118,7 @@ sub("</style>", """#splash{position:fixed;inset:0;z-index:200;overflow:hidden;-w
 .spw{position:absolute;left:0;right:0;top:calc(50% + 74px);text-align:center;font-size:12.5px;color:var(--ink-3);opacity:0;transition:opacity .3s}
 #splash.wait .spw{opacity:1;animation:spBreath 1.4s ease-in-out .3s infinite}
 @keyframes spBreath{0%,100%{opacity:1}50%{opacity:.35}}
+.loading{display:flex;align-items:center;justify-content:center;min-height:60vh;padding:0 !important;font-size:14px;color:var(--ink-3) !important}
 @media (prefers-reduced-motion:reduce){#splash.wait .spw{animation:none}}
 </style>""")
 # 설정 맨 아래에 이 판을 만든 시각: 휴대폰이 새 판을 받았는지 확인할 때 본다
