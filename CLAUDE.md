@@ -6,7 +6,8 @@ Cloudflare Pages가 `main`의 `public/` 폴더를 study-planner-2tk.pages.dev �
 ## 사용자와 일하는 방식
 - 한국어로 짧게 답하고 이모티콘은 쓰지 않는다.
 - 고쳐 달라는 요청은 수정, 테스트, `main`에 push, 배포 확인까지 바로 한다.
-- 같은 앱의 Claude 아티팩트 판(capabilities db, user)도 함께 맞춘다. 아티팩트 주소는 사용자에게 확인한다.
+- 고칠 때는 웹사이트(GitHub, Cloudflare)만 반영한다. 같은 앱의 Claude 아티팩트 판(capabilities db, user)은 사용자가 말할 때만 맞춘다(올릴 때마다 허용을 눌러야 해서). 아티팩트 주소는 사용자에게 확인한다.
+- Cloudflare 무료 요금제는 한 번에 하나씩 배포하고(20분 넘으면 실패), 한 달 500번까지다. 여러 수정은 모아서 한 번에 push한다.
 
 ## 폴더
 - `public/` 배포되는 파일(빌드 결과). index.html, manifest.webmanifest, 아이콘, stickers/
