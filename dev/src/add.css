@@ -759,3 +759,18 @@ html.wkdragging,html.wkdragging *{cursor:grabbing !important}
 .abin input[type=text]{width:64px;min-height:34px;padding:6px 8px;font-size:14px;text-align:center;border-radius:9px}
 .calleg .lg .sev{font-size:10.5px}
 .lgbtn{margin-left:auto}
+/* 과목 색 고르기 */
+.scrow{align-items:center}
+.scctl{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.scbtn{display:inline-flex;align-items:center;gap:6px}
+.scbtn i{width:12px;height:12px;border-radius:50%}
+.scrow.open{background:color-mix(in srgb,var(--fill) 60%,transparent);border-radius:12px;padding:10px 10px;margin:4px -10px}
+.scpal{flex-basis:100%;display:grid;gap:10px;padding:6px 0 2px}
+.spg small{display:block;font-size:12px;color:var(--ink-3);margin-bottom:5px}
+.spg .sws{display:flex;flex-wrap:wrap;gap:6px}
+.sccustom{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.scpick{width:44px;height:36px;padding:0;border:0;border-radius:10px;background:none;cursor:pointer}
+.hexin{width:104px !important;min-height:36px !important;padding:6px 10px !important;font:600 14px ui-monospace,SFMono-Regular,Menlo,monospace !important;text-transform:uppercase;border-radius:10px !important}
+.uck.on{color:var(--fg,#fff)}
+.sev{color:color-mix(in srgb,var(--sc) 58%,var(--ink))}
+.evrow.sv .tag.sub{color:color-mix(in srgb,var(--sc) 58%,var(--ink))}
