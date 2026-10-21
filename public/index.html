@@ -3746,6 +3746,8 @@ function makeRoom(){
 function isStandalone(){try{return window.matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;}catch(e){return false;}}
 function a2hsKind(){
   var ua=navigator.userAgent||'',ios=/iPhone|iPad|iPod/.test(ua)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+  // 아이폰, 아이패드의 카톡은 아래 공유 버튼에서 바로 홈 화면에 추가할 수 있다
+  if(ios&&/KAKAOTALK/i.test(ua))return 'ios-kakao';
   if(/KAKAOTALK|FBAN|FBAV|Instagram|NAVER\(|Line\//i.test(ua))return 'inapp';
   if(ios)return /GSA\//.test(ua)?'ios-google':/CriOS/.test(ua)?'ios-chrome':'ios-safari';
   if(/Android/.test(ua))return 'android';
@@ -3777,6 +3779,7 @@ function a2Pic(k){
 function a2hsSteps(k){
   return {
     'inapp':[['menu','오른쪽 아래나 위의 <b>메뉴</b> 누르기'],['openrow','<b>다른 브라우저로 열기</b> 누르기'],['code','열린 화면에서 <b>참여 코드</b> 다시 넣기']],
+    'ios-kakao':[['share','아래쪽 <b>공유 버튼</b> 누르기'],['more','<b>더 보기</b> 누르기'],['addrow','<b>홈 화면에 추가</b> 누르기'],['add','오른쪽 위 <b>추가</b> 누르기']],
     'ios-google':[['share','<b>공유 버튼</b> 누르기'],['more','<b>더 보기</b> 누르기'],['addrow','<b>홈 화면에 추가</b> 누르기'],['add','오른쪽 위 <b>추가</b> 누르기']],
     'ios-chrome':[['share','주소창 오른쪽 <b>공유 버튼</b> 누르기'],['addrow','<b>홈 화면에 추가</b> 누르기'],['add','오른쪽 위 <b>추가</b> 누르기']],
     'ios-safari':[['share','<b>공유 버튼</b> 누르기'],['addrow','<b>홈 화면에 추가</b> 누르기'],['add','오른쪽 위 <b>추가</b> 누르기']],
@@ -3789,6 +3792,7 @@ function modalA2HS(V){
   var b='<ol class="a2steps">'+st.map(function(x,i){return '<li><span class="a2n">'+(i+1)+'</span>'+a2Pic(x[0])+'<span class="a2t">'+x[1]+'</span></li>';}).join('')+'</ol>';
   if(k==='inapp')b='<p class="hint" style="margin-bottom:12px">카톡 안에서는 앱으로 추가할 수 없습니다.</p>'+b;
   else if(k==='ios-google')b='<p class="hint" style="margin-bottom:12px">구글 앱에서는 이 순서로 눌러야 합니다.</p>'+b;
+  else if(k==='ios-kakao')b='<p class="hint" style="margin-bottom:12px">카톡에서는 이 순서로 눌러야 합니다.</p>'+b;
   if(k!=='inapp')b+='<p class="hint">'+(ios?'이제 홈 화면의 공부방 아이콘으로 여세요. 처음 열 때 참여 코드를 한 번 더 넣습니다.':'이제 홈 화면의 공부방 아이콘으로 여세요.')+'</p>';
   b+='<div class="row" style="margin-top:14px"><button class="btn primary" data-act="modal-close">확인</button></div>';
   return dlg('',{id:'a2hs',t:k==='inapp'?'다른 브라우저로 열어 주세요':'앱으로 추가하기'},b);

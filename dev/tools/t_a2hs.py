@@ -180,7 +180,9 @@ UAS = {'pc': None,
        'ios-chrome': 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/126.0.6478.54 Mobile/15E148 Safari/604.1',
        'ios-google': 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) GSA/380.0.775424683 Mobile/15E148 Safari/604.1',
        'android': 'Mozilla/5.0 (Linux; Android 14; SM-S918N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Mobile Safari/537.36',
-       'kakao': 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 KAKAOTALK 10.8.0'}
+       'kakao': 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 KAKAOTALK 10.8.0',
+       'kakao-ipad': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 KAKAOTALK 10.8.0',
+       'kakao-and': 'Mozilla/5.0 (Linux; Android 14; SM-S918N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Mobile Safari/537.36 KAKAOTALK 10.8.0'}
 def closeall(pg, keep='a2hs'):
     for _ in range(6):
         pg.wait_for_timeout(700)
@@ -188,6 +190,7 @@ def closeall(pg, keep='a2hs'):
         if not d and pg.evaluate("()=>!!document.querySelector('#dlg-a2hs')"): return
 for k, ua in UAS.items():
     c, P = newpage(w=390 if k != 'pc' else 1180, h=844 if k != 'pc' else 820, ua=ua)
+    if k == 'kakao-ipad': P.add_init_script("Object.defineProperty(navigator,'platform',{get:()=>'MacIntel'});Object.defineProperty(navigator,'maxTouchPoints',{get:()=>5});")
     P.goto(SITE + '#join=' + TOK, wait_until='commit'); P.wait_for_timeout(1300)
     inapp = P.evaluate("()=>(document.querySelector('.jinapp')||{}).textContent||''")
     P.locator('#joinCode').type('482913', delay=30); P.wait_for_timeout(2200)
@@ -195,7 +198,7 @@ for k, ua in UAS.items():
     P.wait_for_timeout(2200); closeall(P)
     t = P.evaluate("()=>{const d=document.querySelector('#dlg-a2hs');return d?d.querySelector('h2').textContent+' / '+[...d.querySelectorAll('.a2steps li')].map(l=>l.textContent).join(' > ')+' / '+((d.querySelector('.db > .hint:last-of-type')||{}).textContent||''):'none'}")
     print(k.ljust(10), '| join note:', inapp[:30] or '-', '|', t)
-    if k in ('ios-chrome','ios-google','android','kakao'): P.screenshot(path=SH + 'a2hs_' + k + '.png')
+    if k in ('ios-chrome','ios-google','android','kakao','kakao-and'): P.screenshot(path=SH + 'a2hs_' + k + '.png')
     P.evaluate("()=>{const b=document.querySelector('#dlg-a2hs [data-act=\"modal-close\"]');if(b)b.click();}"); P.wait_for_timeout(600)
     P.reload(wait_until='commit'); P.wait_for_timeout(2500); closeall(P, keep='none')
     P.wait_for_timeout(1800)
