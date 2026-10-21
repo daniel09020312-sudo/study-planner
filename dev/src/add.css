@@ -737,3 +737,6 @@ html.wkdragging,html.wkdragging *{cursor:grabbing !important}
 .seg.mini.pmode,.seg.mini.upf{flex:none;width:auto;margin:0;min-width:0;grid-template-columns:none}
 .seg.mini.pmode button,.seg.mini.upf button{padding:0 12px;white-space:nowrap}
 .seg.mini.upf button{height:28px;font-size:12.5px;padding:0 9px}
+.fincd b{flex:none;white-space:nowrap}
+.finbk b{white-space:nowrap}
+.finme .finbk b small{display:inline;margin:0 0 0 2px}
