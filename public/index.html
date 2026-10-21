@@ -1306,6 +1306,31 @@ html.wkdragging,html.wkdragging *{cursor:grabbing !important}
 .rln b{display:block;font-size:14px;font-weight:700;line-height:1.35}
 .rln small{display:block;margin-top:2px;font-size:12.5px;line-height:1.5;color:var(--ink-3)}
 .rlp{flex:none;font-style:normal;font-size:13px;font-weight:800;color:var(--accent-ink);background:var(--accent-soft);padding:4px 9px;border-radius:999px;white-space:nowrap;font-variant-numeric:tabular-nums}
+/* 학교 시간표: 선생님/장소 둘째 줄, 연달아 있는 수업 이어 붙이기 (v28) */
+.schc{flex-direction:column;gap:1px;height:52px}
+.schc small{display:block;max-width:100%;font-size:10.5px;font-weight:500;color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.schc .cn{font-size:11px;font-weight:600;color:var(--ink-3)}
+.schc span.m{-webkit-line-clamp:1;line-clamp:1}
+.schc small+small{margin-top:-1px}
+.schc.jn{height:56px;margin-bottom:-4px;border-bottom-left-radius:0;border-bottom-right-radius:0}
+.schc.cont{border-top-left-radius:0;border-top-right-radius:0}
+@media (max-width:520px){.schc{height:50px}.schc.jn{height:53px;margin-bottom:-3px}.schc small{font-size:9.5px}}
+.schmeta{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.schmeta .lb{margin-top:0}
+.schmeta input{width:100%}
+.schcombo{margin-top:10px}
+.schcombo small{display:block;font-size:12px;color:var(--ink-3);margin-bottom:6px}
+@media (max-width:420px){.schmeta{grid-template-columns:1fr}}
+/* 수업 알림 줄 (v28) */
+.notice.schnow{display:flex;align-items:center;flex-wrap:wrap;gap:4px 10px;padding:10px 20px;background:color-mix(in srgb,var(--sc) 14%,var(--surface));color:var(--ink);font-size:14px;box-shadow:inset 4px 0 0 var(--sc)}
+.schnow .snl{font-size:12px;font-weight:700;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.schnow .snp{font-weight:800;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.schnow .sns{font-weight:800}
+.schnow .sns small{margin-left:5px;font-size:12.5px;font-weight:600;color:var(--ink-2)}
+.schnow .snr{display:inline-flex;align-items:center;gap:6px;color:var(--ink-2)}
+.schnow .snr::before{content:'';width:4px;height:4px;border-radius:50%;background:currentColor;opacity:.6}
+.schnow .snx{font-size:12px;font-weight:600;padding:2px 7px;border-radius:999px;background:color-mix(in srgb,var(--sc) 22%,var(--surface));color:var(--ink-2)}
+.schpick input[type=text]{background:var(--surface)}
 #splash{position:fixed;inset:0;z-index:200;overflow:hidden;-webkit-tap-highlight-color:transparent}
 .spcv{position:absolute;inset:0;display:block;width:100%;height:100%;overflow:visible}
 .spcur,.sphole{fill:var(--bg)}
@@ -2091,7 +2116,7 @@ function goalRow(V,date,mode,day,x,isT){
     var t=today(),a='';
     if(mode==='view'){a+='<button class="btn small soft" data-act="g-today" data-date="'+date+'" data-id="'+esc(x.id)+'">오늘로 가져오기</button>';}
     else{
-      if(date>=t)a+='<button class="btn small" data-act="g-edit" data-date="'+date+'" data-id="'+esc(x.id)+'">수정</button>';
+      if(date>=t)a+='<button class="btn small" data-act="g-edit" data-date="'+date+'" data-id="'+esc(x.id)+'">수정</button><button class="btn small" data-act="g-detail" data-date="'+date+'" data-id="'+esc(x.id)+'">상세 편집</button>';
       if(!x.done){a+='<button class="btn small" data-act="g-tomorrow" data-date="'+date+'" data-id="'+esc(x.id)+'">'+(date<t?'오늘로':'다음 날로')+'</button>';
         a+='<label class="gdate"><span>다른 날에도 넣기</span><input type="date" data-chg="g-copy" data-date="'+date+'" data-id="'+esc(x.id)+'" min="'+t+'" max="'+CAL_MAX+'" value="" aria-label="복사해 넣을 날짜"></label>';
         a+='<label class="gdate"><span>날짜 바꾸기</span><input type="date" data-chg="g-move" data-date="'+date+'" data-id="'+esc(x.id)+'" min="'+t+'" max="'+CAL_MAX+'" value="'+date+'" aria-label="옮길 날짜"></label>';}
@@ -2853,21 +2878,75 @@ document.addEventListener('touchmove',function(e){if(DR&&DR.on)e.preventDefault(
 document.addEventListener('contextmenu',function(e){if(DR)e.preventDefault();});
 
 /* ---------- 학교 시간표 ---------- */
-var SCH_DEF=[[520,570],[580,630],[640,690],[700,750],[810,860],[870,920],[930,980]];
+// 칸: {s:과목 id} 또는 {t:직접 쓴 이름}, 선택으로 tc(선생님), r(장소)
+// 같은 과목을 선생님 두 분이 나눠 하면 칸마다 선생님을 적고, 시간표와 수업 알림에 선생님 이름을 같이 보인다
+// 같은 수업이 연달아 있으면(쉬는 시간 20분 이하) 시간표에서 이어 붙여 보이고, 알림은 첫 교시 앞에 한 번만 낸다
+var SCH_DEF=[[510,560],[570,620],[630,680],[690,740],[810,860],[870,920],[930,980]];
+var SCH_OLD=[[520,570],[580,630],[640,690],[700,750],[810,860],[870,920],[930,980]];
 var SCH_QUICK=['창체','자습','동아리','진로'];
 var SCH_DAYS=[1,2,3,4,5];
 function schOf(V,mid){
   var t=obj(obj(V.progress[mid]).tt),s=obj(t.sch),w=obj(s.w);
   var p=arr(s.p).filter(function(x){return x&&+x.e>+x.s;}).map(function(x){return {s:+x.s,e:+x.e};});
+  // 예전 기본 시간(8:40 시작)을 그대로 두었으면 지금 기본 시간(8:30 시작)으로 본다
+  if(p.length===SCH_OLD.length&&p.every(function(x,i){return x.s===SCH_OLD[i][0]&&x.e===SCH_OLD[i][1];}))p=[];
   var has=Object.keys(w).some(function(k){return Object.keys(obj(w[k])).length>0;});
   return {p:p.length?p:SCH_DEF.map(function(x){return {s:x[0],e:x[1]};}),w:w,has:has};
 }
 function schCell(V,sch,dw,i){
-  var c=obj(obj(sch.w[dw])['p'+i]);
-  if(c.s&&V.subName[c.s])return {sid:c.s,name:V.subName[c.s]};
-  if(c.t)return {t:String(c.t),name:String(c.t)};
+  var c=obj(obj(sch.w[dw])['p'+i]),o=null;
+  if(c.s&&V.subName[c.s])o={sid:c.s,name:V.subName[c.s]};
+  else if(c.t)o={t:String(c.t),name:String(c.t)};
+  if(o){o.tc=String(c.tc||'').trim();o.r=String(c.r||'').trim();o.key=o.sid?'s:'+o.sid:'t:'+o.t;}
+  return o;
+}
+function schSame(a,b){return !!(a&&b&&a.key===b.key&&a.tc===b.tc&&a.r===b.r);}
+function schJoin(sch,i){var a=sch.p[i-1],b=sch.p[i];return !!(a&&b&&b.s-a.e<=20);}
+function schEach(V,sch,fn){SCH_DAYS.forEach(function(d){sch.p.forEach(function(p,i){var c=schCell(V,sch,d,i);if(c)fn(c,d,i);});});}
+function schTeachers(V,sch,key){var m={};schEach(V,sch,function(c){if(c.key===key&&c.tc)m[c.tc]=1;});return Object.keys(m);}
+function schCombos(V,sch,key){var m={},out=[];schEach(V,sch,function(c){if(c.key!==key||(!c.tc&&!c.r))return;var k=c.tc+'|'+c.r;if(!m[k]){m[k]=1;out.push({tc:c.tc,r:c.r});}});return out;}
+function schBlocks(V,sch,dw){
+  var out=[],cur=null;
+  sch.p.forEach(function(p,i){
+    var c=schCell(V,sch,dw,i);if(!c){cur=null;return;}
+    if(cur&&schSame(cur.c,c)&&schJoin(sch,i)){cur.j=i;cur.e=p.e;return;}
+    cur={i:i,j:i,c:c,s:p.s,e:p.e};out.push(cur);
+  });
+  return out;
+}
+/* 수업 알림: 수업 시작 전 정각부터 시작하고 10분 뒤까지 과목과 장소 */
+function schNow(V,now){
+  if(!V||!V.me||!S.ready)return null;
+  var sch=schOf(V,V.me);if(!sch.has)return null;
+  var d=new Date(now),dw=d.getDay();if(dw<1||dw>5)return null;
+  var ds=fd(d),ev=typeof EVENTS!=='undefined'?EVENTS[ds]:null;if(ev&&ev.off)return null;
+  var m=d.getHours()*60+d.getMinutes(),bl=schBlocks(V,sch,dw);
+  for(var k=0;k<bl.length;k++){var b=bl[k],from=Math.floor((b.s-1)/60)*60;if(m>=from&&m<b.s+10)return {b:b,now:m>=b.s,ds:ds};}
   return null;
 }
+function schNowHtml(V){
+  var x=schNow(V,Date.now());if(!x)return '';
+  var b=x.b,c=b.c,multi=schTeachers(V,schOf(V,V.me),c.key).length>1,col=c.sid?subCol(V,c.sid):SGRAY;
+  var per=(b.i+1)+(b.j>b.i?'~'+(b.j+1):'')+'교시';
+  return '<div class="notice schnow" role="status" style="--sc:'+col+'"><span class="snl">'+(x.now?'지금 수업':fmtHM(b.s)+' 시작')+'</span><b class="snp">'+per+'</b><b class="sns">'+esc(c.name)+(multi&&c.tc?'<small>'+esc(c.tc)+'</small>':'')+'</b>'+(c.r?'<span class="snr">'+esc(c.r)+'</span>':'')+(b.j>b.i?'<span class="snx">'+(b.j-b.i+1)+'시간 연속</span>':'')+'</div>';
+}
+function schNowKey(V){var x=schNow(V,Date.now());return x?x.ds+'|'+x.b.i+'|'+(x.now?1:0)+'|'+x.b.c.key+'|'+x.b.c.tc+'|'+x.b.c.r+'|'+x.b.j:'';}
+function schTick(){var k=schNowKey(V0);if(k!==S.schNowK){S.schNowK=k;paintBanner();}}
+function schMetaSet(d,i,k,v){
+  var V=view();if(!V.me||!canWrite())return;
+  var c=obj(obj(schOf(V,V.me).w[d])['p'+i]);if(!c.s&&!c.t)return;if(String(c[k]||'')===v)return;
+  editSch(function(s){var w=obj(s.w[d]),cc=clone(obj(w['p'+i]));if(!cc.s&&!cc.t)return;if(v)cc[k]=v;else delete cc[k];w['p'+i]=cc;s.w[d]=w;});
+}
+function schMetaFromInputs(sel){
+  if(!sel)return;
+  ['tc','r'].forEach(function(k){var el=document.getElementById('sch'+(k==='tc'?'Tc':'R')+'-'+sel.d+'-'+sel.i);if(el)schMetaSet(sel.d,sel.i,k,String(el.value||'').trim().slice(0,k==='tc'?10:16));});
+}
+// 선생님, 장소 칸은 입력이 끝났을 때(포커스가 빠질 때) 저장한다
+document.addEventListener('change',function(e){
+  var t=e.target;if(!t||!t.classList||!t.classList.contains('schf'))return;
+  var d=+t.getAttribute('data-d'),i=+t.getAttribute('data-i'),k=t.getAttribute('data-k'),v=String(t.value||'').trim().slice(0,k==='tc'?10:16);
+  setTimeout(function(){schMetaSet(d,i,k,v);},0);
+});
 function editSch(fn){
   editTT(function(T){
     var s=clone(obj(T.sch));s.p=arr(s.p).filter(function(x){return x&&+x.e>+x.s;});s.w=obj(s.w);
@@ -2894,9 +2973,13 @@ function modalSchool(V){
   sch.p.forEach(function(p,i){
     b+='<tr><th><b>'+(i+1)+'</b><small>'+fmtHM(p.s)+'</small></th>';
     SCH_DAYS.forEach(function(d){
-      var c=schCell(V,sch,d,i),on=!!(sel&&sel.d===d&&sel.i===i),col=c&&c.sid?subCol(V,c.sid):SGRAY,lab=DOW[d]+'요일 '+(i+1)+'교시'+(c?', '+c.name:', 비어 있음');
-      var inner=c?'<span>'+esc(c.name)+'</span>':(mine?'<span class="ph">+</span>':'');
-      b+='<td class="'+(d===tdw?'today':'')+'">'+(mine?'<button class="schc'+(c?' f':'')+(on?' on':'')+'" data-act="sch-sel" data-d="'+d+'" data-i="'+i+'" style="--sc:'+col+'" aria-pressed="'+(on?'true':'false')+'" aria-label="'+esc(lab)+'">'+inner+'</button>':'<div class="schc'+(c?' f':'')+'" style="--sc:'+col+'" aria-label="'+esc(lab)+'">'+inner+'</div>')+'</td>';
+      var c=schCell(V,sch,d,i),on=!!(sel&&sel.d===d&&sel.i===i),col=c&&c.sid?subCol(V,c.sid):SGRAY;
+      var cont=!!(c&&schSame(c,schCell(V,sch,d,i-1))&&schJoin(sch,i)),jn=!!(c&&schSame(c,schCell(V,sch,d,i+1))&&schJoin(sch,i+1));
+      var mt=c&&schTeachers(V,sch,c.key).length>1?c.tc:'',meta=c?(mt?'<small>'+esc(mt)+'</small>':'')+(c.r?'<small>'+esc(c.r)+'</small>':''):'';
+      var lab=DOW[d]+'요일 '+(i+1)+'교시'+(c?', '+c.name+(c.tc?', '+c.tc+' 선생님':'')+(c.r?', '+c.r:'')+(cont?', 앞 교시에 이어서':''):', 비어 있음');
+      var inner=c?(cont?'<span class="cn">이어서</span>':'<span'+(meta?' class="m"':'')+'>'+esc(c.name)+'</span>'+meta):(mine?'<span class="ph">+</span>':'');
+      var cls='schc'+(c?' f':'')+(on?' on':'')+(cont?' cont':'')+(jn?' jn':'');
+      b+='<td class="'+(d===tdw?'today':'')+'">'+(mine?'<button class="'+cls+'" data-act="sch-sel" data-d="'+d+'" data-i="'+i+'" style="--sc:'+col+'" aria-pressed="'+(on?'true':'false')+'" aria-label="'+esc(lab)+'">'+inner+'</button>':'<div class="'+cls+'" style="--sc:'+col+'" aria-label="'+esc(lab)+'">'+inner+'</div>')+'</td>';
     });
     b+='</tr>';
   });
@@ -2906,8 +2989,16 @@ function modalSchool(V){
     b+='<div class="schpick" id="schPick"><h3>'+DOW[sel.d]+'요일 '+(sel.i+1)+'교시<small>'+fmtHM(sch.p[sel.i].s)+'~'+fmtHM(sch.p[sel.i].e)+'</small></h3><div class="chips">';
     b+=mySubs(V).map(function(s){return '<button class="chip sch-sub" data-act="sch-put" data-v="'+esc(s.id)+'" style="--sc:'+subCol(V,s.id)+'" aria-pressed="'+(cur&&cur.sid===s.id?'true':'false')+'"><i></i>'+esc(s.name)+'</button>';}).join('');
     b+=SCH_QUICK.map(function(t){return '<button class="chip" data-act="sch-put" data-t="'+esc(t)+'" aria-pressed="'+(cur&&cur.t===t?'true':'false')+'">'+esc(t)+'</button>';}).join('');
-    b+='</div><div class="row" style="margin-top:10px"><input type="text" data-draft="schT" data-enter="sch-text" maxlength="12" placeholder="직접 쓰기" aria-label="과목 직접 쓰기"><button class="btn small" data-act="sch-text">넣기</button>'+(cur?'<button class="btn small" data-act="sch-clear">비우기</button>':'')+'</div></div>';
-  }else if(mine)b+='<p class="hint" style="margin-top:12px">칸을 누르고 과목을 고르면 다음 교시로 넘어갑니다. 시간표의 학교 칸에도 교시별로 표시됩니다.</p>';
+    b+='</div><div class="row" style="margin-top:10px"><input type="text" data-draft="schT" data-enter="sch-text" maxlength="12" placeholder="직접 쓰기 (예: 체육)" aria-label="과목 직접 쓰기"><button class="btn small" data-act="sch-text">넣기</button></div>';
+    if(cur){
+      var kk=sel.d+'-'+sel.i,cbs=schCombos(V,sch,cur.key).filter(function(x){return !(x.tc===cur.tc&&x.r===cur.r);});
+      b+='<div class="schmeta"><div><label class="lb" for="schTc-'+kk+'">선생님<small>선택</small></label><input type="text" class="schf" id="schTc-'+kk+'" data-k="tc" data-d="'+sel.d+'" data-i="'+sel.i+'" data-enter="sch-next" value="'+esc(cur.tc)+'" maxlength="10" placeholder="예: 김민수"></div>';
+      b+='<div><label class="lb" for="schR-'+kk+'">장소<small>선택</small></label><input type="text" class="schf" id="schR-'+kk+'" data-k="r" data-d="'+sel.d+'" data-i="'+sel.i+'" data-enter="sch-next" value="'+esc(cur.r)+'" maxlength="16" placeholder="예: 2-2 수학과실"></div></div>';
+      if(cbs.length)b+='<div class="schcombo"><small>이 과목에서 쓴 것</small><div class="chips">'+cbs.slice(0,4).map(function(x){return '<button class="chip" data-act="sch-combo" data-tc="'+esc(x.tc)+'" data-r="'+esc(x.r)+'">'+esc([x.tc,x.r].filter(Boolean).join(' · '))+'</button>';}).join('')+'</div></div>';
+      b+='<p class="hint" style="margin-top:8px">같은 과목을 선생님 두 분이 나눠 하면 칸마다 선생님을 적어 두세요. 시간표와 수업 알림에 선생님 이름이 같이 나옵니다.</p>';
+    }
+    b+='<div class="row" style="margin-top:10px"><button class="btn small primary" data-act="sch-next">'+(sel.i+1<sch.p.length?'다음 칸':'끝')+'</button>'+(cur?'<button class="btn small" data-act="sch-clear">비우기</button>':'')+'</div></div>';
+  }else if(mine)b+='<p class="hint" style="margin-top:12px">칸을 누르고 과목을 고른 뒤 선생님과 장소를 적으세요(선택). 수업 시작 전 정각부터 시작하고 10분 뒤까지 화면 위에 과목과 장소가 나옵니다. 같은 수업이 연달아 있으면 이어 붙여 보이고 알림은 한 번만 나옵니다.</p>';
   if(!mine&&sch.has)b+='<div class="row" style="margin-top:12px"><button class="btn small primary" data-act="sch-copy" data-id="'+esc(who)+'">'+(S.confirm==='schcopy:'+who?'한 번 더 누르면 내 시간표를 바꿉니다':'이 시간표를 내 걸로 가져오기')+'</button></div>';
   if(mine){
     b+='<div class="sec schsec"><div class="row"><button class="btn small" data-act="sch-times" aria-expanded="'+(S.schTimes?'true':'false')+'">'+(S.schTimes?'교시 시간 접기':'교시 시간 고치기')+'</button><button class="btn small" data-act="sch-fit">고정 시간표의 학교 시간 맞추기</button></div>';
@@ -4554,6 +4645,19 @@ function modalReward(V){
   else b+='<button class="btn xl primary" data-act="checkin">출석하고 '+attReward(streak)+'점 받기</button>';
   return dlg('',{id:'reward',t:claimed?'출석 완료':'오늘 출석'},b);
 }
+/* 할 일 문장을 추가 창의 칸(할 일 종류, 분량, 단위, 자세히)으로 되돌린다. 새로 넣은 할 일은 칸 값을 같이 저장해 둔다 */
+function goalParse(V,g){
+  if(g.ct!=null||g.ca!=null||g.cn!=null)return {type:String(g.ct||''),amt:+g.ca||0,unit:String(g.cu||''),note:String(g.cn||'')};
+  var t=String(g.text||''),rest=t,note='',m=/^(.*?)\s*\(([^()]*)\)$/.exec(t);
+  if(m){rest=m[1];note=m[2];}
+  var sub=V.subById[g.sid],types=(sub&&sub.items.length?sub.items.map(function(it){return it.label;}):DEFAULT_ITEMS).concat(EXTRA_TYPES),amt=0,unit='';
+  var mm=new RegExp('\\s*(\\d+)('+UNITS.join('|')+')$').exec(rest);
+  if(mm){amt=+mm[1];unit=mm[2];rest=rest.slice(0,mm.index);}
+  rest=rest.trim();
+  if(rest&&types.indexOf(rest)<0)return {type:'',amt:0,unit:'',note:t};
+  if(!rest&&!amt)return {type:'',amt:0,unit:'',note:note||t};
+  return {type:rest,amt:amt,unit:unit,note:note};
+}
 function cmpText(){
   var c=S.cmp,parts=[],note=String(S.draft.cmpNote||'').trim();
   if(c.type)parts.push(c.type);
@@ -4574,7 +4678,7 @@ function modalCompose(V){
   var c=S.cmp,subs=mySubs(V),sub=V.subById[c.sid],carry=carryList(V,c.date),rec=recentGoals(V,c.date);
   var types=(sub&&sub.items.length?sub.items.map(function(it){return it.label;}):DEFAULT_ITEMS).concat(EXTRA_TYPES),text=cmpText(),b='';
   S._recent=rec;
-  if(carry.length||rec.length){
+  if(!c.edit&&(carry.length||rec.length)){
     b+='<div class="quick"><h3 class="hint" style="font-weight:600">한 번에 넣기</h3><div class="chips">';
     if(carry.length)b+='<button class="chip" data-act="carry" data-date="'+c.date+'" style="background:var(--accent-soft);color:var(--accent-ink)">전날 남은 '+carry.length+'개 가져오기</button>';
     rec.forEach(function(g,i){b+='<button class="chip" data-act="recent-add" data-i="'+i+'">'+(g.sid&&V.subName[g.sid]?esc(cut(V.subName[g.sid],6).trim())+', ':'')+esc(cut(g.text,18))+'</button>';});
@@ -4585,10 +4689,11 @@ function modalCompose(V){
   b+='<div class="fld"><h3>분량<small>선택</small></h3><div class="amt"><button data-act="cmp-amt" data-d="-5" aria-label="5 줄이기">-5</button><button data-act="cmp-amt" data-d="-1" aria-label="1 줄이기">-1</button><b>'+(c.amt||0)+'</b><button data-act="cmp-amt" data-d="1" aria-label="1 늘리기">+1</button><button data-act="cmp-amt" data-d="5" aria-label="5 늘리기">+5</button></div>';
   b+='<div class="chips">'+UNITS.map(function(u){return chipBtn('cmp-set','unit',u,u,(c.unit||'문제')===u&&c.amt>0);}).join('')+'</div></div>';
   b+='<div class="fld"><h3>자세히<small>꼭 필요한 때만 적으세요</small></h3><input type="text" data-draft="cmpNote" data-live="1" data-enter="cmp-add" maxlength="60" placeholder="예: 3단원 유형 문제, 120~135쪽" aria-label="자세한 내용"></div>';
-  b+='<div class="fld plink"><span class="hint">며칠까지 끝낼 일인가요?</span><button class="btn small soft" data-act="plan-from-cmp">마감 정하고 날짜별로 나눠 넣기</button></div>';
+  if(!c.edit)b+='<div class="fld plink"><span class="hint">며칠까지 끝낼 일인가요?</span><button class="btn small soft" data-act="plan-from-cmp">마감 정하고 날짜별로 나눠 넣기</button></div>';
   var f='<div class="preview"><small>이렇게 올라갑니다</small><p>'+(text?(sub?'<em class="tag">'+esc(sub.name)+'</em>':'')+'<span>'+esc(text)+'</span>':'<span class="ph">위에서 고르면 문장이 만들어집니다</span>')+'</p></div>';
-  f+='<div class="df"><button class="btn" data-act="cmp-add" data-more="1"'+(text?'':' disabled')+'>넣고 하나 더</button><button class="btn primary" data-act="cmp-add"'+(text?'':' disabled')+'>추가</button></div>';
-  return dlg('wide',{id:'compose',t:(c.date===today()?'오늘':shortDate(c.date))+' 할 일 추가'},b,f);
+  if(c.edit)f+='<div class="df"><button class="btn" data-act="modal-close">취소</button><button class="btn primary" data-act="cmp-save"'+(text?'':' disabled')+'>저장</button></div>';
+  else f+='<div class="df"><button class="btn" data-act="cmp-add" data-more="1"'+(text?'':' disabled')+'>넣고 하나 더</button><button class="btn primary" data-act="cmp-add"'+(text?'':' disabled')+'>추가</button></div>';
+  return dlg('wide',{id:'compose',t:c.edit?(c.date===today()?'오늘':shortDate(c.date))+' 할 일 고치기':(c.date===today()?'오늘':shortDate(c.date))+' 할 일 추가'},b,f);
 }
 function evTitle(V){
   var e=S.evd,note=String(S.draft.evNote||'').trim(),parts=[];
@@ -4652,6 +4757,7 @@ function modalSettings(V){
   var tp=themePref(),acNow=accentPref().id,cNow=conceptPref();
   function sws(g){return ACCENTS.filter(function(x){return x.g===g;}).map(function(x){return '<button class="sw" data-act="accent" data-v="'+x.id+'" style="--a:'+x.l.a+';--b:'+x.d.a+'" aria-pressed="'+(acNow===x.id?'true':'false')+'" aria-label="대표 색 '+x.name+'" title="'+x.name+'"></button>';}).join('');}
   if(V.me){var hg=!!obj(V.progress[V.me]).hideGoals;b+='<div class="fld"><h3>내 할 일 공개<small>다른 사람이 볼 수 있는 범위</small></h3><div class="chips"><button class="chip" data-act="hide-goals" data-v="0" aria-pressed="'+(hg?'false':'true')+'">내용까지 보이기</button><button class="chip" data-act="hide-goals" data-v="1" aria-pressed="'+(hg?'true':'false')+'">개수만 보이기</button></div><p class="hint" style="margin-top:6px">'+(hg?'다른 사람에게는 할 일 개수와 끝낸 개수만 보입니다.':'참여 인원 목록에서 내 할 일 내용이 보입니다.')+'</p></div>';}
+  if(V.me)b+='<div class="fld"><h3>학교 시간표<small>수업 전에 과목과 장소를 알려 줌</small></h3><div class="row"><button class="btn small" data-act="open" data-modal="school">'+(schOf(V,V.me).has?'고치기':'넣기')+'</button></div></div>';
   if(V.me)b+='<div class="fld"><h3>과목 색과 줄임말<small>나에게만 적용</small></h3><div class="row"><button class="btn small" data-act="abbr-open">바꾸기</button></div></div>';
   b+='<div class="sec"><h3>화면<small>이 기기에만 적용</small></h3><h4 class="lb" style="margin-top:0">컨셉</h4><div class="cvs" role="group" aria-label="컨셉 디자인">'+CONCEPTS.map(function(x){return '<button class="cv" data-act="concept" data-v="'+x.id+'" aria-pressed="'+(cNow.id===x.id?'true':'false')+'"><span class="cvp cvp-'+x.id+'" aria-hidden="true"><i></i><i></i><i></i></span><span>'+x.name+'</span></button>';}).join('')+'</div>';
   b+='<h4 class="lb">밝기</h4>'+(cNow.mode?'<p class="hint">'+cNow.name+' 컨셉은 항상 어둡게 보입니다.</p>':'<div class="chips">'+[['auto','기기 설정에 맞춤'],['light','밝게'],['dark','어둡게']].map(function(x){return '<button class="chip" data-act="theme" data-v="'+x[0]+'" aria-pressed="'+(tp===x[0]?'true':'false')+'">'+x[1]+'</button>';}).join('')+'</div>');
@@ -4671,7 +4777,7 @@ function modalSettings(V){
   [[22,'밤 10시'],[23,'밤 11시'],[24,'자정'],[25,'다음 날 새벽 1시'],[26,'다음 날 새벽 2시']].forEach(function(o){b+='<option value="'+o[0]+'"'+(V.certHour===o[0]?' selected':'')+'>'+o[1]+'</option>';});
   b+='</select>';
   b+='</div><div class="sec"><h3>키보드 단축키<small>키보드를 연결했을 때</small></h3><ul class="kbd">'+[['1 ~ 8','달력부터 메시지까지 화면 이동'],['N','할 일 추가'],['D','마감 있는 할 일 추가'],['L','달력, 할 일, 시간표 차례로 바꿔 보기'],['T','타이머 켜기, 끄기'],['F','타이머 크게 보기'],['Esc','창 닫기']].map(function(x){return '<li><kbd>'+x[0]+'</kbd><span>'+x[1]+'</span></li>';}).join('')+'</ul></div><div class="sec"><h3>저장 위치</h3><p class="hint">'+esc(S.net?({claude:'Claude 공유 저장소에 연결되어 있습니다. Claude에 로그인한 참여 인원끼리 실시간으로 같이 봅니다.',firebase:'공유 저장소에 연결되어 있습니다. 참여 코드로 들어온 사람 모두가 실시간으로 같이 봅니다.',local:'지금은 이 기기에만 저장됩니다. 다른 사람과 같이 보려면 공유 저장소 연결이 필요합니다.'}[S.net.mode]):'연결 중입니다.')+'</p>'+(S.net&&S.net.mode==='firebase'&&S.remote?'<div class="row" style="margin-top:10px"><button class="btn small" data-act="import-pick">기록 가져오기</button><button class="btn small" data-act="export-data">기록 파일로 저장</button><button class="del" data-act="setup-reset">'+(S.confirm==='disc'?'한 번 더 누르면 이 방에서 나갑니다':'이 기기에서 이 방 나가기')+'</button></div><p class="hint" style="margin-top:8px">'+esc(S.importMsg||'친구와 내 다른 기기는 위의 친구 초대하기로 들어옵니다. 기록 가져오기는 처음 연결한 뒤 한 번만 하면 됩니다.')+'</p>':'')+'</div>';
-  b+='<p class="hint appver">앱 버전 10월 21일 23:50</p>';
+  b+='<p class="hint appver">앱 버전 10월 22일 08:27</p>';
   return dlg('wide',{id:'settings',t:'설정'},b);
 }
 function modalCheck(V){
@@ -4742,6 +4848,7 @@ function paintBanner(){
   if(S.net&&S.net.mode==='firebase'&&isOffline()){var obn=obCount();b+='<div class="notice offn"><b>오프라인</b> 내 일정과 할 일은 지금처럼 쓰면 됩니다. 이 기기에 모아 두었다가 연결되면 올립니다'+(obn?' (올릴 기록 '+obn+'개)':'')+'. 친구들 기록은 연결된 뒤에 새로 보입니다.</div>';}
   if(S.net&&S.net.mode==='local')b+='<div class="notice">지금은 이 기기에만 저장됩니다. 다른 사람과 같이 보려면 공유 저장소 연결이 필요합니다.</div>';
   else if(S.readOnly)b+='<div class="notice">'+(S.net&&S.net.mode==='firebase'?'저장소가 기록을 받아주지 않습니다. Firebase 규칙이 맞게 게시되었는지, 초대 링크가 맞는지 확인하세요.':'보기 전용으로 열려 있습니다. 직접 기록하려면 플래너 주인에게 편집 권한 초대를 요청하세요.')+'</div>';
+  try{b+=schNowHtml(V0);}catch(e){}
   if(S.flash)b+='<div class="flash" role="status"><span>'+esc(S.flash)+'</span>'+(S.undo?'<button data-act="undo">되돌리기</button>':'')+'</div>';
   paint(banner,b);
 }
@@ -4841,6 +4948,7 @@ function openModal(type,el){
   if(type==='ttset'){S.ttTab=S.ttTab||'fixed';S.ttEd=null;}
   if(type==='school'){S.schWho=null;S.schSel=null;S.schTimes=false;S.draft.schT='';}
   if(type==='compose'){var cat=el&&el.getAttribute('data-at');S.cmp={date:(el&&el.getAttribute('data-date'))||today(),sid:'',type:'',amt:0,unit:'',at:cat!=null&&cat!==''?+cat:null};S.draft.cmpNote='';}
+  if(type==='compose'&&S.cmpPre){S.cmp=S.cmpPre.c;S.draft.cmpNote=S.cmpPre.note;S.cmpPre=null;}
   if(type==='event'){S.evd={date:S.date,kind:'수행평가',sid:'',shared:false};S.draft.evNote='';}
   if(type==='post'){S.post={kind:(el&&el.getAttribute('data-kind'))==='ask'?'ask':'quiz',sid:''};}
   if(type==='duel'){S.duelF={b:'',stake:'roul'};S.draft.duelStake='';}
@@ -4944,6 +5052,7 @@ function makeCheck(deadline){
   return {code:code,opts:opts,deadline:deadline,beeped:Date.now()};
 }
 function tick(){
+  try{schTick();}catch(e){}
   var now=Date.now(),V=V0,els=document.querySelectorAll('[data-lv],[data-lvp],[data-lvf]'),memo={},key='',i,k;
   for(i=0;i<els.length;i++){
     var el=els[i],mid=el.getAttribute('data-lv')||el.getAttribute('data-lvp')||el.getAttribute('data-lvf'),Lx=V&&V.live[mid];if(!Lx||!Lx.start)continue;
@@ -5348,15 +5457,28 @@ function act(name,el){
     case 'scol':{var sv=el.getAttribute('data-v');editProg(function(p){var c=obj(p.scol);c[id]=sv;p.scol=c;});break;}
     case 'tt-fill':ttFill();break;
     case 'sch-who':S.schWho=id;S.schSel=null;break;
-    case 'sch-sel':{var sd0=+el.getAttribute('data-d'),si0=+el.getAttribute('data-i');S.schSel=S.schSel&&S.schSel.d===sd0&&S.schSel.i===si0?null:{d:sd0,i:si0};break;}
+    case 'sch-sel':{schMetaFromInputs(S.schSel);var sd0=+el.getAttribute('data-d'),si0=+el.getAttribute('data-i');S.schSel=S.schSel&&S.schSel.d===sd0&&S.schSel.i===si0?null:{d:sd0,i:si0};break;}
     case 'sch-put':case 'sch-text':{
       var ssel=S.schSel;if(!ssel)break;var sval=null;
       if(name==='sch-text'){var stx=String(S.draft.schT||'').trim().slice(0,12);if(!stx)break;sval={t:stx};S.draft.schT='';S.sync=true;}
       else{var sv0=el.getAttribute('data-v'),st0=el.getAttribute('data-t');sval=sv0?{s:sv0}:st0?{t:st0}:null;}
       if(!sval)break;
+      var Vsp=view(),schp=schOf(Vsp,Vsp.me),sold=schCell(Vsp,schp,ssel.d,ssel.i),snk=sval.s?'s:'+sval.s:'t:'+sval.t;
+      if(sold&&sold.key===snk){sval.tc=sold.tc;sval.r=sold.r;}
+      else{var scb=schCombos(Vsp,schp,snk);if(scb.length===1){sval.tc=scb[0].tc;sval.r=scb[0].r;}}
+      if(!sval.tc)delete sval.tc;if(!sval.r)delete sval.r;
       editSch(function(s){var w=obj(s.w[ssel.d]);w['p'+ssel.i]=sval;s.w[ssel.d]=w;});
-      if(canWrite()){var snp=schOf(view(),view().me).p.length;S.schSel=ssel.i+1<snp?{d:ssel.d,i:ssel.i+1}:null;}
       break;
+    }
+    case 'sch-next':{
+      var snx=S.schSel;if(!snx)break;schMetaFromInputs(snx);
+      var snn=schOf(view(),view().me).p.length;S.schSel=snx.i+1<snn?{d:snx.d,i:snx.i+1}:null;break;
+    }
+    case 'sch-combo':{
+      var scs=S.schSel;if(!scs)break;var Vcb=view(),ccur=schCell(Vcb,schOf(Vcb,Vcb.me),scs.d,scs.i);if(!ccur)break;
+      var ctc=String(el.getAttribute('data-tc')||''),cr=String(el.getAttribute('data-r')||'');
+      editSch(function(s){var w=obj(s.w[scs.d]),cc=clone(obj(w['p'+scs.i]));if(ctc)cc.tc=ctc;else delete cc.tc;if(cr)cc.r=cr;else delete cc.r;w['p'+scs.i]=cc;s.w[scs.d]=w;});
+      S.sync=true;break;
     }
     case 'sch-clear':{var ssel2=S.schSel;if(!ssel2)break;editSch(function(s){var w=obj(s.w[ssel2.d]);delete w['p'+ssel2.i];s.w[ssel2.d]=w;});break;}
     case 'sch-times':S.schTimes=!S.schTimes;break;
@@ -5430,10 +5552,25 @@ function act(name,el){
       break;
     }
     case 'cmp-amt':if(S.cmp)S.cmp.amt=Math.max(0,Math.min(999,(+S.cmp.amt||0)+(+el.getAttribute('data-d')||0)));break;
+    case 'g-detail':{
+      var Vgd=view(),ggd=dayOf(Vgd,Vgd.me,date).goals.filter(function(x){return x.id===id;})[0];if(!ggd||date<today())break;
+      var gpr=goalParse(Vgd,ggd);
+      S.cmpPre={c:{date:date,sid:ggd.sid&&Vgd.subName[ggd.sid]?ggd.sid:'',type:gpr.type,amt:gpr.amt,unit:gpr.amt>0?(gpr.unit||'문제'):'',at:null,edit:ggd.id},note:gpr.note};
+      S.gSel=null;S.sync=true;openModal('compose',el);return;
+    }
+    case 'cmp-save':{
+      var csv=S.cmp,tsv=cmpText();if(!csv||!csv.edit||!tsv)break;
+      var nsv=String(S.draft.cmpNote||'').trim(),found=false;
+      editDay(csv.date,function(d){d.goals.forEach(function(x){if(x.id!==csv.edit)return;found=true;x.text=tsv.slice(0,90);x.sid=csv.sid||'';
+        if(csv.type)x.ct=csv.type;else delete x.ct;if(csv.amt>0){x.ca=+csv.amt;x.cu=csv.unit||'문제';}else{delete x.ca;delete x.cu;}if(nsv)x.cn=nsv;else delete x.cn;});});
+      if(!found){flash('고칠 할 일을 찾지 못했습니다.');break;}
+      if(!canWrite())break;
+      S.draft.cmpNote='';closeModal();flash('할 일을 고쳤습니다.');return;
+    }
     case 'cmp-add':{
       var text=cmpText();if(!text||!S.cmp)break;
       var full=false,c=S.cmp;
-      editDay(c.date,function(d){if(d.goals.length>=GMAX){full=true;return;}var ng={id:rid('g'),text:text.slice(0,90),sid:c.sid||'',done:false};if(c.at!=null){ng.ts=c.at;ng.te=Math.min(c.at+60,28*60);}d.goals.push(ng);});
+      editDay(c.date,function(d){if(d.goals.length>=GMAX){full=true;return;}var ng={id:rid('g'),text:text.slice(0,90),sid:c.sid||'',done:false},cn0=String(S.draft.cmpNote||'').trim();if(c.type)ng.ct=c.type;if(c.amt>0){ng.ca=+c.amt;ng.cu=c.unit||'문제';}if(cn0)ng.cn=cn0;if(c.at!=null){ng.ts=c.at;ng.te=Math.min(c.at+60,28*60);}d.goals.push(ng);});
       if(full){flash('할 일은 하루 '+GMAX+'개까지 넣을 수 있습니다.');break;}
       if(!canWrite())break;
       S.draft.cmpNote='';
@@ -5501,7 +5638,7 @@ function act(name,el){
     case 'g-edit':{var ge=dayOf(view(),view().me,date).goals.filter(function(x){return x.id===id;})[0];if(!ge)break;S.gEdit=date+'|'+id;S.draft.gEdit=ge.text;S.focusAfter='gEditIn';break;}
     case 'g-save':{
       var gtx=String(S.draft.gEdit||'').trim().slice(0,90);if(!gtx){flash('내용을 적어주세요.');break;}
-      editDay(date,function(d){d.goals.forEach(function(x){if(x.id===id)x.text=gtx;});});S.gEdit=null;S.gSel=null;break;
+      editDay(date,function(d){d.goals.forEach(function(x){if(x.id===id&&x.text!==gtx){x.text=gtx;delete x.ct;delete x.ca;delete x.cu;delete x.cn;}});});S.gEdit=null;S.gSel=null;break;
     }
     case 'g-tomorrow':{var gto=date<today()?today():addDays(date,1);moveGoal(date,id,gto);break;}
     case 'g-today':moveGoal(date,id,today());break;

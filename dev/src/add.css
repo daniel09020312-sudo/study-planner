@@ -784,3 +784,28 @@ html.wkdragging,html.wkdragging *{cursor:grabbing !important}
 .rln b{display:block;font-size:14px;font-weight:700;line-height:1.35}
 .rln small{display:block;margin-top:2px;font-size:12.5px;line-height:1.5;color:var(--ink-3)}
 .rlp{flex:none;font-style:normal;font-size:13px;font-weight:800;color:var(--accent-ink);background:var(--accent-soft);padding:4px 9px;border-radius:999px;white-space:nowrap;font-variant-numeric:tabular-nums}
+/* 학교 시간표: 선생님/장소 둘째 줄, 연달아 있는 수업 이어 붙이기 (v28) */
+.schc{flex-direction:column;gap:1px;height:52px}
+.schc small{display:block;max-width:100%;font-size:10.5px;font-weight:500;color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.schc .cn{font-size:11px;font-weight:600;color:var(--ink-3)}
+.schc span.m{-webkit-line-clamp:1;line-clamp:1}
+.schc small+small{margin-top:-1px}
+.schc.jn{height:56px;margin-bottom:-4px;border-bottom-left-radius:0;border-bottom-right-radius:0}
+.schc.cont{border-top-left-radius:0;border-top-right-radius:0}
+@media (max-width:520px){.schc{height:50px}.schc.jn{height:53px;margin-bottom:-3px}.schc small{font-size:9.5px}}
+.schmeta{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.schmeta .lb{margin-top:0}
+.schmeta input{width:100%}
+.schcombo{margin-top:10px}
+.schcombo small{display:block;font-size:12px;color:var(--ink-3);margin-bottom:6px}
+@media (max-width:420px){.schmeta{grid-template-columns:1fr}}
+/* 수업 알림 줄 (v28) */
+.notice.schnow{display:flex;align-items:center;flex-wrap:wrap;gap:4px 10px;padding:10px 20px;background:color-mix(in srgb,var(--sc) 14%,var(--surface));color:var(--ink);font-size:14px;box-shadow:inset 4px 0 0 var(--sc)}
+.schnow .snl{font-size:12px;font-weight:700;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.schnow .snp{font-weight:800;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.schnow .sns{font-weight:800}
+.schnow .sns small{margin-left:5px;font-size:12.5px;font-weight:600;color:var(--ink-2)}
+.schnow .snr{display:inline-flex;align-items:center;gap:6px;color:var(--ink-2)}
+.schnow .snr::before{content:'';width:4px;height:4px;border-radius:50%;background:currentColor;opacity:.6}
+.schnow .snx{font-size:12px;font-weight:600;padding:2px 7px;border-radius:999px;background:color-mix(in srgb,var(--sc) 22%,var(--surface));color:var(--ink-2)}
+.schpick input[type=text]{background:var(--surface)}
