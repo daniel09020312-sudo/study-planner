@@ -252,7 +252,6 @@ function a2Pic(k){
   if(k==='pcinstall')return '<span class="a2ic">'+A2IC.install+'</span>';
   if(k==='menu')return '<span class="a2ic">'+A2IC.hdots+'</span>';
   if(k==='openrow')return '<span class="a2ic row">'+A2IC.open+'<span>다른 브라우저로 열기</span></span>';
-  if(k==='code')return '<span class="a2ic pill mono">000000</span>';
   if(k==='copylink')return '<span class="a2ic row">'+A2IC.link+'<span>링크 복사</span></span>';
   if(k==='paste')return '<span class="a2ic sbar">'+A2IC.search+'<span>붙여넣기</span></span>';
   return '';
