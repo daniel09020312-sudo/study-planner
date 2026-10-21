@@ -104,6 +104,7 @@ sub("""var h='<div class="view" id="view-gate"><div class="gatebox"><div><h1>누
 
 # 7) 동작
 sub("    case 'copy-rules':", r"""    case 'join-go':joinGo();return;
+    case 'kakao-copy':kakaoCopy();return;
     case 'room-open':{var roe=roomsList().filter(function(x){return x.room===id;})[0];if(roe)goRoom(roe);return;}
     case 'room-forget':{if(prev!=='rmf:'+id){S.confirm='rmf:'+id;break;}roomsSave(roomsList().filter(function(x){return x.room!==id;}));break;}
     case 'room-invite':if(S.roomInfo&&S.roomInfo.code&&S.remote)copyText(inviteMsg(),'초대 메시지를 복사했습니다. 카카오톡에 붙여넣으세요.',document.getElementById('invMsg'));break;
@@ -163,6 +164,13 @@ sub("</style>", """.jcode{font:700 30px/1.2 ui-monospace,SFMono-Regular,Menlo,Co
 .a2ic.circ small{font-size:10.5px;font-weight:500;color:#D1D1D6}
 .a2t{min-width:0}
 .jinapp{margin:0;font-size:13.5px}
+.jgo{display:flex;flex-direction:column;align-items:flex-start;gap:10px;padding:14px 16px !important;border:0 !important;border-radius:14px;background:var(--accent-soft) !important;color:var(--ink) !important}
+.jgo::before{display:none !important}
+.jgo p{margin:0}
+.kklink{margin:0 0 8px;padding:8px 10px;border-radius:10px;background:var(--fill);font-size:12px;color:var(--ink-3);word-break:break-all;-webkit-user-select:all;user-select:all}
+.a2ic.gapp{background:#fff;color:#3C4043;font-weight:700;letter-spacing:-.01em;box-shadow:inset 0 0 0 1px rgba(0,0,0,.12)}
+.a2ic.sbar{justify-content:flex-start;gap:8px;min-width:132px;padding:0 14px;border-radius:23px;background:#3A3A3C;color:#D1D1D6}
+.a2ic.sbar span{color:#F5F5F7}
 .jcode.sm::placeholder{letter-spacing:normal;font:500 15px/1.2 var(--font-body)}
 .rmsec{border-top:0;padding-top:0}
 .rmacts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}

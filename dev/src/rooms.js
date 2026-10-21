@@ -99,6 +99,7 @@ function viewJoin(){
   var J=S.join,st=S.jst,mine=roomsList();
   var h='<div class="view" id="view-join"><div class="gatebox"><div><h1>공부방 들어가기</h1><p class="hint" style="margin-top:6px">초대 메시지에 있는 참여 코드 6자리를 넣으세요.</p></div>';
   if(a2hsKind()==='inapp')h+='<p class="notice jinapp">카톡 안에서 열렸습니다. 앱으로 쓰려면 메뉴에서 <b>다른 브라우저로 열기</b>를 먼저 누르세요.</p>';
+  else if(a2hsKind()==='ios-kakao')h+='<div class="notice jinapp jgo"><p>카톡 안에서 열렸습니다. 앱으로 쓰려면 <b>구글 앱</b>에서 여세요. 링크를 복사해 구글 앱 검색창에 붙여넣으면 됩니다.</p><button class="btn small primary" data-act="kakao-copy">링크 복사</button></div>';
   h+='<section class="card" id="c-joincode"><input id="joinCode" class="jcode" type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="off" maxlength="7" data-draft="joinCode" data-enter="join-go" placeholder="000000" aria-label="참여 코드 6자리"'+(st.busy?' disabled':'')+'><button class="btn primary" data-act="join-go"'+(st.busy?' disabled':'')+'>'+(st.busy?'확인하는 중':'들어가기')+'</button>'+(st.err?'<p class="hint serr" role="status">'+esc(st.err)+'</p>':'')+'</section>';
   if(mine.length){
     h+='<section class="card"><h2 class="sh">이 기기에서 들어갔던 방</h2><div class="people">';
@@ -220,6 +221,8 @@ function a2hsKind(){
 }
 /* 휴대폰 화면의 단추 모양을 본뜬 그림 */
 var A2IC={
+  link:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 14a4.5 4.5 0 0 0 6.4 0l3-3a4.5 4.5 0 0 0-6.4-6.4l-1.2 1.2"/><path d="M14 10a4.5 4.5 0 0 0-6.4 0l-3 3a4.5 4.5 0 0 0 6.4 6.4l1.2-1.2"/></svg>',
+  search:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6"/><path d="m15 15 5 5"/></svg>',
   share:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 9.5H7a2 2 0 0 0-2 2v7.5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7.5a2 2 0 0 0-2-2h-1.5"/><path d="M12 14.5V3"/><path d="M8.3 6.6 12 3l3.7 3.6"/></svg>',
   more:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 9.5 12 15l5.5-5.5"/></svg>',
   plus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="17" height="17" rx="4.5"/><path d="M12 8v8M8 12h8"/></svg>',
@@ -239,12 +242,15 @@ function a2Pic(k){
   if(k==='menu')return '<span class="a2ic">'+A2IC.hdots+'</span>';
   if(k==='openrow')return '<span class="a2ic row">'+A2IC.open+'<span>다른 브라우저로 열기</span></span>';
   if(k==='code')return '<span class="a2ic pill mono">000000</span>';
+  if(k==='copylink')return '<span class="a2ic row">'+A2IC.link+'<span>링크 복사</span></span>';
+  if(k==='gapp')return '<span class="a2ic gapp">Google</span>';
+  if(k==='paste')return '<span class="a2ic sbar">'+A2IC.search+'<span>붙여넣기</span></span>';
   return '';
 }
 function a2hsSteps(k){
   return {
     'inapp':[['menu','오른쪽 아래나 위의 <b>메뉴</b> 누르기'],['openrow','<b>다른 브라우저로 열기</b> 누르기'],['code','열린 화면에서 <b>참여 코드</b> 다시 넣기']],
-    'ios-kakao':[['share','아래쪽 <b>공유 버튼</b> 누르기'],['more','<b>더 보기</b> 누르기'],['addrow','<b>홈 화면에 추가</b> 누르기'],['add','오른쪽 위 <b>추가</b> 누르기']],
+    'ios-kakao':[['copylink','아래 <b>링크 복사</b> 누르기'],['gapp','<b>구글 앱</b> 열기'],['paste','검색창을 길게 눌러 <b>붙여넣기</b> 한 뒤 열기'],['code','열린 화면에서 <b>참여 코드</b> 다시 넣기']],
     'ios-google':[['share','<b>공유 버튼</b> 누르기'],['more','<b>더 보기</b> 누르기'],['addrow','<b>홈 화면에 추가</b> 누르기'],['add','오른쪽 위 <b>추가</b> 누르기']],
     'ios-chrome':[['share','주소창 오른쪽 <b>공유 버튼</b> 누르기'],['addrow','<b>홈 화면에 추가</b> 누르기'],['add','오른쪽 위 <b>추가</b> 누르기']],
     'ios-safari':[['share','<b>공유 버튼</b> 누르기'],['addrow','<b>홈 화면에 추가</b> 누르기'],['add','오른쪽 위 <b>추가</b> 누르기']],
@@ -257,10 +263,15 @@ function modalA2HS(V){
   var b='<ol class="a2steps">'+st.map(function(x,i){return '<li><span class="a2n">'+(i+1)+'</span>'+a2Pic(x[0])+'<span class="a2t">'+x[1]+'</span></li>';}).join('')+'</ol>';
   if(k==='inapp')b='<p class="hint" style="margin-bottom:12px">카톡 안에서는 앱으로 추가할 수 없습니다.</p>'+b;
   else if(k==='ios-google')b='<p class="hint" style="margin-bottom:12px">구글 앱에서는 이 순서로 눌러야 합니다.</p>'+b;
-  else if(k==='ios-kakao')b='<p class="hint" style="margin-bottom:12px">카톡에서는 이 순서로 눌러야 합니다.</p>'+b;
-  if(k!=='inapp')b+='<p class="hint">'+(ios?'이제 홈 화면의 공부방 아이콘으로 여세요. 처음 열 때 참여 코드를 한 번 더 넣습니다.':'이제 홈 화면의 공부방 아이콘으로 여세요.')+'</p>';
-  b+='<div class="row" style="margin-top:14px"><button class="btn primary" data-act="modal-close">확인</button></div>';
-  return dlg('',{id:'a2hs',t:k==='inapp'?'다른 브라우저로 열어 주세요':'앱으로 추가하기'},b);
+  else if(k==='ios-kakao')b='<p class="hint" style="margin-bottom:12px">카톡 대신 구글 앱에서 열어야 앱으로 추가할 수 있습니다.</p>'+b;
+  if(k!=='inapp'&&k!=='ios-kakao')b+='<p class="hint">'+(ios?'이제 홈 화면의 공부방 아이콘으로 여세요. 처음 열 때 참여 코드를 한 번 더 넣습니다.':'이제 홈 화면의 공부방 아이콘으로 여세요.')+'</p>';
+  if(k==='ios-kakao')b+='<p class="kklink" id="kkLink">'+esc(kakaoLink())+'</p><p class="hint">구글 앱에서 들어오면 앱으로 추가하는 방법이 다시 나옵니다.</p>';
+  b+='<div class="row" style="margin-top:14px">'+(k==='ios-kakao'?'<button class="btn primary" data-act="kakao-copy">링크 복사</button><button class="btn" data-act="modal-close">닫기</button>':'<button class="btn primary" data-act="modal-close">확인</button>')+'</div>';
+  return dlg('',{id:'a2hs',t:k==='inapp'?'다른 브라우저로 열어 주세요':k==='ios-kakao'?'구글 앱에서 열어 주세요':'앱으로 추가하기'},b);
+}
+/* 카톡에서 연 링크를 구글 앱에서 열 수 있게 복사 */
+function kakaoLink(){var u=(S.remote&&S.remote.url)||(S.join&&S.join.url);return u?joinLink(u):String(location.href);}
+function kakaoCopy(){copyText(kakaoLink(),'링크를 복사했습니다. 구글 앱 검색창에 붙여넣으세요.',document.getElementById('kkLink'));
 }
 function a2hsTick(){
   if(!lsGet('gbb_a2hs'))return;
