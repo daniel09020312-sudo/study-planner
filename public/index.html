@@ -1289,8 +1289,20 @@ html.wkdragging,html.wkdragging *{cursor:grabbing !important}
 .rmn b{display:block;font-size:15px}
 .rmn small{font-size:12px;color:var(--ink-3)}
 #c-newroom .lb:first-of-type{margin-top:0}
-.a2steps{margin:0 0 12px;padding-left:22px;display:grid;gap:10px;font-size:16px;line-height:1.45}
+.a2steps{list-style:none;margin:0 0 14px;padding:0;display:grid;gap:12px}
+.a2steps li{display:grid;grid-template-columns:24px auto minmax(0,1fr);gap:12px;align-items:center;font-size:15.5px;line-height:1.45}
 .a2steps b{color:var(--accent-ink)}
+.a2n{width:24px;height:24px;border-radius:50%;background:var(--accent-soft);color:var(--accent-ink);font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.a2ic{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-width:46px;height:46px;padding:0 11px;border-radius:13px;background:#2C2C2E;color:#F5F5F7;font-size:14px;font-weight:600;white-space:nowrap;box-shadow:0 1px 0 rgba(255,255,255,.06) inset}
+.a2ic svg{width:24px;height:24px;flex:none}
+.a2ic.row{justify-content:flex-start;padding:0 13px 0 11px}
+.a2ic.pill{color:#3B95FF;font-size:15px}
+.a2ic.mono{color:#F5F5F7;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.12em;font-size:13px}
+.a2ic.circ{flex-direction:column;gap:3px;height:auto;padding:6px 8px 5px;background:#1C1C1E}
+.a2ic.circ .a2c{display:flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:50%;background:#3A3A3C}
+.a2ic.circ .a2c svg{width:20px;height:20px}
+.a2ic.circ small{font-size:10.5px;font-weight:500;color:#D1D1D6}
+.a2t{min-width:0}
 .jinapp{margin:0;font-size:13.5px}
 .jcode.sm::placeholder{letter-spacing:normal;font:500 15px/1.2 var(--font-body)}
 .rmsec{border-top:0;padding-top:0}
@@ -1336,7 +1348,7 @@ var app=document.getElementById('app'),main=document.getElementById('main'),bann
 var REMOTE={url:'',room:''};
 
 /* ---------- 고정 일정과 규칙 ---------- */
-var START='2026-10-12',END='2026-12-08',MONTHS=['2026-10','2026-11','2026-12'];
+var START='2026-10-12',END='2026-12-08',CAL_MIN='2026-09-01',CAL_MAX='2027-12-31',MONTHS=(function(){var o=[],y=2026,m=9;while(y<2027||(y===2027&&m<=12)){o.push(y+'-'+String(m).padStart(2,'0'));m++;if(m>12){m=1;y++;}}return o;})();
 var EXAM=['2026-12-03','2026-12-04','2026-12-07','2026-12-08'];
 var EVENTS={
   '2026-10-08':{s:'금강송마라톤',l:'금강송마라톤, 청량산 둘레길 걷기'},
@@ -1875,8 +1887,8 @@ function goalRow(V,date,mode,day,x,isT){
     else{
       if(date>=t)a+='<button class="btn small" data-act="g-edit" data-date="'+date+'" data-id="'+esc(x.id)+'">수정</button>';
       if(!x.done){a+='<button class="btn small" data-act="g-tomorrow" data-date="'+date+'" data-id="'+esc(x.id)+'">'+(date<t?'오늘로':'다음 날로')+'</button>';
-        a+='<label class="gdate"><span>다른 날에도 넣기</span><input type="date" data-chg="g-copy" data-date="'+date+'" data-id="'+esc(x.id)+'" min="'+t+'" max="2026-12-31" value="" aria-label="복사해 넣을 날짜"></label>';
-        a+='<label class="gdate"><span>날짜 바꾸기</span><input type="date" data-chg="g-move" data-date="'+date+'" data-id="'+esc(x.id)+'" min="'+t+'" max="2026-12-31" value="'+date+'" aria-label="옮길 날짜"></label>';}
+        a+='<label class="gdate"><span>다른 날에도 넣기</span><input type="date" data-chg="g-copy" data-date="'+date+'" data-id="'+esc(x.id)+'" min="'+t+'" max="'+CAL_MAX+'" value="" aria-label="복사해 넣을 날짜"></label>';
+        a+='<label class="gdate"><span>날짜 바꾸기</span><input type="date" data-chg="g-move" data-date="'+date+'" data-id="'+esc(x.id)+'" min="'+t+'" max="'+CAL_MAX+'" value="'+date+'" aria-label="옮길 날짜"></label>';}
       a+='<button class="btn small" data-act="g-up" data-date="'+date+'" data-id="'+esc(x.id)+'" aria-label="위로">위로</button><button class="btn small" data-act="g-down" data-date="'+date+'" data-id="'+esc(x.id)+'" aria-label="아래로">아래로</button>';
       if(isT&&!x.done)a+='<button class="btn small soft" data-act="g-now" data-date="'+date+'" data-id="'+esc(x.id)+'">지금 하기</button>';
       if(date>=t)a+='<button class="del" data-act="goal-del" data-date="'+date+'" data-id="'+esc(x.id)+'">'+(S.confirm==='gdel:'+x.id?'한 번 더 누르면 삭제':'삭제')+'</button>';
@@ -2000,7 +2012,7 @@ function stripPlan(p){var o={};['mid','sid','type','unit','note','mode','total',
 function planSnapPaths(V,p,due){
   var seen={},t=today(),out=['plans/'+p.id];
   p.parts.forEach(function(x){seen[x.date]=1;});
-  for(var d=t;d<=due&&d<='2026-12-31';d=addDays(d,1))seen[d]=1;
+  for(var d=t;d<=due&&d<=CAL_MAX;d=addDays(d,1))seen[d]=1;
   Object.keys(seen).forEach(function(d){out.push('days/'+V.me+'_'+d);});
   return out;
 }
@@ -2040,7 +2052,7 @@ function dropPlanGoals(p,onlyUndone){
 }
 function dueChoices(V){
   var t=today(),out=[],seen={};
-  function add(d,l){if(!d||d<=t||d>'2026-12-31'||seen[d])return;seen[d]=1;out.push({d:d,l:l});}
+  function add(d,l){if(!d||d<=t||d>CAL_MAX||seen[d])return;seen[d]=1;out.push({d:d,l:l});}
   var dw=pd(t).getDay();
   add(addDays(t,1),'내일');add(addDays(t,2),'모레');
   if(dw<5)add(addDays(t,5-dw),'이번 주 금요일');
@@ -2063,10 +2075,10 @@ function modalPlan(V){
   b+='<div class="fld"><h3>'+(pl.mode==='repeat'?'하루 분량':'전체 분량')+'<small>'+(pl.mode==='split'?'나눌 양, 비워 두면 횟수로만 나눕니다':'선택')+'</small></h3><div class="amt"><button data-act="pl-amt" data-d="-10" aria-label="10 줄이기">-10</button><button data-act="pl-amt" data-d="-1" aria-label="1 줄이기">-1</button><b>'+(av||0)+'</b><button data-act="pl-amt" data-d="1" aria-label="1 늘리기">+1</button><button data-act="pl-amt" data-d="10" aria-label="10 늘리기">+10</button></div>';
   b+='<div class="chips">'+UNITS.map(function(x){return chipBtn('pl-set','unit',x,x,u===x&&av>0);}).join('')+'</div></div>';
   b+='<div class="fld"><h3>자세히<small>책 이름, 범위 등</small></h3><input type="text" data-draft="plNote" data-live="1" maxlength="60" placeholder="예: 쎈 3단원, 120~180쪽" aria-label="자세한 내용"></div>';
-  b+='<div class="fld"><h3>'+(pl.mode==='repeat'?'언제까지':'마감')+'</h3><div class="chips">'+dueChoices(V).map(function(x){return chipBtn('pl-due','d',x.d,x.l,pl.due===x.d);}).join('')+'</div><div class="drow"><span>날짜 직접 고르기</span><input type="date" data-chg="pl-due" min="'+addDays(t,pl.mode==='once'?0:1)+'" max="2026-12-31" value="'+esc(pl.due)+'" aria-label="마감 날짜"></div></div>';
+  b+='<div class="fld"><h3>'+(pl.mode==='repeat'?'언제까지':'마감')+'</h3><div class="chips">'+dueChoices(V).map(function(x){return chipBtn('pl-due','d',x.d,x.l,pl.due===x.d);}).join('')+'</div><div class="drow"><span>날짜 직접 고르기</span><input type="date" data-chg="pl-due" min="'+addDays(t,pl.mode==='once'?0:1)+'" max="'+CAL_MAX+'" value="'+esc(pl.due)+'" aria-label="마감 날짜"></div></div>';
   if(pl.mode!=='once'){
     var dw=plDows(pl);
-    b+='<div class="fld"><h3>언제부터</h3><div class="chips">'+chipBtn('pl-start','d',t,'오늘',pl.start===t)+chipBtn('pl-start','d',addDays(t,1),'내일',pl.start===addDays(t,1))+(t<START?chipBtn('pl-start','d',START,'새 주기 시작일',pl.start===START):'')+'</div><div class="drow"><span>날짜 직접 고르기</span><input type="date" data-chg="pl-start" min="'+t+'" max="2026-12-31" value="'+esc(pl.start)+'" aria-label="시작 날짜"></div>';
+    b+='<div class="fld"><h3>언제부터</h3><div class="chips">'+chipBtn('pl-start','d',t,'오늘',pl.start===t)+chipBtn('pl-start','d',addDays(t,1),'내일',pl.start===addDays(t,1))+(t<START?chipBtn('pl-start','d',START,'새 주기 시작일',pl.start===START):'')+'</div><div class="drow"><span>날짜 직접 고르기</span><input type="date" data-chg="pl-start" min="'+t+'" max="'+CAL_MAX+'" value="'+esc(pl.start)+'" aria-label="시작 날짜"></div>';
     b+='<h3 style="margin-top:12px">하는 요일</h3><div class="chips dows">'+DOW.map(function(x,i){return '<button class="chip" data-act="pl-dow" data-v="'+i+'" aria-pressed="'+(dw[i]?'true':'false')+'">'+x+'</button>';}).join('')+'</div>';
     if(pl.mode==='split')b+='<div class="chips" style="margin-top:8px">'+chipBtn('pl-early','v','1','마감 전날까지 끝내기',!!pl.early)+'</div>';
     b+='</div>';
@@ -2112,7 +2124,7 @@ function planRow(V,p){
       h+='</ul>';
     }
     h+='<div class="row" style="margin-top:10px">';
-    if(!p.finished)h+='<label class="gdate"><span>마감 바꾸기</span><input type="date" data-chg="pl-due-edit" data-id="'+esc(p.id)+'" min="'+t+'" max="2026-12-31" value="'+esc(p.due)+'" aria-label="마감 날짜 바꾸기"></label>';
+    if(!p.finished)h+='<label class="gdate"><span>마감 바꾸기</span><input type="date" data-chg="pl-due-edit" data-id="'+esc(p.id)+'" min="'+t+'" max="'+CAL_MAX+'" value="'+esc(p.due)+'" aria-label="마감 날짜 바꾸기"></label>';
     if(p.mode==='split'&&!p.finished&&p.due>=t)h+='<button class="btn small soft" data-act="pl-redo" data-id="'+esc(p.id)+'">남은 것 오늘부터 다시 나누기</button>';
     if(p.mode==='once'&&!p.finished&&p.parts[0]&&p.parts[0].date!==t)h+='<button class="btn small soft" data-act="pl-today" data-id="'+esc(p.id)+'">오늘 하기</button>';
     h+='<button class="del" data-act="pl-del" data-id="'+esc(p.id)+'">'+(S.confirm==='pl:'+p.id?'한 번 더 누르면 삭제':'삭제')+'</button></div>';
@@ -3422,24 +3434,49 @@ function isStandalone(){try{return window.matchMedia('(display-mode: standalone)
 function a2hsKind(){
   var ua=navigator.userAgent||'',ios=/iPhone|iPad|iPod/.test(ua)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
   if(/KAKAOTALK|FBAN|FBAV|Instagram|NAVER\(|Line\//i.test(ua))return 'inapp';
-  if(ios)return /CriOS/.test(ua)?'ios-chrome':'ios-safari';
+  if(ios)return /GSA\//.test(ua)?'ios-google':/CriOS/.test(ua)?'ios-chrome':'ios-safari';
   if(/Android/.test(ua))return 'android';
   return 'pc';
 }
+/* 휴대폰 화면의 단추 모양을 본뜬 그림 */
+var A2IC={
+  share:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 9.5H7a2 2 0 0 0-2 2v7.5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7.5a2 2 0 0 0-2-2h-1.5"/><path d="M12 14.5V3"/><path d="M8.3 6.6 12 3l3.7 3.6"/></svg>',
+  more:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 9.5 12 15l5.5-5.5"/></svg>',
+  plus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="17" height="17" rx="4.5"/><path d="M12 8v8M8 12h8"/></svg>',
+  dots:'<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5.5" r="1.9"/><circle cx="12" cy="12" r="1.9"/><circle cx="12" cy="18.5" r="1.9"/></svg>',
+  hdots:'<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5.5" cy="12" r="1.9"/><circle cx="12" cy="12" r="1.9"/><circle cx="18.5" cy="12" r="1.9"/></svg>',
+  install:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8"/><path d="M12 7.5v6M9.3 10.8 12 13.5l2.7-2.7"/></svg>',
+  open:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6"/><path d="M20 4l-9 9"/><path d="M18 14v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4"/></svg>'
+};
+function a2Pic(k){
+  if(k==='share')return '<span class="a2ic">'+A2IC.share+'</span>';
+  if(k==='more')return '<span class="a2ic circ"><span class="a2c">'+A2IC.more+'</span><small>더 보기</small></span>';
+  if(k==='addrow')return '<span class="a2ic row">'+A2IC.plus+'<span>홈 화면에 추가</span></span>';
+  if(k==='add')return '<span class="a2ic pill">추가</span>';
+  if(k==='install')return '<span class="a2ic pill">설치</span>';
+  if(k==='dots')return '<span class="a2ic">'+A2IC.dots+'</span>';
+  if(k==='pcinstall')return '<span class="a2ic">'+A2IC.install+'</span>';
+  if(k==='menu')return '<span class="a2ic">'+A2IC.hdots+'</span>';
+  if(k==='openrow')return '<span class="a2ic row">'+A2IC.open+'<span>다른 브라우저로 열기</span></span>';
+  if(k==='code')return '<span class="a2ic pill mono">000000</span>';
+  return '';
+}
 function a2hsSteps(k){
   return {
-    'inapp':['오른쪽 아래나 위의 <b>메뉴</b> 누르기','<b>다른 브라우저로 열기</b> 누르기','열린 화면에서 참여 코드 다시 넣기'],
-    'ios-chrome':['주소창 오른쪽 <b>공유 버튼</b> 누르기','<b>홈 화면에 추가</b> 누르기','<b>추가</b> 누르기'],
-    'ios-safari':['<b>공유 버튼</b>(네모에 위쪽 화살표) 누르기','<b>홈 화면에 추가</b> 누르기','<b>추가</b> 누르기'],
-    'android':['오른쪽 위 <b>점 세 개</b> 누르기','<b>홈 화면에 추가</b>(또는 앱 설치) 누르기','<b>설치</b> 누르기'],
-    'pc':['주소창 오른쪽 <b>설치 아이콘</b> 누르기','<b>설치</b> 누르기']
+    'inapp':[['menu','오른쪽 아래나 위의 <b>메뉴</b> 누르기'],['openrow','<b>다른 브라우저로 열기</b> 누르기'],['code','열린 화면에서 <b>참여 코드</b> 다시 넣기']],
+    'ios-google':[['share','<b>공유 버튼</b> 누르기'],['more','<b>더 보기</b> 누르기'],['addrow','<b>홈 화면에 추가</b> 누르기'],['add','오른쪽 위 <b>추가</b> 누르기']],
+    'ios-chrome':[['share','주소창 오른쪽 <b>공유 버튼</b> 누르기'],['addrow','<b>홈 화면에 추가</b> 누르기'],['add','오른쪽 위 <b>추가</b> 누르기']],
+    'ios-safari':[['share','<b>공유 버튼</b> 누르기'],['addrow','<b>홈 화면에 추가</b> 누르기'],['add','오른쪽 위 <b>추가</b> 누르기']],
+    'android':[['dots','오른쪽 위 <b>점 세 개</b> 누르기'],['addrow','<b>홈 화면에 추가</b>(또는 앱 설치) 누르기'],['install','<b>설치</b> 누르기']],
+    'pc':[['pcinstall','주소창 오른쪽 <b>설치 아이콘</b> 누르기'],['install','<b>설치</b> 누르기']]
   }[k];
 }
 function modalA2HS(V){
   var k=a2hsKind(),st=a2hsSteps(k),ios=k.indexOf('ios')===0;
-  var b='<ol class="a2steps">'+st.map(function(x){return '<li>'+x+'</li>';}).join('')+'</ol>';
-  if(k==='inapp')b='<p class="hint" style="margin-bottom:10px">카톡 안에서는 앱으로 추가할 수 없습니다.</p>'+b;
-  else b+='<p class="hint">'+(ios?'이제 홈 화면의 공부방 아이콘으로 여세요. 처음 열 때 참여 코드를 한 번 더 넣습니다.':'이제 홈 화면의 공부방 아이콘으로 여세요.')+'</p>';
+  var b='<ol class="a2steps">'+st.map(function(x,i){return '<li><span class="a2n">'+(i+1)+'</span>'+a2Pic(x[0])+'<span class="a2t">'+x[1]+'</span></li>';}).join('')+'</ol>';
+  if(k==='inapp')b='<p class="hint" style="margin-bottom:12px">카톡 안에서는 앱으로 추가할 수 없습니다.</p>'+b;
+  else if(k==='ios-google')b='<p class="hint" style="margin-bottom:12px">구글 앱에서는 이 순서로 눌러야 합니다.</p>'+b;
+  if(k!=='inapp')b+='<p class="hint">'+(ios?'이제 홈 화면의 공부방 아이콘으로 여세요. 처음 열 때 참여 코드를 한 번 더 넣습니다.':'이제 홈 화면의 공부방 아이콘으로 여세요.')+'</p>';
   b+='<div class="row" style="margin-top:14px"><button class="btn primary" data-act="modal-close">확인</button></div>';
   return dlg('',{id:'a2hs',t:k==='inapp'?'다른 브라우저로 열어 주세요':'앱으로 추가하기'},b);
 }

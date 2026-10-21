@@ -203,24 +203,49 @@ function isStandalone(){try{return window.matchMedia('(display-mode: standalone)
 function a2hsKind(){
   var ua=navigator.userAgent||'',ios=/iPhone|iPad|iPod/.test(ua)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
   if(/KAKAOTALK|FBAN|FBAV|Instagram|NAVER\(|Line\//i.test(ua))return 'inapp';
-  if(ios)return /CriOS/.test(ua)?'ios-chrome':'ios-safari';
+  if(ios)return /GSA\//.test(ua)?'ios-google':/CriOS/.test(ua)?'ios-chrome':'ios-safari';
   if(/Android/.test(ua))return 'android';
   return 'pc';
 }
+/* 휴대폰 화면의 단추 모양을 본뜬 그림 */
+var A2IC={
+  share:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 9.5H7a2 2 0 0 0-2 2v7.5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7.5a2 2 0 0 0-2-2h-1.5"/><path d="M12 14.5V3"/><path d="M8.3 6.6 12 3l3.7 3.6"/></svg>',
+  more:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 9.5 12 15l5.5-5.5"/></svg>',
+  plus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="17" height="17" rx="4.5"/><path d="M12 8v8M8 12h8"/></svg>',
+  dots:'<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5.5" r="1.9"/><circle cx="12" cy="12" r="1.9"/><circle cx="12" cy="18.5" r="1.9"/></svg>',
+  hdots:'<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5.5" cy="12" r="1.9"/><circle cx="12" cy="12" r="1.9"/><circle cx="18.5" cy="12" r="1.9"/></svg>',
+  install:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8"/><path d="M12 7.5v6M9.3 10.8 12 13.5l2.7-2.7"/></svg>',
+  open:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6"/><path d="M20 4l-9 9"/><path d="M18 14v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4"/></svg>'
+};
+function a2Pic(k){
+  if(k==='share')return '<span class="a2ic">'+A2IC.share+'</span>';
+  if(k==='more')return '<span class="a2ic circ"><span class="a2c">'+A2IC.more+'</span><small>더 보기</small></span>';
+  if(k==='addrow')return '<span class="a2ic row">'+A2IC.plus+'<span>홈 화면에 추가</span></span>';
+  if(k==='add')return '<span class="a2ic pill">추가</span>';
+  if(k==='install')return '<span class="a2ic pill">설치</span>';
+  if(k==='dots')return '<span class="a2ic">'+A2IC.dots+'</span>';
+  if(k==='pcinstall')return '<span class="a2ic">'+A2IC.install+'</span>';
+  if(k==='menu')return '<span class="a2ic">'+A2IC.hdots+'</span>';
+  if(k==='openrow')return '<span class="a2ic row">'+A2IC.open+'<span>다른 브라우저로 열기</span></span>';
+  if(k==='code')return '<span class="a2ic pill mono">000000</span>';
+  return '';
+}
 function a2hsSteps(k){
   return {
-    'inapp':['오른쪽 아래나 위의 <b>메뉴</b> 누르기','<b>다른 브라우저로 열기</b> 누르기','열린 화면에서 참여 코드 다시 넣기'],
-    'ios-chrome':['주소창 오른쪽 <b>공유 버튼</b> 누르기','<b>홈 화면에 추가</b> 누르기','<b>추가</b> 누르기'],
-    'ios-safari':['<b>공유 버튼</b>(네모에 위쪽 화살표) 누르기','<b>홈 화면에 추가</b> 누르기','<b>추가</b> 누르기'],
-    'android':['오른쪽 위 <b>점 세 개</b> 누르기','<b>홈 화면에 추가</b>(또는 앱 설치) 누르기','<b>설치</b> 누르기'],
-    'pc':['주소창 오른쪽 <b>설치 아이콘</b> 누르기','<b>설치</b> 누르기']
+    'inapp':[['menu','오른쪽 아래나 위의 <b>메뉴</b> 누르기'],['openrow','<b>다른 브라우저로 열기</b> 누르기'],['code','열린 화면에서 <b>참여 코드</b> 다시 넣기']],
+    'ios-google':[['share','<b>공유 버튼</b> 누르기'],['more','<b>더 보기</b> 누르기'],['addrow','<b>홈 화면에 추가</b> 누르기'],['add','오른쪽 위 <b>추가</b> 누르기']],
+    'ios-chrome':[['share','주소창 오른쪽 <b>공유 버튼</b> 누르기'],['addrow','<b>홈 화면에 추가</b> 누르기'],['add','오른쪽 위 <b>추가</b> 누르기']],
+    'ios-safari':[['share','<b>공유 버튼</b> 누르기'],['addrow','<b>홈 화면에 추가</b> 누르기'],['add','오른쪽 위 <b>추가</b> 누르기']],
+    'android':[['dots','오른쪽 위 <b>점 세 개</b> 누르기'],['addrow','<b>홈 화면에 추가</b>(또는 앱 설치) 누르기'],['install','<b>설치</b> 누르기']],
+    'pc':[['pcinstall','주소창 오른쪽 <b>설치 아이콘</b> 누르기'],['install','<b>설치</b> 누르기']]
   }[k];
 }
 function modalA2HS(V){
   var k=a2hsKind(),st=a2hsSteps(k),ios=k.indexOf('ios')===0;
-  var b='<ol class="a2steps">'+st.map(function(x){return '<li>'+x+'</li>';}).join('')+'</ol>';
-  if(k==='inapp')b='<p class="hint" style="margin-bottom:10px">카톡 안에서는 앱으로 추가할 수 없습니다.</p>'+b;
-  else b+='<p class="hint">'+(ios?'이제 홈 화면의 공부방 아이콘으로 여세요. 처음 열 때 참여 코드를 한 번 더 넣습니다.':'이제 홈 화면의 공부방 아이콘으로 여세요.')+'</p>';
+  var b='<ol class="a2steps">'+st.map(function(x,i){return '<li><span class="a2n">'+(i+1)+'</span>'+a2Pic(x[0])+'<span class="a2t">'+x[1]+'</span></li>';}).join('')+'</ol>';
+  if(k==='inapp')b='<p class="hint" style="margin-bottom:12px">카톡 안에서는 앱으로 추가할 수 없습니다.</p>'+b;
+  else if(k==='ios-google')b='<p class="hint" style="margin-bottom:12px">구글 앱에서는 이 순서로 눌러야 합니다.</p>'+b;
+  if(k!=='inapp')b+='<p class="hint">'+(ios?'이제 홈 화면의 공부방 아이콘으로 여세요. 처음 열 때 참여 코드를 한 번 더 넣습니다.':'이제 홈 화면의 공부방 아이콘으로 여세요.')+'</p>';
   b+='<div class="row" style="margin-top:14px"><button class="btn primary" data-act="modal-close">확인</button></div>';
   return dlg('',{id:'a2hs',t:k==='inapp'?'다른 브라우저로 열어 주세요':'앱으로 추가하기'},b);
 }
