@@ -1277,6 +1277,10 @@ html.wkdragging,html.wkdragging *{cursor:grabbing !important}
 .evrow.sv .tag.sub{background:color-mix(in srgb,var(--sc) 18%,transparent);color:color-mix(in srgb,var(--sc) 72%,var(--ink));font-weight:700}
 .evrow.sv .evtx{font-weight:600}
 @media (max-width:700px){.sev{font-size:9.5px;padding:2px 3px}}
+.abin{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-3)}
+.abin input[type=text]{width:64px;min-height:34px;padding:6px 8px;font-size:14px;text-align:center;border-radius:9px}
+.calleg .lg .sev{font-size:10.5px}
+.lgbtn{margin-left:auto}
 #c-setup .row input{min-width:0}
 #c-setup .lb{margin-top:0}
 .serr{color:var(--red);margin-top:8px}
@@ -2548,7 +2552,7 @@ function modalTTSlot(V){
 }
 function modalTTSet(V){
   var tab=S.ttTab||'fixed',T=ttData(V),f='';
-  var b='<div class="seg mini ttsets" style="--i:'+['fixed','color','win'].indexOf(tab)+';--n:3" role="group" aria-label="설정 종류">'+[['fixed','고정 시간표'],['color','과목 색'],['win','공부 시간']].map(function(x){return '<button data-act="tt-tab" data-v="'+x[0]+'" aria-pressed="'+(tab===x[0]?'true':'false')+'">'+x[1]+'</button>';}).join('')+'</div>';
+  var b='<div class="seg mini ttsets" style="--i:'+['fixed','color','win'].indexOf(tab)+';--n:3" role="group" aria-label="설정 종류">'+[['fixed','고정 시간표'],['color','색과 줄임말'],['win','공부 시간']].map(function(x){return '<button data-act="tt-tab" data-v="'+x[0]+'" aria-pressed="'+(tab===x[0]?'true':'false')+'">'+x[1]+'</button>';}).join('')+'</div>';
   if(tab==='fixed'){
     var E=S.ttEd;
     if(E){
@@ -2571,10 +2575,11 @@ function modalTTSet(V){
       b+='<div class="row" style="margin-top:14px">'+[['school','학교 넣기'],['academy','학원 넣기'],['etc','기타 넣기']].map(function(x){return '<button class="btn small'+(x[0]==='school'&&!T.b.length?' primary':'')+'" data-act="tt-new" data-v="'+x[0]+'">'+x[1]+'</button>';}).join('')+'</div>';
     }
   }else if(tab==='color'){
-    b+='<p class="hint" style="margin:14px 0 4px">시간표와 할 일 목록에 쓰는 내 과목 색입니다. 과목이 없거나 수행평가 같은 기타 일은 회색으로 보입니다.</p><div class="scols">';
+    b+='<p class="hint" style="margin:14px 0 4px">시간표와 할 일 목록에 쓰는 내 과목 색입니다. 줄임말은 달력 칸에 보이는 짧은 이름이고 3글자까지 쓸 수 있습니다. 둘 다 나에게만 적용됩니다.</p><div class="scols">';
     V.subs.forEach(function(s){
       var cur=subCol(V,s.id);
-      b+='<div class="scrow"><span><i style="background:'+cur+'"></i>'+esc(s.name)+'</span><div class="sws">'+SCOLS.map(function(c){return '<button class="sw2" data-act="scol" data-id="'+esc(s.id)+'" data-v="'+c[0]+'" style="--c:'+c[1]+'" aria-pressed="'+(cur===c[1]?'true':'false')+'" aria-label="'+esc(s.name)+' '+c[2]+'" title="'+c[2]+'"></button>';}).join('')+'<button class="sw2" data-act="scol" data-id="'+esc(s.id)+'" data-v="g" style="--c:'+SGRAY+'" aria-pressed="'+(cur===SGRAY?'true':'false')+'" aria-label="'+esc(s.name)+' 회색" title="회색"></button></div></div>';
+      var ab=String(obj(obj(V.progress[V.me]).abbr)[s.id]||''),abd=subShort(s.name);
+      b+='<div class="scrow"><span><i style="background:'+cur+'"></i>'+esc(s.name)+'</span><label class="abin"><span>줄임말</span><input type="text" maxlength="3" value="'+esc(ab)+'" placeholder="'+esc(abd)+'" class="abin-in" data-id="'+esc(s.id)+'" aria-label="'+esc(s.name)+' 줄임말"></label><div class="sws">'+SCOLS.map(function(c){return '<button class="sw2" data-act="scol" data-id="'+esc(s.id)+'" data-v="'+c[0]+'" style="--c:'+c[1]+'" aria-pressed="'+(cur===c[1]?'true':'false')+'" aria-label="'+esc(s.name)+' '+c[2]+'" title="'+c[2]+'"></button>';}).join('')+'<button class="sw2" data-act="scol" data-id="'+esc(s.id)+'" data-v="g" style="--c:'+SGRAY+'" aria-pressed="'+(cur===SGRAY?'true':'false')+'" aria-label="'+esc(s.name)+' 회색" title="회색"></button></div></div>';
     });
     b+='</div>';
   }else{
@@ -3278,8 +3283,9 @@ function viewProgAll(V){
 }
 
 /* ---------- 달력 칸: 일정은 과목 줄임말 색 칩으로만, 자세한 내용은 날짜를 누르면 ---------- */
-var SUB_ABBR={'확률과 통계':'확통','화법과 언어':'화언','화법과 작문':'화작','언어와 매체':'언매','생명과학 실험':'생실','미적분Ⅰ':'미적','미적분Ⅱ':'미적2','미적분':'미적'};
+var SUB_ABBR={'생물의 유전':'유전','확률과 통계':'확통','화법과 언어':'화언','화법과 작문':'화작','언어와 매체':'언매','생명과학 실험':'생실','미적분Ⅰ':'미적','미적분Ⅱ':'미적2','미적분':'미적'};
 function subShort(name){name=String(name||'').trim();if(SUB_ABBR[name])return SUB_ABBR[name];var w=name.split(/\s+/)[0].replace(/(의|과|와)$/,'');return w.length>2?w.slice(0,2):w;}
+function subAbbr(V,sid){var c=String(obj(obj(V.progress[V.me]).abbr)[sid]||'').trim();return c||subShort(V.subName[sid]);}
 function evSid(V,e){
   if(e.sid&&V.subName[e.sid])return e.sid;
   var t=String(e.title||''),best='',bl=0;
@@ -3292,7 +3298,7 @@ function cellChips(V,mine){
   mine.forEach(function(e){
     var sid=evSid(V,e),k=sid||('t:'+e.title);
     if(seen[k]){seen[k].n++;return;}
-    var c={sid:sid,grp:e.grp,n:1,t:sid?subShort(V.subName[sid]):(e.kind==='시험'||e.kind==='행사'||e.kind==='발표'||e.kind==='제출'||e.kind==='퀴즈')?e.kind:cut(String(e.title).replace(/\s+/g,''),3)};
+    var c={sid:sid,grp:e.grp,n:1,t:sid?subAbbr(V,sid):(e.kind==='시험'||e.kind==='행사'||e.kind==='발표'||e.kind==='제출'||e.kind==='퀴즈')?e.kind:cut(String(e.title).replace(/\s+/g,''),3)};
     seen[k]=c;chips.push(c);
   });
   return chips;
@@ -3303,8 +3309,13 @@ function monthLegend(V,ym){
   Object.keys(V.evByDate).forEach(function(d){if(d.slice(0,7)!==ym)return;V.evByDate[d].forEach(function(e){if(e.grp!=='task')return;var sid=evSid(V,e),k=sid||'_';if(!cnt[k]){cnt[k]=0;order.push(k);}cnt[k]++;});});
   if(!order.length)return '';
   order.sort(function(a,b){return cnt[b]-cnt[a];});
-  return '<div class="calleg"><small>이번 달 수행평가</small>'+order.map(function(k){var nm=k==='_'?'기타':V.subName[k];return '<span class="lg" style="--sc:'+(k==='_'?SGRAY:subCol(V,k))+'"><i></i>'+esc(nm)+' '+cnt[k]+'</span>';}).join('')+'</div>';
+  return '<div class="calleg"><small>이번 달 수행평가</small>'+order.map(function(k){var nm=k==='_'?'기타':V.subName[k];return '<span class="lg" style="--sc:'+(k==='_'?SGRAY:subCol(V,k))+'">'+(k==='_'?'<i></i>':'<em class="sev">'+esc(subAbbr(V,k))+'</em>')+esc(nm)+' '+cnt[k]+'</span>';}).join('')+(V.me?'<button class="btn small lgbtn" data-act="abbr-open">줄임말 바꾸기</button>':'')+'</div>';
 }
+document.addEventListener('change',function(e){
+  var t=e.target;if(!t||!t.classList||!t.classList.contains('abin-in'))return;
+  var v=String(t.value||'').trim().slice(0,3),id=t.getAttribute('data-id');
+  setTimeout(function(){var V=view();if(!V.subName[id])return;editProg(function(p){var a=obj(p.abbr);if(v&&v!==subShort(V.subName[id]))a[id]=v;else delete a[id];p.abbr=a;});render();},0);
+});
 
 /* ---------- 방: 참여 코드, 새 방, 방 바꾸기 (웹 판) ---------- */
 // 참여 링크: 사이트주소#join=<저장소 이름>  -> 참여 코드 6자리 -> 이름 고르기
@@ -5080,6 +5091,7 @@ function act(name,el){
       if(prev!=='pen2:'+pi2){S.confirm='pen2:'+pi2;break;}
       editCfg(function(c){var l=arr(c.penalties);l.splice(pi2,1);c.penalties=l;c.penalty='';});break;
     }
+    case 'abbr-open':S.ttTab='color';openModal('ttset',el);return;
     case 'pick-date':{var pdv=el.getAttribute('data-d');S.date=pdv;if(MONTHS.indexOf(pdv.slice(0,7))>=0)S.month=pdv.slice(0,7);break;}
     case 'goal-toggle':if(dayLocked(view(),date)){flash('인증 마감이 지나 완료 표시를 바꿀 수 없습니다.');break;}editDay(date,function(d){d.goals.forEach(function(g){if(g.id===id){g.done=!g.done;if(g.done&&d.focus===id)d.focus=null;}});});break;
     case 'goal-del':{if(date<today()){flash('지난 날의 할 일은 지울 수 없습니다.');break;}if(prev!=='gdel:'+id){S.confirm='gdel:'+id;break;}var Vgd=view(),sgd=snap(['days/'+Vgd.me+'_'+date]);editDay(date,function(d){d.goals=d.goals.filter(function(g){return g.id!==id;});if(d.focus===id)d.focus=null;});S.gSel=null;if(canWrite())flash('할 일을 지웠습니다.',sgd);break;}

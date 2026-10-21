@@ -755,3 +755,7 @@ html.wkdragging,html.wkdragging *{cursor:grabbing !important}
 .evrow.sv .tag.sub{background:color-mix(in srgb,var(--sc) 18%,transparent);color:color-mix(in srgb,var(--sc) 72%,var(--ink));font-weight:700}
 .evrow.sv .evtx{font-weight:600}
 @media (max-width:700px){.sev{font-size:9.5px;padding:2px 3px}}
+.abin{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-3)}
+.abin input[type=text]{width:64px;min-height:34px;padding:6px 8px;font-size:14px;text-align:center;border-radius:9px}
+.calleg .lg .sev{font-size:10.5px}
+.lgbtn{margin-left:auto}
