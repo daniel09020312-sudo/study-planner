@@ -136,9 +136,11 @@ document.addEventListener('input',function(e){
 /* 설정의 방 칸 */
 function roomSec(V){
   if(!S.net||S.net.mode!=='firebase'||!S.remote)return '';
-  var ri=S.roomInfo||{};
+  var ri=S.roomInfo||{},isAdm=!!(V.me&&adminId(V)===V.me);
   var h='<div class="sec rmsec"><h3>방</h3><div class="rmbox"><div><small>지금 방</small><b>'+esc(roomName())+'</b></div><div><small>참여 코드</small><b class="rmcode">'+(ri.code?fmtCode(ri.code):'만드는 중')+'</b></div></div>';
-  h+='<div class="row" style="margin-top:10px"><button class="btn small primary" data-act="open" data-modal="invite"'+(ri.code?'':' disabled')+'>친구 초대하기</button><button class="btn small" data-act="open" data-modal="rooms">다른 방, 새 방 만들기</button>'+(isStandalone()?'':'<button class="btn small" data-act="open" data-modal="a2hs">앱으로 추가하기</button>')+'</div></div>';
+  h+='<div class="row" style="margin-top:10px"><button class="btn small primary" data-act="open" data-modal="invite"'+(ri.code?'':' disabled')+'>친구 초대하기</button>'+(isAdm&&ri.code?'<button class="btn small" data-act="open" data-modal="roomadm">방 이름, 코드 바꾸기</button>':'')+(isStandalone()?'':'<button class="btn small" data-act="open" data-modal="a2hs">앱으로 추가하기</button>')+'</div>';
+  h+='<div class="rmacts"><button class="rmact mv" data-act="open" data-modal="rooms"><i aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 8h13M13 4l4 4-4 4M20 16H7M11 12l-4 4 4 4"/></svg></i><span><b>방 옮기기</b><small>다른 방으로 가기</small></span></button>';
+  h+='<button class="rmact nw" data-act="open" data-modal="newroom"><i aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></i><span><b>새로운 방 만들기</b><small>기록은 새로 시작</small></span></button></div></div>';
   return h;
 }
 function modalInvite(V){
@@ -151,28 +153,35 @@ function modalInvite(V){
   return dlg('',{id:'invite',t:'친구 초대하기'},b);
 }
 function modalRooms(V){
-  var cur=S.remote,list=roomsList(),ri=S.roomInfo||{},isAdm=!!(V.me&&adminId(V)===V.me),st=S.jst;
+  var cur=S.remote,list=roomsList(),st=S.jst;
   list.sort(function(a,b){var ac=cur&&a.room===cur.room?0:1,bc=cur&&b.room===cur.room?0:1;return ac-bc;});
   var b='<div class="sec" style="margin-top:0"><h3>이 기기에서 들어간 방</h3><div class="rmlist">';
   list.forEach(function(x){
     var on=!!(cur&&x.room===cur.room&&x.url===cur.url);
     b+='<div class="rmrow'+(on?' on':'')+'"><div class="rmn"><b>'+esc(on?roomName():(x.name||'공부방'))+'</b><small>'+(on?'지금 방':(x.code?'참여 코드 '+fmtCode(x.code):''))+'</small></div>';
-    if(!on)b+='<button class="btn small" data-act="room-open" data-id="'+esc(x.room)+'">열기</button><button class="del" data-act="room-forget" data-id="'+esc(x.room)+'">'+(S.confirm==='rmf:'+x.room?'한 번 더 누르면 뺍니다':'목록에서 빼기')+'</button>';
+    if(!on)b+='<button class="btn small" data-act="room-open" data-id="'+esc(x.room)+'">이 방으로</button><button class="del" data-act="room-forget" data-id="'+esc(x.room)+'">'+(S.confirm==='rmf:'+x.room?'한 번 더 누르면 뺍니다':'목록에서 빼기')+'</button>';
     b+='</div>';
   });
-  b+='</div></div>';
+  b+='</div>'+(list.length<2?'<p class="hint" style="margin-top:6px">다른 방에 들어가 본 적이 없습니다. 친구에게 받은 참여 코드를 아래에 넣으세요.</p>':'')+'</div>';
   b+='<div class="sec"><h3>참여 코드로 다른 방 들어가기</h3><div class="row"><input id="rmCode" class="jcode sm" type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="off" maxlength="7" data-draft="joinCode" data-enter="join-go" placeholder="참여 코드 6자리" aria-label="참여 코드 6자리"><button class="btn" data-act="join-go"'+(st.busy?' disabled':'')+'>들어가기</button></div>'+(st.err?'<p class="hint serr" role="status">'+esc(st.err)+'</p>':'')+'</div>';
-  b+='<div class="sec" id="c-newroom"><h3>새 방 만들기<small>기록은 새로 시작합니다</small></h3>';
+  b+='<p class="hint rmswap">방을 새로 만들려면 <button class="linkbtn" data-act="open" data-modal="newroom">새로운 방 만들기</button></p>';
+  return dlg('',{id:'rooms',t:'방 옮기기'},b);
+}
+function modalNewRoom(V){
+  var b='<div class="sec" id="c-newroom" style="margin-top:0"><p class="hint" style="margin:0 0 10px">지금 방은 그대로 두고, 기록이 비어 있는 방을 하나 더 만듭니다. 만든 뒤 바로 그 방으로 옮겨 갑니다.</p>';
   b+='<label class="lb" for="nrName">방 이름</label><input id="nrName" type="text" maxlength="16" data-draft="nrName" placeholder="예: 2학년 공부방">';
   b+='<label class="lb" for="nrPeople">참여할 사람</label><textarea id="nrPeople" rows="4" data-draft="nrPeople" placeholder="한 줄에 한 명씩 적으세요. 맨 위가 방장입니다."></textarea>';
   b+='<p class="hint" style="margin-top:6px">비워 두어도 됩니다. 들어온 친구가 자기 이름을 직접 추가할 수 있습니다.</p>';
   b+='<button class="nrchk" data-act="nr-subj" aria-pressed="'+(S.nrSubj?'true':'false')+'"><i aria-hidden="true"></i>지금 방의 과목 목록 그대로 쓰기</button>';
-  b+='<div class="row" style="margin-top:12px"><button class="btn primary" data-act="nr-make"'+(S.nrBusy?' disabled':'')+'>'+(S.nrBusy?'만드는 중':'새 방 만들기')+'</button></div></div>';
-  if(isAdm&&ri.code){
-    b+='<div class="sec"><h3>이 방 관리<small>방장만</small></h3><label class="lb" for="rmRename">방 이름</label><div class="row"><input id="rmRename" type="text" maxlength="16" data-draft="rmRename" data-enter="room-rename" placeholder="'+esc(roomName())+'"><button class="btn small" data-act="room-rename">이름 바꾸기</button></div>';
-    b+='<div class="row" style="margin-top:10px"><button class="btn small'+(S.confirm==='recode'?' warn':'')+'" data-act="room-recode">'+(S.confirm==='recode'?'한 번 더 누르면 코드를 바꿉니다':'참여 코드 바꾸기')+'</button></div><p class="hint" style="margin-top:6px">코드를 바꾸면 예전 코드로는 들어올 수 없습니다. 이미 들어온 사람은 그대로입니다.</p></div>';
-  }
-  return dlg('',{id:'rooms',t:'방'},b);
+  b+='<div class="row" style="margin-top:12px"><button class="btn primary" data-act="nr-make"'+(S.nrBusy?' disabled':'')+'>'+(S.nrBusy?'만드는 중':'새로운 방 만들기')+'</button></div></div>';
+  return dlg('',{id:'newroom',t:'새로운 방 만들기'},b);
+}
+function modalRoomAdm(V){
+  var ri=S.roomInfo||{};
+  if(!(V.me&&adminId(V)===V.me&&ri.code))return dlg('',{id:'roomadm',t:'방 이름, 코드 바꾸기'},'<p class="hint">방장만 바꿀 수 있습니다.</p>');
+  var b='<div class="sec" style="margin-top:0"><label class="lb" for="rmRename" style="margin-top:0">방 이름</label><div class="row"><input id="rmRename" type="text" maxlength="16" data-draft="rmRename" data-enter="room-rename" placeholder="'+esc(roomName())+'"><button class="btn small" data-act="room-rename">이름 바꾸기</button></div></div>';
+  b+='<div class="sec"><h3>참여 코드<small>지금 '+fmtCode(ri.code)+'</small></h3><div class="row"><button class="btn small'+(S.confirm==='recode'?' warn':'')+'" data-act="room-recode">'+(S.confirm==='recode'?'한 번 더 누르면 코드를 바꿉니다':'참여 코드 바꾸기')+'</button></div><p class="hint" style="margin-top:6px">코드를 바꾸면 예전 코드로는 들어올 수 없습니다. 이미 들어온 사람은 그대로입니다.</p></div>';
+  return dlg('',{id:'roomadm',t:'방 이름, 코드 바꾸기'},b);
 }
 function makeRoom(){
   if(!S.remote||!S.net||S.nrBusy)return;

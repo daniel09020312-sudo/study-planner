@@ -89,10 +89,10 @@ sub("""      lsSet('gbb_remote',null);try{history.replaceState(null,'',String(lo
       lsSet('gbb_remote',null);try{history.replaceState(null,'',String(location.href).split('#')[0]);}catch(e){}""")
 
 # 5) 창 열기
-sub("  if(type!=='settings'&&type!=='pic'&&!V.me)return;", "  if(type!=='settings'&&type!=='pic'&&type!=='rooms'&&type!=='invite'&&type!=='a2hs'&&!V.me)return;")
+sub("  if(type!=='settings'&&type!=='pic'&&!V.me)return;", "  if(type!=='settings'&&type!=='pic'&&type!=='rooms'&&type!=='newroom'&&type!=='invite'&&type!=='a2hs'&&!V.me)return;")
 sub("  if(type==='plan'){S.pl=newPlan();S.draft.plNote='';}",
-    "  if(type==='rooms'){S.jst.err='';S.draft.joinCode='';S.draft.rmRename='';S.nrBusy=false;if(!S.draft.nrPeople&&V.me&&V.byId[V.me])S.draft.nrPeople=V.byId[V.me].name;}\n  if(type==='plan'){S.pl=newPlan();S.draft.plNote='';}")
-sub("  if(t==='settings')return modalSettings(V);", "  if(t==='settings')return modalSettings(V);\n  if(t==='rooms')return modalRooms(V);\n  if(t==='invite')return modalInvite(V);\n  if(t==='a2hs')return modalA2HS(V);")
+    "  if(type==='rooms'){S.jst.err='';S.draft.joinCode='';}\n  if(type==='newroom'){S.nrBusy=false;if(!S.draft.nrPeople&&V.me&&V.byId[V.me])S.draft.nrPeople=V.byId[V.me].name;}\n  if(type==='roomadm')S.draft.rmRename='';\n  if(type==='plan'){S.pl=newPlan();S.draft.plNote='';}")
+sub("  if(t==='settings')return modalSettings(V);", "  if(t==='settings')return modalSettings(V);\n  if(t==='rooms')return modalRooms(V);\n  if(t==='newroom')return modalNewRoom(V);\n  if(t==='roomadm')return modalRoomAdm(V);\n  if(t==='invite')return modalInvite(V);\n  if(t==='a2hs')return modalA2HS(V);")
 # 처음 안내는 한 번만: 닫으면 표시를 지운다. 그린 뒤마다 띄울 때인지 본다
 sub("  if(S.modal.type==='pin')S.autoReward=null;", "  if(S.modal.type==='pin')S.autoReward=null;\n  if(S.modal.type==='a2hs')lsSet('gbb_a2hs',null);")
 sub("  if(S.focusAfter){var fe=document.getElementById(S.focusAfter);", "  try{a2hsTick();}catch(e){}\n  if(S.focusAfter){var fe=document.getElementById(S.focusAfter);")
@@ -165,6 +165,19 @@ sub("</style>", """.jcode{font:700 30px/1.2 ui-monospace,SFMono-Regular,Menlo,Co
 .jinapp{margin:0;font-size:13.5px}
 .jcode.sm::placeholder{letter-spacing:normal;font:500 15px/1.2 var(--font-body)}
 .rmsec{border-top:0;padding-top:0}
+.rmacts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.rmact{display:flex;align-items:center;gap:10px;min-width:0;padding:12px;border-radius:14px;border:1px solid var(--line);background:var(--surface);color:var(--ink);text-align:left;cursor:pointer;font:inherit;transition:background .15s,border-color .15s}
+.rmact:hover{border-color:var(--accent)}
+.rmact i{flex:none;display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:11px;background:var(--fill);color:var(--ink-2)}
+.rmact.nw i{background:var(--accent);color:var(--on-accent)}
+.rmact.nw{border-style:dashed}
+.rmact svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.rmact span{min-width:0}
+.rmact b{display:block;font-size:14.5px;line-height:1.3}
+.rmact small{display:block;margin-top:2px;font-size:12px;color:var(--ink-3);line-height:1.3}
+@media (max-width:360px){.rmacts{grid-template-columns:1fr}}
+.rmswap{margin-top:14px}
+.linkbtn{border:0;background:none;padding:0;font:inherit;color:var(--accent-ink);font-weight:700;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
 .nrchk{display:flex;align-items:center;gap:10px;margin-top:12px;padding:4px 0;border:0;background:none;font-size:14px;color:var(--ink-2);cursor:pointer;text-align:left}
 .nrchk i{position:relative;flex:none;width:20px;height:20px;border-radius:6px;box-shadow:inset 0 0 0 2px var(--line);transition:background .15s,box-shadow .15s}
 .nrchk[aria-pressed="true"] i{background:var(--accent);box-shadow:none}

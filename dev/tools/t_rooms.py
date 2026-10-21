@@ -206,8 +206,13 @@ print('B overflow     :', ev(B, "document.documentElement.scrollWidth>innerWidth
 
 # ---- A: 새 방 만들기
 click(A, '#meBtn', 600)
+print('A room buttons :', ev(A, "[...document.querySelectorAll('.rmsec button')].map(e=>e.innerText.replace(/\\n/g,' / ')).join(' | ')"))
+A.screenshot(path=SH + 'r_05a_settings.png')
 click(A, '[data-act="open"][data-modal="rooms"]', 600)
-print('A rooms modal  :', ev(A, "[...document.querySelectorAll('.rmrow')].map(e=>e.innerText.replace(/\\n/g,' / ')).join(' | ')"), '| people prefill', ev(A, "document.getElementById('nrPeople').value"))
+print('A move modal   :', ev(A, "(document.getElementById('dlgT')||{}).textContent"), '|', ev(A, "[...document.querySelectorAll('.rmrow')].map(e=>e.innerText.replace(/\\n/g,' / ')).join(' | ')"), '| has new form', ev(A, "!!document.getElementById('nrName')"))
+A.screenshot(path=SH + 'r_05b_move.png')
+click(A, '.rmswap [data-modal="newroom"]', 600)
+print('A new modal    :', ev(A, "(document.getElementById('dlgT')||{}).textContent"), '| people prefill', ev(A, "document.getElementById('nrPeople').value"))
 A.fill('#nrName', '새 공부방'); A.fill('#nrPeople', '민준\n지호\n하준')
 A.screenshot(path=SH + 'r_05_rooms.png')
 click(A, '[data-act="nr-make"]', 3000)
@@ -231,7 +236,7 @@ click(A, '#meBtn', 600); click(A, '[data-act="open"][data-modal="rooms"]', 600)
 click(A, '[data-act="room-open"]', 2500)
 print('A back old     :', ev(A, "!document.querySelector('#view-gate')"), '| room name', ev(A, "JSON.parse(localStorage.getItem('gbb_remote')).room===%s" % json.dumps(R1)))
 # 방장: 코드 바꾸기, 이름 바꾸기
-click(A, '#meBtn', 600); click(A, '[data-act="open"][data-modal="rooms"]', 600)
+click(A, '#meBtn', 600); click(A, '[data-act="open"][data-modal="roomadm"]', 600)
 A.fill('#rmRename', '처음 공부방'); click(A, '[data-act="room-rename"]', 600)
 click(A, '[data-act="room-recode"]', 300); click(A, '[data-act="room-recode"]', 1500)
 c3 = codes()
