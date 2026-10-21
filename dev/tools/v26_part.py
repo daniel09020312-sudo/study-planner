@@ -57,19 +57,25 @@ try{
     {d:'M321 100 L321 170',w:32,p:press(.7,.2,.35,.4)},
     {d:'M186 300 L236 346 L328 252',w:40,phi:0,min:.45,p:press(.6,.12,.4,.1),cls:'spck'}
   ];
-  var B=D.map(function(x){return brush(x.d,x);}),t=70,S=B.map(function(b){var s={a:t,b:t+50+b.L/2.8};t=s.b+35;return s;}),T1=t-35,DRAW=T1+380,REV=900,ck=B[6].el;
+  var B=D.map(function(x){return brush(x.d,x);}),t=70,S=B.map(function(b){var s={a:t,b:t+40+b.L/3.3};t=s.b+28;return s;}),T1=t-28,DRAW=T1+300,REV=760,ck=B[6].el;
   var frame=function(n){
     for(var i=0;i<B.length;i++)B[i].draw(sine(seg(n,S[i].a,S[i].b)));
     var w=seg(n,T1-60,T1+320);wash.style.opacity=(.9*out(w)).toFixed(3);wash.setAttribute('transform','translate(112 0) scale('+(.2+.8*out(w)).toFixed(4)+' 1) translate(-112 0)');
     place(1+.03*Math.sin(Math.PI*seg(n,T1,T1+380)));
   };
   // 열기: 달력 안쪽이 먼저 비치고(구멍을 덮던 막이 옅어짐), 그림과 막이 함께 커지며 화면 전체가 드러난다
+  // 화면 네 귀퉁이가 모두 달력 안쪽(둥근 사각형)에 들어가고, 안쪽의 머리줄도 화면 위로 빠져나갈 만큼 키운다.
+  // 테두리와 머리줄이 화면 밖으로 다 나간 뒤에 없앤다(흐려지지 않음)
+  var zFit=function(){var q=place(1),hw=q[0]/2/S0,hh=q[1]/2/S0,a=124,b=112,rr=47,z=1;
+    for(var i=0;i<400;i++){var px=hw/z,py=hh/z;if(px<=a&&py<=b&&(px<=a-rr||py<=b-rr||Math.pow(px-(a-rr),2)+Math.pow(py-(b-rr),2)<=rr*rr))break;z*=1.03;}
+    return Math.max(z,hh/38)*1.06;};
+  var ZE=0;
   var reveal=function(r){
-    var q=place(1),zEnd=Math.max(q[0]/(276*S0),q[1]/(258*S0))*1.6+1,u=seg(r,140,REV);
-    place(Math.pow(zEnd,u*u));
-    hole.style.opacity=(1-out(seg(r,0,300))).toFixed(3);
-    wash.style.opacity=(.9*(1-seg(r,0,220))).toFixed(3);ck.style.opacity=(1-seg(r,0,220)).toFixed(3);
-    ink.style.opacity=(1-seg(r,REV*.45,REV*.85)).toFixed(3);
+    if(!ZE)ZE=zFit();
+    var u=seg(r,100,REV);
+    place(Math.pow(ZE,u*u));
+    hole.style.opacity=(1-out(seg(r,0,220))).toFixed(3);
+    wash.style.opacity=(.9*(1-seg(r,0,180))).toFixed(3);ck.style.opacity=(1-seg(r,0,180)).toFixed(3);
   };
   if(red){frame(DRAW);st.done=true;st.reveal=kill;return;}
   frame(0);
