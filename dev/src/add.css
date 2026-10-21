@@ -740,3 +740,18 @@ html.wkdragging,html.wkdragging *{cursor:grabbing !important}
 .fincd b{flex:none;white-space:nowrap}
 .finbk b{white-space:nowrap}
 .finme .finbk b small{display:inline;margin:0 0 0 2px}
+/* 달력 칸: 과목 줄임말 칩 */
+.sevs{display:flex;flex-wrap:wrap;gap:2px 3px;max-width:100%}
+.sev{display:inline-flex;align-items:center;gap:2px;font-style:normal;font-size:10.5px;font-weight:700;line-height:1;padding:3px 5px;border-radius:5px;white-space:nowrap;background:color-mix(in srgb,var(--sc) 20%,transparent);color:color-mix(in srgb,var(--sc) 72%,var(--ink))}
+.sev b{font-size:9px;font-weight:800;opacity:.8}
+.sev.ex{background:var(--accent-soft);color:var(--accent-ink)}
+.sev.more{background:var(--fill);color:var(--ink-3)}
+.sev.due{background:transparent;color:var(--accent-ink);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--accent) 55%,transparent)}
+.calleg{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
+.calleg small{font-size:12px;color:var(--ink-3);margin-right:2px}
+.calleg .lg{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.calleg .lg i{width:8px;height:8px;border-radius:50%;background:var(--sc)}
+.evrow.sv > span{display:flex;flex-wrap:wrap;align-items:center;gap:6px;min-width:0}
+.evrow.sv .tag.sub{background:color-mix(in srgb,var(--sc) 18%,transparent);color:color-mix(in srgb,var(--sc) 72%,var(--ink));font-weight:700}
+.evrow.sv .evtx{font-weight:600}
+@media (max-width:700px){.sev{font-size:9.5px;padding:2px 3px}}

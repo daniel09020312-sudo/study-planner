@@ -91,7 +91,7 @@ function roomTick(){
 function roomName(){return (S.roomInfo&&S.roomInfo.name)||'공부방';}
 function inviteMsg(){
   var ri=S.roomInfo||{};
-  return '공부방 플래너 \''+roomName()+'\'에 초대합니다.\n1. 링크 열기: '+joinLink(S.remote.url)+'\n2. 참여 코드 넣기: '+ri.code+'\n3. 내 이름 고르기';
+  return '공부방 플래너 \''+roomName()+'\'에 초대합니다.\n1. 링크 열기: '+joinLink(S.remote.url)+'\n2. 참여 코드 넣기: '+ri.code+'\n3. 내 이름 고르기/추가하기';
 }
 
 /* 참여 코드 넣는 화면 */

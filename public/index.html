@@ -1262,6 +1262,21 @@ html.wkdragging,html.wkdragging *{cursor:grabbing !important}
 .fincd b{flex:none;white-space:nowrap}
 .finbk b{white-space:nowrap}
 .finme .finbk b small{display:inline;margin:0 0 0 2px}
+/* 달력 칸: 과목 줄임말 칩 */
+.sevs{display:flex;flex-wrap:wrap;gap:2px 3px;max-width:100%}
+.sev{display:inline-flex;align-items:center;gap:2px;font-style:normal;font-size:10.5px;font-weight:700;line-height:1;padding:3px 5px;border-radius:5px;white-space:nowrap;background:color-mix(in srgb,var(--sc) 20%,transparent);color:color-mix(in srgb,var(--sc) 72%,var(--ink))}
+.sev b{font-size:9px;font-weight:800;opacity:.8}
+.sev.ex{background:var(--accent-soft);color:var(--accent-ink)}
+.sev.more{background:var(--fill);color:var(--ink-3)}
+.sev.due{background:transparent;color:var(--accent-ink);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--accent) 55%,transparent)}
+.calleg{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
+.calleg small{font-size:12px;color:var(--ink-3);margin-right:2px}
+.calleg .lg{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.calleg .lg i{width:8px;height:8px;border-radius:50%;background:var(--sc)}
+.evrow.sv > span{display:flex;flex-wrap:wrap;align-items:center;gap:6px;min-width:0}
+.evrow.sv .tag.sub{background:color-mix(in srgb,var(--sc) 18%,transparent);color:color-mix(in srgb,var(--sc) 72%,var(--ink));font-weight:700}
+.evrow.sv .evtx{font-weight:600}
+@media (max-width:700px){.sev{font-size:9.5px;padding:2px 3px}}
 #c-setup .row input{min-width:0}
 #c-setup .lb{margin-top:0}
 .serr{color:var(--red);margin-top:8px}
@@ -2208,7 +2223,8 @@ function dayPanel(V,d){
   if(ev)h+='<div class="evrow"><span><em class="tag'+(ev.exam?' r':'')+'">학교</em>'+esc(ev.l)+'</span></div>';
   mine.forEach(function(e){
     var own=e.mid===V.me,who=V.byId[e.mid];
-    h+='<div class="evrow" id="ev-'+esc(e.id)+'"><span><em class="tag a">'+(e.shared?(own?'공유':esc(who?shortName(who.name):'공유')):'내 일정')+'</em>'+esc(e.title)+'</span>'+(own?'<button class="del" data-act="ev-del" data-id="'+esc(e.id)+'">'+(S.confirm==='ev:'+e.id?'한 번 더 누르면 삭제':'삭제')+'</button>':'')+'</div>';
+    var esid=evSid(V,e),rest=evRest(V,e,esid);
+    h+='<div class="evrow sv" id="ev-'+esc(e.id)+'" style="--sc:'+(esid?subCol(V,esid):e.grp==='exam'?'var(--accent)':SGRAY)+'"><span>'+(esid?'<em class="tag sub">'+esc(V.subName[esid])+'</em>':'')+'<span class="evtx">'+esc(rest||e.title)+'</span><em class="tag">'+(e.shared?(own?'공유':esc(who?shortName(who.name):'공유')):'나만')+'</em></span>'+(own?'<button class="del" data-act="ev-del" data-id="'+esc(e.id)+'">'+(S.confirm==='ev:'+e.id?'한 번 더 누르면 삭제':'삭제')+'</button>':'')+'</div>';
   });
   (dueMap(V)[d]||[]).forEach(function(p){h+='<div class="evrow"><span><em class="tag due">마감</em>'+esc(p.label)+'</span><button class="del" data-act="pl-show" data-id="'+esc(p.id)+'">보기</button></div>';});
   if(!ev&&!mine.length&&!(dueMap(V)[d]||[]).length)h+='<p class="empty">일정이 없습니다.</p>';
@@ -2239,15 +2255,14 @@ function viewCal(V){
   for(var i=0;i<rows*7;i++){
     var d=addDays(start,i),dt=pd(d),ev=EVENTS[d],mine=V.evByDate[d]||[],g=dayOf(V,V.me,d).goals,done=g.filter(isDone).length;
     var cls='cell'+(dt.getDay()===0||(ev&&ev.off)?' sun':'')+(d.slice(0,7)!==ym?' other':'')+(d===t?' today':'')+(d===S.date?' sel':''),evs='',n=0,lab=longDate(d);
-    if(ev){evs+='<span class="ev'+(ev.exam?' exam':'')+'">'+esc(ev.s)+'</span>';n++;lab+=', '+ev.l;}
-    mine.forEach(function(e){lab+=', '+e.title;if(n<2){evs+='<span class="ev mine">'+esc(e.title)+'</span>';n++;}});
-    var dues=dueMap(V)[d]||[];dues.forEach(function(p){lab+=', 마감 '+p.label;if(n<2){evs+='<span class="ev due">마감 '+esc(p.label)+'</span>';n++;}});
-    var more=(ev?1:0)+mine.length+dues.length-n;
-    if(more>0)evs+='<span class="ev">+'+more+'</span>';
+    if(ev){evs+='<span class="ev'+(ev.exam?' exam':'')+'">'+esc(ev.s)+'</span>';lab+=', '+ev.l;}
+    mine.forEach(function(e){lab+=', '+e.title;});
+    var chips=cellChips(V,mine),dues=dueMap(V)[d]||[];dues.forEach(function(p){lab+=', 마감 '+p.label;});
+    if(chips.length||dues.length)evs+='<span class="sevs">'+chips.slice(0,3).map(function(c){return chipHtml(V,c);}).join('')+(chips.length>3?'<i class="sev more">+'+(chips.length-3)+'</i>':'')+(dues.length?'<i class="sev due">마감'+(dues.length>1?'<b>'+dues.length+'</b>':'')+'</i>':'')+'</span>';
     if(g.length)lab+=', 할 일 '+g.length+'개 중 '+done+'개 완료';
     h+='<button class="'+cls+'" data-act="pick-date" data-d="'+d+'" aria-pressed="'+(d===S.date?'true':'false')+'" aria-label="'+esc(lab)+'"><span class="dn">'+dt.getDate()+'</span>'+evs+(g.length?'<span class="todo'+(done===g.length?' all':'')+'">'+done+'/'+g.length+'</span>':'')+'</button>';
   }
-  h+='</div></section><div class="col daycol" id="dp-'+S.date+'">'+dayPanel(V,S.date)+'</div>';
+  h+='</div>'+monthLegend(V,ym)+'</section><div class="col daycol" id="dp-'+S.date+'">'+dayPanel(V,S.date)+'</div>';
   var up=[];
   Object.keys(EVENTS).forEach(function(d){if(d>=t)up.push({d:d,title:EVENTS[d].l,g:'exam'});});
   Object.keys(V.evByDate).forEach(function(d){if(d>=t)V.evByDate[d].forEach(function(e){up.push({d:d,title:e.title,mine:1,g:e.grp,sid:e.sid});});});
@@ -3262,6 +3277,35 @@ function viewProgAll(V){
   return h+'</section>';
 }
 
+/* ---------- 달력 칸: 일정은 과목 줄임말 색 칩으로만, 자세한 내용은 날짜를 누르면 ---------- */
+var SUB_ABBR={'확률과 통계':'확통','화법과 언어':'화언','화법과 작문':'화작','언어와 매체':'언매','생명과학 실험':'생실','미적분Ⅰ':'미적','미적분Ⅱ':'미적2','미적분':'미적'};
+function subShort(name){name=String(name||'').trim();if(SUB_ABBR[name])return SUB_ABBR[name];var w=name.split(/\s+/)[0].replace(/(의|과|와)$/,'');return w.length>2?w.slice(0,2):w;}
+function evSid(V,e){
+  if(e.sid&&V.subName[e.sid])return e.sid;
+  var t=String(e.title||''),best='',bl=0;
+  V.subs.forEach(function(s){if(t.indexOf(s.name)===0&&s.name.length>bl){best=s.id;bl=s.name.length;}});
+  return best;
+}
+function evRest(V,e,sid){var t=String(e.title||'');if(sid&&t.indexOf(V.subName[sid])===0)t=t.slice(V.subName[sid].length).trim();return t;}
+function cellChips(V,mine){
+  var chips=[],seen={};
+  mine.forEach(function(e){
+    var sid=evSid(V,e),k=sid||('t:'+e.title);
+    if(seen[k]){seen[k].n++;return;}
+    var c={sid:sid,grp:e.grp,n:1,t:sid?subShort(V.subName[sid]):(e.kind==='시험'||e.kind==='행사'||e.kind==='발표'||e.kind==='제출'||e.kind==='퀴즈')?e.kind:cut(String(e.title).replace(/\s+/g,''),3)};
+    seen[k]=c;chips.push(c);
+  });
+  return chips;
+}
+function chipHtml(V,c){return '<i class="sev'+(c.grp==='exam'?' ex':'')+'" style="--sc:'+(c.sid?subCol(V,c.sid):c.grp==='exam'?'var(--accent)':SGRAY)+'">'+esc(c.t)+(c.n>1?'<b>'+c.n+'</b>':'')+'</i>';}
+function monthLegend(V,ym){
+  var cnt={},order=[];
+  Object.keys(V.evByDate).forEach(function(d){if(d.slice(0,7)!==ym)return;V.evByDate[d].forEach(function(e){if(e.grp!=='task')return;var sid=evSid(V,e),k=sid||'_';if(!cnt[k]){cnt[k]=0;order.push(k);}cnt[k]++;});});
+  if(!order.length)return '';
+  order.sort(function(a,b){return cnt[b]-cnt[a];});
+  return '<div class="calleg"><small>이번 달 수행평가</small>'+order.map(function(k){var nm=k==='_'?'기타':V.subName[k];return '<span class="lg" style="--sc:'+(k==='_'?SGRAY:subCol(V,k))+'"><i></i>'+esc(nm)+' '+cnt[k]+'</span>';}).join('')+'</div>';
+}
+
 /* ---------- 방: 참여 코드, 새 방, 방 바꾸기 (웹 판) ---------- */
 // 참여 링크: 사이트주소#join=<저장소 이름>  -> 참여 코드 6자리 -> 이름 고르기
 // 코드 연결: rooms/joincode-<코드> = {r:방 id, n:방 이름, at}
@@ -3355,7 +3399,7 @@ function roomTick(){
 function roomName(){return (S.roomInfo&&S.roomInfo.name)||'공부방';}
 function inviteMsg(){
   var ri=S.roomInfo||{};
-  return '공부방 플래너 \''+roomName()+'\'에 초대합니다.\n1. 링크 열기: '+joinLink(S.remote.url)+'\n2. 참여 코드 넣기: '+ri.code+'\n3. 내 이름 고르기';
+  return '공부방 플래너 \''+roomName()+'\'에 초대합니다.\n1. 링크 열기: '+joinLink(S.remote.url)+'\n2. 참여 코드 넣기: '+ri.code+'\n3. 내 이름 고르기/추가하기';
 }
 
 /* 참여 코드 넣는 화면 */
