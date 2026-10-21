@@ -89,10 +89,14 @@ sub("""      lsSet('gbb_remote',null);try{history.replaceState(null,'',String(lo
       lsSet('gbb_remote',null);try{history.replaceState(null,'',String(location.href).split('#')[0]);}catch(e){}""")
 
 # 5) 창 열기
-sub("  if(type!=='settings'&&type!=='pic'&&!V.me)return;", "  if(type!=='settings'&&type!=='pic'&&type!=='rooms'&&type!=='invite'&&!V.me)return;")
+sub("  if(type!=='settings'&&type!=='pic'&&!V.me)return;", "  if(type!=='settings'&&type!=='pic'&&type!=='rooms'&&type!=='invite'&&type!=='a2hs'&&!V.me)return;")
 sub("  if(type==='plan'){S.pl=newPlan();S.draft.plNote='';}",
     "  if(type==='rooms'){S.jst.err='';S.draft.joinCode='';S.draft.rmRename='';S.nrBusy=false;if(!S.draft.nrPeople&&V.me&&V.byId[V.me])S.draft.nrPeople=V.byId[V.me].name;}\n  if(type==='plan'){S.pl=newPlan();S.draft.plNote='';}")
-sub("  if(t==='settings')return modalSettings(V);", "  if(t==='settings')return modalSettings(V);\n  if(t==='rooms')return modalRooms(V);\n  if(t==='invite')return modalInvite(V);")
+sub("  if(t==='settings')return modalSettings(V);", "  if(t==='settings')return modalSettings(V);\n  if(t==='rooms')return modalRooms(V);\n  if(t==='invite')return modalInvite(V);\n  if(t==='a2hs')return modalA2HS(V);")
+# 처음 안내는 한 번만: 닫으면 표시를 지운다. 그린 뒤마다 띄울 때인지 본다
+sub("  if(S.modal.type==='pin')S.autoReward=null;", "  if(S.modal.type==='pin')S.autoReward=null;\n  if(S.modal.type==='a2hs')lsSet('gbb_a2hs',null);")
+sub("  if(S.focusAfter){var fe=document.getElementById(S.focusAfter);", "  try{a2hsTick();}catch(e){}\n  if(S.focusAfter){var fe=document.getElementById(S.focusAfter);")
+
 
 # 6) 이름 고르는 화면에 방 이름
 sub("""var h='<div class="view" id="view-gate"><div class="gatebox"><div><h1>누구로 들어갈까요?</h1>""",
@@ -144,6 +148,9 @@ sub("</style>", """.jcode{font:700 30px/1.2 ui-monospace,SFMono-Regular,Menlo,Co
 .rmn b{display:block;font-size:15px}
 .rmn small{font-size:12px;color:var(--ink-3)}
 #c-newroom .lb:first-of-type{margin-top:0}
+.a2steps{margin:0 0 12px;padding-left:22px;display:grid;gap:10px;font-size:16px;line-height:1.45}
+.a2steps b{color:var(--accent-ink)}
+.jinapp{margin:0;font-size:13.5px}
 .jcode.sm::placeholder{letter-spacing:normal;font:500 15px/1.2 var(--font-body)}
 .rmsec{border-top:0;padding-top:0}
 .nrchk{display:flex;align-items:center;gap:10px;margin-top:12px;padding:4px 0;border:0;background:none;font-size:14px;color:var(--ink-2);cursor:pointer;text-align:left}

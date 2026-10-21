@@ -1289,6 +1289,9 @@ html.wkdragging,html.wkdragging *{cursor:grabbing !important}
 .rmn b{display:block;font-size:15px}
 .rmn small{font-size:12px;color:var(--ink-3)}
 #c-newroom .lb:first-of-type{margin-top:0}
+.a2steps{margin:0 0 12px;padding-left:22px;display:grid;gap:10px;font-size:16px;line-height:1.45}
+.a2steps b{color:var(--accent-ink)}
+.jinapp{margin:0;font-size:13.5px}
 .jcode.sm::placeholder{letter-spacing:normal;font:500 15px/1.2 var(--font-body)}
 .rmsec{border-top:0;padding-top:0}
 .nrchk{display:flex;align-items:center;gap:10px;margin-top:12px;padding:4px 0;border:0;background:none;font-size:14px;color:var(--ink-2);cursor:pointer;text-align:left}
@@ -3314,6 +3317,7 @@ function inviteMsg(){
 function viewJoin(){
   var J=S.join,st=S.jst,mine=roomsList();
   var h='<div class="view" id="view-join"><div class="gatebox"><div><h1>공부방 들어가기</h1><p class="hint" style="margin-top:6px">초대 메시지에 있는 참여 코드 6자리를 넣으세요.</p></div>';
+  if(a2hsKind()==='inapp')h+='<p class="notice jinapp">카톡 안에서 열렸습니다. 앱으로 쓰려면 메뉴에서 <b>다른 브라우저로 열기</b>를 먼저 누르세요.</p>';
   h+='<section class="card" id="c-joincode"><input id="joinCode" class="jcode" type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="off" maxlength="7" data-draft="joinCode" data-enter="join-go" placeholder="000000" aria-label="참여 코드 6자리"'+(st.busy?' disabled':'')+'><button class="btn primary" data-act="join-go"'+(st.busy?' disabled':'')+'>'+(st.busy?'확인하는 중':'들어가기')+'</button>'+(st.err?'<p class="hint serr" role="status">'+esc(st.err)+'</p>':'')+'</section>';
   if(mine.length){
     h+='<section class="card"><h2 class="sh">이 기기에서 들어갔던 방</h2><div class="people">';
@@ -3336,6 +3340,7 @@ function joinGo(){
       joinFail('맞는 방이 없습니다. 코드를 다시 확인해 주세요.');return;
     }
     if(S.remote&&S.remote.url===url&&S.remote.room===m.r){st.busy=false;S.draft.joinCode='';closeModal();flash('이미 이 방에 있습니다.');render();return;}
+    lsSet('gbb_a2hs','1');
     goRoom({url:url,room:m.r,name:String(m.n||''),code:code});
   }).catch(function(){joinFail('확인하지 못했습니다. 인터넷 연결을 확인해 주세요.');});
 }
@@ -3352,7 +3357,7 @@ function roomSec(V){
   if(!S.net||S.net.mode!=='firebase'||!S.remote)return '';
   var ri=S.roomInfo||{};
   var h='<div class="sec rmsec"><h3>방</h3><div class="rmbox"><div><small>지금 방</small><b>'+esc(roomName())+'</b></div><div><small>참여 코드</small><b class="rmcode">'+(ri.code?fmtCode(ri.code):'만드는 중')+'</b></div></div>';
-  h+='<div class="row" style="margin-top:10px"><button class="btn small primary" data-act="open" data-modal="invite"'+(ri.code?'':' disabled')+'>친구 초대하기</button><button class="btn small" data-act="open" data-modal="rooms">다른 방, 새 방 만들기</button></div></div>';
+  h+='<div class="row" style="margin-top:10px"><button class="btn small primary" data-act="open" data-modal="invite"'+(ri.code?'':' disabled')+'>친구 초대하기</button><button class="btn small" data-act="open" data-modal="rooms">다른 방, 새 방 만들기</button>'+(isStandalone()?'':'<button class="btn small" data-act="open" data-modal="a2hs">앱으로 추가하기</button>')+'</div></div>';
   return h;
 }
 function modalInvite(V){
@@ -3410,6 +3415,39 @@ function makeRoom(){
       goRoom({url:url,room:room,name:nm,code:code});
     });
   }).catch(function(){S.nrBusy=false;flash('방을 만들지 못했습니다. 인터넷 연결을 확인해 주세요.');render();});
+}
+
+/* 처음 방에 들어온 사람에게: 홈 화면에 앱으로 추가하는 법 (기기에 맞는 것만) */
+function isStandalone(){try{return window.matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;}catch(e){return false;}}
+function a2hsKind(){
+  var ua=navigator.userAgent||'',ios=/iPhone|iPad|iPod/.test(ua)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+  if(/KAKAOTALK|FBAN|FBAV|Instagram|NAVER\(|Line\//i.test(ua))return 'inapp';
+  if(ios)return /CriOS/.test(ua)?'ios-chrome':'ios-safari';
+  if(/Android/.test(ua))return 'android';
+  return 'pc';
+}
+function a2hsSteps(k){
+  return {
+    'inapp':['오른쪽 아래나 위의 <b>메뉴</b> 누르기','<b>다른 브라우저로 열기</b> 누르기','열린 화면에서 참여 코드 다시 넣기'],
+    'ios-chrome':['주소창 오른쪽 <b>공유 버튼</b> 누르기','<b>홈 화면에 추가</b> 누르기','<b>추가</b> 누르기'],
+    'ios-safari':['<b>공유 버튼</b>(네모에 위쪽 화살표) 누르기','<b>홈 화면에 추가</b> 누르기','<b>추가</b> 누르기'],
+    'android':['오른쪽 위 <b>점 세 개</b> 누르기','<b>홈 화면에 추가</b>(또는 앱 설치) 누르기','<b>설치</b> 누르기'],
+    'pc':['주소창 오른쪽 <b>설치 아이콘</b> 누르기','<b>설치</b> 누르기']
+  }[k];
+}
+function modalA2HS(V){
+  var k=a2hsKind(),st=a2hsSteps(k),ios=k.indexOf('ios')===0;
+  var b='<ol class="a2steps">'+st.map(function(x){return '<li>'+x+'</li>';}).join('')+'</ol>';
+  if(k==='inapp')b='<p class="hint" style="margin-bottom:10px">카톡 안에서는 앱으로 추가할 수 없습니다.</p>'+b;
+  else b+='<p class="hint">'+(ios?'이제 홈 화면의 공부방 아이콘으로 여세요. 처음 열 때 참여 코드를 한 번 더 넣습니다.':'이제 홈 화면의 공부방 아이콘으로 여세요.')+'</p>';
+  b+='<div class="row" style="margin-top:14px"><button class="btn primary" data-act="modal-close">확인</button></div>';
+  return dlg('',{id:'a2hs',t:k==='inapp'?'다른 브라우저로 열어 주세요':'앱으로 추가하기'},b);
+}
+function a2hsTick(){
+  if(!lsGet('gbb_a2hs'))return;
+  if(isStandalone()){lsSet('gbb_a2hs',null);return;}
+  var V=V0;if(!S.ready||!V||!V.me||S.modal||S.check||S.missed||S.a2hsT)return;
+  S.a2hsT=setTimeout(function(){S.a2hsT=null;if(!S.modal&&!S.check&&!S.missed&&lsGet('gbb_a2hs')&&V0&&V0.me){openModal('a2hs',null);render();}},1500);
 }
 
 /* ---------- 공부방 ---------- */
@@ -4234,6 +4272,7 @@ function modalHtml(V){
   if(t==='settings')return modalSettings(V);
   if(t==='rooms')return modalRooms(V);
   if(t==='invite')return modalInvite(V);
+  if(t==='a2hs')return modalA2HS(V);
   if(t==='pic'){var p=S.pics[S.modal.id];return '<div class="scrim" data-act="modal-close"></div><div class="dialog pic" id="dlg-pic" role="dialog" aria-modal="true" aria-label="사진 크게 보기" tabindex="-1">'+(typeof p==='string'&&p.indexOf('data:image/')===0?'<img src="'+esc(p)+'" alt="첨부한 사진">':'')+'<div class="df" style="justify-content:center;margin-top:12px"><button class="btn" data-act="modal-close">닫기</button></div></div>';}
   if(!V.me)return '';
   if(t==='score')return modalScore(V);
@@ -4326,6 +4365,7 @@ function after(V){
   afterChat(V);
   if(S.scrollTo&&(S.ready||!S.scrollTo.quiet)){var sa=S.scrollTo;S.scrollTo=null;setTimeout(function(){var se=document.getElementById(sa.id);if(!se||!se.scrollIntoView)return;if(sa.inline){var sc=se.closest('.wkscroll');if(sc&&sc.scrollWidth>sc.clientWidth+2)sc.scrollTo({left:se.offsetLeft-sc.firstElementChild.offsetLeft,behavior:sa.quiet||reduced?'auto':'smooth'});return;}se.scrollIntoView({block:sa.block||'start',behavior:reduced?'auto':'smooth'});},30);}
   if(S.ttScrollY!=null){var tsc=document.getElementById('ttScroll');if(tsc){var tv=S.ttScrollY;S.ttScrollY=null;tsc.scrollTop=tv==='auto'?(+tsc.getAttribute('data-auto')||0):tv;}}
+  try{a2hsTick();}catch(e){}
   if(S.focusAfter){var fe=document.getElementById(S.focusAfter);S.focusAfter=null;if(fe){fe.value=S.draft[fe.getAttribute('data-draft')]||'';fe.focus();try{fe.setSelectionRange(fe.value.length,fe.value.length);}catch(e){}}}
   if(S.scrollAfter){var se=document.getElementById(S.scrollAfter);S.scrollAfter=null;if(se&&se.scrollIntoView)se.scrollIntoView({block:'nearest'});}
   if(S.ready&&V.me&&S.vtab==='chat'&&S.net&&S.net.read){
@@ -4357,7 +4397,7 @@ function pop(delta){
 /* ---------- 팝업 열고 닫기 ---------- */
 function openModal(type,el){
   var V=view();
-  if(type!=='settings'&&type!=='pic'&&type!=='rooms'&&type!=='invite'&&!V.me)return;
+  if(type!=='settings'&&type!=='pic'&&type!=='rooms'&&type!=='invite'&&type!=='a2hs'&&!V.me)return;
   if(type==='lapse'){lapseStop('_new');delete S.lapse._new;S.lup={frames:[],busy:false};S.draft.lapseCap='';}
   if(type==='rooms'){S.jst.err='';S.draft.joinCode='';S.draft.rmRename='';S.nrBusy=false;if(!S.draft.nrPeople&&V.me&&V.byId[V.me])S.draft.nrPeople=V.byId[V.me].name;}
   if(type==='plan'){S.pl=newPlan();S.draft.plNote='';}
@@ -4375,6 +4415,7 @@ function openModal(type,el){
 function closeModal(){
   if(!S.modal||S.closing)return;
   if(S.modal.type==='pin')S.autoReward=null;
+  if(S.modal.type==='a2hs')lsSet('gbb_a2hs',null);
   if(S.modal.type==='focus')lock(false);
   if(S.modal.type==='lapse')lapseStop('_new');
   S.closing=true;render();
