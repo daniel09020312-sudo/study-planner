@@ -1133,6 +1133,34 @@ html.wkdragging,html.wkdragging *{cursor:grabbing !important}
 .invite{margin-top:10px;padding:10px 12px;border-radius:12px;background:var(--fill)}
 .invite small{display:block;font-size:12px;color:var(--ink-3);margin-bottom:2px}
 .invite .url{font-size:13px;word-break:break-all;-webkit-user-select:all;user-select:all;color:var(--ink-2)}
+.jcode{font:700 30px/1.2 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace !important;letter-spacing:.32em;text-align:center;padding:14px 10px !important;font-variant-numeric:tabular-nums}
+.jcode::placeholder{color:var(--ink-3);opacity:.45}
+.jcode.sm{font-size:18px !important;letter-spacing:.18em;padding:10px !important}
+#c-joincode{display:flex;flex-direction:column;gap:10px}
+#c-joincode .btn{width:100%}
+.gaterm{font-size:13px;font-weight:700;color:var(--accent-ink);margin-bottom:4px}
+.rmbox{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.rmbox>div{min-width:0;padding:10px 12px;border-radius:12px;background:var(--fill)}
+.rmbox small,.invbig small{display:block;font-size:12px;color:var(--ink-3);margin-bottom:2px}
+.rmbox b{display:block;font-size:16px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rmcode{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;letter-spacing:.06em;font-variant-numeric:tabular-nums}
+.invbig{margin:0 0 14px;padding:16px 12px;border-radius:14px;background:var(--accent-soft);text-align:center}
+.invbig b{display:block;font:800 36px/1.15 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;letter-spacing:.1em;color:var(--accent-ink);font-variant-numeric:tabular-nums}
+.invsteps{margin:0 0 12px;padding-left:20px;font-size:14px;color:var(--ink-2);display:grid;gap:4px}
+.invmsg{margin:0;padding:10px 12px;border-radius:12px;background:var(--fill);font:12.5px/1.55 inherit;font-family:inherit;white-space:pre-wrap;word-break:break-all;-webkit-user-select:all;user-select:all;color:var(--ink-2)}
+.rmlist{display:grid;gap:8px}
+.rmrow{display:flex;align-items:center;flex-wrap:wrap;gap:8px;padding:10px 12px;border-radius:12px;background:var(--fill)}
+.rmrow.on{background:var(--accent-soft)}
+.rmn{flex:1;min-width:120px}
+.rmn b{display:block;font-size:15px}
+.rmn small{font-size:12px;color:var(--ink-3)}
+#c-newroom .lb:first-of-type{margin-top:0}
+.jcode.sm::placeholder{letter-spacing:normal;font:500 15px/1.2 var(--font-body)}
+.rmsec{border-top:0;padding-top:0}
+.nrchk{display:flex;align-items:center;gap:10px;margin-top:12px;padding:4px 0;border:0;background:none;font-size:14px;color:var(--ink-2);cursor:pointer;text-align:left}
+.nrchk i{position:relative;flex:none;width:20px;height:20px;border-radius:6px;box-shadow:inset 0 0 0 2px var(--line);transition:background .15s,box-shadow .15s}
+.nrchk[aria-pressed="true"] i{background:var(--accent);box-shadow:none}
+.nrchk[aria-pressed="true"] i::after{content:'';position:absolute;left:7px;top:3px;width:5px;height:10px;border:solid var(--on-accent);border-width:0 2px 2px 0;transform:rotate(45deg)}
 </style>
 </head>
 <body>
@@ -1243,8 +1271,19 @@ function isDone(g){return !!(g&&g.done);}
 function cut(s,n){s=String(s||'');return s.length>n?s.slice(0,n-1)+'…':s;}
 function dlabel(d){var n=diffDays(today(),d);return n===0?'오늘':n>0?'D-'+n:'D+'+(-n);}
 var reduced=false;try{reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;}catch(e){}
-function lsGet(k){try{return localStorage.getItem(k);}catch(e){return null;}}
-function lsSet(k,v){try{if(v==null)localStorage.removeItem(k);else localStorage.setItem(k,v);}catch(e){}}
+var LS_ROOM=(function(){
+  try{
+    var h=new URLSearchParams(String(location.hash||'').slice(1)),sv=JSON.parse(localStorage.getItem('gbb_remote')||'null');
+    if(localStorage.getItem('gbb_legacy_room')==null)localStorage.setItem('gbb_legacy_room',sv&&sv.room?sv.room:'-');
+    if(h.get('db'))return h.get('room')||'';
+    if(h.get('join'))return '';
+    return sv&&sv.room?String(sv.room):'';
+  }catch(e){return '';}
+})();
+var LS_SCOPED={gbb_me:1,gbb_auth:1,gbb_pinask:1,gbb_read:1,gbb_badges:1,gbb_drafts:1,gbb_ahead:1,gbb_due:1};
+function lsKey(k){return LS_SCOPED[k]&&LS_ROOM?k+'@'+LS_ROOM:k;}
+function lsGet(k){try{var sk=lsKey(k),v=localStorage.getItem(sk);if(v==null&&sk!==k&&localStorage.getItem('gbb_legacy_room')===LS_ROOM)v=localStorage.getItem(k);return v;}catch(e){return null;}}
+function lsSet(k,v){try{k=lsKey(k);if(v==null)localStorage.removeItem(k);else localStorage.setItem(k,v);}catch(e){}}
 
 /* ---------- 화면 모드와 강조 색 (기기마다 따로 저장) ---------- */
 var ACCENTS=[{"id":"blue","name":"파랑","g":"b","l":{"a":"#2B6DEF","on":"#FFFFFF","soft":"#E9F0FE","ink":"#2360DC","mark":"#2B6DEF"},"d":{"a":"#6A9CFF","on":"#081226","soft":"#1C2A44","ink":"#6A9CFF","mark":"#6A9CFF"}},{"id":"green","name":"초록","g":"b","l":{"a":"#0A8259","on":"#FFFFFF","soft":"#E2F5EC","ink":"#08744F","mark":"#0A8259"},"d":{"a":"#4CCB9A","on":"#04231A","soft":"#14302A","ink":"#4CCB9A","mark":"#4CCB9A"}},{"id":"teal","name":"청록","g":"b","l":{"a":"#08808C","on":"#FFFFFF","soft":"#E0F4F6","ink":"#06707B","mark":"#08808C"},"d":{"a":"#4FCBD6","on":"#032226","soft":"#12313A","ink":"#4FCBD6","mark":"#4FCBD6"}},{"id":"purple","name":"보라","g":"b","l":{"a":"#7447E0","on":"#FFFFFF","soft":"#EFEAFD","ink":"#7447E0","mark":"#7447E0"},"d":{"a":"#A88BFF","on":"#150B33","soft":"#2A2147","ink":"#A88BFF","mark":"#A88BFF"}},{"id":"pink","name":"분홍","g":"b","l":{"a":"#CF2F7A","on":"#FFFFFF","soft":"#FDE8F2","ink":"#C12670","mark":"#CF2F7A"},"d":{"a":"#FF7DB5","on":"#33071C","soft":"#40192C","ink":"#FF7DB5","mark":"#FF7DB5"}},{"id":"orange","name":"주황","g":"b","l":{"a":"#C2540A","on":"#FFFFFF","soft":"#FDEEDF","ink":"#AF4905","mark":"#C2540A"},"d":{"a":"#FFA052","on":"#2B1400","soft":"#3D2710","ink":"#FFA052","mark":"#FFA052"}},{"id":"mono","name":"검정","g":"b","l":{"a":"#1A1C20","on":"#FFFFFF","soft":"#E9EAEE","ink":"#1A1C20","mark":"#1A1C20"},"d":{"a":"#F2F3F5","on":"#14151A","soft":"#2C2F36","ink":"#F2F3F5","mark":"#F2F3F5"}},{"id":"p-pink","name":"파스텔 분홍","g":"p","l":{"a":"#F8BBD0","on":"#5A1736","soft":"#FDEEF4","ink":"#B02F66","mark":"#EE8FB3"},"d":{"a":"#F8BBD0","on":"#4A1029","soft":"#3D2330","ink":"#F8BBD0","mark":"#F8BBD0"}},{"id":"p-peach","name":"파스텔 살구","g":"p","l":{"a":"#FCC8AB","on":"#5A2A0E","soft":"#FEF1E8","ink":"#A8480F","mark":"#F4A47C"},"d":{"a":"#FCC8AB","on":"#4A2109","soft":"#3E2B20","ink":"#FCC8AB","mark":"#FCC8AB"}},{"id":"p-butter","name":"파스텔 노랑","g":"p","l":{"a":"#F8E08E","on":"#4A3800","soft":"#FDF7DE","ink":"#7D5F00","mark":"#E6BE45"},"d":{"a":"#F8E08E","on":"#3F3000","soft":"#39331A","ink":"#F8E08E","mark":"#F8E08E"}},{"id":"p-mint","name":"파스텔 민트","g":"p","l":{"a":"#AEE5CC","on":"#0D4A33","soft":"#E8F8F0","ink":"#167552","mark":"#74D0A8"},"d":{"a":"#AEE5CC","on":"#0A3B28","soft":"#1F3A31","ink":"#AEE5CC","mark":"#AEE5CC"}},{"id":"p-sky","name":"파스텔 하늘","g":"p","l":{"a":"#B8D8FA","on":"#123C6B","soft":"#EBF4FE","ink":"#2362AE","mark":"#88BAF1"},"d":{"a":"#B8D8FA","on":"#0E3158","soft":"#203248","ink":"#B8D8FA","mark":"#B8D8FA"}},{"id":"p-lavender","name":"파스텔 보라","g":"p","l":{"a":"#D2C4F8","on":"#36216F","soft":"#F3EFFE","ink":"#6646C0","mark":"#B09BEF"},"d":{"a":"#D2C4F8","on":"#2B1A5C","soft":"#2E2748","ink":"#D2C4F8","mark":"#D2C4F8"}}];
@@ -1315,7 +1354,7 @@ var S={ready:false,net:null,readOnly:false,tab:'cal',vtab:'cal',leaving:false,sw
 S.locks={};S.flags={};S.plans={};S.pl=null;S.plOpen={};S.plShowDone=false;S.plGroup=lsGet('gbb_plgroup')==='sub'?'sub':'due';S.gGroup=(function(v){return v==='sub'||v==='plan'?v:'none';})(lsGet('gbb_ggroup'));S.gSel=null;S.gEdit=null;S.mlog=[];S.mseq=0;S.tmode=(function(m){return m==='pomo'||m==='goal'?m:'sw';})(lsGet('gbb_tmode'));
 S.pomo=(function(){var p=null;try{p=JSON.parse(lsGet('gbb_pomo')||'null');}catch(e){}p=p&&typeof p==='object'?p:{};return {f:clampN(p.f,10,90,25),b:clampN(p.b,3,30,5)};})();
 S.goal=clampN(lsGet('gbb_goal'),10,240,60);S.tstyle=lsGet('gbb_tstyle')||'ring';S.playTab=lsGet('gbb_playtab')||'bingo';S.pomoCustom=false;S.goalCustom=false;S.myPh=null;S.phKey=null;
-S.setup=false;S.setupErr='';S.remote=null;S.importMsg='';
+S.setup=false;S.setupErr='';S.remote=null;S.importMsg='';S.join=null;S.jst={err:'',busy:false,fails:0,until:0};S.roomInfo=null;S.nrSubj=true;S.nrBusy=false;S.codeTried=false;
 S.songMood='';S.songFilter='';S.songRoll=null;S.songShow={};S.msgSel=null;S.msgEdit=null;S.stkOpen=false;S.stkPack='basic';S.busyMsg=false;S.focusAfter=null;S.pin=null;S.auth={};S.pinAsked={};
 try{S.auth=obj(JSON.parse(lsGet('gbb_auth')||'{}'));S.pinAsked=obj(JSON.parse(lsGet('gbb_pinask')||'{}'));}catch(e){}
 S.msgs={};S.songs={};S.duels={};S.spins={};S.roul=null;S.duelF=null;S.chan='all';S.repWeek='this';S.notes=[];S.read={};S.chatKey='';
@@ -1641,7 +1680,7 @@ function attach(key){
 
 /* ---------- 처음 화면 ---------- */
 function viewGate(V){
-  var h='<div class="view" id="view-gate"><div class="gatebox"><div><h1>누구로 들어갈까요?</h1><p class="hint" style="margin-top:6px">이름을 고르면 이 기기에서 계속 기억합니다. 나중에 설정에서 바꿀 수 있습니다.</p></div>';
+  var h='<div class="view" id="view-gate"><div class="gatebox"><div>'+(S.roomInfo&&S.roomInfo.name?'<p class="gaterm">'+esc(S.roomInfo.name)+'</p>':'')+'<h1>누구로 들어갈까요?</h1><p class="hint" style="margin-top:6px">이름을 고르면 이 기기에서 계속 기억합니다. 나중에 설정에서 바꿀 수 있습니다.</p></div>';
   if(V.roster.length){
     h+='<div class="people">';
     V.roster.forEach(function(m){h+='<button class="person" data-act="who" data-id="'+esc(m.id)+'">'+av(V.byId[m.id])+'<span style="flex:1">'+esc(V.byId[m.id].name)+'</span>'+(lockOf(V,m.id)?'<em class="tag">비밀번호</em>':'')+'</button>';});
@@ -2664,6 +2703,204 @@ document.addEventListener('pointercancel',function(e){if(!WD||e.pointerId!==WD.i
 document.addEventListener('touchmove',function(e){if(WD&&WD.on)e.preventDefault();},{passive:false});
 document.addEventListener('contextmenu',function(e){if(WD)e.preventDefault();});
 
+/* ---------- 방: 참여 코드, 새 방, 방 바꾸기 (웹 판) ---------- */
+// 참여 링크: 사이트주소#join=<저장소 이름>  -> 참여 코드 6자리 -> 이름 고르기
+// 코드 연결: rooms/joincode-<코드> = {r:방 id, n:방 이름, at}
+// 방 정보:   rooms/<방>/d/meta/room = {name, code, at}
+var JOIN_LEN=6;
+function siteBase(){return String(location.href).split('#')[0];}
+function dbToken(url){
+  url=String(url||'');
+  var m=/^https:\/\/([a-z0-9-]+)-default-rtdb\.([a-z0-9-]+)\.firebasedatabase\.app$/i.exec(url);if(m)return m[1]+'.'+m[2];
+  m=/^https:\/\/([a-z0-9-]+)-default-rtdb\.firebaseio\.com$/i.exec(url);if(m)return m[1];
+  return encodeURIComponent(url);
+}
+function dbFromToken(t){
+  t=String(t||'');
+  if(/^https/i.test(t)){try{t=decodeURIComponent(t);}catch(e){}t=t.replace(/\/+$/,'');return /^https:\/\/[a-z0-9.-]+\.(firebaseio\.com|firebasedatabase\.app)$/i.test(t)?t:'';}
+  if(/^[a-z0-9-]+\.[a-z0-9-]+$/i.test(t)){var p=t.split('.');return 'https://'+p[0]+'-default-rtdb.'+p[1]+'.firebasedatabase.app';}
+  if(/^[a-z0-9-]+$/i.test(t))return 'https://'+t+'-default-rtdb.firebaseio.com';
+  return '';
+}
+function joinLink(url){return siteBase()+'#join='+dbToken(url);}
+function fmtCode(c){c=String(c||'');return c.length===6?c.slice(0,3)+' '+c.slice(3):c;}
+function roomsList(){var a=[];try{a=JSON.parse(lsGet('gbb_rooms')||'[]');}catch(e){}return Array.isArray(a)?a.filter(function(x){return x&&x.url&&x.room;}):[];}
+function roomsSave(a){lsSet('gbb_rooms',JSON.stringify(a.slice(0,12)));}
+function roomEntry(r){return r?roomsList().filter(function(x){return x.url===r.url&&x.room===r.room;})[0]||null:null;}
+function roomsRemember(e){
+  var a=roomsList(),i=-1;a.forEach(function(x,j){if(x.url===e.url&&x.room===e.room)i=j;});
+  if(i<0){a.unshift({url:e.url,room:e.room,name:e.name||'',code:e.code||''});roomsSave(a);return;}
+  var x=a[i],ch=false;
+  if(e.name&&x.name!==e.name){x.name=e.name;ch=true;}
+  if(e.code&&x.code!==e.code){x.code=e.code;ch=true;}
+  if(ch)roomsSave(a);
+}
+function fbRaw(url,path,method,data){
+  return fetch(url.replace(/\/+$/,'')+'/rooms/'+path+'.json',{method:method||'GET',headers:{'Content-Type':'application/json'},body:data===undefined?undefined:JSON.stringify(data)})
+    .then(function(r){if(!r.ok)throw new Error('http '+r.status);return r.json();});
+}
+function codeLookup(url,code){return fbRaw(url,'joincode-'+code);}
+function newCode(url){
+  var n=0;
+  function one(){
+    var b=new Uint32Array(1);try{crypto.getRandomValues(b);}catch(e){b[0]=Math.floor(Math.random()*4294967295);}
+    var c=String(100000+b[0]%900000);
+    return codeLookup(url,c).then(function(m){if(!m)return c;if(++n>=6)throw new Error('busy');return one();});
+  }
+  return one();
+}
+function goRoom(e){
+  roomsRemember(e);
+  lsSet('gbb_remote',JSON.stringify({url:e.url,room:e.room}));
+  try{history.replaceState(null,'',siteBase()+'#j='+dbToken(e.url));}catch(x){}
+  location.reload();
+}
+function syncAddr(){
+  if(!S.remote)return;
+  var ri=S.roomInfo||{},e=roomEntry(S.remote),code=ri.code||(e&&e.code);
+  var want=code?siteBase()+'#j='+dbToken(S.remote.url):inviteLink(S.remote);
+  if(String(location.href)!==want){try{history.replaceState(null,'',want);}catch(x){}}
+}
+function makeCode(re){
+  if(!S.remote||!S.net||S.net.mode!=='firebase')return;
+  var url=S.remote.url,room=S.remote.room,old=(S.roomInfo||{}).code||'';
+  return newCode(url).then(function(code){
+    return S.net.read('meta/room').then(function(cur){
+      cur=obj(cur);
+      if(!re&&cur.code)return;
+      var name=String(cur.name||(S.roomInfo||{}).name||'공부방'),now=Date.now();
+      return fbRaw(url,'joincode-'+code,'PUT',{r:room,n:name,at:now}).then(function(){
+        var ni={name:name,code:code,at:now};
+        return S.net.write('meta/room',ni).then(function(){
+          S.roomInfo=ni;
+          if(re&&old&&old!==code)fbRaw(url,'joincode-'+old,'DELETE').catch(function(){});
+          roomTick();
+          if(re)flash('참여 코드를 '+fmtCode(code)+'(으)로 바꿨습니다.');
+          render();
+        });
+      });
+    });
+  }).catch(function(){if(re){flash('코드를 바꾸지 못했습니다. 인터넷 연결을 확인해 주세요.');render();}});
+}
+function roomTick(){
+  if(!S.remote||!S.net||S.net.mode!=='firebase')return;
+  var ri=S.roomInfo||{};
+  roomsRemember({url:S.remote.url,room:S.remote.room,name:ri.name||'',code:ri.code||''});
+  syncAddr();
+  if(!ri.code&&!S.codeTried&&canWrite()){S.codeTried=true;setTimeout(function(){makeCode(false);},400);}
+  if(view().me&&!S.modal){
+    var f=null;try{f=sessionStorage.getItem('gbb_newroom');}catch(e){}
+    if(f&&ri.code){try{sessionStorage.removeItem('gbb_newroom');}catch(e){}setTimeout(function(){if(!S.modal){openModal('invite',null);render();}},350);}
+  }
+}
+function roomName(){return (S.roomInfo&&S.roomInfo.name)||'공부방';}
+function inviteMsg(){
+  var ri=S.roomInfo||{};
+  return '공부방 플래너 \''+roomName()+'\'에 초대합니다.\n1. 링크 열기: '+joinLink(S.remote.url)+'\n2. 참여 코드 넣기: '+ri.code+'\n3. 내 이름 고르기';
+}
+
+/* 참여 코드 넣는 화면 */
+function viewJoin(){
+  var J=S.join,st=S.jst,mine=roomsList();
+  var h='<div class="view" id="view-join"><div class="gatebox"><div><h1>공부방 들어가기</h1><p class="hint" style="margin-top:6px">초대 메시지에 있는 참여 코드 6자리를 넣으세요.</p></div>';
+  h+='<section class="card" id="c-joincode"><input id="joinCode" class="jcode" type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="off" maxlength="7" data-draft="joinCode" data-enter="join-go" placeholder="000000" aria-label="참여 코드 6자리"'+(st.busy?' disabled':'')+'><button class="btn primary" data-act="join-go"'+(st.busy?' disabled':'')+'>'+(st.busy?'확인하는 중':'들어가기')+'</button>'+(st.err?'<p class="hint serr" role="status">'+esc(st.err)+'</p>':'')+'</section>';
+  if(mine.length){
+    h+='<section class="card"><h2 class="sh">이 기기에서 들어갔던 방</h2><div class="people">';
+    mine.forEach(function(x){h+='<button class="person" data-act="room-open" data-id="'+esc(x.room)+'"><span style="flex:1">'+esc(x.name||'공부방')+'</span><em class="tag">열기</em></button>';});
+    h+='</div></section>';
+  }
+  return h+'</div></div>';
+}
+function joinFail(msg){S.jst.busy=false;S.jst.err=msg;S.draft.joinCode='';S.sync=true;render();var e=document.getElementById('joinCode')||document.getElementById('rmCode');if(e)try{e.focus();}catch(x){}}
+function joinGo(){
+  var st=S.jst,url=S.join?S.join.url:(S.remote&&S.remote.url);
+  if(!url||st.busy)return;
+  var code=String(S.draft.joinCode||'').replace(/\D/g,'');
+  if(Date.now()<st.until){st.err='여러 번 틀려서 잠시 막혔습니다. 30초 뒤에 다시 넣어 주세요.';render();return;}
+  if(code.length!==JOIN_LEN){st.err='참여 코드는 숫자 6자리입니다.';render();return;}
+  st.busy=true;st.err='';render();
+  codeLookup(url,code).then(function(m){
+    if(!m||!m.r||!/^[A-Za-z0-9_-]{12,40}$/.test(m.r)){
+      st.fails=(st.fails||0)+1;if(st.fails>=5){st.fails=0;st.until=Date.now()+30000;}
+      joinFail('맞는 방이 없습니다. 코드를 다시 확인해 주세요.');return;
+    }
+    if(S.remote&&S.remote.url===url&&S.remote.room===m.r){st.busy=false;S.draft.joinCode='';closeModal();flash('이미 이 방에 있습니다.');render();return;}
+    goRoom({url:url,room:m.r,name:String(m.n||''),code:code});
+  }).catch(function(){joinFail('확인하지 못했습니다. 인터넷 연결을 확인해 주세요.');});
+}
+document.addEventListener('input',function(e){
+  var t=e.target;if(!t||!t.classList||!t.classList.contains('jcode'))return;
+  var d=String(t.value||'').replace(/\D/g,'');
+  if(d!==t.value&&d.length<=JOIN_LEN){t.value=d;}
+  S.draft.joinCode=d;
+  if(d.length===JOIN_LEN&&!S.jst.busy)joinGo();
+});
+
+/* 설정의 방 칸 */
+function roomSec(V){
+  if(!S.net||S.net.mode!=='firebase'||!S.remote)return '';
+  var ri=S.roomInfo||{};
+  var h='<div class="sec rmsec"><h3>방</h3><div class="rmbox"><div><small>지금 방</small><b>'+esc(roomName())+'</b></div><div><small>참여 코드</small><b class="rmcode">'+(ri.code?fmtCode(ri.code):'만드는 중')+'</b></div></div>';
+  h+='<div class="row" style="margin-top:10px"><button class="btn small primary" data-act="open" data-modal="invite"'+(ri.code?'':' disabled')+'>친구 초대하기</button><button class="btn small" data-act="open" data-modal="rooms">다른 방, 새 방 만들기</button></div></div>';
+  return h;
+}
+function modalInvite(V){
+  var ri=S.roomInfo||{};
+  if(!ri.code||!S.remote)return dlg('',{id:'invite',t:'친구 초대하기'},'<p class="hint">참여 코드를 만드는 중입니다. 잠시 뒤에 다시 열어 주세요.</p>');
+  var b='<div class="invbig"><small>'+esc(roomName())+' 참여 코드</small><b>'+fmtCode(ri.code)+'</b></div>';
+  b+='<ol class="invsteps"><li>초대 메시지를 카카오톡에 붙여넣기</li><li>친구가 링크를 열고 참여 코드 6자리 넣기</li><li>자기 이름 고르기 (없으면 직접 추가)</li></ol>';
+  b+='<pre class="invmsg" id="invMsg">'+esc(inviteMsg())+'</pre>';
+  b+='<div class="row" style="margin-top:12px"><button class="btn primary" data-act="room-invite">초대 메시지 복사</button></div>';
+  return dlg('',{id:'invite',t:'친구 초대하기'},b);
+}
+function modalRooms(V){
+  var cur=S.remote,list=roomsList(),ri=S.roomInfo||{},isAdm=!!(V.me&&adminId(V)===V.me),st=S.jst;
+  list.sort(function(a,b){var ac=cur&&a.room===cur.room?0:1,bc=cur&&b.room===cur.room?0:1;return ac-bc;});
+  var b='<div class="sec" style="margin-top:0"><h3>이 기기에서 들어간 방</h3><div class="rmlist">';
+  list.forEach(function(x){
+    var on=!!(cur&&x.room===cur.room&&x.url===cur.url);
+    b+='<div class="rmrow'+(on?' on':'')+'"><div class="rmn"><b>'+esc(on?roomName():(x.name||'공부방'))+'</b><small>'+(on?'지금 방':(x.code?'참여 코드 '+fmtCode(x.code):''))+'</small></div>';
+    if(!on)b+='<button class="btn small" data-act="room-open" data-id="'+esc(x.room)+'">열기</button><button class="del" data-act="room-forget" data-id="'+esc(x.room)+'">'+(S.confirm==='rmf:'+x.room?'한 번 더 누르면 뺍니다':'목록에서 빼기')+'</button>';
+    b+='</div>';
+  });
+  b+='</div></div>';
+  b+='<div class="sec"><h3>참여 코드로 다른 방 들어가기</h3><div class="row"><input id="rmCode" class="jcode sm" type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="off" maxlength="7" data-draft="joinCode" data-enter="join-go" placeholder="참여 코드 6자리" aria-label="참여 코드 6자리"><button class="btn" data-act="join-go"'+(st.busy?' disabled':'')+'>들어가기</button></div>'+(st.err?'<p class="hint serr" role="status">'+esc(st.err)+'</p>':'')+'</div>';
+  b+='<div class="sec" id="c-newroom"><h3>새 방 만들기<small>기록은 새로 시작합니다</small></h3>';
+  b+='<label class="lb" for="nrName">방 이름</label><input id="nrName" type="text" maxlength="16" data-draft="nrName" placeholder="예: 2학년 공부방">';
+  b+='<label class="lb" for="nrPeople">참여할 사람</label><textarea id="nrPeople" rows="4" data-draft="nrPeople" placeholder="한 줄에 한 명씩 적으세요. 맨 위가 방장입니다."></textarea>';
+  b+='<p class="hint" style="margin-top:6px">비워 두어도 됩니다. 들어온 친구가 자기 이름을 직접 추가할 수 있습니다.</p>';
+  b+='<button class="nrchk" data-act="nr-subj" aria-pressed="'+(S.nrSubj?'true':'false')+'"><i aria-hidden="true"></i>지금 방의 과목 목록 그대로 쓰기</button>';
+  b+='<div class="row" style="margin-top:12px"><button class="btn primary" data-act="nr-make"'+(S.nrBusy?' disabled':'')+'>'+(S.nrBusy?'만드는 중':'새 방 만들기')+'</button></div></div>';
+  if(isAdm&&ri.code){
+    b+='<div class="sec"><h3>이 방 관리<small>방장만</small></h3><label class="lb" for="rmRename">방 이름</label><div class="row"><input id="rmRename" type="text" maxlength="16" data-draft="rmRename" data-enter="room-rename" placeholder="'+esc(roomName())+'"><button class="btn small" data-act="room-rename">이름 바꾸기</button></div>';
+    b+='<div class="row" style="margin-top:10px"><button class="btn small'+(S.confirm==='recode'?' warn':'')+'" data-act="room-recode">'+(S.confirm==='recode'?'한 번 더 누르면 코드를 바꿉니다':'참여 코드 바꾸기')+'</button></div><p class="hint" style="margin-top:6px">코드를 바꾸면 예전 코드로는 들어올 수 없습니다. 이미 들어온 사람은 그대로입니다.</p></div>';
+  }
+  return dlg('',{id:'rooms',t:'방'},b);
+}
+function makeRoom(){
+  if(!S.remote||!S.net||S.nrBusy)return;
+  var nm=String(S.draft.nrName||'').trim().slice(0,16)||'새 공부방',seen={};
+  var ppl=String(S.draft.nrPeople||'').split(/[\n,]+/).map(function(x){return x.trim().slice(0,12);}).filter(function(x){if(!x||seen[x])return false;seen[x]=1;return true;}).slice(0,12);
+  var url=S.remote.url,room=newRoom(),cfg=clone(obj(S.config)),subs=S.nrSubj?clone(obj(S.subjects)):{};
+  delete cfg.roster;delete cfg.admin;
+  cfg.roster=ppl.map(function(n,i){return {id:'m'+(i+1),name:n};});
+  if(typeof cfg.certHour!=='number')cfg.certHour=26;
+  S.nrBusy=true;render();
+  newCode(url).then(function(code){
+    var now=Date.now(),jobs=[[room+'/d/meta/config',cfg],[room+'/d/meta/room',{name:nm,code:code,at:now}]];
+    Object.keys(subs).forEach(function(k){if(/^[A-Za-z0-9_-]{1,80}$/.test(k)&&subs[k]&&typeof subs[k]==='object')jobs.push([room+'/d/subjects/'+k,subs[k]]);});
+    jobs.push(['joincode-'+code,{r:room,n:nm,at:now}]);
+    var i=0;
+    function next(){if(i>=jobs.length)return Promise.resolve();var j=jobs[i++];return fbRaw(url,j[0],'PUT',j[1]).then(next);}
+    return next().then(function(){
+      if(ppl.length){try{localStorage.setItem('gbb_me@'+room,'m1');localStorage.setItem('gbb_pinask@'+room,JSON.stringify({m1:1}));}catch(e){}}
+      try{sessionStorage.setItem('gbb_newroom','1');}catch(e){}
+      S.draft.nrName='';S.draft.nrPeople='';persistDrafts();
+      goRoom({url:url,room:room,name:nm,code:code});
+    });
+  }).catch(function(){S.nrBusy=false;flash('방을 만들지 못했습니다. 인터넷 연결을 확인해 주세요.');render();});
+}
+
 /* ---------- 공부방 ---------- */
 function peopleCard(V,date,k){
   var now=Date.now(),list=V.roster.map(function(m){return {p:V.byId[m.id],day:dayOf(V,m.id,date),r:(V.sc[m.id]||{})[date],L:liveOf(V,m.id)};});
@@ -3392,7 +3629,7 @@ function modalScore(V){
   return dlg('',{id:'score',t:'오늘 점수'},b);
 }
 function modalSettings(V){
-  var dis=canWrite()?'':' disabled',b='<div class="fld"><h3>이 기기에서 누구로 기록할까요</h3><div class="chips">';
+  var dis=canWrite()?'':' disabled',b=roomSec(V)+'<div class="fld"><h3>이 기기에서 누구로 기록할까요</h3><div class="chips">';
   V.roster.forEach(function(m){b+='<button class="chip" data-act="who" data-id="'+esc(m.id)+'" aria-pressed="'+(m.id===V.me?'true':'false')+'">'+esc(V.byId[m.id].name)+'</button>';});
   b+='</div></div>';
   var tp=themePref(),acNow=accentPref().id,cNow=conceptPref();
@@ -3414,7 +3651,7 @@ function modalSettings(V){
   b+='<div class="sec"><h3>규칙</h3><label for="certHour">인증 마감 시각</label><select id="certHour" data-chg="certHour"'+dis+'>';
   [[22,'밤 10시'],[23,'밤 11시'],[24,'자정'],[25,'다음 날 새벽 1시'],[26,'다음 날 새벽 2시']].forEach(function(o){b+='<option value="'+o[0]+'"'+(V.certHour===o[0]?' selected':'')+'>'+o[1]+'</option>';});
   b+='</select>';
-  b+='</div><div class="sec"><h3>키보드 단축키<small>키보드를 연결했을 때</small></h3><ul class="kbd">'+[['1 ~ 8','달력부터 메시지까지 화면 이동'],['N','할 일 추가'],['D','마감 있는 할 일 추가'],['L','달력, 할 일, 시간표 차례로 바꿔 보기'],['T','타이머 켜기, 끄기'],['F','타이머 크게 보기'],['Esc','창 닫기']].map(function(x){return '<li><kbd>'+x[0]+'</kbd><span>'+x[1]+'</span></li>';}).join('')+'</ul></div><div class="sec"><h3>저장 위치</h3><p class="hint">'+esc(S.net?({claude:'Claude 공유 저장소에 연결되어 있습니다. Claude에 로그인한 참여 인원끼리 실시간으로 같이 봅니다.',firebase:'공유 저장소에 연결되어 있습니다. 링크를 가진 참여 인원 모두가 실시간으로 같이 봅니다.',local:'지금은 이 기기에만 저장됩니다. 다른 사람과 같이 보려면 공유 저장소 연결이 필요합니다.'}[S.net.mode]):'연결 중입니다.')+'</p>'+(S.net&&S.net.mode==='firebase'&&S.remote?'<div class="invite"><small>초대 링크</small><p class="url" id="invUrl">'+esc(inviteLink(S.remote))+'</p></div><div class="row" style="margin-top:10px"><button class="btn small primary" data-act="copy-invite">초대 링크 복사</button><button class="btn small" data-act="import-pick">기록 가져오기</button><button class="btn small" data-act="export-data">기록 파일로 저장</button><button class="del" data-act="setup-reset">'+(S.confirm==='disc'?'한 번 더 누르면 연결을 끊습니다':'이 기기 연결 끊기')+'</button></div><p class="hint" style="margin-top:8px">'+esc(S.importMsg||'초대 링크를 친구들과 내 다른 기기에 보내세요. 기록 가져오기는 처음 연결한 뒤 한 번만 하면 됩니다.')+'</p>':'')+'</div>';
+  b+='</div><div class="sec"><h3>키보드 단축키<small>키보드를 연결했을 때</small></h3><ul class="kbd">'+[['1 ~ 8','달력부터 메시지까지 화면 이동'],['N','할 일 추가'],['D','마감 있는 할 일 추가'],['L','달력, 할 일, 시간표 차례로 바꿔 보기'],['T','타이머 켜기, 끄기'],['F','타이머 크게 보기'],['Esc','창 닫기']].map(function(x){return '<li><kbd>'+x[0]+'</kbd><span>'+x[1]+'</span></li>';}).join('')+'</ul></div><div class="sec"><h3>저장 위치</h3><p class="hint">'+esc(S.net?({claude:'Claude 공유 저장소에 연결되어 있습니다. Claude에 로그인한 참여 인원끼리 실시간으로 같이 봅니다.',firebase:'공유 저장소에 연결되어 있습니다. 참여 코드로 들어온 사람 모두가 실시간으로 같이 봅니다.',local:'지금은 이 기기에만 저장됩니다. 다른 사람과 같이 보려면 공유 저장소 연결이 필요합니다.'}[S.net.mode]):'연결 중입니다.')+'</p>'+(S.net&&S.net.mode==='firebase'&&S.remote?'<div class="row" style="margin-top:10px"><button class="btn small" data-act="import-pick">기록 가져오기</button><button class="btn small" data-act="export-data">기록 파일로 저장</button><button class="del" data-act="setup-reset">'+(S.confirm==='disc'?'한 번 더 누르면 이 방에서 나갑니다':'이 기기에서 이 방 나가기')+'</button></div><p class="hint" style="margin-top:8px">'+esc(S.importMsg||'친구와 내 다른 기기는 위의 친구 초대하기로 들어옵니다. 기록 가져오기는 처음 연결한 뒤 한 번만 하면 됩니다.')+'</p>':'')+'</div>';
   return dlg('wide',{id:'settings',t:'설정'},b);
 }
 function modalCheck(V){
@@ -3444,6 +3681,8 @@ function modalHtml(V){
   if(t==='pin')return S.pin?modalPin(V):'';
   if(t==='focus'){if(!V.me||!liveOf(V,V.me)){S.modal=null;lock(false);return '';}return modalFocus(V);}
   if(t==='settings')return modalSettings(V);
+  if(t==='rooms')return modalRooms(V);
+  if(t==='invite')return modalInvite(V);
   if(t==='pic'){var p=S.pics[S.modal.id];return '<div class="scrim" data-act="modal-close"></div><div class="dialog pic" id="dlg-pic" role="dialog" aria-modal="true" aria-label="사진 크게 보기" tabindex="-1">'+(typeof p==='string'&&p.indexOf('data:image/')===0?'<img src="'+esc(p)+'" alt="첨부한 사진">':'')+'<div class="df" style="justify-content:center;margin-top:12px"><button class="btn" data-act="modal-close">닫기</button></div></div>';}
   if(!V.me)return '';
   if(t==='score')return modalScore(V);
@@ -3484,7 +3723,7 @@ function paintBanner(){
 function render(){
   if(S.drag){S.dragDirty=true;return;}
   var V=view();V0=V;
-  var gate=S.setup||(S.ready&&!V.me);
+  var gate=S.setup||!!S.join||(S.ready&&!V.me);
   paintBanner();
   app.className=gate?'gate':'';
   navs.style.setProperty('--i',TABS.indexOf(S.tab));
@@ -3493,6 +3732,7 @@ function render(){
   paint(meBtn,V.me?av(V.byId[V.me])+'<span>설정</span>':'<span class="av" aria-hidden="true">?</span><span>설정</span>');
   var h;
   if(!S.ready)h='<p class="loading">불러오는 중입니다.</p>';
+  else if(S.join)h=viewJoin();
   else if(S.setup)h=viewSetup();
   else if(gate)h=viewGate(V);
   else h=({cal:viewCal,room:viewRoom,prog:viewProg,rank:viewRank,report:viewReport,play:viewPlay,board:viewBoard,chat:viewChat}[S.vtab]||viewCal)(V);
@@ -3565,7 +3805,8 @@ function pop(delta){
 /* ---------- 팝업 열고 닫기 ---------- */
 function openModal(type,el){
   var V=view();
-  if(type!=='settings'&&type!=='pic'&&!V.me)return;
+  if(type!=='settings'&&type!=='pic'&&type!=='rooms'&&type!=='invite'&&!V.me)return;
+  if(type==='rooms'){S.jst.err='';S.draft.joinCode='';S.draft.rmRename='';S.nrBusy=false;if(!S.draft.nrPeople&&V.me&&V.byId[V.me])S.draft.nrPeople=V.byId[V.me].name;}
   if(type==='plan'){S.pl=newPlan();S.draft.plNote='';}
   if(type==='ttset'){S.ttTab=S.ttTab||'fixed';S.ttEd=null;}
   if(type==='school'){S.schWho=null;S.schSel=null;S.schTimes=false;S.draft.schT='';}
@@ -3891,6 +4132,8 @@ function act(name,el){
       break;
     }
     case 'setup-go':{
+      var jtk=/#(?:join|j)=([^&\s]+)/.exec(String(S.draft.setupIn||''));
+      if(jtk&&dbFromToken(jtk[1])){S.setup=false;S.setupErr='';S.join={url:dbFromToken(jtk[1])};S.jst.err='';try{history.replaceState(null,'',siteBase()+'#join='+jtk[1]);}catch(e){}break;}
       var rcx=parseRemote(S.draft.setupIn);
       if(!rcx){S.setupErr='주소를 알아보지 못했습니다. https://로 시작하는 Firebase 데이터베이스 주소나 초대 링크를 붙여넣으세요.';break;}
       connect(rcx);return;
@@ -3901,6 +4144,26 @@ function act(name,el){
       try{var bl=new Blob([JSON.stringify(ex)],{type:'application/json'}),bu=URL.createObjectURL(bl),ba=document.createElement('a');ba.href=bu;ba.download='planner-data-'+today()+'.json';document.body.appendChild(ba);ba.click();setTimeout(function(){URL.revokeObjectURL(bu);ba.remove();},1500);flash('기록 파일을 저장했습니다. 사진은 들어가지 않습니다.');}
       catch(e){flash('저장하지 못했습니다.');}
       break;
+    }
+    case 'join-go':joinGo();return;
+    case 'room-open':{var roe=roomsList().filter(function(x){return x.room===id;})[0];if(roe)goRoom(roe);return;}
+    case 'room-forget':{if(prev!=='rmf:'+id){S.confirm='rmf:'+id;break;}roomsSave(roomsList().filter(function(x){return x.room!==id;}));break;}
+    case 'room-invite':if(S.roomInfo&&S.roomInfo.code&&S.remote)copyText(inviteMsg(),'초대 메시지를 복사했습니다. 카카오톡에 붙여넣으세요.',document.getElementById('invMsg'));break;
+    case 'nr-subj':S.nrSubj=!S.nrSubj;break;
+    case 'nr-make':makeRoom();break;
+    case 'room-rename':{
+      var Vrn=view(),rnm=String(S.draft.rmRename||'').trim().slice(0,16),rri=S.roomInfo||{};
+      if(!rnm||!rri.code||adminId(Vrn)!==Vrn.me||!need())break;
+      var nri={name:rnm,code:rri.code,at:rri.at||Date.now()};S.roomInfo=nri;S.draft.rmRename='';S.sync=true;
+      S.net.write('meta/room',nri).catch(function(){});
+      fbRaw(S.remote.url,'joincode-'+rri.code,'PUT',{r:S.remote.room,n:rnm,at:Date.now()}).catch(function(){});
+      roomsRemember({url:S.remote.url,room:S.remote.room,name:rnm,code:rri.code});
+      flash('방 이름을 바꿨습니다.');break;
+    }
+    case 'room-recode':{
+      var Vrc=view();if(adminId(Vrc)!==Vrc.me||!need())break;
+      if(prev!=='recode'){S.confirm='recode';break;}
+      makeCode(true);break;
     }
     case 'copy-rules':copyText(FB_RULES,'규칙을 복사했습니다.',document.getElementById('fbRules'));break;
     case 'copy-invite':if(S.remote)copyText(inviteLink(S.remote),'초대 링크를 복사했습니다.',document.getElementById('invUrl'));break;
@@ -3913,6 +4176,7 @@ function act(name,el){
     }
     case 'setup-reset':
       if(prev!=='disc'){S.confirm='disc';break;}
+      if(S.remote){roomsSave(roomsList().filter(function(x){return !(x.url===S.remote.url&&x.room===S.remote.room);}));}
       lsSet('gbb_remote',null);try{history.replaceState(null,'',String(location.href).split('#')[0]);}catch(e){}
       location.reload();return;
     case 'open':openModal(el.getAttribute('data-modal'),el);return;
@@ -4450,8 +4714,10 @@ var COLLS=['subjects','days','progress','quiz','events','live','replies','msgs',
 function fromTree(tree){
   var c=obj(tree.meta).config;
   S.config=c&&typeof c==='object'?c:null;
+  S.roomInfo=obj(obj(tree.meta).room);
   COLLS.forEach(function(k){S[k]=obj(tree[k]);});
   S.ready=true;render();
+  try{roomTick();}catch(e){}
 }
 function claudeNet(db){
   function toMap(snap){var m={};snap.docs.forEach(function(d){m[d.id]=d.data();});return m;}
@@ -4497,13 +4763,17 @@ function localNet(){
     start:function(){fromTree(tree);}};
 }
 function remoteConfig(){
-  var r={url:REMOTE.url,room:REMOTE.room||'main'};
-  try{
-    var h=new URLSearchParams(String(location.hash||'').slice(1));
-    if(h.get('db')){r={url:h.get('db'),room:h.get('room')||'main'};lsSet('gbb_remote',JSON.stringify(r));}
-    else if(!r.url){var s=JSON.parse(lsGet('gbb_remote')||'null');if(s&&s.url)r=s;}
-  }catch(e){}
-  if(r.url)r.url=String(r.url).replace(/\/+$/,'');
+  var h=null,sv=null,r=null;
+  try{h=new URLSearchParams(String(location.hash||'').slice(1));}catch(e){}
+  try{sv=JSON.parse(lsGet('gbb_remote')||'null');}catch(e){}
+  if(h&&h.get('db')){r={url:String(h.get('db')).replace(/\/+$/,''),room:h.get('room')||''};if(validRemote(r))lsSet('gbb_remote',JSON.stringify(r));}
+  else if(h&&(h.get('join')||h.get('j'))){
+    var ju=dbFromToken(h.get('join')||h.get('j'));if(!ju)return null;
+    if(!h.get('join')&&sv&&String(sv.url).replace(/\/+$/,'')===ju&&validRemote(sv))r=sv;
+    else return {join:true,url:ju};
+  }
+  else r=sv;
+  if(r&&r.url)r.url=String(r.url).replace(/\/+$/,'');
   return validRemote(r)?r:null;
 }
 function validRemote(r){return !!r&&/^https:\/\/[a-z0-9.-]+\.(firebaseio\.com|firebasedatabase\.app)$/i.test(r.url||'')&&/^[A-Za-z0-9_-]{12,40}$/.test(r.room||'');}
@@ -4519,13 +4789,13 @@ function parseRemote(v){
 function inviteLink(r){return String(location.href).split('#')[0]+'#db='+encodeURIComponent(r.url)+'&room='+encodeURIComponent(r.room);}
 var FB_RULES='{\n  "rules": {\n    ".read": false,\n    ".write": false,\n    "rooms": {\n      "$room": {\n        ".read": "$room.length >= 12",\n        ".write": "$room.length >= 12"\n      }\n    }\n  }\n}';
 function connect(rc){
-  lsSet('gbb_remote',JSON.stringify(rc));
+  lsSet('gbb_remote',JSON.stringify(rc));roomsRemember({url:rc.url,room:rc.room});
   try{history.replaceState(null,'',inviteLink(rc));}catch(e){}
-  S.setup=false;S.setupErr='';S.ready=false;S.readOnly=false;S.remote=rc;S.net=firebaseNet(rc.url,rc.room);render();S.net.start();
+  location.reload();
 }
 function viewSetup(){
-  var h='<div class="view" id="view-setup"><div class="gatebox"><div><h1>공부방 플래너 연결</h1><p class="hint" style="margin-top:6px">초대 링크를 받았다면 그 링크로 열거나 아래에 붙여넣으세요. 처음 만드는 사람은 Firebase 데이터베이스 주소를 붙여넣으세요. 주소는 처음 한 번만 넣고, 내 다른 기기와 친구들은 초대 링크로 들어옵니다.</p></div>';
-  h+='<section class="card" id="c-setup"><label for="setupIn" class="lb">초대 링크 또는 데이터베이스 주소</label><div class="row"><input type="text" id="setupIn" data-draft="setupIn" data-enter="setup-go" inputmode="url" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="https://...firebasedatabase.app" aria-label="초대 링크 또는 데이터베이스 주소"><button class="btn primary" data-act="setup-go">연결</button></div>'+(S.setupErr?'<p class="hint serr" role="status">'+esc(S.setupErr)+'</p>':'')+'</section>';
+  var h='<div class="view" id="view-setup"><div class="gatebox"><div><h1>공부방 플래너 연결</h1><p class="hint" style="margin-top:6px">초대 메시지를 받았다면 메시지의 링크를 눌러 열고 참여 코드를 넣으세요. 링크를 아래에 붙여넣어도 됩니다. 처음 만드는 사람만 Firebase 데이터베이스 주소를 붙여넣습니다.</p></div>';
+  h+='<section class="card" id="c-setup"><label for="setupIn" class="lb">초대 링크 또는 데이터베이스 주소</label><div class="row"><input type="text" id="setupIn" data-draft="setupIn" data-enter="setup-go" inputmode="url" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="초대 링크 또는 https://...firebasedatabase.app" aria-label="초대 링크 또는 데이터베이스 주소"><button class="btn primary" data-act="setup-go">연결</button></div>'+(S.setupErr?'<p class="hint serr" role="status">'+esc(S.setupErr)+'</p>':'')+'</section>';
   h+='<section class="card" id="c-rules"><h2 class="sh">Firebase 보안 규칙</h2><p class="hint">데이터베이스를 처음 만들 때 Realtime Database의 규칙 탭에 아래 내용을 그대로 붙여넣고 게시하세요. 초대 링크를 아는 사람만 기록을 보고 쓸 수 있게 합니다.</p><pre class="rules" id="fbRules">'+esc(FB_RULES)+'</pre><div class="row"><button class="btn small" data-act="copy-rules">규칙 복사</button></div></section>';
   return h+'</div></div>';
 }
@@ -4561,9 +4831,10 @@ async function init(){
     if(user&&typeof user.can==='function'){try{if((await user.can('data.write'))===false)S.readOnly=true;}catch(e){}}
   }else{
     var rc=remoteConfig();
+    if(rc&&rc.join&&window.fetch){S.join={url:rc.url};S.ready=true;render();return;}
     if(!rc||!window.EventSource||!window.fetch){S.setup=true;S.ready=true;render();return;}
     S.remote=rc;S.net=firebaseNet(rc.url,rc.room);
-    try{if(!location.hash)history.replaceState(null,'',inviteLink(rc));}catch(e){}
+    try{syncAddr();}catch(e){}
   }
   try{S.net.start();}catch(e){S.setup=true;S.ready=true;S.setupErr='연결하지 못했습니다. 주소를 다시 확인하세요.';render();}
 }

@@ -15,6 +15,15 @@ def sub(a, b, count=1):
     s = s.replace(a, b)
 
 
+def cut(a, b, new):
+    """a에서 시작해 b 직전까지를 new로 바꾼다."""
+    global s
+    assert s.count(a) == 1, ('cut start', s.count(a), a[:80])
+    i = s.index(a)
+    j = s.index(b, i)
+    s = s[:i] + new + s[j:]
+
+
 # 1) morphdom을 파일 안으로
 md = open(NPM + '/morphdom/dist/morphdom-umd.min.js', encoding='utf-8').read()
 assert '</script' not in md
@@ -178,6 +187,8 @@ sub("    case 'copy-rules':", r"""    case 'export-data':{
       break;
     }
     case 'copy-rules':""")
+# 참여 코드, 새 방, 방 바꾸기
+exec(open(BASE + '/tools/web_rooms_part.py', encoding='utf-8').read())
 OUT = BASE + ('/web-light' if LIGHT else '/web')
 os.makedirs(OUT, exist_ok=True)
 open(OUT + '/index.html', 'w', encoding='utf-8').write(s)

@@ -12,6 +12,7 @@ Cloudflare Pages가 `main`의 `public/` 폴더를 study-planner-2tk.pages.dev �
 - `public/` 배포되는 파일(빌드 결과). index.html, manifest.webmanifest, 아이콘, stickers/
 - `dev/src/` 원본: 바탕 HTML(planner_v9_backup.html), add.css, tt.js, school.js, wkdrag.js, icon.svg 등
 - `dev/tools/` 빌드 스크립트, 수정 조각(timer_part.py, v10_part.py ~ v16_part.py), 브라우저 테스트(t_*.py, rig.py)
+- 웹 판에만 들어가는 기능: `dev/tools/build_web.py`가 마지막에 `web_rooms_part.py`(방, 참여 코드)를 실행한다. JS는 `src/rooms.js`.
 
 ## 작업 준비 (새 작업 공간마다)
 빌드 스크립트는 `/home/claude/planner`를 기준 경로로 쓴다.
@@ -31,6 +32,14 @@ cp web-light/index.html <저장소>/public/index.html
 ```
 바꾼 원본 파일은 `dev/`에도 다시 복사해서 같은 커밋에 넣는다.
 push 뒤에는 `gh api repos/daniel09020312-sudo/study-planner/commits/<sha>/check-runs`로 Cloudflare Pages 성공을 확인한다.
+
+## 방과 참여 코드 (웹 판)
+- 참여 링크 `사이트#join=<저장소 이름>` -> 참여 코드 6자리 -> 이름 고르기. 평소 주소창은 `#j=<저장소 이름>`.
+- 저장소 이름: `NAME-default-rtdb.REGION.firebasedatabase.app` 이면 `NAME.REGION`.
+- 코드 연결은 `rooms/joincode-<코드>` = {r: 방 id, n: 방 이름}, 방 정보는 `rooms/<방>/d/meta/room` = {name, code}. Firebase 규칙은 바꾸지 않아도 된다.
+- 예전 초대 링크 `#db=...&room=...`도 계속 들어와진다.
+- 기기 저장 값 중 방마다 다른 것(gbb_me, gbb_auth 등)은 `키@방id`로 저장한다. 예전 판에서 쓰던 방(gbb_legacy_room)만 붙이지 않은 값을 이어서 읽는다.
+- 테스트: `LIGHT=1 python3 tools/t_rooms.py` (먼저 `cp web-light/index.html site/index.html`).
 
 ## 고치는 방법
 - build.py는 바탕 HTML을 `sub(찾을 글, 바꿀 글)`로 고친다. 찾을 글이 정확히 한 번 있어야 한다.

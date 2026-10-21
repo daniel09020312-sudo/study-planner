@@ -158,6 +158,17 @@ def ev(pg, js):
     return pg.evaluate('()=>' + js)
 
 
+def calm(pg):
+    # 이름을 고른 뒤 뜨는 창(비밀번호 정하기, 출석)을 모두 닫는다
+    for _ in range(4):
+        pg.wait_for_timeout(450)
+        n = pg.evaluate("()=>{const b=document.querySelector('.dialog [data-act=\"modal-close\"]');if(b){b.click();return 1;}return 0;}")
+        if not n:
+            pg.wait_for_timeout(500)
+            if not pg.evaluate("()=>!!document.querySelector('.dialog')"):
+                break
+
+
 # ---- 주인(A): 주소 붙여넣고 연결
 ca, A = newpage()
 A.goto(SITE, wait_until='commit'); A.wait_for_timeout(1500)
@@ -167,7 +178,7 @@ A.fill('#setupIn', 'firebase 주소 아님'); click(A, '[data-act="setup-go"]')
 print('A bad input    :', ev(A, "(document.querySelector('.serr')||{}).textContent"))
 A.fill('#setupIn', DB + '/'); click(A, '[data-act="setup-go"]', 1500)
 print('A url after    :', ev(A, "location.hash.replace(/room=[a-z0-9]+/,'room=…')"), '| gate:', ev(A, "(document.querySelector('#view-gate h1')||{}).textContent"))
-room = ev(A, "new URLSearchParams(location.hash.slice(1)).get('room')")
+room = ev(A, "JSON.parse(localStorage.getItem('gbb_remote')).room")
 print('room           :', len(room), 'chars')
 # 연결 화면에서 기록 가져오기
 A.screenshot(path=SH + 'w_01_gate_empty.png')
@@ -179,19 +190,21 @@ print('store roster   :', [m['name'] for m in get_at('/rooms/' + room + '/d/meta
 print('A gate people  :', ev(A, "[...document.querySelectorAll('#view-gate .person')].map(e=>e.textContent).join(',')"), '| import card gone:', ev(A, "!document.getElementById('c-import')"))
 click(A, '[data-act="who"][data-id="m1"]', 900)
 ev(A, "(()=>{const b=document.querySelector('.dialog [data-act=\"modal-close\"]');if(b)b.click();})()"); A.wait_for_timeout(500)
+calm(A)
 click(A, '#meBtn', 600)
-print('A invite shown :', ev(A, "(document.getElementById('invUrl')||{}).textContent.replace(/room=[a-z0-9]+/,'room=…')"))
+print('A room section :', ev(A, "(document.querySelector('.rmsec')||{}).innerText.replace(/\\n/g,' ')"))
 A.screenshot(path=SH + 'w_01_settings.png')
 ev(A, "(()=>{const b=document.querySelector('.dialog [data-act=\"modal-close\"]');if(b)b.click();})()"); A.wait_for_timeout(500)
 print('A me           :', ev(A, "(document.querySelector('#meBtn')||{}).textContent"), '| tab', ev(A, "(document.querySelector('.view h1')||{}).textContent"))
 
 # ---- 친구(B): 초대 링크로 들어오기
-invite = ev(A, "location.href")
+invite = SITE + '#db=' + DB + '&room=' + room  # 예전 초대 링크도 계속 들어와져야 한다
 cb, B = newpage(w=820, h=1180)
 B.goto(invite, wait_until='commit'); B.wait_for_timeout(2000)
 print('B gate         :', ev(B, "(document.querySelector('#view-gate h1')||{}).textContent"), '| people', ev(B, "document.querySelectorAll('#view-gate .person').length"))
 click(B, '[data-act="who"][data-id="m2"]', 900)
 ev(B, "(()=>{const b=document.querySelector('.dialog [data-act=\"modal-close\"]');if(b)b.click();})()"); B.wait_for_timeout(500)
+calm(B)
 click(B, '[data-act="tab"][data-tab="room"]', 900)
 click(B, '[data-act="tmode"][data-v="pomo"]', 300)
 click(B, '[data-act="timer-start"]', 800)
@@ -232,7 +245,7 @@ C.fill('#setupIn', DB); click(C, '[data-act="setup-go"]', 1500)
 with C.expect_file_chooser() as fc2:
     click(C, '[data-act="import-pick"]', 200)
 fc2.value.set_files(BASE + '/web/planner-data.json'); C.wait_for_timeout(2500)
-r2 = ev(C, "new URLSearchParams(location.hash.slice(1)).get('room')")
+r2 = ev(C, "JSON.parse(localStorage.getItem('gbb_remote')).room")
 print('real file      :', ev(C, "[...document.querySelectorAll('#view-gate .person')].length+'명'"), '| lock kept', bool(get_at('/rooms/' + r2 + '/d/locks/m1')), '| days', list((get_at('/rooms/' + r2 + '/d/days') or {}).keys()))
 print('methods        :', sorted(set(m for m, p in LOG)))
 print('errors:', errors)
