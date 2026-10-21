@@ -1363,12 +1363,12 @@ html.wkdragging,html.wkdragging *{cursor:grabbing !important}
 .a2ic.circ .a2c svg{width:20px;height:20px}
 .a2ic.circ small{font-size:10.5px;font-weight:500;color:#D1D1D6}
 .a2t{min-width:0}
+.a2t.wide{grid-column:2/-1}
 .jinapp{margin:0;font-size:13.5px}
 .jgo{display:flex;flex-direction:column;align-items:flex-start;gap:10px;padding:14px 16px !important;border:0 !important;border-radius:14px;background:var(--accent-soft) !important;color:var(--ink) !important}
 .jgo::before{display:none !important}
 .jgo p{margin:0}
 .kklink{margin:0 0 8px;padding:8px 10px;border-radius:10px;background:var(--fill);font-size:12px;color:var(--ink-3);word-break:break-all;-webkit-user-select:all;user-select:all}
-.a2ic.gapp{background:#fff;color:#3C4043;font-weight:700;letter-spacing:-.01em;box-shadow:inset 0 0 0 1px rgba(0,0,0,.12)}
 .a2ic.sbar{justify-content:flex-start;gap:8px;min-width:132px;padding:0 14px;border-radius:23px;background:#3A3A3C;color:#D1D1D6}
 .a2ic.sbar span{color:#F5F5F7}
 .jcode.sm::placeholder{letter-spacing:normal;font:500 15px/1.2 var(--font-body)}
@@ -3640,8 +3640,8 @@ function inviteMsg(){
 function viewJoin(){
   var J=S.join,st=S.jst,mine=roomsList();
   var h='<div class="view" id="view-join"><div class="gatebox"><div><h1>공부방 들어가기</h1><p class="hint" style="margin-top:6px">초대 메시지에 있는 참여 코드 6자리를 넣으세요.</p></div>';
-  if(a2hsKind()==='inapp')h+='<p class="notice jinapp">카톡 안에서 열렸습니다. 앱으로 쓰려면 메뉴에서 <b>다른 브라우저로 열기</b>를 먼저 누르세요.</p>';
-  else if(a2hsKind()==='ios-kakao')h+='<div class="notice jinapp jgo"><p>카톡 안에서 열렸습니다. 앱으로 쓰려면 <b>구글 앱</b>에서 여세요. 링크를 복사해 구글 앱 검색창에 붙여넣으면 됩니다.</p><button class="btn small primary" data-act="kakao-copy">링크 복사</button></div>';
+  if(a2hsKind()==='inapp')h+='<p class="notice jinapp">'+inappName()+' 안에서 열렸습니다. 앱으로 쓰려면 메뉴에서 <b>다른 브라우저로 열기</b>를 먼저 누르세요.</p>';
+  else if(a2hsKind()==='ios-inapp')h+='<div class="notice jinapp jgo"><p>'+inappName()+' 안에서 열렸습니다. 앱으로 쓰려면 <b>구글 앱</b>에서 여세요. 링크를 복사해 구글 앱 검색창에 붙여넣으면 됩니다.</p><button class="btn small primary" data-act="kakao-copy">링크 복사</button></div>';
   h+='<section class="card" id="c-joincode"><input id="joinCode" class="jcode" type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="off" maxlength="7" data-draft="joinCode" data-enter="join-go" placeholder="000000" aria-label="참여 코드 6자리"'+(st.busy?' disabled':'')+'><button class="btn primary" data-act="join-go"'+(st.busy?' disabled':'')+'>'+(st.busy?'확인하는 중':'들어가기')+'</button>'+(st.err?'<p class="hint serr" role="status">'+esc(st.err)+'</p>':'')+'</section>';
   if(mine.length){
     h+='<section class="card"><h2 class="sh">이 기기에서 들어갔던 방</h2><div class="people">';
@@ -3752,11 +3752,22 @@ function makeRoom(){
 
 /* 처음 방에 들어온 사람에게: 홈 화면에 앱으로 추가하는 법 (기기에 맞는 것만) */
 function isStandalone(){try{return window.matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;}catch(e){return false;}}
+/* 링크를 연 앱 이름 (주소창 없는 앱 안 브라우저). 디스코드처럼 사파리나 크롬 화면을 그대로 쓰는 앱은 구분되지 않는다 */
+function inappName(){
+  var ua=navigator.userAgent||'';
+  if(/KAKAOTALK/i.test(ua))return '카톡';
+  if(/Instagram/i.test(ua))return '인스타그램';
+  if(/FBAN|FBAV|FB_IAB/i.test(ua))return '페이스북';
+  if(/NAVER\(/i.test(ua))return '네이버 앱';
+  if(/Line\//i.test(ua))return '라인';
+  if(/Everytimeapp/i.test(ua))return '에브리타임';
+  if(/Twitter|TwitterAndroid/i.test(ua))return 'X';
+  return '';
+}
 function a2hsKind(){
   var ua=navigator.userAgent||'',ios=/iPhone|iPad|iPod/.test(ua)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
-  // 아이폰, 아이패드의 카톡은 아래 공유 버튼에서 바로 홈 화면에 추가할 수 있다
-  if(ios&&/KAKAOTALK/i.test(ua))return 'ios-kakao';
-  if(/KAKAOTALK|FBAN|FBAV|Instagram|NAVER\(|Line\//i.test(ua))return 'inapp';
+  // 카톡, 인스타그램 같은 앱 안에서 열린 경우: 아이폰, 아이패드는 구글 앱으로, 안드로이드는 다른 브라우저로
+  if(inappName())return ios?'ios-inapp':'inapp';
   if(ios)return /GSA\//.test(ua)?'ios-google':/CriOS/.test(ua)?'ios-chrome':'ios-safari';
   if(/Android/.test(ua))return 'android';
   return 'pc';
@@ -3785,14 +3796,13 @@ function a2Pic(k){
   if(k==='openrow')return '<span class="a2ic row">'+A2IC.open+'<span>다른 브라우저로 열기</span></span>';
   if(k==='code')return '<span class="a2ic pill mono">000000</span>';
   if(k==='copylink')return '<span class="a2ic row">'+A2IC.link+'<span>링크 복사</span></span>';
-  if(k==='gapp')return '<span class="a2ic gapp">Google</span>';
   if(k==='paste')return '<span class="a2ic sbar">'+A2IC.search+'<span>붙여넣기</span></span>';
   return '';
 }
 function a2hsSteps(k){
   return {
     'inapp':[['menu','오른쪽 아래나 위의 <b>메뉴</b> 누르기'],['openrow','<b>다른 브라우저로 열기</b> 누르기'],['code','열린 화면에서 <b>참여 코드</b> 다시 넣기']],
-    'ios-kakao':[['copylink','아래 <b>링크 복사</b> 누르기'],['gapp','<b>구글 앱</b> 열기'],['paste','검색창을 길게 눌러 <b>붙여넣기</b> 한 뒤 열기'],['code','열린 화면에서 <b>참여 코드</b> 다시 넣기']],
+    'ios-inapp':[['copylink','아래 <b>링크 복사</b> 누르기'],['gapp','<b>구글 앱</b> 열기'],['paste','검색창을 길게 눌러 <b>붙여넣기</b> 한 뒤 열기'],['code','열린 화면에서 <b>참여 코드</b> 다시 넣기']],
     'ios-google':[['share','<b>공유 버튼</b> 누르기'],['more','<b>더 보기</b> 누르기'],['addrow','<b>홈 화면에 추가</b> 누르기'],['add','오른쪽 위 <b>추가</b> 누르기']],
     'ios-chrome':[['share','주소창 오른쪽 <b>공유 버튼</b> 누르기'],['addrow','<b>홈 화면에 추가</b> 누르기'],['add','오른쪽 위 <b>추가</b> 누르기']],
     'ios-safari':[['share','<b>공유 버튼</b> 누르기'],['addrow','<b>홈 화면에 추가</b> 누르기'],['add','오른쪽 위 <b>추가</b> 누르기']],
@@ -3802,16 +3812,16 @@ function a2hsSteps(k){
 }
 function modalA2HS(V){
   var k=a2hsKind(),st=a2hsSteps(k),ios=k.indexOf('ios')===0;
-  var b='<ol class="a2steps">'+st.map(function(x,i){return '<li><span class="a2n">'+(i+1)+'</span>'+a2Pic(x[0])+'<span class="a2t">'+x[1]+'</span></li>';}).join('')+'</ol>';
-  if(k==='inapp')b='<p class="hint" style="margin-bottom:12px">카톡 안에서는 앱으로 추가할 수 없습니다.</p>'+b;
+  var b='<ol class="a2steps">'+st.map(function(x,i){var pic=a2Pic(x[0]);return '<li><span class="a2n">'+(i+1)+'</span>'+pic+'<span class="a2t'+(pic?'':' wide')+'">'+x[1]+'</span></li>';}).join('')+'</ol>';
+  if(k==='inapp')b='<p class="hint" style="margin-bottom:12px">'+inappName()+' 안에서는 앱으로 추가할 수 없습니다.</p>'+b;
   else if(k==='ios-google')b='<p class="hint" style="margin-bottom:12px">구글 앱에서는 이 순서로 눌러야 합니다.</p>'+b;
-  else if(k==='ios-kakao')b='<p class="hint" style="margin-bottom:12px">카톡 대신 구글 앱에서 열어야 앱으로 추가할 수 있습니다.</p>'+b;
-  if(k!=='inapp'&&k!=='ios-kakao')b+='<p class="hint">'+(ios?'이제 홈 화면의 공부방 아이콘으로 여세요. 처음 열 때 참여 코드를 한 번 더 넣습니다.':'이제 홈 화면의 공부방 아이콘으로 여세요.')+'</p>';
-  if(k==='ios-kakao')b+='<p class="kklink" id="kkLink">'+esc(kakaoLink())+'</p><p class="hint">구글 앱에서 들어오면 앱으로 추가하는 방법이 다시 나옵니다.</p>';
-  b+='<div class="row" style="margin-top:14px">'+(k==='ios-kakao'?'<button class="btn primary" data-act="kakao-copy">링크 복사</button><button class="btn" data-act="modal-close">닫기</button>':'<button class="btn primary" data-act="modal-close">확인</button>')+'</div>';
-  return dlg('',{id:'a2hs',t:k==='inapp'?'다른 브라우저로 열어 주세요':k==='ios-kakao'?'구글 앱에서 열어 주세요':'앱으로 추가하기'},b);
+  else if(k==='ios-inapp')b='<p class="hint" style="margin-bottom:12px">'+inappName()+' 대신 구글 앱에서 열어야 앱으로 추가할 수 있습니다.</p>'+b;
+  if(k!=='inapp'&&k!=='ios-inapp')b+='<p class="hint">'+(ios?'이제 홈 화면의 공부방 아이콘으로 여세요. 처음 열 때 참여 코드를 한 번 더 넣습니다.':'이제 홈 화면의 공부방 아이콘으로 여세요.')+'</p>';
+  if(k==='ios-inapp')b+='<p class="kklink" id="kkLink">'+esc(kakaoLink())+'</p><p class="hint">구글 앱에서 들어오면 앱으로 추가하는 방법이 다시 나옵니다.</p>';
+  b+='<div class="row" style="margin-top:14px">'+(k==='ios-inapp'?'<button class="btn primary" data-act="kakao-copy">링크 복사</button><button class="btn" data-act="modal-close">닫기</button>':'<button class="btn primary" data-act="modal-close">확인</button>')+'</div>';
+  return dlg('',{id:'a2hs',t:k==='inapp'?'다른 브라우저로 열어 주세요':k==='ios-inapp'?'구글 앱에서 열어 주세요':'앱으로 추가하기'},b);
 }
-/* 카톡에서 연 링크를 구글 앱에서 열 수 있게 복사 */
+/* 카톡 같은 앱에서 연 링크를 구글 앱에서 열 수 있게 복사 */
 function kakaoLink(){var u=(S.remote&&S.remote.url)||(S.join&&S.join.url);return u?joinLink(u):String(location.href);}
 function kakaoCopy(){copyText(kakaoLink(),'링크를 복사했습니다. 구글 앱 검색창에 붙여넣으세요.',document.getElementById('kkLink'));
 }

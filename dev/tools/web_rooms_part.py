@@ -163,12 +163,12 @@ sub("</style>", """.jcode{font:700 30px/1.2 ui-monospace,SFMono-Regular,Menlo,Co
 .a2ic.circ .a2c svg{width:20px;height:20px}
 .a2ic.circ small{font-size:10.5px;font-weight:500;color:#D1D1D6}
 .a2t{min-width:0}
+.a2t.wide{grid-column:2/-1}
 .jinapp{margin:0;font-size:13.5px}
 .jgo{display:flex;flex-direction:column;align-items:flex-start;gap:10px;padding:14px 16px !important;border:0 !important;border-radius:14px;background:var(--accent-soft) !important;color:var(--ink) !important}
 .jgo::before{display:none !important}
 .jgo p{margin:0}
 .kklink{margin:0 0 8px;padding:8px 10px;border-radius:10px;background:var(--fill);font-size:12px;color:var(--ink-3);word-break:break-all;-webkit-user-select:all;user-select:all}
-.a2ic.gapp{background:#fff;color:#3C4043;font-weight:700;letter-spacing:-.01em;box-shadow:inset 0 0 0 1px rgba(0,0,0,.12)}
 .a2ic.sbar{justify-content:flex-start;gap:8px;min-width:132px;padding:0 14px;border-radius:23px;background:#3A3A3C;color:#D1D1D6}
 .a2ic.sbar span{color:#F5F5F7}
 .jcode.sm::placeholder{letter-spacing:normal;font:500 15px/1.2 var(--font-body)}
