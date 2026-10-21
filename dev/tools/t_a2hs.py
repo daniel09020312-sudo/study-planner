@@ -178,6 +178,7 @@ STORE['rooms']['joincode-482913'] = {'r': R1, 'n': '공부방', 'at': 1}
 STORE['rooms'][R1]['d']['meta']['room'] = {'name': '공부방', 'code': '482913', 'at': 1}
 UAS = {'pc': None,
        'ios-chrome': 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/126.0.6478.54 Mobile/15E148 Safari/604.1',
+       'ios-safari': 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Mobile/15E148 Safari/604.1',
        'ios-google': 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) GSA/380.0.775424683 Mobile/15E148 Safari/604.1',
        'android': 'Mozilla/5.0 (Linux; Android 14; SM-S918N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Mobile Safari/537.36',
        'kakao': 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 KAKAOTALK 10.8.0',
@@ -201,7 +202,7 @@ for k, ua in UAS.items():
     P.wait_for_timeout(2200); closeall(P)
     t = P.evaluate("()=>{const d=document.querySelector('#dlg-a2hs');return d?d.querySelector('h2').textContent+' / '+[...d.querySelectorAll('.a2steps li')].map(l=>l.textContent).join(' > ')+' / '+((d.querySelector('.db > .hint:last-of-type')||{}).textContent||''):'none'}")
     print(k.ljust(10), '| join note:', inapp[:30] or '-', '|', t)
-    if k in ('ios-chrome','ios-google','android','kakao','kakao-and'): P.screenshot(path=SH + 'a2hs_' + k + '.png')
+    if k in ('ios-chrome','ios-google','ios-safari','android','kakao','kakao-and'): P.screenshot(path=SH + 'a2hs_' + k + '.png')
     if k == 'kakao':
         print(' '*10, '| copy link   :', P.evaluate("()=>(document.getElementById('kkLink')||{}).textContent"))
     P.evaluate("()=>{const b=document.querySelector('#dlg-a2hs [data-act=\"modal-close\"]');if(b)b.click();}"); P.wait_for_timeout(600)
