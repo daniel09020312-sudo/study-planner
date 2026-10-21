@@ -774,3 +774,13 @@ html.wkdragging,html.wkdragging *{cursor:grabbing !important}
 .uck.on{color:var(--fg,#fff)}
 .sev{color:color-mix(in srgb,var(--sc) 58%,var(--ink))}
 .evrow.sv .tag.sub{color:color-mix(in srgb,var(--sc) 58%,var(--ink))}
+/* 점수 규칙 (v27) */
+.rlz{display:grid;gap:14px}
+.rlg h4{margin:0 0 4px;font-size:12px;font-weight:700;letter-spacing:.04em;color:var(--accent-ink)}
+.rlg ul{list-style:none;margin:0;padding:0}
+.rlg li{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:9px 0;border-top:1px solid var(--line)}
+.rlg li:first-child{border-top:0}
+.rln{min-width:0}
+.rln b{display:block;font-size:14px;font-weight:700;line-height:1.35}
+.rln small{display:block;margin-top:2px;font-size:12.5px;line-height:1.5;color:var(--ink-3)}
+.rlp{flex:none;font-style:normal;font-size:13px;font-weight:800;color:var(--accent-ink);background:var(--accent-soft);padding:4px 9px;border-radius:999px;white-space:nowrap;font-variant-numeric:tabular-nums}

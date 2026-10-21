@@ -25,25 +25,27 @@ def sheet(name,frames,bg):
 for scheme,ls,tag,bg in [('light',None,'light','#F3F4F6'),('dark',None,'dark','#0F1114'),('light',{'gbb_concept':'board'},'board','#1E3A2F')]:
     pg=openc(scheme,ls)
     fr=[];t=0
-    for ms in [120,200,200,200,200,200,200,250,400]:
+    for ms in [150,250,250,250,250,250,200,150,150,150,150,150]:
         pg.clock.run_for(ms);t+=ms
         p=SH+'v26_%s_%d.png'%(tag,t)
-        if pg.evaluate("!!document.querySelector('#splash .spin')"):
-            bb=pg.evaluate("(()=>{const r=document.querySelector('#splash .spin').getBoundingClientRect();return {x:r.left-14,y:r.top-14,width:r.width+28,height:r.height+28}})()");pg.screenshot(path=p,clip=bb,animations='allow');fr.append(p)
-    sheet('v26_%s.png'%tag,fr,bg)
-    end=pg.evaluate("window.__spEnd-window.__sp0")
+        pg.screenshot(path=p,animations='allow');fr.append(p)
+    ims=[Image.open(f).resize((195,422)) for f in fr]
+    s2=Image.new('RGB',(195*len(ims),422),bg)
+    for i,im in enumerate(ims):s2.paste(im,(i*195,0))
+    s2.save(SH+'v26_%s.png'%tag)
+    st=pg.evaluate("JSON.stringify(window.__sp&&{done:window.__sp.done,ready:window.__sp.ready})")
     pg.clock.run_for(2500)
-    print(tag,'| frames',len(fr),'| draw ms',end,'| strokes',pg.evaluate("document.querySelectorAll('.spink path').length") if pg.evaluate("!!document.getElementById('splash')") else '-','| splash gone',pg.evaluate("!document.getElementById('splash')"),'| app shown',pg.evaluate("!!document.querySelector('.view')"))
+    print(tag,'| state',st,'| splash gone',pg.evaluate("!document.getElementById('splash')"),'| app shown',pg.evaluate("!!document.querySelector('.view')"))
 # 준비 전에 사라지지 않는지, 누르면 넘어가는지
 pg=openc()
 pg.clock.run_for(400)
 print('early tap     | still there', pg.evaluate("!!document.getElementById('splash')"))
-pg.evaluate("document.getElementById('splash').click()");pg.clock.run_for(700)
+pg.evaluate("document.getElementById('splash').click()");pg.clock.run_for(1400)
 print('after tap     | gone', pg.evaluate("!document.getElementById('splash')"))
 # 동작 줄이기: 바로 완성된 그림, 바로 사라짐
 pg=openc(motion='reduce')
 pg.clock.run_for(50)
-print('reduced       | text shown', pg.evaluate("(document.querySelector('.spt')||{style:{}}).style.opacity"), '| check drawn', pg.evaluate("!!(document.querySelector('.spck')&&document.querySelector('.spck').getAttribute('d'))") if pg.evaluate("!!document.getElementById('splash')") else 'gone')
+print('reduced       | splash', pg.evaluate("!!document.getElementById('splash')"))
 pg.clock.run_for(1500)
 print('reduced       | gone', pg.evaluate("!document.getElementById('splash')"))
 print('errors',R.errors)

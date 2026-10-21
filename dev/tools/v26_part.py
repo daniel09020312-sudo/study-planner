@@ -2,30 +2,37 @@
 # 앱 아이콘 안의 그림(달력 테두리, 머리줄, 고리, 체크)을 붓글씨 획순대로 한 획씩 써 나간다.
 # ㅁ 쓰는 순서: 왼쪽 세로 -> 위와 오른쪽(ㄱ) -> 아래. 그다음 머리줄, 고리 둘, 마지막에 체크.
 # 납작붓처럼 지나가는 방향에 따라 굵기가 바뀌고, 처음엔 눌러 시작해 끝은 가늘게 뺀다.
-# 그림은 앱이 준비되는 동안 계속 그려지고, 다 그린 뒤 준비가 끝나면 사라진다. 누르면 바로 넘어간다.
-_SP_HTML = """<div id="splash" role="status" aria-label="공부방을 여는 중"><div class="spin"><svg class="spdraw" viewBox="84 70 344 352" aria-hidden="true"><defs><clipPath id="sp-cc"><rect x="112" y="132" width="288" height="270" rx="58"/></clipPath><filter id="sp-rough" x="-15%" y="-15%" width="130%" height="130%"><feTurbulence type="fractalNoise" baseFrequency="0.05" numOctaves="2" seed="4"/><feDisplacementMap in="SourceGraphic" scale="6" xChannelSelector="R" yChannelSelector="G"/></filter></defs><g clip-path="url(#sp-cc)"><rect class="spwash" x="112" y="132" width="288" height="80"/></g><g class="spink" filter="url(#sp-rough)"></g></svg><b class="spt">공부방</b></div></div>
+# 다 그리고 앱도 준비되면, 달력 테두리 안쪽이 뚫리며 앱 화면이 보이고 그림이 커지면서 화면 전체로 열린다.
+# 화면 전체를 덮는 막(spcur)에 달력 안쪽 모양의 구멍이 있고, 그림과 막을 같이 키운다.
+_HOLE = 'M176 138 H336 A58 58 0 0 1 394 196 V338 A58 58 0 0 1 336 396 H176 A58 58 0 0 1 118 338 V196 A58 58 0 0 1 176 138 Z'
+_SP_HTML = """<div id="splash" role="status" aria-label="공부방을 여는 중"><svg class="spcv" aria-hidden="true"><defs><clipPath id="sp-cc"><rect x="112" y="132" width="288" height="270" rx="58"/></clipPath><filter id="sp-rough" x="-15%" y="-15%" width="130%" height="130%"><feTurbulence type="fractalNoise" baseFrequency="0.05" numOctaves="2" seed="4"/><feDisplacementMap in="SourceGraphic" scale="6" xChannelSelector="R" yChannelSelector="G"/></filter></defs><g class="spg"><path class="spcur" fill-rule="evenodd" d="M-30000 -30000H30000V30000H-30000Z HOLE"/><path class="sphole" d="HOLE"/><g clip-path="url(#sp-cc)"><rect class="spwash" x="112" y="132" width="288" height="80"/></g><g class="spink" filter="url(#sp-rough)"></g></g></svg><small class="spw">불러오는 중</small></div>
 <script>
 (function(){
-window.__sp0=Date.now();
+var st=window.__sp={done:false,ready:false};
 var sp=document.getElementById('splash');if(!sp)return;
-var svg=sp.querySelector('.spdraw'),ink=sp.querySelector('.spink'),wash=sp.querySelector('.spwash'),txt=sp.querySelector('.spt'),NS='http://www.w3.org/2000/svg';
+var svg=sp.querySelector('.spcv'),g=sp.querySelector('.spg'),ink=sp.querySelector('.spink'),wash=sp.querySelector('.spwash'),hole=sp.querySelector('.sphole'),NS='http://www.w3.org/2000/svg';
 var red=false;try{red=window.matchMedia('(prefers-reduced-motion: reduce)').matches;}catch(e){}
-sp.addEventListener('click',function(){if(window.__spGo)window.__spGo();});
 function out(t){return 1-Math.pow(1-t,3);}
 function sine(t){return .5-.5*Math.cos(Math.PI*t);}
-function io(t){return t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;}
 function seg(t,a,b){var x=(t-a)/(b-a);return x<0?0:x>1?1:x;}
 function press(a,inn,o,end){return function(t){return t<inn?a+(1-a)*out(t/inn):t>1-o?1-(1-end)*sine((t-(1-o))/o):1;};}
+var S0=.36,CX=256,CY=262;
+var DIM=null;function dims(){var r=svg.getBoundingClientRect();DIM=[r.width||window.innerWidth,r.height||window.innerHeight];}
+window.addEventListener('resize',function(){DIM=null;});
+function place(z){if(!DIM)dims();var w=DIM[0],h=DIM[1];g.setAttribute('transform','translate('+(w/2).toFixed(1)+' '+(h/2).toFixed(1)+') scale('+(S0*z).toFixed(5)+') translate('+(-CX)+' '+(-CY)+')');return [w,h];}
+function kill(){st.done=true;st.ready=true;if(sp.parentNode)sp.parentNode.removeChild(sp);}
+st.reveal=kill;st.go=function(){if(st.ready)kill();};
+place(1);
 function brush(d,o){
-  var g=document.createElementNS(NS,'path');g.setAttribute('d',d);g.setAttribute('fill','none');ink.appendChild(g);
-  var L=g.getTotalLength(),N=Math.max(12,Math.ceil(L/2.5)),phi=(o.phi==null?35:o.phi)*Math.PI/180,mn=o.min||.34,pr=o.p||press(.55,.14,.2,.45),C=[],T=[],W=[],Ws=[],Lp=[],Rp=[],i,k;
-  for(i=0;i<=N;i++){var s=L*i/N,a=g.getPointAtLength(Math.max(0,s-1.5)),b=g.getPointAtLength(Math.min(L,s+1.5)),c=g.getPointAtLength(s),tx=b.x-a.x,ty=b.y-a.y,m=Math.sqrt(tx*tx+ty*ty)||1;tx/=m;ty/=m;C.push([c.x,c.y]);T.push([tx,ty]);W.push(o.w*(mn+(1-mn)*Math.abs(Math.sin(Math.atan2(ty,tx)-phi))));}
+  var p=document.createElementNS(NS,'path');p.setAttribute('d',d);p.setAttribute('fill','none');ink.appendChild(p);
+  var L=p.getTotalLength(),N=Math.max(12,Math.ceil(L/2.5)),phi=(o.phi==null?35:o.phi)*Math.PI/180,mn=o.min||.34,pr=o.p||press(.55,.14,.2,.45),C=[],T=[],W=[],Ws=[],Lp=[],Rp=[],i,k;
+  for(i=0;i<=N;i++){var s=L*i/N,a=p.getPointAtLength(Math.max(0,s-1.5)),b=p.getPointAtLength(Math.min(L,s+1.5)),c=p.getPointAtLength(s),tx=b.x-a.x,ty=b.y-a.y,m=Math.sqrt(tx*tx+ty*ty)||1;tx/=m;ty/=m;C.push([c.x,c.y]);T.push([tx,ty]);W.push(o.w*(mn+(1-mn)*Math.abs(Math.sin(Math.atan2(ty,tx)-phi))));}
   for(i=0;i<=N;i++){var sum=0,n=0;for(k=-3;k<=3;k++){if(i+k>=0&&i+k<=N){sum+=W[i+k];n++;}}Ws.push(sum/n*pr(i/N)/2);}
   for(i=0;i<=N;i++){var nx=-T[i][1],ny=T[i][0];Lp.push([C[i][0]+nx*Ws[i],C[i][1]+ny*Ws[i]]);Rp.push([C[i][0]-nx*Ws[i],C[i][1]-ny*Ws[i]]);}
-  ink.removeChild(g);
+  ink.removeChild(p);
   var sh=document.createElementNS(NS,'path');if(o.cls)sh.setAttribute('class',o.cls);ink.appendChild(sh);
   function f(q){return q[0].toFixed(1)+' '+q[1].toFixed(1);}
-  return {L:L,draw:function(u){
+  return {L:L,el:sh,draw:function(u){
     if(u<=0){sh.setAttribute('d','');return;}
     var m=Math.max(1,Math.round(u*N)),r=Ws[m].toFixed(1),r0=Ws[0].toFixed(1),dd='M'+f(Lp[0]),i;
     for(i=1;i<=m;i++)dd+='L'+f(Lp[i]);
@@ -44,43 +51,69 @@ try{
     {d:'M321 100 L321 170',w:32,p:press(.7,.2,.35,.4)},
     {d:'M186 300 L236 346 L328 252',w:40,phi:0,min:.45,p:press(.6,.12,.4,.1),cls:'spck'}
   ];
-  var B=D.map(function(x){return brush(x.d,x);}),t=70,S=B.map(function(b){var s={a:t,b:t+50+b.L/2.8};t=s.b+35;return s;}),T1=t-35,TOTAL=T1+460;
+  var B=D.map(function(x){return brush(x.d,x);}),t=70,S=B.map(function(b){var s={a:t,b:t+50+b.L/2.8};t=s.b+35;return s;}),T1=t-35,DRAW=T1+380,REV=900,ck=B[6].el;
   var frame=function(n){
     for(var i=0;i<B.length;i++)B[i].draw(sine(seg(n,S[i].a,S[i].b)));
     var w=seg(n,T1-60,T1+320);wash.style.opacity=(.9*out(w)).toFixed(3);wash.setAttribute('transform','translate(112 0) scale('+(.2+.8*out(w)).toFixed(4)+' 1) translate(-112 0)');
-    var k=seg(n,T1,T1+420);svg.style.transform='scale('+(1+.035*Math.sin(Math.PI*k)).toFixed(4)+')';
-    var x=seg(n,T1-80,T1+420);txt.style.opacity=x>.03?1:0;txt.style.clipPath='inset(-30% '+(100-100*io(x)).toFixed(1)+'% -30% 0)';
+    place(1+.03*Math.sin(Math.PI*seg(n,T1,T1+380)));
   };
-  if(red){frame(TOTAL);window.__spEnd=0;return;}
-  frame(0);window.__spEnd=Date.now()+TOTAL+400;
-  var t0=null;
-  var step=function(now){if(t0===null){t0=now;window.__spEnd=Date.now()+TOTAL;}var n=now-t0;frame(Math.min(n,TOTAL));if(n<TOTAL)requestAnimationFrame(step);};
-  requestAnimationFrame(step);
-}catch(e){window.__spEnd=0;txt.style.opacity=1;}
+  // 열기: 달력 안쪽이 먼저 비치고(구멍을 덮던 막이 옅어짐), 그림과 막이 함께 커지며 화면 전체가 드러난다
+  var reveal=function(r){
+    var q=place(1),zEnd=Math.max(q[0]/(276*S0),q[1]/(258*S0))*1.6+1,u=seg(r,140,REV);
+    place(Math.pow(zEnd,u*u));
+    hole.style.opacity=(1-out(seg(r,0,300))).toFixed(3);
+    wash.style.opacity=(.9*(1-seg(r,0,220))).toFixed(3);ck.style.opacity=(1-seg(r,0,220)).toFixed(3);
+    ink.style.opacity=(1-seg(r,REV*.45,REV*.85)).toFixed(3);
+  };
+  if(red){frame(DRAW);st.done=true;st.reveal=kill;return;}
+  frame(0);
+  var n=0,r=0,last=null,phase='draw';
+  var loop=function(now){
+    if(last===null)last=now;var dt=now-last;last=now;dt=dt<0?0:dt>50?50:dt;
+    if(phase==='draw'){
+      n+=dt;frame(Math.min(n,DRAW));
+      if(n>=DRAW){st.done=true;if(st.ready){phase='rev';ink.removeAttribute('filter');}else{phase='idle';setTimeout(function(){if(phase==='idle')sp.classList.add('wait');},1500);return;}}
+    }else if(phase==='rev'){r+=dt;reveal(r);if(r>=REV){kill();return;}}
+    requestAnimationFrame(loop);
+  };
+  st.reveal=function(){st.ready=true;if(phase==='idle'){phase='rev';ink.removeAttribute('filter');sp.classList.remove('wait');last=null;requestAnimationFrame(loop);}};
+  st.go=function(){if(!st.ready)return;if(phase==='draw')n=DRAW;else st.reveal();};
+  sp.addEventListener('click',function(){st.go();});
+  // 앱 코드가 다 읽힌 뒤(DOMContentLoaded) 그리기 시작. 화면이 멈춘 동안은 그림도 멈춰서 건너뛰지 않는다
+  var start=function(){requestAnimationFrame(loop);};
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){setTimeout(start,0);});else start();
+}catch(e){st.done=true;st.reveal=kill;}
 })();
-</script>"""
+</script>""".replace('HOLE', _HOLE)
 sub("<body>", "<body>\n" + _SP_HTML)
 sub("  if(S.focusAfter){var fe=document.getElementById(S.focusAfter);", """  if(S.ready||S.setup||S.join)splashDone();
   if(S.focusAfter){var fe=document.getElementById(S.focusAfter);""")
 sub("/* ---------- 공부방 ---------- */", r"""/* ---------- 처음 화면 ---------- */
-// 붓글씨 그림이 끝날 때(__spEnd)까지 기다렸다가 사라진다. 준비된 뒤에는 화면을 누르면 바로 넘어간다
+// 앱이 준비되면 알린다. 그림이 아직이면 다 그린 뒤에 열리고, 그림이 먼저 끝났으면 바로 열린다
 function splashDone(){
-  var sp=document.getElementById('splash');if(!sp||sp.getAttribute('data-out'))return;
+  var sp=document.getElementById('splash'),st=window.__sp;if(!sp||sp.getAttribute('data-out'))return;
   sp.setAttribute('data-out','1');
-  var go=function(){if(sp.classList.contains('out'))return;sp.classList.add('out');setTimeout(function(){if(sp.parentNode)sp.parentNode.removeChild(sp);},reduced?0:520);};
-  window.__spGo=go;
-  setTimeout(go,reduced?0:Math.max(0,(window.__spEnd||0)-Date.now())+220);
+  if(!st||!st.reveal){if(sp.parentNode)sp.parentNode.removeChild(sp);return;}
+  st.ready=true;
+  if(st.done)st.reveal();
+  setTimeout(function(){if(sp.parentNode)sp.parentNode.removeChild(sp);},7000);
 }
-setTimeout(function(){var sp=document.getElementById('splash');if(sp&&!sp.getAttribute('data-out'))splashDone();},8000);
+setTimeout(function(){var sp=document.getElementById('splash');if(sp&&!sp.getAttribute('data-out'))splashDone();},15000);
 /* ---------- 공부방 ---------- */""")
-sub("</style>", """#splash{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;background:var(--bg);transition:opacity .45s ease,visibility .45s;-webkit-tap-highlight-color:transparent}
-#splash.out{opacity:0;visibility:hidden}
-#splash .spin{display:flex;flex-direction:column;align-items:center;gap:8px;transition:transform .5s cubic-bezier(.3,1.4,.5,1)}
-#splash.out .spin{transform:scale(1.06)}
-.spdraw{display:block;width:118px;height:121px;overflow:visible;transform-origin:50% 55%}
-.spink path{fill:var(--ink);fill:color-mix(in srgb,var(--accent) 30%,var(--ink))}
+sub("</style>", """#splash{position:fixed;inset:0;z-index:200;overflow:hidden;-webkit-tap-highlight-color:transparent}
+.spcv{position:absolute;inset:0;display:block;width:100%;height:100%;overflow:visible}
+.spcur,.sphole{fill:var(--bg)}
+.spink path{fill:var(--ink)}
+@supports (color:color-mix(in srgb,red 50%,blue)){.spink path{fill:color-mix(in srgb,var(--accent) 30%,var(--ink))}}
 .spink path.spck{fill:var(--accent)}
 .spwash{fill:var(--accent-soft);opacity:0}
-.spt{font-size:17px;font-weight:800;letter-spacing:.08em;color:var(--ink);opacity:0}
-@media (prefers-reduced-motion:reduce){#splash,#splash .spin{transition:none}}
+.spw{position:absolute;left:0;right:0;top:calc(50% + 74px);text-align:center;font-size:12.5px;color:var(--ink-3);opacity:0;transition:opacity .3s}
+#splash.wait .spw{opacity:1;animation:spBreath 1.4s ease-in-out .3s infinite}
+@keyframes spBreath{0%,100%{opacity:1}50%{opacity:.35}}
+@media (prefers-reduced-motion:reduce){#splash.wait .spw{animation:none}}
 </style>""")
+# 설정 맨 아래에 이 판을 만든 시각: 휴대폰이 새 판을 받았는지 확인할 때 본다
+import datetime as _dt
+_ver = _dt.datetime.now(_dt.timezone(_dt.timedelta(hours=9))).strftime('%-m월 %-d일 %H:%M')
+sub("  return dlg('wide',{id:'settings',t:'설정'},b);", "  b+='<p class=\"hint appver\">앱 버전 " + _ver + "</p>';\n  return dlg('wide',{id:'settings',t:'설정'},b);")
+sub("</style>", ".appver{margin-top:18px;text-align:center;font-size:12px;color:var(--ink-3);font-variant-numeric:tabular-nums}\n</style>")

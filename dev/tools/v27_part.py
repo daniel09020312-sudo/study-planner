@@ -1,0 +1,5 @@
+# ---------------------------------------------------------------- 점수 규칙을 묶음별 표로 (매일, 매주, 시험 끝나고)
+RULES_JS = open(BASE + '/src/rules.js', encoding='utf-8').read()
+sub("/* ---------- 공부방 ---------- */", RULES_JS + "\n/* ---------- 공부방 ---------- */")
+sub("""<ul class="rules">'+RULES.map(function(r){return '<li><b>'+r[0]+'</b><span>'+r[1]+'</span></li>';}).join('')+'</ul></section>""", """'+rulesHtml()+'</section>""")
+sub("""b+='<div class="sec"><h3>점수 규칙</h3><ul class="rules">'+RULES.map(function(x){return '<li><b>'+x[0]+'</b><span>'+x[1]+'</span></li>';}).join('')+'</ul></div>';""", """b+='<div class="sec"><h3>점수 규칙</h3>'+rulesHtml()+'</div>';""")

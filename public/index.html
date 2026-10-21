@@ -1296,16 +1296,28 @@ html.wkdragging,html.wkdragging *{cursor:grabbing !important}
 .uck.on{color:var(--fg,#fff)}
 .sev{color:color-mix(in srgb,var(--sc) 58%,var(--ink))}
 .evrow.sv .tag.sub{color:color-mix(in srgb,var(--sc) 58%,var(--ink))}
-#splash{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;background:var(--bg);transition:opacity .45s ease,visibility .45s;-webkit-tap-highlight-color:transparent}
-#splash.out{opacity:0;visibility:hidden}
-#splash .spin{display:flex;flex-direction:column;align-items:center;gap:8px;transition:transform .5s cubic-bezier(.3,1.4,.5,1)}
-#splash.out .spin{transform:scale(1.06)}
-.spdraw{display:block;width:118px;height:121px;overflow:visible;transform-origin:50% 55%}
-.spink path{fill:var(--ink);fill:color-mix(in srgb,var(--accent) 30%,var(--ink))}
+/* 점수 규칙 (v27) */
+.rlz{display:grid;gap:14px}
+.rlg h4{margin:0 0 4px;font-size:12px;font-weight:700;letter-spacing:.04em;color:var(--accent-ink)}
+.rlg ul{list-style:none;margin:0;padding:0}
+.rlg li{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:9px 0;border-top:1px solid var(--line)}
+.rlg li:first-child{border-top:0}
+.rln{min-width:0}
+.rln b{display:block;font-size:14px;font-weight:700;line-height:1.35}
+.rln small{display:block;margin-top:2px;font-size:12.5px;line-height:1.5;color:var(--ink-3)}
+.rlp{flex:none;font-style:normal;font-size:13px;font-weight:800;color:var(--accent-ink);background:var(--accent-soft);padding:4px 9px;border-radius:999px;white-space:nowrap;font-variant-numeric:tabular-nums}
+#splash{position:fixed;inset:0;z-index:200;overflow:hidden;-webkit-tap-highlight-color:transparent}
+.spcv{position:absolute;inset:0;display:block;width:100%;height:100%;overflow:visible}
+.spcur,.sphole{fill:var(--bg)}
+.spink path{fill:var(--ink)}
+@supports (color:color-mix(in srgb,red 50%,blue)){.spink path{fill:color-mix(in srgb,var(--accent) 30%,var(--ink))}}
 .spink path.spck{fill:var(--accent)}
 .spwash{fill:var(--accent-soft);opacity:0}
-.spt{font-size:17px;font-weight:800;letter-spacing:.08em;color:var(--ink);opacity:0}
-@media (prefers-reduced-motion:reduce){#splash,#splash .spin{transition:none}}
+.spw{position:absolute;left:0;right:0;top:calc(50% + 74px);text-align:center;font-size:12.5px;color:var(--ink-3);opacity:0;transition:opacity .3s}
+#splash.wait .spw{opacity:1;animation:spBreath 1.4s ease-in-out .3s infinite}
+@keyframes spBreath{0%,100%{opacity:1}50%{opacity:.35}}
+@media (prefers-reduced-motion:reduce){#splash.wait .spw{animation:none}}
+.appver{margin-top:18px;text-align:center;font-size:12px;color:var(--ink-3);font-variant-numeric:tabular-nums}
 #c-setup .row input{min-width:0}
 #c-setup .lb{margin-top:0}
 .serr{color:var(--red);margin-top:8px}
@@ -1375,29 +1387,34 @@ html.wkdragging,html.wkdragging *{cursor:grabbing !important}
 </style>
 </head>
 <body>
-<div id="splash" role="status" aria-label="공부방을 여는 중"><div class="spin"><svg class="spdraw" viewBox="84 70 344 352" aria-hidden="true"><defs><clipPath id="sp-cc"><rect x="112" y="132" width="288" height="270" rx="58"/></clipPath><filter id="sp-rough" x="-15%" y="-15%" width="130%" height="130%"><feTurbulence type="fractalNoise" baseFrequency="0.05" numOctaves="2" seed="4"/><feDisplacementMap in="SourceGraphic" scale="6" xChannelSelector="R" yChannelSelector="G"/></filter></defs><g clip-path="url(#sp-cc)"><rect class="spwash" x="112" y="132" width="288" height="80"/></g><g class="spink" filter="url(#sp-rough)"></g></svg><b class="spt">공부방</b></div></div>
+<div id="splash" role="status" aria-label="공부방을 여는 중"><svg class="spcv" aria-hidden="true"><defs><clipPath id="sp-cc"><rect x="112" y="132" width="288" height="270" rx="58"/></clipPath><filter id="sp-rough" x="-15%" y="-15%" width="130%" height="130%"><feTurbulence type="fractalNoise" baseFrequency="0.05" numOctaves="2" seed="4"/><feDisplacementMap in="SourceGraphic" scale="6" xChannelSelector="R" yChannelSelector="G"/></filter></defs><g class="spg"><path class="spcur" fill-rule="evenodd" d="M-30000 -30000H30000V30000H-30000Z M176 138 H336 A58 58 0 0 1 394 196 V338 A58 58 0 0 1 336 396 H176 A58 58 0 0 1 118 338 V196 A58 58 0 0 1 176 138 Z"/><path class="sphole" d="M176 138 H336 A58 58 0 0 1 394 196 V338 A58 58 0 0 1 336 396 H176 A58 58 0 0 1 118 338 V196 A58 58 0 0 1 176 138 Z"/><g clip-path="url(#sp-cc)"><rect class="spwash" x="112" y="132" width="288" height="80"/></g><g class="spink" filter="url(#sp-rough)"></g></g></svg><small class="spw">불러오는 중</small></div>
 <script>
 (function(){
-window.__sp0=Date.now();
+var st=window.__sp={done:false,ready:false};
 var sp=document.getElementById('splash');if(!sp)return;
-var svg=sp.querySelector('.spdraw'),ink=sp.querySelector('.spink'),wash=sp.querySelector('.spwash'),txt=sp.querySelector('.spt'),NS='http://www.w3.org/2000/svg';
+var svg=sp.querySelector('.spcv'),g=sp.querySelector('.spg'),ink=sp.querySelector('.spink'),wash=sp.querySelector('.spwash'),hole=sp.querySelector('.sphole'),NS='http://www.w3.org/2000/svg';
 var red=false;try{red=window.matchMedia('(prefers-reduced-motion: reduce)').matches;}catch(e){}
-sp.addEventListener('click',function(){if(window.__spGo)window.__spGo();});
 function out(t){return 1-Math.pow(1-t,3);}
 function sine(t){return .5-.5*Math.cos(Math.PI*t);}
-function io(t){return t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;}
 function seg(t,a,b){var x=(t-a)/(b-a);return x<0?0:x>1?1:x;}
 function press(a,inn,o,end){return function(t){return t<inn?a+(1-a)*out(t/inn):t>1-o?1-(1-end)*sine((t-(1-o))/o):1;};}
+var S0=.36,CX=256,CY=262;
+var DIM=null;function dims(){var r=svg.getBoundingClientRect();DIM=[r.width||window.innerWidth,r.height||window.innerHeight];}
+window.addEventListener('resize',function(){DIM=null;});
+function place(z){if(!DIM)dims();var w=DIM[0],h=DIM[1];g.setAttribute('transform','translate('+(w/2).toFixed(1)+' '+(h/2).toFixed(1)+') scale('+(S0*z).toFixed(5)+') translate('+(-CX)+' '+(-CY)+')');return [w,h];}
+function kill(){st.done=true;st.ready=true;if(sp.parentNode)sp.parentNode.removeChild(sp);}
+st.reveal=kill;st.go=function(){if(st.ready)kill();};
+place(1);
 function brush(d,o){
-  var g=document.createElementNS(NS,'path');g.setAttribute('d',d);g.setAttribute('fill','none');ink.appendChild(g);
-  var L=g.getTotalLength(),N=Math.max(12,Math.ceil(L/2.5)),phi=(o.phi==null?35:o.phi)*Math.PI/180,mn=o.min||.34,pr=o.p||press(.55,.14,.2,.45),C=[],T=[],W=[],Ws=[],Lp=[],Rp=[],i,k;
-  for(i=0;i<=N;i++){var s=L*i/N,a=g.getPointAtLength(Math.max(0,s-1.5)),b=g.getPointAtLength(Math.min(L,s+1.5)),c=g.getPointAtLength(s),tx=b.x-a.x,ty=b.y-a.y,m=Math.sqrt(tx*tx+ty*ty)||1;tx/=m;ty/=m;C.push([c.x,c.y]);T.push([tx,ty]);W.push(o.w*(mn+(1-mn)*Math.abs(Math.sin(Math.atan2(ty,tx)-phi))));}
+  var p=document.createElementNS(NS,'path');p.setAttribute('d',d);p.setAttribute('fill','none');ink.appendChild(p);
+  var L=p.getTotalLength(),N=Math.max(12,Math.ceil(L/2.5)),phi=(o.phi==null?35:o.phi)*Math.PI/180,mn=o.min||.34,pr=o.p||press(.55,.14,.2,.45),C=[],T=[],W=[],Ws=[],Lp=[],Rp=[],i,k;
+  for(i=0;i<=N;i++){var s=L*i/N,a=p.getPointAtLength(Math.max(0,s-1.5)),b=p.getPointAtLength(Math.min(L,s+1.5)),c=p.getPointAtLength(s),tx=b.x-a.x,ty=b.y-a.y,m=Math.sqrt(tx*tx+ty*ty)||1;tx/=m;ty/=m;C.push([c.x,c.y]);T.push([tx,ty]);W.push(o.w*(mn+(1-mn)*Math.abs(Math.sin(Math.atan2(ty,tx)-phi))));}
   for(i=0;i<=N;i++){var sum=0,n=0;for(k=-3;k<=3;k++){if(i+k>=0&&i+k<=N){sum+=W[i+k];n++;}}Ws.push(sum/n*pr(i/N)/2);}
   for(i=0;i<=N;i++){var nx=-T[i][1],ny=T[i][0];Lp.push([C[i][0]+nx*Ws[i],C[i][1]+ny*Ws[i]]);Rp.push([C[i][0]-nx*Ws[i],C[i][1]-ny*Ws[i]]);}
-  ink.removeChild(g);
+  ink.removeChild(p);
   var sh=document.createElementNS(NS,'path');if(o.cls)sh.setAttribute('class',o.cls);ink.appendChild(sh);
   function f(q){return q[0].toFixed(1)+' '+q[1].toFixed(1);}
-  return {L:L,draw:function(u){
+  return {L:L,el:sh,draw:function(u){
     if(u<=0){sh.setAttribute('d','');return;}
     var m=Math.max(1,Math.round(u*N)),r=Ws[m].toFixed(1),r0=Ws[0].toFixed(1),dd='M'+f(Lp[0]),i;
     for(i=1;i<=m;i++)dd+='L'+f(Lp[i]);
@@ -1416,19 +1433,38 @@ try{
     {d:'M321 100 L321 170',w:32,p:press(.7,.2,.35,.4)},
     {d:'M186 300 L236 346 L328 252',w:40,phi:0,min:.45,p:press(.6,.12,.4,.1),cls:'spck'}
   ];
-  var B=D.map(function(x){return brush(x.d,x);}),t=70,S=B.map(function(b){var s={a:t,b:t+50+b.L/2.8};t=s.b+35;return s;}),T1=t-35,TOTAL=T1+460;
+  var B=D.map(function(x){return brush(x.d,x);}),t=70,S=B.map(function(b){var s={a:t,b:t+50+b.L/2.8};t=s.b+35;return s;}),T1=t-35,DRAW=T1+380,REV=900,ck=B[6].el;
   var frame=function(n){
     for(var i=0;i<B.length;i++)B[i].draw(sine(seg(n,S[i].a,S[i].b)));
     var w=seg(n,T1-60,T1+320);wash.style.opacity=(.9*out(w)).toFixed(3);wash.setAttribute('transform','translate(112 0) scale('+(.2+.8*out(w)).toFixed(4)+' 1) translate(-112 0)');
-    var k=seg(n,T1,T1+420);svg.style.transform='scale('+(1+.035*Math.sin(Math.PI*k)).toFixed(4)+')';
-    var x=seg(n,T1-80,T1+420);txt.style.opacity=x>.03?1:0;txt.style.clipPath='inset(-30% '+(100-100*io(x)).toFixed(1)+'% -30% 0)';
+    place(1+.03*Math.sin(Math.PI*seg(n,T1,T1+380)));
   };
-  if(red){frame(TOTAL);window.__spEnd=0;return;}
-  frame(0);window.__spEnd=Date.now()+TOTAL+400;
-  var t0=null;
-  var step=function(now){if(t0===null){t0=now;window.__spEnd=Date.now()+TOTAL;}var n=now-t0;frame(Math.min(n,TOTAL));if(n<TOTAL)requestAnimationFrame(step);};
-  requestAnimationFrame(step);
-}catch(e){window.__spEnd=0;txt.style.opacity=1;}
+  // 열기: 달력 안쪽이 먼저 비치고(구멍을 덮던 막이 옅어짐), 그림과 막이 함께 커지며 화면 전체가 드러난다
+  var reveal=function(r){
+    var q=place(1),zEnd=Math.max(q[0]/(276*S0),q[1]/(258*S0))*1.6+1,u=seg(r,140,REV);
+    place(Math.pow(zEnd,u*u));
+    hole.style.opacity=(1-out(seg(r,0,300))).toFixed(3);
+    wash.style.opacity=(.9*(1-seg(r,0,220))).toFixed(3);ck.style.opacity=(1-seg(r,0,220)).toFixed(3);
+    ink.style.opacity=(1-seg(r,REV*.45,REV*.85)).toFixed(3);
+  };
+  if(red){frame(DRAW);st.done=true;st.reveal=kill;return;}
+  frame(0);
+  var n=0,r=0,last=null,phase='draw';
+  var loop=function(now){
+    if(last===null)last=now;var dt=now-last;last=now;dt=dt<0?0:dt>50?50:dt;
+    if(phase==='draw'){
+      n+=dt;frame(Math.min(n,DRAW));
+      if(n>=DRAW){st.done=true;if(st.ready){phase='rev';ink.removeAttribute('filter');}else{phase='idle';setTimeout(function(){if(phase==='idle')sp.classList.add('wait');},1500);return;}}
+    }else if(phase==='rev'){r+=dt;reveal(r);if(r>=REV){kill();return;}}
+    requestAnimationFrame(loop);
+  };
+  st.reveal=function(){st.ready=true;if(phase==='idle'){phase='rev';ink.removeAttribute('filter');sp.classList.remove('wait');last=null;requestAnimationFrame(loop);}};
+  st.go=function(){if(!st.ready)return;if(phase==='draw')n=DRAW;else st.reveal();};
+  sp.addEventListener('click',function(){st.go();});
+  // 앱 코드가 다 읽힌 뒤(DOMContentLoaded) 그리기 시작. 화면이 멈춘 동안은 그림도 멈춰서 건너뛰지 않는다
+  var start=function(){requestAnimationFrame(loop);};
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){setTimeout(start,0);});else start();
+}catch(e){st.done=true;st.reveal=kill;}
 })();
 </script>
 <div id="app">
@@ -3422,14 +3458,13 @@ document.addEventListener('change',function(e){
   setTimeout(function(){var V=view();if(!V.subName[id])return;editProg(function(p){var a=obj(p.abbr);if(v&&v!==subShort(V.subName[id]))a[id]=v;else delete a[id];p.abbr=a;});render();},0);
 });
 
-/* ---------- 과목 색: 무지개 기본, 파스텔, 원색, 차분한 색, 포인트 색, 직접 고르기 ---------- */
+/* ---------- 과목 색: 무지개 기본, 파스텔, 원색, 차분한 색, 직접 고르기 ---------- */
 var DEF_RAINBOW=['#E5484D','#F08A3A','#E3B21B','#2FA36B','#2E9FD8','#3E6FE0','#5352C9','#8E54D9','#E0559B','#17A2A6','#7CB342','#B8642A'];
 var PALS=[
   {n:'무지개',c:[['#E5484D','빨강'],['#F08A3A','주황'],['#E3B21B','노랑'],['#7CB342','연두'],['#2FA36B','초록'],['#17A2A6','청록'],['#2E9FD8','하늘'],['#3E6FE0','파랑'],['#5352C9','남색'],['#8E54D9','보라'],['#E0559B','분홍']]},
   {n:'파스텔',c:[['#F4A3A3','파스텔 빨강'],['#F8C39A','파스텔 주황'],['#F3DC8A','파스텔 노랑'],['#C5E3A0','파스텔 연두'],['#A6D9BD','파스텔 초록'],['#9DD9D8','파스텔 청록'],['#A6D1F2','파스텔 하늘'],['#A9BCF2','파스텔 파랑'],['#B6B2EC','파스텔 남색'],['#CDB1F0','파스텔 보라'],['#F2B1D2','파스텔 분홍']]},
   {n:'원색',c:[['#FF1F1F','원색 빨강'],['#FF7A00','원색 주황'],['#FFD000','원색 노랑'],['#7ED321','원색 연두'],['#00B050','원색 초록'],['#00B5B5','원색 청록'],['#00A2FF','원색 하늘'],['#1556FF','원색 파랑'],['#3A2BD6','원색 남색'],['#8A2BE2','원색 보라'],['#FF2D95','원색 분홍']]},
-  {n:'차분한',c:[['#A63A3A','진한 빨강'],['#B8642A','진한 주황'],['#B08A1A','겨자'],['#5E7F2E','진한 연두'],['#2E7D57','진한 초록'],['#1F7A7A','진한 청록'],['#2D7AAE','진한 하늘'],['#2F4FA8','진한 파랑'],['#3B3A8C','진한 남색'],['#6A3FA0','진한 보라'],['#A33D6E','진한 분홍']]},
-  {n:'포인트',c:[['#8C1C3C','버건디'],['#FF7F6E','코랄'],['#C98C82','로즈골드'],['#F7A072','피치'],['#C9A227','골드'],['#7B8B3A','올리브'],['#3EB489','민트'],['#2A9D8F','틸'],['#1F3A68','네이비'],['#9B8AE6','라벤더'],['#8E4585','플럼'],['#9EA7B3','실버'],['#4A4F57','차콜']]}
+  {n:'차분한',c:[['#A63A3A','진한 빨강'],['#B8642A','진한 주황'],['#B08A1A','겨자'],['#5E7F2E','진한 연두'],['#2E7D57','진한 초록'],['#1F7A7A','진한 청록'],['#2D7AAE','진한 하늘'],['#2F4FA8','진한 파랑'],['#3B3A8C','진한 남색'],['#6A3FA0','진한 보라'],['#A33D6E','진한 분홍']]}
 ];
 function hexOk(v){return typeof v==='string'&&/^#[0-9a-fA-F]{6}$/.test(v);}
 function fgOn(c){if(!hexOk(c))return '#fff';var r=parseInt(c.slice(1,3),16)/255,g=parseInt(c.slice(3,5),16)/255,b=parseInt(c.slice(5,7),16)/255;function f(x){return x<=.03928?x/12.92:Math.pow((x+.055)/1.055,2.4);}var L=.2126*f(r)+.7152*f(g)+.0722*f(b);return L>.45?'#1F2328':'#FFFFFF';}
@@ -3441,15 +3476,49 @@ document.addEventListener('change',function(e){
 });
 
 /* ---------- 처음 화면 ---------- */
-// 붓글씨 그림이 끝날 때(__spEnd)까지 기다렸다가 사라진다. 준비된 뒤에는 화면을 누르면 바로 넘어간다
+// 앱이 준비되면 알린다. 그림이 아직이면 다 그린 뒤에 열리고, 그림이 먼저 끝났으면 바로 열린다
 function splashDone(){
-  var sp=document.getElementById('splash');if(!sp||sp.getAttribute('data-out'))return;
+  var sp=document.getElementById('splash'),st=window.__sp;if(!sp||sp.getAttribute('data-out'))return;
   sp.setAttribute('data-out','1');
-  var go=function(){if(sp.classList.contains('out'))return;sp.classList.add('out');setTimeout(function(){if(sp.parentNode)sp.parentNode.removeChild(sp);},reduced?0:520);};
-  window.__spGo=go;
-  setTimeout(go,reduced?0:Math.max(0,(window.__spEnd||0)-Date.now())+220);
+  if(!st||!st.reveal){if(sp.parentNode)sp.parentNode.removeChild(sp);return;}
+  st.ready=true;
+  if(st.done)st.reveal();
+  setTimeout(function(){if(sp.parentNode)sp.parentNode.removeChild(sp);},7000);
 }
-setTimeout(function(){var sp=document.getElementById('splash');if(sp&&!sp.getAttribute('data-out'))splashDone();},8000);
+setTimeout(function(){var sp=document.getElementById('splash');if(sp&&!sp.getAttribute('data-out'))splashDone();},15000);
+/* ---------- 점수 규칙: 줄글 대신 묶음별로 항목, 점수, 짧은 조건 ---------- */
+// 점수는 RULE, TIERS, WEEK_BONUS에서 그대로 읽어 실제 계산과 어긋나지 않게 한다
+function rulesData(){
+  var T=typeof TIERS!=='undefined'?TIERS:null,WB=typeof WEEK_BONUS!=='undefined'?WEEK_BONUS:null;
+  var g=[
+    {t:'매일',items:[
+      ['출석','5~10점',['연속 출석할수록 하루 1점씩 올라감','7일째마다 10점 더']],
+      ['할 일 모두 끝내고 인증',RULE.allCert+'점',['할 일 3개 이상 세우고 전부 끝내기','마감 뒤 인증은 '+RULE.allLate+'점']],
+      ['인증',RULE.certOn+'점',['마감 뒤 인증은 '+RULE.certLate+'점']],
+      ['공부 시간','30분 '+RULE.per30+'점',['하루 '+RULE.timeMax+'점까지','직접 입력한 시간은 하루 1시간까지']],
+      ['문제 내기',RULE.quiz+'점',['문제를 올린 날']],
+      ['풀이와 답변','1개 '+RULE.help+'점',['다른 사람 문제 풀기, 질문에 답하기','하루 '+RULE.helpMax+'개까지']],
+      ['하루 순위',RULE.rank.join(' · ')+'점',['그날 점수 1 · 2 · 3등']]
+    ]},
+    {t:'매주',items:[
+      ['스터디 빙고','1줄 10점',['한 줄 채울 때마다']]
+    ]}
+  ];
+  if(WB)g[1].items.push(['주간 순위',WB.join(' · ')+'점',['한 주 점수 1 · 2 · 3등','최종 점수에 더함']]);
+  if(T)g.push({t:'시험 끝나고',items:[
+    ['배지',T.b[1]+' · '+T.s[1]+' · '+T.g[1]+' · '+T.l[1]+'점',[T.b[0]+' · '+T.s[0]+' · '+T.g[0]+' · '+T.l[0]+' 등급 순서','받은 배지마다 최종 점수에 더함']],
+    ['최종 점수','합계',['누적 점수 + 주간 순위 + 배지']]
+  ]});
+  return g;
+}
+function rulesHtml(){
+  return '<div class="rlz">'+rulesData().map(function(gr){
+    return '<div class="rlg"><h4>'+esc(gr.t)+'</h4><ul>'+gr.items.map(function(it){
+      return '<li><div class="rln"><b>'+esc(it[0])+'</b>'+(it[2]&&it[2].length?'<small>'+it[2].map(esc).join('<br>')+'</small>':'')+'</div><em class="rlp">'+esc(it[1])+'</em></li>';
+    }).join('')+'</ul></div>';
+  }).join('')+'</div>';
+}
+
 /* ---------- 방: 참여 코드, 새 방, 방 바꾸기 (웹 판) ---------- */
 // 참여 링크: 사이트주소#join=<저장소 이름>  -> 참여 코드 6자리 -> 이름 고르기
 // 코드 연결: rooms/joincode-<코드> = {r:방 id, n:방 이름, at}
@@ -3909,7 +3978,7 @@ function viewRank(V){
     h+='</tbody></table></div></section>';
   }
   h+='</div><div class="stack">';
-  h+='<section class="card" id="c-rules" style="--k:3"><div class="ct"><h2>점수 규칙</h2></div><ul class="rules">'+RULES.map(function(r){return '<li><b>'+r[0]+'</b><span>'+r[1]+'</span></li>';}).join('')+'</ul></section></div></div></div>';
+  h+='<section class="card" id="c-rules" style="--k:3"><div class="ct"><h2>점수 규칙</h2></div>'+rulesHtml()+'</section></div></div></div>';
   return h;
 }
 
@@ -4527,7 +4596,7 @@ function modalScore(V){
     if(t>=NEWRULE&&!r.clear){var dd0=dayOf(V,V.me,t),gn0=dd0.goals.length,gd0=dd0.goals.filter(isDone).length;b+='<p class="hint" style="margin-bottom:10px">'+(gn0<3?'할 일을 3개 이상 세우고 모두 끝낸 뒤 인증하면 '+RULE.allCert+'점을 더 받습니다.':gd0<gn0?'할 일 '+(gn0-gd0)+'개를 마저 끝내고 인증하면 '+RULE.allCert+'점을 더 받습니다.':'할 일을 모두 끝냈습니다. 인증하면 '+RULE.allCert+'점을 더 받습니다.')+'</p>';}
     b+='<ul class="brk">'+rows.map(function(x){return '<li class="'+(x[1]?'':'zero')+'"><span>'+x[0]+'</span><b>'+(x[1]?'+'+x[1]:'0')+'</b></li>';}).join('')+(r.off?'<li><span>초기화로 뺀 점수</span><b>-'+r.off+'</b></li>':'')+'<li><span><b>오늘 합계</b><small>순위 보너스는 하루가 끝난 뒤 더해집니다</small></span><b>'+r.total+'</b></li></ul>';
   }
-  b+='<div class="sec"><h3>점수 규칙</h3><ul class="rules">'+RULES.map(function(x){return '<li><b>'+x[0]+'</b><span>'+x[1]+'</span></li>';}).join('')+'</ul></div>';
+  b+='<div class="sec"><h3>점수 규칙</h3>'+rulesHtml()+'</div>';
   return dlg('',{id:'score',t:'오늘 점수'},b);
 }
 function modalSettings(V){
@@ -4556,6 +4625,7 @@ function modalSettings(V){
   [[22,'밤 10시'],[23,'밤 11시'],[24,'자정'],[25,'다음 날 새벽 1시'],[26,'다음 날 새벽 2시']].forEach(function(o){b+='<option value="'+o[0]+'"'+(V.certHour===o[0]?' selected':'')+'>'+o[1]+'</option>';});
   b+='</select>';
   b+='</div><div class="sec"><h3>키보드 단축키<small>키보드를 연결했을 때</small></h3><ul class="kbd">'+[['1 ~ 8','달력부터 메시지까지 화면 이동'],['N','할 일 추가'],['D','마감 있는 할 일 추가'],['L','달력, 할 일, 시간표 차례로 바꿔 보기'],['T','타이머 켜기, 끄기'],['F','타이머 크게 보기'],['Esc','창 닫기']].map(function(x){return '<li><kbd>'+x[0]+'</kbd><span>'+x[1]+'</span></li>';}).join('')+'</ul></div><div class="sec"><h3>저장 위치</h3><p class="hint">'+esc(S.net?({claude:'Claude 공유 저장소에 연결되어 있습니다. Claude에 로그인한 참여 인원끼리 실시간으로 같이 봅니다.',firebase:'공유 저장소에 연결되어 있습니다. 참여 코드로 들어온 사람 모두가 실시간으로 같이 봅니다.',local:'지금은 이 기기에만 저장됩니다. 다른 사람과 같이 보려면 공유 저장소 연결이 필요합니다.'}[S.net.mode]):'연결 중입니다.')+'</p>'+(S.net&&S.net.mode==='firebase'&&S.remote?'<div class="row" style="margin-top:10px"><button class="btn small" data-act="import-pick">기록 가져오기</button><button class="btn small" data-act="export-data">기록 파일로 저장</button><button class="del" data-act="setup-reset">'+(S.confirm==='disc'?'한 번 더 누르면 이 방에서 나갑니다':'이 기기에서 이 방 나가기')+'</button></div><p class="hint" style="margin-top:8px">'+esc(S.importMsg||'친구와 내 다른 기기는 위의 친구 초대하기로 들어옵니다. 기록 가져오기는 처음 연결한 뒤 한 번만 하면 됩니다.')+'</p>':'')+'</div>';
+  b+='<p class="hint appver">앱 버전 10월 21일 23:31</p>';
   return dlg('wide',{id:'settings',t:'설정'},b);
 }
 function modalCheck(V){
