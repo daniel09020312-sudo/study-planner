@@ -1,0 +1,50 @@
+# 처음 화면: 붓글씨로 아이콘 안 그림을 한 획씩 그린 뒤 사라지는지
+import sys,json,re
+sys.path.insert(0,'/home/claude/planner/tools')
+from rig import *
+from PIL import Image
+SH='/home/claude/planner/shots/'
+R=Rig()
+def openc(scheme='light',ls=None,motion='no-preference',w=390,h=844):
+    ctx=R.browser.new_context(viewport={'width':w,'height':h},device_scale_factor=2,color_scheme=scheme,reduced_motion=motion)
+    ctx.route(re.compile(r'^https?://'),route)
+    pg=ctx.new_page()
+    pg.on('pageerror',lambda e:R.errors.append('pageerror: '+str(e)))
+    pg.on('console',lambda m:R.errors.append('console: '+m.text) if m.type=='error' and 'net::ERR' not in m.text else None)
+    init={'gbb_pinask':json.dumps({'m1':1,'m2':1,'m3':1}),'gbb_me':'m1','gbb_note':'9999999999999'};init.update(ls or {})
+    pg.add_init_script("try{var o=%s;for(var k in o)localStorage.setItem(k,o[k]);}catch(e){}"%json.dumps(init))
+    pg.add_init_script(MOCK)
+    pg.clock.install()
+    pg.goto(PAGE,wait_until='domcontentloaded')
+    return pg
+def sheet(name,frames,bg):
+    ims=[Image.open(f) for f in frames];w=max(i.size[0] for i in ims);h=max(i.size[1] for i in ims)
+    s=Image.new('RGB',(w*len(ims),h),bg)
+    for i,im in enumerate(ims):s.paste(im,(i*w,0))
+    s.save(SH+name)
+for scheme,ls,tag,bg in [('light',None,'light','#F3F4F6'),('dark',None,'dark','#0F1114'),('light',{'gbb_concept':'board'},'board','#1E3A2F')]:
+    pg=openc(scheme,ls)
+    fr=[];t=0
+    for ms in [120,200,200,200,200,200,200,250,400]:
+        pg.clock.run_for(ms);t+=ms
+        p=SH+'v26_%s_%d.png'%(tag,t)
+        if pg.evaluate("!!document.querySelector('#splash .spin')"):
+            bb=pg.evaluate("(()=>{const r=document.querySelector('#splash .spin').getBoundingClientRect();return {x:r.left-14,y:r.top-14,width:r.width+28,height:r.height+28}})()");pg.screenshot(path=p,clip=bb,animations='allow');fr.append(p)
+    sheet('v26_%s.png'%tag,fr,bg)
+    end=pg.evaluate("window.__spEnd-window.__sp0")
+    pg.clock.run_for(2500)
+    print(tag,'| frames',len(fr),'| draw ms',end,'| strokes',pg.evaluate("document.querySelectorAll('.spink path').length") if pg.evaluate("!!document.getElementById('splash')") else '-','| splash gone',pg.evaluate("!document.getElementById('splash')"),'| app shown',pg.evaluate("!!document.querySelector('.view')"))
+# 준비 전에 사라지지 않는지, 누르면 넘어가는지
+pg=openc()
+pg.clock.run_for(400)
+print('early tap     | still there', pg.evaluate("!!document.getElementById('splash')"))
+pg.evaluate("document.getElementById('splash').click()");pg.clock.run_for(700)
+print('after tap     | gone', pg.evaluate("!document.getElementById('splash')"))
+# 동작 줄이기: 바로 완성된 그림, 바로 사라짐
+pg=openc(motion='reduce')
+pg.clock.run_for(50)
+print('reduced       | text shown', pg.evaluate("(document.querySelector('.spt')||{style:{}}).style.opacity"), '| check drawn', pg.evaluate("!!(document.querySelector('.spck')&&document.querySelector('.spck').getAttribute('d'))") if pg.evaluate("!!document.getElementById('splash')") else 'gone')
+pg.clock.run_for(1500)
+print('reduced       | gone', pg.evaluate("!document.getElementById('splash')"))
+print('errors',R.errors)
+R.close()
