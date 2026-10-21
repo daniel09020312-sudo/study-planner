@@ -81,7 +81,7 @@ def route(route_, request):
         rel=urlparse(u).path.lstrip('/') or 'index.html'
         fp=os.path.join(BASE+'/site',rel)
         if not os.path.isfile(fp): return route_.fulfill(status=404, body='')
-        ct={'.html':'text/html; charset=utf-8','.webp':'image/webp','.png':'image/png','.webmanifest':'application/manifest+json'}.get(os.path.splitext(fp)[1],'application/octet-stream')
+        ct={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.webp':'image/webp','.png':'image/png','.webmanifest':'application/manifest+json'}.get(os.path.splitext(fp)[1],'application/octet-stream')
         return route_.fulfill(status=200, content_type=ct, body=open(fp,'rb').read())
     if u.startswith(DB):
         pu = urlparse(u)
@@ -137,7 +137,7 @@ errors = []
 
 
 def newpage(w=1180, h=820, scale=1, ls=None, ua=None):
-    ctx = br.new_context(viewport={'width': w, 'height': h}, device_scale_factor=scale, **({'user_agent': ua} if ua else {}))
+    ctx = br.new_context(viewport={'width': w, 'height': h}, device_scale_factor=scale, **({'user_agent': ua} if ua else {}), service_workers='block')
     ctx.route(re.compile(r'^https?://'), route)
     pg = ctx.new_page()
     pg.on('requestfailed', lambda r: print('REQFAIL', r.url[:90]))

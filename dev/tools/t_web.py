@@ -137,7 +137,7 @@ errors = []
 
 
 def newpage(w=1180, h=820, scale=1, ls=None):
-    ctx = br.new_context(viewport={'width': w, 'height': h}, device_scale_factor=scale)
+    ctx = br.new_context(viewport={'width': w, 'height': h}, device_scale_factor=scale, service_workers='block')
     ctx.route(re.compile(r'^https?://'), route)
     pg = ctx.new_page()
     pg.on('pageerror', lambda e: errors.append('pageerror: ' + str(e)))

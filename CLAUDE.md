@@ -11,8 +11,9 @@ Cloudflare Pages가 `main`의 `public/` 폴더를 study-planner-2tk.pages.dev �
 ## 폴더
 - `public/` 배포되는 파일(빌드 결과). index.html, manifest.webmanifest, 아이콘, stickers/
 - `dev/src/` 원본: 바탕 HTML(planner_v9_backup.html), add.css, tt.js, school.js, wkdrag.js, icon.svg 등
-- `dev/tools/` 빌드 스크립트, 수정 조각(timer_part.py, v10_part.py ~ v25_part.py), 브라우저 테스트(t_*.py, rig.py)
-- 웹 판에만 들어가는 기능: `dev/tools/build_web.py`가 마지막에 `web_rooms_part.py`(방, 참여 코드)를 실행한다. JS는 `src/rooms.js`.
+- `dev/tools/` 빌드 스크립트, 수정 조각(timer_part.py, v10_part.py ~ v26_part.py), 브라우저 테스트(t_*.py, rig.py)
+- 웹 판에만 들어가는 기능: `dev/tools/build_web.py`가 마지막에 `web_rooms_part.py`(방, 참여 코드), `web_offline_part.py`(오프라인)를 실행한다. JS는 `src/rooms.js`, `src/offline.js`.
+- `public/sw.js`는 `src/sw.js`를 그대로 복사한다(앱 화면을 저장해 오프라인에서도 열림). 아이콘처럼 미리 저장하는 파일을 바꾸면 sw.js의 캐시 이름(C)을 올린다.
 
 ## 작업 준비 (새 작업 공간마다)
 빌드 스크립트는 `/home/claude/planner`를 기준 경로로 쓴다.
@@ -40,11 +41,12 @@ push 뒤에는 `gh api repos/daniel09020312-sudo/study-planner/commits/<sha>/che
 - 예전 초대 링크 `#db=...&room=...`도 계속 들어와진다.
 - 기기 저장 값 중 방마다 다른 것(gbb_me, gbb_auth 등)은 `키@방id`로 저장한다. 예전 판에서 쓰던 방(gbb_legacy_room)만 붙이지 않은 값을 이어서 읽는다.
 - 테스트: `LIGHT=1 python3 tools/t_rooms.py` (먼저 `cp web-light/index.html site/index.html`).
+- 오프라인: 받은 기록은 `gbb_cache@방`에 저장해 두고 다음에 열 때 먼저 보여 준다. 연결이 없을 때의 쓰기는 `gbb_outbox@방`에 모았다가 연결되면 올린다(사진, 영상은 막음). 테스트는 `t_offline.py`.
 
 ## 기능별 원본 위치
 - v16 wkdrag.js: 할 일 주간 달력 끌기 / v17 lapse.js: 게시판 타임랩스(영상을 장면 묶음으로 줄여 pics/<id>_c0.. 에 저장)
 - v18 evview.js: 일정 보기(학교 행사·시험과 수행평가) / v19: 할 일 점수(NEWRULE부터 모두 끝내고 인증), 지난 날 할 일 보호(guardDay), 내 할 일 숨기기
-- v20 award.js: 배지 등급과 점수, 주간 우승 점수, 최종 결과(END 다음 날 공개), 선물과 벌칙 룰렛 / v21 units.js: 단원별 진도 / v23 calev.js: 달력 칸은 과목 줄임말 색 칩, 아래에 이번 달 수행평가 과목별 개수 / v24: 과목 줄임말 각자 정하기(progress.abbr, 설정 > 색과 줄임말) / v25 palette.js: 과목 색(기본은 과목 순서대로 무지개, 무지개·파스텔·원색·차분한·포인트, 직접 색상 코드) / v22: 달력 기간(CAL_MIN 2026-09 ~ CAL_MAX 2027-12, 점수 기간 START~END는 그대로)
+- v20 award.js: 배지 등급과 점수, 주간 우승 점수, 최종 결과(END 다음 날 공개), 선물과 벌칙 룰렛 / v21 units.js: 단원별 진도 / v23 calev.js: 달력 칸은 과목 줄임말 색 칩, 아래에 이번 달 수행평가 과목별 개수 / v24: 과목 줄임말 각자 정하기(progress.abbr, 설정 > 색과 줄임말) / v25 palette.js: 과목 색(기본은 과목 순서대로 무지개, 무지개·파스텔·원색·차분한·포인트, 직접 색상 코드) / v26: 처음 열 때 보이는 화면(splash) / v22: 달력 기간(CAL_MIN 2026-09 ~ CAL_MAX 2027-12, 점수 기간 START~END는 그대로)
 
 ## 고치는 방법
 - build.py는 바탕 HTML을 `sub(찾을 글, 바꿀 글)`로 고친다. 찾을 글이 정확히 한 번 있어야 한다.

@@ -189,6 +189,8 @@ sub("    case 'copy-rules':", r"""    case 'export-data':{
     case 'copy-rules':""")
 # 참여 코드, 새 방, 방 바꾸기
 exec(open(BASE + '/tools/web_rooms_part.py', encoding='utf-8').read())
+# 오프라인
+exec(open(BASE + '/tools/web_offline_part.py', encoding='utf-8').read())
 OUT = BASE + ('/web-light' if LIGHT else '/web')
 os.makedirs(OUT, exist_ok=True)
 open(OUT + '/index.html', 'w', encoding='utf-8').write(s)
