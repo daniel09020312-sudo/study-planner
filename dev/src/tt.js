@@ -16,7 +16,7 @@ function jos(w,a,b){w=String(w||'');var c=w.charCodeAt(w.length-1);if(!(c>=0xAC0
 function pad2(n){return (n<10?'0':'')+n;}
 function fmtHM(m){m=Math.round(+m||0);return pad2(Math.floor(m/60)%24)+':'+pad2(m%60);}
 function parseHM(v){var r=/^(\d{1,2}):(\d{2})/.exec(String(v||''));if(!r)return null;var m=(+r[1])*60+(+r[2]);if(m<5*60)m+=1440;return m;}
-function placed(g){return !!g&&g.ts!=null&&+g.te>+g.ts;}
+function placed(g){return !!g&&!g.mv&&g.ts!=null&&+g.te>+g.ts;}
 function snap10(m){return Math.round(m/10)*10;}
 function nowMin(){var x=new Date();return x.getHours()*60+x.getMinutes();}
 
@@ -72,7 +72,7 @@ function viewTT(V){
   var cols=days.map(function(d){
     var day=dayOf(V,V.me,d),mode=modeOf(d);
     return {d:d,day:day,mode:mode,ro:mode==='view',fx:fixedOn(V,d),offN:fixedOn(V,d,true).filter(function(b){return b.off;}).length,
-      pl:day.goals.filter(placed),un:day.goals.filter(function(g){return !placed(g)&&!g.done;})};
+      pl:day.goals.filter(placed),un:day.goals.filter(function(g){return !placed(g)&&!g.done&&!g.mv;})};
   });
   var r0=7*60,r1=24*60;
   cols.forEach(function(c){c.fx.concat(c.pl.map(function(g){return {s:+g.ts,e:+g.te};})).forEach(function(b){r0=Math.min(r0,Math.floor(b.s/60)*60);r1=Math.max(r1,Math.ceil(b.e/60)*60);});});
@@ -151,7 +151,7 @@ function ttFill(){
   var V=view();if(!V.me||!need())return;
   var t=today(),win=ttWin(V),nm=nowMin(),paths=[],plan=[],left=0,n=0;
   ttDays().filter(function(d){return d>=t;}).forEach(function(d){
-    var day=dayOf(V,V.me,d),un=day.goals.filter(function(g){return !placed(g)&&!g.done;});if(!un.length)return;
+    var day=dayOf(V,V.me,d),un=day.goals.filter(function(g){return !placed(g)&&!g.done&&!g.mv;});if(!un.length)return;
     var busy=fixedOn(V,d).map(function(b){return [b.s,b.e];}).concat(day.goals.filter(placed).map(function(g){return [+g.ts,+g.te];}));
     var cur=win.s,set={},k=0;if(d===t)cur=Math.max(cur,Math.ceil((nm+5)/10)*10);
     un.forEach(function(g){
@@ -199,7 +199,7 @@ function modalTTF(V){
 }
 function modalTTSlot(V){
   var sl=S.ttSlot;if(!sl){S.modal=null;return '';}
-  var d=sl.d,un=dayOf(V,V.me,d).goals.filter(function(g){return !g.done&&!placed(g);}),xd=S.ttXDur||60,xk=S.ttXK||'etc';
+  var d=sl.d,un=dayOf(V,V.me,d).goals.filter(function(g){return !g.done&&!g.mv&&!placed(g);}),xd=S.ttXDur||60,xk=S.ttXK||'etc';
   var b='<div class="fld" style="margin-top:0"><h3>이 시간에 할 일 넣기<small>'+fmtHM(sl.m)+'부터 1시간</small></h3>';
   if(un.length)b+='<div class="ttpicks">'+un.map(function(g){var sub=g.sid&&V.subName[g.sid];return '<button class="ttpk" data-act="tt-put" data-id="'+esc(g.id)+'" style="--sc:'+goalCol(V,g)+'"><i></i><span>'+esc(g.text)+'</span>'+(sub?'<small>'+esc(sub)+'</small>':'')+'</button>';}).join('')+'</div>';
   else b+='<p class="hint">시간표에 아직 안 넣은 할 일이 없습니다.</p>';

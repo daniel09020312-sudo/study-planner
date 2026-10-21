@@ -109,7 +109,7 @@ function wdMove(){
   var prev=document.querySelector('.wkc.over');if(prev&&prev!==cell)prev.classList.remove('over');
   if(!cell){if(WD.ph.parentNode)WD.ph.remove();WD.tgt=null;return;}
   cell.classList.add('over');
-  var items=[].slice.call(cell.querySelectorAll('.wki')).filter(function(e){return e!==WD.src;}),before=null;
+  var items=[].slice.call(cell.querySelectorAll('.wki[data-id]')).filter(function(e){return e!==WD.src;}),before=null;
   for(var j=0;j<items.length;j++){var rr=items[j].getBoundingClientRect();if(WD.y<rr.top+rr.height/2){before=items[j];break;}}
   var anchor=before||cell.querySelector('.wkadd')||null;
   if(anchor){if(WD.ph.nextSibling!==anchor||WD.ph.parentNode!==cell)cell.insertBefore(WD.ph,anchor);}
