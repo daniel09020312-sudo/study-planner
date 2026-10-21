@@ -8,19 +8,21 @@ _HOLE = 'M176 138 H336 A58 58 0 0 1 394 196 V338 A58 58 0 0 1 336 396 H176 A58 5
 _SP_HTML = """<div id="splash" role="status" aria-label="공부방을 여는 중"><svg class="spcv" aria-hidden="true"><defs><clipPath id="sp-cc"><rect x="112" y="132" width="288" height="270" rx="58"/></clipPath><filter id="sp-rough" x="-15%" y="-15%" width="130%" height="130%"><feTurbulence type="fractalNoise" baseFrequency="0.05" numOctaves="2" seed="4"/><feDisplacementMap in="SourceGraphic" scale="6" xChannelSelector="R" yChannelSelector="G"/></filter></defs><g class="spg"><path class="spcur" fill-rule="evenodd" d="M-30000 -30000H30000V30000H-30000Z HOLE"/><path class="sphole" d="HOLE"/><g clip-path="url(#sp-cc)"><rect class="spwash" x="112" y="132" width="288" height="80"/></g><g class="spink" filter="url(#sp-rough)"></g></g></svg><small class="spw">불러오는 중</small></div>
 <script>
 (function(){
-var st=window.__sp={done:false,ready:false};
-var sp=document.getElementById('splash');if(!sp)return;
-var svg=sp.querySelector('.spcv'),g=sp.querySelector('.spg'),ink=sp.querySelector('.spink'),wash=sp.querySelector('.spwash'),hole=sp.querySelector('.sphole'),NS='http://www.w3.org/2000/svg';
+var sp0=document.getElementById('splash');if(!sp0)return;
+var TPL=sp0.outerHTML,NS='http://www.w3.org/2000/svg';
 var red=false;try{red=window.matchMedia('(prefers-reduced-motion: reduce)').matches;}catch(e){}
 function out(t){return 1-Math.pow(1-t,3);}
 function sine(t){return .5-.5*Math.cos(Math.PI*t);}
 function seg(t,a,b){var x=(t-a)/(b-a);return x<0?0:x>1?1:x;}
 function press(a,inn,o,end){return function(t){return t<inn?a+(1-a)*out(t/inn):t>1-o?1-(1-end)*sine((t-(1-o))/o):1;};}
+function run(sp,again){
+var st=window.__sp={done:false,ready:!!again};
+var svg=sp.querySelector('.spcv'),g=sp.querySelector('.spg'),ink=sp.querySelector('.spink'),wash=sp.querySelector('.spwash'),hole=sp.querySelector('.sphole');
 var S0=.36,CX=256,CY=262;
 var DIM=null;function dims(){var r=svg.getBoundingClientRect();DIM=[r.width||window.innerWidth,r.height||window.innerHeight];}
-window.addEventListener('resize',function(){DIM=null;});
+var onR=function(){DIM=null;};window.addEventListener('resize',onR);
 function place(z){if(!DIM)dims();var w=DIM[0],h=DIM[1];g.setAttribute('transform','translate('+(w/2).toFixed(1)+' '+(h/2).toFixed(1)+') scale('+(S0*z).toFixed(5)+') translate('+(-CX)+' '+(-CY)+')');return [w,h];}
-function kill(){st.done=true;st.ready=true;if(sp.parentNode)sp.parentNode.removeChild(sp);}
+function kill(){st.done=true;st.ready=true;window.removeEventListener('resize',onR);if(sp.parentNode)sp.parentNode.removeChild(sp);}
 st.reveal=kill;st.go=function(){if(st.ready)kill();};
 place(1);
 function brush(d,o){
@@ -82,7 +84,16 @@ try{
   // 앱 코드가 다 읽힌 뒤(DOMContentLoaded) 그리기 시작. 화면이 멈춘 동안은 그림도 멈춰서 건너뛰지 않는다
   var start=function(){requestAnimationFrame(loop);};
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){setTimeout(start,0);});else start();
-}catch(e){st.done=true;st.reveal=kill;}
+}catch(e){st.done=true;st.reveal=kill;if(again)kill();}
+}
+run(sp0,false);
+// 다른 앱에 5분 넘게 있다가 돌아오면(홈 화면 앱은 다시 읽지 않고 이어서 열림) 그림을 한 번 더 그리고 지금 화면을 연다
+if(!red){var hidAt=0;document.addEventListener('visibilitychange',function(){
+  if(document.hidden){hidAt=Date.now();return;}
+  var away=hidAt?Date.now()-hidAt:0;hidAt=0;if(away<300000||document.getElementById('splash'))return;
+  var ae=document.activeElement;if(ae&&/^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName))return;
+  var box=document.createElement('div');box.innerHTML=TPL;var el=box.firstChild;el.setAttribute('data-out','1');document.body.insertBefore(el,document.body.firstChild);run(el,true);
+});}
 })();
 </script>""".replace('HOLE', _HOLE)
 sub("<body>", "<body>\n" + _SP_HTML)
