@@ -25,7 +25,14 @@ def norm(v):
     if isinstance(v, dict):
         o = {k: norm(x) for k, x in v.items()}
         o = {k: x for k, x in o.items() if x is not None}
-        return o or None
+        if not o:
+            return None
+        # Firebase처럼: 열쇠가 모두 0 이상의 정수이고 절반 넘게 차 있으면 배열로 돌려준다
+        if all(re.fullmatch(r'0|[1-9][0-9]*', k) for k in o):
+            mx = max(int(k) for k in o)
+            if len(o) > (mx + 1) / 2:
+                return [o.get(str(i)) for i in range(mx + 1)]
+        return o
     if isinstance(v, list):
         o = {str(i): norm(x) for i, x in enumerate(v)}
         o = {k: x for k, x in o.items() if x is not None}

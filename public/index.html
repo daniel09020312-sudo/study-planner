@@ -2885,8 +2885,10 @@ var SCH_DEF=[[510,560],[570,620],[630,680],[690,740],[810,860],[870,920],[930,98
 var SCH_OLD=[[520,570],[580,630],[640,690],[700,750],[810,860],[870,920],[930,980]];
 var SCH_QUICK=['창체','자습','동아리','진로'];
 var SCH_DAYS=[1,2,3,4,5];
+// Firebase는 열쇠가 숫자(요일 1~5)인 묶음을 배열로 돌려줄 때가 있어서 다시 묶음으로 바꿔 읽는다
+function schW(x){if(Array.isArray(x)){var o={};x.forEach(function(v,i){if(v&&typeof v==='object')o[i]=v;});return o;}return obj(x);}
 function schOf(V,mid){
-  var t=obj(obj(V.progress[mid]).tt),s=obj(t.sch),w=obj(s.w);
+  var t=obj(obj(V.progress[mid]).tt),s=obj(t.sch),w=schW(s.w);
   var p=arr(s.p).filter(function(x){return x&&+x.e>+x.s;}).map(function(x){return {s:+x.s,e:+x.e};});
   // 예전 기본 시간(8:40 시작)을 그대로 두었으면 지금 기본 시간(8:30 시작)으로 본다
   if(p.length===SCH_OLD.length&&p.every(function(x,i){return x.s===SCH_OLD[i][0]&&x.e===SCH_OLD[i][1];}))p=[];
@@ -2947,7 +2949,7 @@ function schMetaFromInputs(sel){
 function schDraftSet(sel,tc,r){if(!sel)return;var kk=sel.d+'-'+sel.i;S.draft['schTc:'+kk]=tc||'';S.draft['schR:'+kk]=r||'';S.sync=true;}
 function editSch(fn){
   editTT(function(T){
-    var s=clone(obj(T.sch));s.p=arr(s.p).filter(function(x){return x&&+x.e>+x.s;});s.w=obj(s.w);
+    var s=clone(obj(T.sch));s.p=arr(s.p).filter(function(x){return x&&+x.e>+x.s;});s.w=schW(s.w);
     if(!s.p.length)s.p=SCH_DEF.map(function(x){return {s:x[0],e:x[1]};});
     fn(s);T.sch=s;
   });
@@ -4777,7 +4779,7 @@ function modalSettings(V){
   [[22,'밤 10시'],[23,'밤 11시'],[24,'자정'],[25,'다음 날 새벽 1시'],[26,'다음 날 새벽 2시']].forEach(function(o){b+='<option value="'+o[0]+'"'+(V.certHour===o[0]?' selected':'')+'>'+o[1]+'</option>';});
   b+='</select>';
   b+='</div><div class="sec"><h3>키보드 단축키<small>키보드를 연결했을 때</small></h3><ul class="kbd">'+[['1 ~ 8','달력부터 메시지까지 화면 이동'],['N','할 일 추가'],['D','마감 있는 할 일 추가'],['L','달력, 할 일, 시간표 차례로 바꿔 보기'],['T','타이머 켜기, 끄기'],['F','타이머 크게 보기'],['Esc','창 닫기']].map(function(x){return '<li><kbd>'+x[0]+'</kbd><span>'+x[1]+'</span></li>';}).join('')+'</ul></div><div class="sec"><h3>저장 위치</h3><p class="hint">'+esc(S.net?({claude:'Claude 공유 저장소에 연결되어 있습니다. Claude에 로그인한 참여 인원끼리 실시간으로 같이 봅니다.',firebase:'공유 저장소에 연결되어 있습니다. 참여 코드로 들어온 사람 모두가 실시간으로 같이 봅니다.',local:'지금은 이 기기에만 저장됩니다. 다른 사람과 같이 보려면 공유 저장소 연결이 필요합니다.'}[S.net.mode]):'연결 중입니다.')+'</p>'+(S.net&&S.net.mode==='firebase'&&S.remote?'<div class="row" style="margin-top:10px"><button class="btn small" data-act="import-pick">기록 가져오기</button><button class="btn small" data-act="export-data">기록 파일로 저장</button><button class="del" data-act="setup-reset">'+(S.confirm==='disc'?'한 번 더 누르면 이 방에서 나갑니다':'이 기기에서 이 방 나가기')+'</button></div><p class="hint" style="margin-top:8px">'+esc(S.importMsg||'친구와 내 다른 기기는 위의 친구 초대하기로 들어옵니다. 기록 가져오기는 처음 연결한 뒤 한 번만 하면 됩니다.')+'</p>':'')+'</div>';
-  b+='<p class="hint appver">앱 버전 10월 22일 08:58</p>';
+  b+='<p class="hint appver">앱 버전 10월 22일 09:25</p>';
   return dlg('wide',{id:'settings',t:'설정'},b);
 }
 function modalCheck(V){

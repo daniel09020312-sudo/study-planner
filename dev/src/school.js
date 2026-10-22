@@ -6,8 +6,10 @@ var SCH_DEF=[[510,560],[570,620],[630,680],[690,740],[810,860],[870,920],[930,98
 var SCH_OLD=[[520,570],[580,630],[640,690],[700,750],[810,860],[870,920],[930,980]];
 var SCH_QUICK=['창체','자습','동아리','진로'];
 var SCH_DAYS=[1,2,3,4,5];
+// Firebase는 열쇠가 숫자(요일 1~5)인 묶음을 배열로 돌려줄 때가 있어서 다시 묶음으로 바꿔 읽는다
+function schW(x){if(Array.isArray(x)){var o={};x.forEach(function(v,i){if(v&&typeof v==='object')o[i]=v;});return o;}return obj(x);}
 function schOf(V,mid){
-  var t=obj(obj(V.progress[mid]).tt),s=obj(t.sch),w=obj(s.w);
+  var t=obj(obj(V.progress[mid]).tt),s=obj(t.sch),w=schW(s.w);
   var p=arr(s.p).filter(function(x){return x&&+x.e>+x.s;}).map(function(x){return {s:+x.s,e:+x.e};});
   // 예전 기본 시간(8:40 시작)을 그대로 두었으면 지금 기본 시간(8:30 시작)으로 본다
   if(p.length===SCH_OLD.length&&p.every(function(x,i){return x.s===SCH_OLD[i][0]&&x.e===SCH_OLD[i][1];}))p=[];
@@ -68,7 +70,7 @@ function schMetaFromInputs(sel){
 function schDraftSet(sel,tc,r){if(!sel)return;var kk=sel.d+'-'+sel.i;S.draft['schTc:'+kk]=tc||'';S.draft['schR:'+kk]=r||'';S.sync=true;}
 function editSch(fn){
   editTT(function(T){
-    var s=clone(obj(T.sch));s.p=arr(s.p).filter(function(x){return x&&+x.e>+x.s;});s.w=obj(s.w);
+    var s=clone(obj(T.sch));s.p=arr(s.p).filter(function(x){return x&&+x.e>+x.s;});s.w=schW(s.w);
     if(!s.p.length)s.p=SCH_DEF.map(function(x){return {s:x[0],e:x[1]};});
     fn(s);T.sch=s;
   });
