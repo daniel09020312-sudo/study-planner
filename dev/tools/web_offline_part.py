@@ -28,3 +28,27 @@ sub("function paintBanner(){\n  var b='';", "function paintBanner(){\n  var b=''
 assert s.count("init();\n})();") == 1
 s = s.replace("init();\n})();", "init();\nif('serviceWorker' in navigator&&location.protocol==='https:'){try{navigator.serviceWorker.register('sw.js').catch(function(){});}catch(e){}}\n})();")
 sub("</style>", ".notice.offn{background:color-mix(in srgb,var(--ink) 88%,transparent);color:var(--bg)}\n.notice.offn b{margin-right:6px}\n</style>")
+# 새 판이 올라오면 저절로 다시 읽기: 홈 화면 앱은 껐다 켜지 않으면 예전 화면이 계속 돌아가서
+# version.txt(빌드할 때 같이 만듦)의 번호가 지금 화면의 APP_BUILD와 다르면, 창이나 입력 중이 아닐 때 다시 읽는다
+assert s.count("init();\nif('serviceWorker' in navigator") == 1
+s = s.replace("init();\nif('serviceWorker' in navigator", r"""init();
+(function(){
+  var want=false,busy=false;
+  function check(){
+    if(busy||want||navigator.onLine===false||location.protocol!=='https:'||typeof APP_BUILD==='undefined')return;busy=true;
+    fetch('version.txt?t='+Date.now(),{cache:'no-store'}).then(function(r){return r.ok?r.text():'';}).then(function(t){busy=false;t=String(t||'').trim();if(/^\d+$/.test(t)&&+t>+APP_BUILD){var done='';try{done=sessionStorage.getItem('gbb_upd')||'';}catch(e){}if(done===t)return;want=t;tryReload();}}).catch(function(){busy=false;});
+  }
+  function tryReload(){
+    if(!want)return;
+    var ae=document.activeElement,typing=ae&&/^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName);
+    if(S.modal||typing||S.drag||S.check||document.getElementById('splash'))return;
+    try{if(obCount())return;}catch(e){}
+    try{sessionStorage.setItem('gbb_upd',String(want));}catch(e){}
+    location.reload();
+  }
+  setTimeout(check,4000);
+  document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible'){check();tryReload();}});
+  setInterval(function(){if(document.visibilityState==='visible')check();},10*60000);
+  setInterval(tryReload,4000);
+})();
+if('serviceWorker' in navigator""")

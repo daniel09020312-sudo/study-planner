@@ -809,3 +809,6 @@ html.wkdragging,html.wkdragging *{cursor:grabbing !important}
 .schnow .snr::before{content:'';width:4px;height:4px;border-radius:50%;background:currentColor;opacity:.6}
 .schnow .snx{font-size:12px;font-weight:600;padding:2px 7px;border-radius:999px;background:color-mix(in srgb,var(--sc) 22%,var(--surface));color:var(--ink-2)}
 .schpick input[type=text]{background:var(--surface)}
+/* 시간표 화면의 학교 수업 칸 (v29) */
+.ttb.ttsc{cursor:pointer}
+.ttb.ttsc .scn{font-weight:800;margin-right:2px;font-variant-numeric:tabular-nums}

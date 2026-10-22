@@ -12,9 +12,10 @@ Cloudflare Pages가 `main`의 `public/` 폴더를 study-planner-2tk.pages.dev �
 ## 폴더
 - `public/` 배포되는 파일(빌드 결과). index.html, manifest.webmanifest, 아이콘, stickers/
 - `dev/src/` 원본: 바탕 HTML(planner_v9_backup.html), add.css, tt.js, school.js, wkdrag.js, icon.svg 등
-- `dev/tools/` 빌드 스크립트, 수정 조각(timer_part.py, v10_part.py ~ v28_part.py), 브라우저 테스트(t_*.py, rig.py)
+- `dev/tools/` 빌드 스크립트, 수정 조각(timer_part.py, v10_part.py ~ v29_part.py), 브라우저 테스트(t_*.py, rig.py)
 - 웹 판에만 들어가는 기능: `dev/tools/build_web.py`가 마지막에 `web_rooms_part.py`(방, 참여 코드), `web_offline_part.py`(오프라인)를 실행한다. JS는 `src/rooms.js`, `src/offline.js`.
-- `public/_headers`는 index.html과 sw.js를 늘 새로 받게 한다(Cloudflare Pages).
+- `public/_headers`는 index.html, sw.js, version.txt를 늘 새로 받게 한다(Cloudflare Pages).
+- `public/version.txt`는 빌드 번호(APP_BUILD). 열려 있는 앱이 이것과 비교해 새 판이면 창이나 입력 중이 아닐 때 저절로 다시 읽는다(web_offline_part.py). 배포할 때 index.html과 같이 올린다.
 - `public/sw.js`는 `src/sw.js`를 그대로 복사한다(앱 화면을 저장해 오프라인에서도 열림). 아이콘처럼 미리 저장하는 파일을 바꾸면 sw.js의 캐시 이름(C)을 올린다.
 
 ## 작업 준비 (새 작업 공간마다)
@@ -31,7 +32,8 @@ cd /home/claude/planner/tools/npm && npm ci
 cd /home/claude/planner
 python3 tools/build.py              # study-room-planner.html (Claude 아티팩트용)
 python3 tools/build_web.py --light  # web-light/index.html (배포용, 이모티콘은 public/stickers에서 읽음)
-cp web-light/index.html <저장소>/public/index.html
+cp web-light/index.html web-light/version.txt <저장소>/public/
+cp src/sw.js <저장소>/public/sw.js   # sw.js를 바꿨을 때
 ```
 바꾼 원본 파일은 `dev/`에도 다시 복사해서 같은 커밋에 넣는다.
 push 뒤에는 `gh api repos/daniel09020312-sudo/study-planner/commits/<sha>/check-runs`로 Cloudflare Pages 성공을 확인한다.
@@ -48,7 +50,7 @@ push 뒤에는 `gh api repos/daniel09020312-sudo/study-planner/commits/<sha>/che
 ## 기능별 원본 위치
 - v16 wkdrag.js: 할 일 주간 달력 끌기 / v17 lapse.js: 게시판 타임랩스(영상을 장면 묶음으로 줄여 pics/<id>_c0.. 에 저장)
 - v18 evview.js: 일정 보기(학교 행사·시험과 수행평가) / v19: 할 일 점수(NEWRULE부터 모두 끝내고 인증), 지난 날 할 일 보호(guardDay), 내 할 일 숨기기
-- v20 award.js: 배지 등급과 점수, 주간 우승 점수, 최종 결과(END 다음 날 공개), 선물과 벌칙 룰렛 / v21 units.js: 단원별 진도 / v23 calev.js: 달력 칸은 과목 줄임말 색 칩, 아래에 이번 달 수행평가 과목별 개수 / v24: 과목 줄임말 각자 정하기(progress.abbr, 설정 > 색과 줄임말) / v25 palette.js: 과목 색(기본은 과목 순서대로 무지개, 무지개·파스텔·원색·차분한, 직접 색상 코드) / v26: 처음 열 때 보이는 화면(splash): 아이콘 안 그림(달력, 고리, 체크)을 붓글씨 획순대로 한 획씩 그림. 다 그리고 앱이 준비되면(splashDone -> window.__sp.reveal) 달력 안쪽 구멍으로 앱 화면이 비치고 그림이 커지며 열림. 그리는 코드는 `<body>` 바로 뒤 작은 script(run). 앱을 새로 켤 때만 그리고, 같은 사용 중에 다시 읽힐 때(sessionStorage gbb_sp: 다른 앱에서 돌아오기, 방 옮기기)는 바로 엶. 설정 맨 아래 '앱 버전'은 빌드 시각 / v27 rules.js: 점수 규칙을 매일·매주·시험 끝나고 묶음으로 (RULE, TIERS, WEEK_BONUS 값을 그대로 읽음) / v28 (school.js + v28_part.py): 학교 시간표 칸에 선생님(tc)·장소(r), 같은 과목 두 선생님은 시간표와 알림에 선생님 이름 표시, 연달아 있는 같은 수업(쉬는 시간 20분 이하)은 이어 붙여 보이고 알림은 한 번. 수업 알림은 시작 전 정각부터 시작 10분 뒤까지 화면 위 줄(schNowHtml, 주말·쉬는 날 제외). 기본 교시 8:30 시작. 할 일 편집 > 상세 편집은 추가 창을 그 할 일로 채워 엶(goalParse, 새 할 일은 ct/ca/cu/cn 저장) / v22: 달력 기간(CAL_MIN 2026-09 ~ CAL_MAX 2027-12, 점수 기간 START~END는 그대로)
+- v20 award.js: 배지 등급과 점수, 주간 우승 점수, 최종 결과(END 다음 날 공개), 선물과 벌칙 룰렛 / v21 units.js: 단원별 진도 / v23 calev.js: 달력 칸은 과목 줄임말 색 칩, 아래에 이번 달 수행평가 과목별 개수 / v24: 과목 줄임말 각자 정하기(progress.abbr, 설정 > 색과 줄임말) / v25 palette.js: 과목 색(기본은 과목 순서대로 무지개, 무지개·파스텔·원색·차분한, 직접 색상 코드) / v26: 처음 열 때 보이는 화면(splash): 아이콘 안 그림(달력, 고리, 체크)을 붓글씨 획순대로 한 획씩 그림. 다 그리고 앱이 준비되면(splashDone -> window.__sp.reveal) 달력 안쪽 구멍으로 앱 화면이 비치고 그림이 커지며 열림. 그리는 코드는 `<body>` 바로 뒤 작은 script(run). 앱을 새로 켤 때만 그리고, 같은 사용 중에 다시 읽힐 때(sessionStorage gbb_sp: 다른 앱에서 돌아오기, 방 옮기기)는 바로 엶. 설정 맨 아래 '앱 버전'은 빌드 시각 / v27 rules.js: 점수 규칙을 매일·매주·시험 끝나고 묶음으로 (RULE, TIERS, WEEK_BONUS 값을 그대로 읽음) / v28 (school.js + v28_part.py): 학교 시간표 칸에 선생님(tc)·장소(r), 같은 과목 두 선생님은 시간표와 알림에 선생님 이름 표시, 연달아 있는 같은 수업(쉬는 시간 20분 이하)은 이어 붙여 보이고 알림은 한 번. 수업 알림은 시작 전 정각부터 시작 10분 뒤까지 화면 위 줄(schNowHtml, 주말·쉬는 날 제외). 기본 교시 8:30 시작. 할 일 편집 > 상세 편집은 추가 창을 그 할 일로 채워 엶(goalParse, 새 할 일은 ct/ca/cu/cn 저장) / v29: 시간표 화면에 학교 수업을 교시마다(schItems, 고정 '학교' 덩어리는 그날 숨김, 빈 시간 채우기도 피함), APP_BUILD. Firebase는 열쇠가 숫자인 묶음(요일 1~5)을 배열로 돌려주므로 schW로 다시 묶음으로 읽는다. 시험용 가짜 Firebase(t_offline 등의 norm)도 같은 방식으로 배열을 돌려준다 / v22: 달력 기간(CAL_MIN 2026-09 ~ CAL_MAX 2027-12, 점수 기간 START~END는 그대로)
 
 ## 고치는 방법
 - build.py는 바탕 HTML을 `sub(찾을 글, 바꿀 글)`로 고친다. 찾을 글이 정확히 한 번 있어야 한다.

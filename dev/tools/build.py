@@ -389,6 +389,7 @@ exec(open(BASE + '/tools/v25_part.py', encoding='utf-8').read())
 exec(open(BASE + '/tools/v26_part.py', encoding='utf-8').read())
 exec(open(BASE + '/tools/v27_part.py', encoding='utf-8').read())
 exec(open(BASE + '/tools/v28_part.py', encoding='utf-8').read())
+exec(open(BASE + '/tools/v29_part.py', encoding='utf-8').read())
 
 assert "7일 동안" not in s.split("/* ---------- 도전")[1].split("/* ---------- 팝업")[0] or True
 open(BASE + '/study-room-planner.html', 'w', encoding='utf-8').write(s)

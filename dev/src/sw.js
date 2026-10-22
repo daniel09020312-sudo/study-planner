@@ -10,6 +10,7 @@ self.addEventListener('activate',function(e){
 self.addEventListener('fetch',function(e){
   var r=e.request;if(r.method!=='GET')return;
   var u=new URL(r.url);if(u.origin!==location.origin)return;
+  if(/\/version\.txt$/.test(u.pathname))return; // 새 판 확인은 늘 인터넷에서
   if(r.mode==='navigate'){
     e.respondWith(fetch(r).then(function(res){if(res.ok&&!res.redirected){var cp=res.clone();caches.open(C).then(function(c){c.put('./',cp);});}return res;}).catch(function(){return caches.match('./');}));
     return;

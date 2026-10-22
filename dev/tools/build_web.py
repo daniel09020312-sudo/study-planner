@@ -194,4 +194,8 @@ exec(open(BASE + '/tools/web_offline_part.py', encoding='utf-8').read())
 OUT = BASE + ('/web-light' if LIGHT else '/web')
 os.makedirs(OUT, exist_ok=True)
 open(OUT + '/index.html', 'w', encoding='utf-8').write(s)
+import re as _re
+_vb = _re.search(r"var APP_BUILD='(\d+)';", s)
+assert _vb, 'APP_BUILD missing'
+open(OUT + '/version.txt', 'w').write(_vb.group(1) + '\n')
 print('web built', len(s.encode('utf-8')))

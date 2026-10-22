@@ -37,6 +37,13 @@ function schBlocks(V,sch,dw){
   });
   return out;
 }
+/* 시간표 화면에 그날 수업을 교시 시간대로 (연달아 있는 수업은 한 덩어리). 주말, 쉬는 날은 없음 */
+function schItems(V,d){
+  if(!V||!V.me)return [];var sch=schOf(V,V.me);if(!sch.has)return [];
+  var dw=pd(d).getDay();if(dw<1||dw>5)return [];
+  var ev=typeof EVENTS!=='undefined'?EVENTS[d]:null;if(ev&&ev.off)return [];
+  return schBlocks(V,sch,dw).map(function(b){return {s:b.s,e:b.e,i:b.i,j:b.j,c:b.c};});
+}
 /* 수업 알림: 수업 시작 전 정각부터 시작하고 10분 뒤까지 과목과 장소 */
 function schNow(V,now){
   if(!V||!V.me||!S.ready)return null;
@@ -114,7 +121,7 @@ function modalSchool(V){
     if(cur){
       var kk=sel.d+'-'+sel.i,cbs=schCombos(V,sch,cur.key).filter(function(x){return !(x.tc===cur.tc&&x.r===cur.r);});
       if(S.draft['schTc:'+kk]==null)S.draft['schTc:'+kk]=cur.tc;if(S.draft['schR:'+kk]==null)S.draft['schR:'+kk]=cur.r;
-      b+='<div class="schmeta"><div><label class="lb" for="schTc-'+kk+'">선생님<small>선택</small></label><input type="text" class="schf" id="schTc-'+kk+'" data-draft="schTc:'+kk+'" data-enter="sch-next" maxlength="10" placeholder="예: 김민수"></div>';
+      b+='<div class="schmeta"><div><label class="lb" for="schTc-'+kk+'">선생님<small>선택</small></label><input type="text" class="schf" id="schTc-'+kk+'" data-draft="schTc:'+kk+'" data-enter="sch-next" maxlength="10" placeholder="선생님 이름"></div>';
       b+='<div><label class="lb" for="schR-'+kk+'">장소<small>선택</small></label><input type="text" class="schf" id="schR-'+kk+'" data-draft="schR:'+kk+'" data-enter="sch-next" maxlength="16" placeholder="예: 2-2 수학과실"></div></div>';
       if(cbs.length)b+='<div class="schcombo"><small>이 과목에서 쓴 것</small><div class="chips">'+cbs.slice(0,4).map(function(x){return '<button class="chip" data-act="sch-combo" data-tc="'+esc(x.tc)+'" data-r="'+esc(x.r)+'">'+esc([x.tc,x.r].filter(Boolean).join(' · '))+'</button>';}).join('')+'</div></div>';
       b+='<p class="hint" style="margin-top:8px">같은 과목을 선생님 두 분이 나눠 하면 칸마다 선생님을 적어 두세요. 시간표와 수업 알림에 선생님 이름이 같이 나옵니다.</p>';

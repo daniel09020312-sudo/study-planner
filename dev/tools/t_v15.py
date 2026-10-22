@@ -38,11 +38,12 @@ print('m2 view     :',st(p,"document.querySelector('#dlg-school h2').textContent
 close_dlg(p);p.wait_for_timeout(400)
 # 시간표에 교시 표시
 mon=st(p,"[...document.querySelectorAll('.ttcol')].map(c=>c.dataset.d).find(d=>new Date(d+'T00:00').getDay()===1)")
-print('mon         :',mon,'| stripes',st(p,"[...document.querySelectorAll('#tc-%s .tper')].map(e=>e.textContent).join(', ')"%mon))
+# 학교 시간표가 있는 요일은 고정 '학교' 덩어리 대신 교시마다 칸이 나온다 (v29)
+print('mon         :',mon,'| periods',st(p,"[...document.querySelectorAll('#tc-%s .ttsc')].map(e=>e.innerText.replace(/\\n/g,' ')).join(', ')"%mon),'| fixed school hidden',st(p,"!document.getElementById('tb-b1-%s')"%mon))
 p.evaluate("()=>{document.getElementById('ttScroll').scrollTop=60}");p.wait_for_timeout(200)
 p.screenshot(path=SH+'v15_tt_school.png')
-click(p,'#tb-b1-%s'%mon,600)
-print('ttf line    :',st(p,"(document.querySelector('#dlg-ttf .schline')||{}).textContent"),'| btn',st(p,"!!document.querySelector('#dlg-ttf [data-modal=\"school\"]')"))
+click(p,'#tc-%s .ttsc'%mon,600)
+print('opens       :',st(p,"(document.getElementById('dlgT')||{}).textContent"))
 close_dlg(p)
 # ---- 확인 필요 지우기
 now=st(p,"Date.now()")
