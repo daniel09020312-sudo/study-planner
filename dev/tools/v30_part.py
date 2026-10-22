@@ -1,0 +1,6 @@
+# ---------------------------------------------------------------- v30: 잠금 화면, 알림창에 공부 시간 (src/lockscreen.js)
+LOCK_JS = open(BASE + '/src/lockscreen.js', encoding='utf-8').read()
+sub("/* ---------- 공부방 ---------- */", LOCK_JS + "\n/* ---------- 공부방 ---------- */")
+sub("  h+=timerBody(V,L,sel,subs);\n", "  h+=timerBody(V,L,sel,subs);\n  h+=lockRow(L);\n")
+sub("function tick(){\n  try{schTick();}catch(e){}\n", "function tick(){\n  try{schTick();}catch(e){}\n  try{lockTick();}catch(e){}\n")
+sub("    case 'sch-clear':", "    case 'lock-toggle':{var lon=!lockOn();lsSet('gbb_lock',lon?'1':null);if(!lon)lockStop();else LK.userPaused=false;break;}\n    case 'sch-clear':")
