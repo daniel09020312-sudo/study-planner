@@ -58,16 +58,14 @@ function schMetaSet(d,i,k,v){
   var c=obj(obj(schOf(V,V.me).w[d])['p'+i]);if(!c.s&&!c.t)return;if(String(c[k]||'')===v)return;
   editSch(function(s){var w=obj(s.w[d]),cc=clone(obj(w['p'+i]));if(!cc.s&&!cc.t)return;if(v)cc[k]=v;else delete cc[k];w['p'+i]=cc;s.w[d]=w;});
 }
+// 선생님, 장소는 적는 동안 S.draft에 두고 다음 칸, 다른 칸, 닫기 때 저장한다
+// (포커스가 빠질 때 바로 저장하면 화면이 다시 그려지며 누른 곳이 어긋날 수 있어서)
 function schMetaFromInputs(sel){
-  if(!sel)return;
-  ['tc','r'].forEach(function(k){var el=document.getElementById('sch'+(k==='tc'?'Tc':'R')+'-'+sel.d+'-'+sel.i);if(el)schMetaSet(sel.d,sel.i,k,String(el.value||'').trim().slice(0,k==='tc'?10:16));});
+  if(!sel)return;var kk=sel.d+'-'+sel.i;
+  [['tc','schTc:'],['r','schR:']].forEach(function(x){var v=S.draft[x[1]+kk];if(v==null)return;schMetaSet(sel.d,sel.i,x[0],String(v).trim().slice(0,x[0]==='tc'?10:16));});
 }
-// 선생님, 장소 칸은 입력이 끝났을 때(포커스가 빠질 때) 저장한다
-document.addEventListener('change',function(e){
-  var t=e.target;if(!t||!t.classList||!t.classList.contains('schf'))return;
-  var d=+t.getAttribute('data-d'),i=+t.getAttribute('data-i'),k=t.getAttribute('data-k'),v=String(t.value||'').trim().slice(0,k==='tc'?10:16);
-  setTimeout(function(){schMetaSet(d,i,k,v);},0);
-});
+// 칸 값이 바뀌면(과목 고르기, 이 과목에서 쓴 것) 적는 칸도 새 값으로
+function schDraftSet(sel,tc,r){if(!sel)return;var kk=sel.d+'-'+sel.i;S.draft['schTc:'+kk]=tc||'';S.draft['schR:'+kk]=r||'';S.sync=true;}
 function editSch(fn){
   editTT(function(T){
     var s=clone(obj(T.sch));s.p=arr(s.p).filter(function(x){return x&&+x.e>+x.s;});s.w=obj(s.w);
@@ -113,8 +111,9 @@ function modalSchool(V){
     b+='</div><div class="row" style="margin-top:10px"><input type="text" data-draft="schT" data-enter="sch-text" maxlength="12" placeholder="직접 쓰기 (예: 체육)" aria-label="과목 직접 쓰기"><button class="btn small" data-act="sch-text">넣기</button></div>';
     if(cur){
       var kk=sel.d+'-'+sel.i,cbs=schCombos(V,sch,cur.key).filter(function(x){return !(x.tc===cur.tc&&x.r===cur.r);});
-      b+='<div class="schmeta"><div><label class="lb" for="schTc-'+kk+'">선생님<small>선택</small></label><input type="text" class="schf" id="schTc-'+kk+'" data-k="tc" data-d="'+sel.d+'" data-i="'+sel.i+'" data-enter="sch-next" value="'+esc(cur.tc)+'" maxlength="10" placeholder="예: 김민수"></div>';
-      b+='<div><label class="lb" for="schR-'+kk+'">장소<small>선택</small></label><input type="text" class="schf" id="schR-'+kk+'" data-k="r" data-d="'+sel.d+'" data-i="'+sel.i+'" data-enter="sch-next" value="'+esc(cur.r)+'" maxlength="16" placeholder="예: 2-2 수학과실"></div></div>';
+      if(S.draft['schTc:'+kk]==null)S.draft['schTc:'+kk]=cur.tc;if(S.draft['schR:'+kk]==null)S.draft['schR:'+kk]=cur.r;
+      b+='<div class="schmeta"><div><label class="lb" for="schTc-'+kk+'">선생님<small>선택</small></label><input type="text" class="schf" id="schTc-'+kk+'" data-draft="schTc:'+kk+'" data-enter="sch-next" maxlength="10" placeholder="예: 김민수"></div>';
+      b+='<div><label class="lb" for="schR-'+kk+'">장소<small>선택</small></label><input type="text" class="schf" id="schR-'+kk+'" data-draft="schR:'+kk+'" data-enter="sch-next" maxlength="16" placeholder="예: 2-2 수학과실"></div></div>';
       if(cbs.length)b+='<div class="schcombo"><small>이 과목에서 쓴 것</small><div class="chips">'+cbs.slice(0,4).map(function(x){return '<button class="chip" data-act="sch-combo" data-tc="'+esc(x.tc)+'" data-r="'+esc(x.r)+'">'+esc([x.tc,x.r].filter(Boolean).join(' · '))+'</button>';}).join('')+'</div></div>';
       b+='<p class="hint" style="margin-top:8px">같은 과목을 선생님 두 분이 나눠 하면 칸마다 선생님을 적어 두세요. 시간표와 수업 알림에 선생님 이름이 같이 나옵니다.</p>';
     }
@@ -130,7 +129,8 @@ function modalSchool(V){
     }
     b+='</div>';
   }
-  return dlg('wide',{id:'school',t:mine?'학교 시간표':esc(V.byId[who].name)+'의 학교 시간표'},b);
+  // 바깥(어두운 곳)을 눌러도 닫히지 않게: 자판이 내려가며 화면이 움직일 때 잘못 눌려 닫히는 것 막기
+  return dlg('wide',{id:'school',t:mine?'학교 시간표':esc(V.byId[who].name)+'의 학교 시간표'},b).replace('<div class="scrim" data-act="modal-close"></div>','<div class="scrim"></div>');
 }
 
 /* ---------- 확인 필요: 지울 시간 계산 ---------- */

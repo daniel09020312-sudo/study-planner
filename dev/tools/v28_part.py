@@ -9,6 +9,7 @@ sub("""      editSch(function(s){var w=obj(s.w[ssel.d]);w['p'+ssel.i]=sval;s.w[s
       else{var scb=schCombos(Vsp,schp,snk);if(scb.length===1){sval.tc=scb[0].tc;sval.r=scb[0].r;}}
       if(!sval.tc)delete sval.tc;if(!sval.r)delete sval.r;
       editSch(function(s){var w=obj(s.w[ssel.d]);w['p'+ssel.i]=sval;s.w[ssel.d]=w;});
+      schDraftSet(ssel,sval.tc,sval.r);
       break;""")
 sub("    case 'sch-clear':", r"""    case 'sch-next':{
       var snx=S.schSel;if(!snx)break;schMetaFromInputs(snx);
@@ -18,7 +19,7 @@ sub("    case 'sch-clear':", r"""    case 'sch-next':{
       var scs=S.schSel;if(!scs)break;var Vcb=view(),ccur=schCell(Vcb,schOf(Vcb,Vcb.me),scs.d,scs.i);if(!ccur)break;
       var ctc=String(el.getAttribute('data-tc')||''),cr=String(el.getAttribute('data-r')||'');
       editSch(function(s){var w=obj(s.w[scs.d]),cc=clone(obj(w['p'+scs.i]));if(ctc)cc.tc=ctc;else delete cc.tc;if(cr)cc.r=cr;else delete cc.r;w['p'+scs.i]=cc;s.w[scs.d]=w;});
-      S.sync=true;break;
+      schDraftSet(scs,ctc,cr);break;
     }
     case 'sch-clear':""")
 # 다른 칸을 누를 때 적던 선생님/장소를 먼저 저장
@@ -82,3 +83,7 @@ sub("editDay(date,function(d){d.goals.forEach(function(x){if(x.id===id)x.text=gt
     "editDay(date,function(d){d.goals.forEach(function(x){if(x.id===id&&x.text!==gtx){x.text=gtx;delete x.ct;delete x.ca;delete x.cu;delete x.cn;}});});S.gEdit=null;")
 # 고칠 때는 '마감 정하고 나눠 넣기'를 숨긴다
 sub("""  b+='<div class="fld plink"><span class="hint">며칠까지 끝낼 일인가요?</span>""", """  if(!c.edit)b+='<div class="fld plink"><span class="hint">며칠까지 끝낼 일인가요?</span>""")
+
+# 창을 닫을 때 적던 선생님/장소 저장, 열 때 예전에 적다 만 값 비우기
+sub("function closeModal(){\n  if(!S.modal||S.closing)return;", "function closeModal(){\n  if(!S.modal||S.closing)return;\n  if(S.modal.type==='school'){try{schMetaFromInputs(S.schSel);}catch(e){}}")
+sub("  if(type==='school'){S.schWho=null;S.schSel=null;S.schTimes=false;S.draft.schT='';}", "  if(type==='school'){S.schWho=null;S.schSel=null;S.schTimes=false;S.draft.schT='';Object.keys(S.draft).forEach(function(k){if(/^sch(Tc|R):/.test(k))delete S.draft[k];});}")
