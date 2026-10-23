@@ -18,6 +18,8 @@ print('showing      :', ev("__lk.showing"), '| audio paused', ev("__lk.a?__lk.a.
 p.screenshot(path=SH+'v30_room.png',full_page=True)
 p.wait_for_timeout(2500)
 print('tick keeps   :', ev("__lk.showing"), '| meta', ev("navigator.mediaSession.metadata&&navigator.mediaSession.metadata.title"))
+ev("(()=>{const L=window.__store['live/m1'];if(L){L.start-=83*60000;L.flushed=L.start;L.cm=0;window.__fire();}return 1})()");p.wait_for_timeout(1600)
+print('83 min later :', ev("navigator.mediaSession.metadata&&navigator.mediaSession.metadata.title"))
 # 잠금 화면의 일시정지 (pause 처리)
 ev("(__lk.a.pause(),0)");p.wait_for_timeout(300)
 print('lock pause   :', ev("__lk.showing"), '| meta', ev("navigator.mediaSession.metadata"))

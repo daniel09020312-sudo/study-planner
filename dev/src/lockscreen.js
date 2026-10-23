@@ -36,16 +36,22 @@ function lockStart(){
 function lockClear(){try{navigator.mediaSession.metadata=null;navigator.mediaSession.playbackState='none';}catch(e){}LK.key='';}
 function lockStop(){LK.showing=false;if(LK.a){try{LK.a.pause();}catch(e){}}lockClear();}
 /* 보여 줄 내용: 제목은 과목과 상태, 막대는 지금 구간(스톱워치는 5시간까지, 목표 시간, 뽀모도로는 이번 집중이나 쉬는 시간) */
+/* 제목 맨 앞에 시간(1분마다 바뀜): 스톱워치·목표는 공부한 시간, 뽀모도로는 이번 구간 남은 시간 */
+function lockMinsDone(ms){var m=Math.floor(ms/60000);return m<1?'방금 시작':fmtMins(m)+'째';}
+function lockMinsLeft(ms){var m=Math.ceil(ms/60000);return m<1?'곧 끝':fmtMins(m)+' 남음';}
 function lockState(V,L,now){
   var o=lv(L,now),sub=subLabel(V,L.sid),title,artist,dur,pos;
   if(o.mode==='pomo'){
     var f=(+L.f)*60,b=(+L.b)*60,c=f+b,w=(o.e/1000)%c;
-    title=o.rest?'쉬는 중':sub+' 집중 '+o.n+'번째';artist=o.rest?sub+' 다음 집중 준비':'공부방 뽀모도로 '+L.f+'분';
+    title=o.rest?'쉬는 중 · '+lockMinsLeft(o.left):lockMinsLeft(o.left)+' · '+sub;
+    artist=o.rest?sub+' 다음 집중 준비':o.n+'번째 집중 · 뽀모도로 '+L.f+'분';
     dur=o.rest?b:f;pos=o.rest?w-f:w;
   }else if(o.mode==='goal'){
-    title=sub+' 공부 중';artist=o.over?'목표 '+fmtMins(+L.g)+' 채움':'공부방 목표 '+fmtMins(+L.g);dur=(+L.g)*60;pos=Math.min(dur,o.e/1000);
+    title=lockMinsDone(o.e)+' · '+sub;
+    artist=o.over?'목표 '+fmtMins(+L.g)+' 채움':'목표 '+fmtMins(+L.g)+' · '+lockMinsLeft(o.left);
+    dur=(+L.g)*60;pos=Math.min(dur,o.e/1000);
   }else{
-    title=sub+' 공부 중';artist='공부방 스톱워치';dur=MAXRUN/1000;pos=Math.min(dur,o.e/1000);
+    title=lockMinsDone(o.e)+' · '+sub;artist='공부방 스톱워치';dur=MAXRUN/1000;pos=Math.min(dur,o.e/1000);
   }
   return {title:title,artist:artist,dur:Math.max(1,Math.round(dur)),pos:Math.max(0,pos),rest:!!o.rest};
 }

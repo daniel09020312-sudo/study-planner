@@ -3614,7 +3614,7 @@ document.addEventListener('change',function(e){
 
 /* ---------- 처음 화면 ---------- */
 // 앱이 준비되면 알린다. 그림이 아직이면 다 그린 뒤에 열리고, 그림이 먼저 끝났으면 바로 열린다
-var APP_BUILD='1792713199';
+var APP_BUILD='1792713578';
 function splashDone(){
   var sp=document.getElementById('splash'),st=window.__sp;if(!sp||sp.getAttribute('data-out'))return;
   sp.setAttribute('data-out','1');
@@ -3660,7 +3660,7 @@ function rulesHtml(){
 /* ---------- 잠금 화면, 알림창에 공부 시간 (켜고 끄는 설정, 이 기기에만) ---------- */
 // 영상처럼 '지금 재생 중' 칸에 과목과 시간을 띄운다. 그러려면 타이머가 도는 동안 소리 없는 소리를 틀어야 해서
 // 아이폰, 아이패드에서는 음악 앱이 멈춘다. 그래서 기본은 꺼 두고 원하는 사람만 켠다.
-var LK={a:null,showing:false,userPaused:false,key:'',pos:0,start:0};
+var LK={a:null,showing:false,userPaused:false,key:'',pos:0,start:0};window.__lk=LK;
 function lockOk(){return 'mediaSession' in navigator&&typeof MediaMetadata!=='undefined';}
 function lockOn(){return lockOk()&&lsGet('gbb_lock')==='1';}
 function lockWav(){
@@ -3695,16 +3695,22 @@ function lockStart(){
 function lockClear(){try{navigator.mediaSession.metadata=null;navigator.mediaSession.playbackState='none';}catch(e){}LK.key='';}
 function lockStop(){LK.showing=false;if(LK.a){try{LK.a.pause();}catch(e){}}lockClear();}
 /* 보여 줄 내용: 제목은 과목과 상태, 막대는 지금 구간(스톱워치는 5시간까지, 목표 시간, 뽀모도로는 이번 집중이나 쉬는 시간) */
+/* 제목 맨 앞에 시간(1분마다 바뀜): 스톱워치·목표는 공부한 시간, 뽀모도로는 이번 구간 남은 시간 */
+function lockMinsDone(ms){var m=Math.floor(ms/60000);return m<1?'방금 시작':fmtMins(m)+'째';}
+function lockMinsLeft(ms){var m=Math.ceil(ms/60000);return m<1?'곧 끝':fmtMins(m)+' 남음';}
 function lockState(V,L,now){
   var o=lv(L,now),sub=subLabel(V,L.sid),title,artist,dur,pos;
   if(o.mode==='pomo'){
     var f=(+L.f)*60,b=(+L.b)*60,c=f+b,w=(o.e/1000)%c;
-    title=o.rest?'쉬는 중':sub+' 집중 '+o.n+'번째';artist=o.rest?sub+' 다음 집중 준비':'공부방 뽀모도로 '+L.f+'분';
+    title=o.rest?'쉬는 중 · '+lockMinsLeft(o.left):lockMinsLeft(o.left)+' · '+sub;
+    artist=o.rest?sub+' 다음 집중 준비':o.n+'번째 집중 · 뽀모도로 '+L.f+'분';
     dur=o.rest?b:f;pos=o.rest?w-f:w;
   }else if(o.mode==='goal'){
-    title=sub+' 공부 중';artist=o.over?'목표 '+fmtMins(+L.g)+' 채움':'공부방 목표 '+fmtMins(+L.g);dur=(+L.g)*60;pos=Math.min(dur,o.e/1000);
+    title=lockMinsDone(o.e)+' · '+sub;
+    artist=o.over?'목표 '+fmtMins(+L.g)+' 채움':'목표 '+fmtMins(+L.g)+' · '+lockMinsLeft(o.left);
+    dur=(+L.g)*60;pos=Math.min(dur,o.e/1000);
   }else{
-    title=sub+' 공부 중';artist='공부방 스톱워치';dur=MAXRUN/1000;pos=Math.min(dur,o.e/1000);
+    title=lockMinsDone(o.e)+' · '+sub;artist='공부방 스톱워치';dur=MAXRUN/1000;pos=Math.min(dur,o.e/1000);
   }
   return {title:title,artist:artist,dur:Math.max(1,Math.round(dur)),pos:Math.max(0,pos),rest:!!o.rest};
 }
@@ -4890,7 +4896,7 @@ function modalSettings(V){
   [[22,'밤 10시'],[23,'밤 11시'],[24,'자정'],[25,'다음 날 새벽 1시'],[26,'다음 날 새벽 2시']].forEach(function(o){b+='<option value="'+o[0]+'"'+(V.certHour===o[0]?' selected':'')+'>'+o[1]+'</option>';});
   b+='</select>';
   b+='</div><div class="sec"><h3>키보드 단축키<small>키보드를 연결했을 때</small></h3><ul class="kbd">'+[['1 ~ 8','달력부터 메시지까지 화면 이동'],['N','할 일 추가'],['D','마감 있는 할 일 추가'],['L','달력, 할 일, 시간표 차례로 바꿔 보기'],['T','타이머 켜기, 끄기'],['F','타이머 크게 보기'],['Esc','창 닫기']].map(function(x){return '<li><kbd>'+x[0]+'</kbd><span>'+x[1]+'</span></li>';}).join('')+'</ul></div><div class="sec"><h3>저장 위치</h3><p class="hint">'+esc(S.net?({claude:'Claude 공유 저장소에 연결되어 있습니다. Claude에 로그인한 참여 인원끼리 실시간으로 같이 봅니다.',firebase:'공유 저장소에 연결되어 있습니다. 참여 코드로 들어온 사람 모두가 실시간으로 같이 봅니다.',local:'지금은 이 기기에만 저장됩니다. 다른 사람과 같이 보려면 공유 저장소 연결이 필요합니다.'}[S.net.mode]):'연결 중입니다.')+'</p>'+(S.net&&S.net.mode==='firebase'&&S.remote?'<div class="row" style="margin-top:10px"><button class="btn small" data-act="import-pick">기록 가져오기</button><button class="btn small" data-act="export-data">기록 파일로 저장</button><button class="del" data-act="setup-reset">'+(S.confirm==='disc'?'한 번 더 누르면 이 방에서 나갑니다':'이 기기에서 이 방 나가기')+'</button></div><p class="hint" style="margin-top:8px">'+esc(S.importMsg||'친구와 내 다른 기기는 위의 친구 초대하기로 들어옵니다. 기록 가져오기는 처음 연결한 뒤 한 번만 하면 됩니다.')+'</p>':'')+'</div>';
-  b+='<p class="hint appver">앱 버전 10월 23일 08:53</p>';
+  b+='<p class="hint appver">앱 버전 10월 23일 08:59</p>';
   return dlg('wide',{id:'settings',t:'설정'},b);
 }
 function modalCheck(V){
