@@ -481,7 +481,9 @@
 .ttb.td.done{background:color-mix(in srgb,var(--sc) 9%,var(--surface))}
 .ttb.td.done .tbt{text-decoration:line-through;color:var(--ink-3)}
 .ttb.fx{color:var(--ink-2);background:repeating-linear-gradient(135deg,color-mix(in srgb,var(--ink-3) 15%,var(--surface)) 0 6px,color-mix(in srgb,var(--ink-3) 7%,var(--surface)) 6px 12px)}
-.ttb.fx.k-academy{background:repeating-linear-gradient(135deg,color-mix(in srgb,var(--ink-3) 24%,var(--surface)) 0 6px,color-mix(in srgb,var(--ink-3) 12%,var(--surface)) 6px 12px)}
+/* 학원: 학교(회색 빗금)와 할 일(과목 색)과 다르게, 빗금 없는 옅은 남보라 바탕에 왼쪽 점선 줄 */
+.ttb.fx.k-academy{background:color-mix(in srgb,#7F86C2 17%,var(--surface));border-left:3px dashed color-mix(in srgb,#7F86C2 70%,var(--surface));padding-left:7px}
+.ttb.fx.k-academy .tbs{color:color-mix(in srgb,#5E64A0 80%,var(--ink))}
 .ttb.fx.k-etc{background:color-mix(in srgb,#9AA1AD 24%,var(--surface))}
 .ttb.fx.hs{box-shadow:inset 3px 0 0 var(--sc)}
 .ttb.fx .tbt{font-weight:700;color:var(--ink)}
@@ -532,6 +534,9 @@ html.ttdragging,html.ttdragging *{cursor:grabbing !important}
 .ttrow{display:grid;grid-template-columns:4px minmax(0,1fr) auto;align-items:center;gap:12px;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:var(--surface);font:inherit;text-align:left;color:var(--ink);animation:rowIn .35s var(--ease) both}
 .ttrow i{align-self:stretch;border-radius:2px;background:var(--sc,var(--ink-3))}
 .ttrow.k-etc i{background:var(--sc,#9AA1AD)}
+.ttrow.k-academy i{background:#8A90C8}
+.ttsum.fx.k-academy{background:color-mix(in srgb,#7F86C2 14%,var(--surface))}
+.ttsum.fx.k-academy i{background:#8A90C8}
 .ttrow b{display:block;font-weight:700}
 .ttrow small{color:var(--ink-2);font-size:13px}
 .ttrow em{font-style:normal;font-size:13px;color:var(--accent-ink);font-weight:600}

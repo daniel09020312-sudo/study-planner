@@ -1003,7 +1003,9 @@ button.osum{width:100%;background:none;border:0;border-top:1px solid var(--line)
 .ttb.td.done{background:color-mix(in srgb,var(--sc) 9%,var(--surface))}
 .ttb.td.done .tbt{text-decoration:line-through;color:var(--ink-3)}
 .ttb.fx{color:var(--ink-2);background:repeating-linear-gradient(135deg,color-mix(in srgb,var(--ink-3) 15%,var(--surface)) 0 6px,color-mix(in srgb,var(--ink-3) 7%,var(--surface)) 6px 12px)}
-.ttb.fx.k-academy{background:repeating-linear-gradient(135deg,color-mix(in srgb,var(--ink-3) 24%,var(--surface)) 0 6px,color-mix(in srgb,var(--ink-3) 12%,var(--surface)) 6px 12px)}
+/* 학원: 학교(회색 빗금)와 할 일(과목 색)과 다르게, 빗금 없는 옅은 남보라 바탕에 왼쪽 점선 줄 */
+.ttb.fx.k-academy{background:color-mix(in srgb,#7F86C2 17%,var(--surface));border-left:3px dashed color-mix(in srgb,#7F86C2 70%,var(--surface));padding-left:7px}
+.ttb.fx.k-academy .tbs{color:color-mix(in srgb,#5E64A0 80%,var(--ink))}
 .ttb.fx.k-etc{background:color-mix(in srgb,#9AA1AD 24%,var(--surface))}
 .ttb.fx.hs{box-shadow:inset 3px 0 0 var(--sc)}
 .ttb.fx .tbt{font-weight:700;color:var(--ink)}
@@ -1054,6 +1056,9 @@ html.ttdragging,html.ttdragging *{cursor:grabbing !important}
 .ttrow{display:grid;grid-template-columns:4px minmax(0,1fr) auto;align-items:center;gap:12px;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:var(--surface);font:inherit;text-align:left;color:var(--ink);animation:rowIn .35s var(--ease) both}
 .ttrow i{align-self:stretch;border-radius:2px;background:var(--sc,var(--ink-3))}
 .ttrow.k-etc i{background:var(--sc,#9AA1AD)}
+.ttrow.k-academy i{background:#8A90C8}
+.ttsum.fx.k-academy{background:color-mix(in srgb,#7F86C2 14%,var(--surface))}
+.ttsum.fx.k-academy i{background:#8A90C8}
 .ttrow b{display:block;font-weight:700}
 .ttrow small{color:var(--ink-2);font-size:13px}
 .ttrow em{font-style:normal;font-size:13px;color:var(--accent-ink);font-weight:600}
@@ -3649,7 +3654,7 @@ document.addEventListener('change',function(e){
 
 /* ---------- 처음 화면 ---------- */
 // 앱이 준비되면 알린다. 그림이 아직이면 다 그린 뒤에 열리고, 그림이 먼저 끝났으면 바로 열린다
-var APP_BUILD='1792740277';
+var APP_BUILD='1792740845';
 function splashDone(){
   var sp=document.getElementById('splash'),st=window.__sp;if(!sp||sp.getAttribute('data-out'))return;
   sp.setAttribute('data-out','1');
@@ -5024,7 +5029,7 @@ function modalSettings(V){
   [[22,'밤 10시'],[23,'밤 11시'],[24,'자정'],[25,'다음 날 새벽 1시'],[26,'다음 날 새벽 2시']].forEach(function(o){b+='<option value="'+o[0]+'"'+(V.certHour===o[0]?' selected':'')+'>'+o[1]+'</option>';});
   b+='</select>';
   b+='</div><div class="sec"><h3>키보드 단축키<small>키보드를 연결했을 때</small></h3><ul class="kbd">'+[['1 ~ 8','달력부터 메시지까지 화면 이동'],['N','할 일 추가'],['D','마감 있는 할 일 추가'],['L','달력, 할 일, 시간표 차례로 바꿔 보기'],['T','타이머 켜기, 끄기'],['F','타이머 크게 보기'],['Esc','창 닫기']].map(function(x){return '<li><kbd>'+x[0]+'</kbd><span>'+x[1]+'</span></li>';}).join('')+'</ul></div><div class="sec"><h3>저장 위치</h3><p class="hint">'+esc(S.net?({claude:'Claude 공유 저장소에 연결되어 있습니다. Claude에 로그인한 참여 인원끼리 실시간으로 같이 봅니다.',firebase:'공유 저장소에 연결되어 있습니다. 참여 코드로 들어온 사람 모두가 실시간으로 같이 봅니다.',local:'지금은 이 기기에만 저장됩니다. 다른 사람과 같이 보려면 공유 저장소 연결이 필요합니다.'}[S.net.mode]):'연결 중입니다.')+'</p>'+(S.net&&S.net.mode==='firebase'&&S.remote?'<div class="row" style="margin-top:10px"><button class="btn small" data-act="import-pick">기록 가져오기</button><button class="btn small" data-act="export-data">기록 파일로 저장</button><button class="del" data-act="setup-reset">'+(S.confirm==='disc'?'한 번 더 누르면 이 방에서 나갑니다':'이 기기에서 이 방 나가기')+'</button></div><p class="hint" style="margin-top:8px">'+esc(S.importMsg||'친구와 내 다른 기기는 위의 친구 초대하기로 들어옵니다. 기록 가져오기는 처음 연결한 뒤 한 번만 하면 됩니다.')+'</p>':'')+'</div>';
-  b+='<p class="hint appver">앱 버전 10월 23일 16:24</p>';
+  b+='<p class="hint appver">앱 버전 10월 23일 16:34</p>';
   return dlg('wide',{id:'settings',t:'설정'},b);
 }
 function modalCheck(V){
