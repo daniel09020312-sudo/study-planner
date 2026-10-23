@@ -85,8 +85,11 @@ sub("'한 번 더 누르면 연결을 끊습니다'", "'한 번 더 누르면 �
 sub("esc(S.importMsg||'초대 링크를 친구들과 내 다른 기기에 보내세요. 기록 가져오기는 처음 연결한 뒤 한 번만 하면 됩니다.')",
     "esc(S.importMsg||'친구와 내 다른 기기는 위의 친구 초대하기로 들어옵니다. 기록 가져오기는 처음 연결한 뒤 한 번만 하면 됩니다.')")
 sub("""      lsSet('gbb_remote',null);try{history.replaceState(null,'',String(location.href).split('#')[0]);}catch(e){}""",
-    """      if(S.remote){roomsSave(roomsList().filter(function(x){return !(x.url===S.remote.url&&x.room===S.remote.room);}));}
-      lsSet('gbb_remote',null);try{history.replaceState(null,'',String(location.href).split('#')[0]);}catch(e){}""")
+    """      var lvR=S.remote,lvL=roomsList();
+      if(lvR){lvL=lvL.filter(function(x){return !(x.url===lvR.url&&x.room===lvR.room);});roomsSave(lvL);}
+      try{sessionStorage.setItem('gbb_left',roomName());}catch(e){}
+      if(lvL.length){goRoom(lvL[0]);return;}
+      lsSet('gbb_remote',null);try{history.replaceState(null,'',lvR?siteBase()+'#join='+dbToken(lvR.url):String(location.href).split('#')[0]);}catch(e){}""")
 
 # 5) 창 열기
 sub("  if(type!=='settings'&&type!=='pic'&&!V.me)return;", "  if(type!=='settings'&&type!=='pic'&&type!=='rooms'&&type!=='newroom'&&type!=='invite'&&type!=='a2hs'&&!V.me)return;")

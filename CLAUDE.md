@@ -44,6 +44,8 @@ push 뒤에는 `gh api repos/daniel09020312-sudo/study-planner/commits/<sha>/che
 - 코드 연결은 `rooms/joincode-<코드>` = {r: 방 id, n: 방 이름}, 방 정보는 `rooms/<방>/d/meta/room` = {name, code}. Firebase 규칙은 바꾸지 않아도 된다.
 - 예전 초대 링크 `#db=...&room=...`도 계속 들어와진다.
 - 기기 저장 값 중 방마다 다른 것(gbb_me, gbb_auth 등)은 `키@방id`로 저장한다. 예전 판에서 쓰던 방(gbb_legacy_room)만 붙이지 않은 값을 이어서 읽는다.
+- 다른 방에서 가져오기(`src/carry.js`, `web_carry_part.py`, 설정 > 방): 이 기기로 이름을 고른 적 있는 방(gbb_me@방)에서 내 일정, 오늘부터의 할 일과 마감 계획, 시간표, 과목 설정, 이 방에 없는 내 과목을 복사. 과목은 이름으로 맞추고 겹치면 건너뜀. 점수와 공부 기록(시간, 인증, 출석, 지난 할 일, reset, title)은 지금 방 방장만 보이는 따로 켜는 칸, 다시 가져와도 두 번 더해지지 않게 progress.crl[방][날짜]에 가져온 시간을 적어 둠. 가져오기와 그 되돌리기는 guardDay를 건너뜀(S.crRaw). 테스트 t_carry.py
+- 이 기기에서 이 방 나가기: 목록에 다른 방이 있으면 그 방으로, 없으면 같은 저장소의 참여 코드 화면(#join=)으로
 - 테스트: `LIGHT=1 python3 tools/t_rooms.py` (먼저 `cp web-light/index.html site/index.html`).
 - 오프라인: 받은 기록은 `gbb_cache@방`에 저장해 두고 다음에 열 때 먼저 보여 준다. 연결이 없을 때의 쓰기는 `gbb_outbox@방`에 모았다가 연결되면 올린다(사진, 영상은 막음). 테스트는 `t_offline.py`.
 

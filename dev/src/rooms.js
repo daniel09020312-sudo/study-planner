@@ -83,6 +83,7 @@ function roomTick(){
   roomsRemember({url:S.remote.url,room:S.remote.room,name:ri.name||'',code:ri.code||''});
   syncAddr();
   if(!ri.code&&!S.codeTried&&canWrite()){S.codeTried=true;setTimeout(function(){makeCode(false);},400);}
+  if(S.ready){var lf=null;try{lf=sessionStorage.getItem('gbb_left');if(lf)sessionStorage.removeItem('gbb_left');}catch(e){}if(lf)flash("'"+lf+"'에서 나왔습니다. "+jos(roomName(),'으로','로')+' 옮겼습니다.');}
   if(view().me&&!S.modal){
     var f=null;try{f=sessionStorage.getItem('gbb_newroom');}catch(e){}
     if(f&&ri.code){try{sessionStorage.removeItem('gbb_newroom');}catch(e){}setTimeout(function(){if(!S.modal){openModal('invite',null);render();}},350);}
