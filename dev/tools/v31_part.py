@@ -59,16 +59,16 @@ sub("""<h3>과목<small>선택, 고르면 그 과목 색 줄이 붙습니다</sm
     """<h3>과목<small>선택, 여러 개 고를 수 있습니다</small></h3><div class="chips">'+mySubs(V).map(function(s){return '<button class="chip" data-act="tt-ed-set" data-k="sid" data-v="'+esc(s.id)+'" aria-pressed="'+((E.ss||[]).indexOf(s.id)>=0?'true':'false')+'">""")
 sub("editTT(function(T){var nb={id:E.id||rid('b'),k:E.k,t:et.slice(0,20),sid:E.sid||'',d:E.d,s:E.s,e:E.e},f=false;",
     "var ssv=(E.ss||[]).filter(function(s){return !!view().subName[s];});editTT(function(T){var nb={id:E.id||rid('b'),k:E.k,t:et.slice(0,20),sid:ssv[0]||'',d:E.d,s:E.s,e:E.e},f=false;if(ssv.length>1)nb.sids=ssv.join(',');")
-# 시간표 칸: 왼쪽 색 줄을 과목 수만큼 나눠 칠하고, 두 개 이상이면 줄임말도
-sub("(b.sid?' hs':'')", "(fxSubs(V,b).length?' hs'+(fxSubs(V,b).length>1?' hsm':''):'')")
-sub("(b.sid?';--sc:'+subCol(V,b.sid):'')", "(fxSubs(V,b).length?';--sc:'+subCol(V,fxSubs(V,b)[0])+';--scg:'+fxGrad(V,fxSubs(V,b)):'')")
+# 시간표 칸: 고정 일정은 과목 색 없이 회색, 과목 이름(1일 보기) 또는 줄임말(3일·7일)을 글로
+sub("(b.sid?' hs':'')", "''")  # 고정 일정은 색 줄 없이 회색(할 일과 구분)
+sub("(b.sid?';--sc:'+subCol(V,b.sid):'')", "''")
 sub("""'+ps+'<span class="tbt">'+esc(lab)+'</span><small>'+tm+'</small>'""",
-    """'+ps+'<span class="tbt">'+esc(lab)+'</span><small>'+tm+'</small>'+(fxSubs(V,b).length>1?'<small class="tbs">'+esc(fxSubs(V,b).map(function(s){return subAbbr(V,s);}).join(' · '))+'</small>':'')""")
+    """'+ps+'<span class="tbt">'+esc(lab)+'</span><small>'+tm+'</small>'+(fxSubs(V,b).length?'<small class="tbs">'+esc(fxSubs(V,b).map(function(s){return n===1?V.subName[s]:subAbbr(V,s);}).join(' · '))+'</small>':'')""")
 sub("""'<div class="ttsum fx k-'+x.k+'"'+(x.sid?' style="--sc:'+subCol(V,x.sid)+'"':'')""",
-    """'<div class="ttsum fx k-'+x.k+'"'+(fxSubs(V,x).length?' style="--sc:'+fxGrad(V,fxSubs(V,x))+'"':'')""")
+    """'<div class="ttsum fx k-'+x.k+'"'""")
 sub("""<small>'+esc(TTK[x.k])+' · '+(x.tpl?""", """<small>'+esc(TTK[x.k])+(fxSubs(V,x).length?' · '+esc(fxNames(V,fxSubs(V,x))):'')+' · '+(x.tpl?""")
 sub("""data-act="tt-ed" data-id="'+esc(x.id)+'"'+(x.sid?' style="--sc:'+subCol(V,x.sid)+'"':'')""",
-    """data-act="tt-ed" data-id="'+esc(x.id)+'"'+(fxSubs(V,x).length?' style="--sc:'+fxGrad(V,fxSubs(V,x))+'"':'')""")
+    """data-act="tt-ed" data-id="'+esc(x.id)+'"'""")
 sub("""fmtHM(x.e)+'</small></span><em>고치기</em>""",
     """fmtHM(x.e)+(fxSubs(V,x).length?' · '+esc(fxNames(V,fxSubs(V,x))):'')+'</small></span><em>고치기</em>""")
 # 고치는 중이면 길이 칩은 눌린 표시를 끈다

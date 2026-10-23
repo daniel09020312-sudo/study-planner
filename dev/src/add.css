@@ -825,7 +825,5 @@ html.wkdragging,html.wkdragging *{cursor:grabbing !important}
 /* v31: 고치는 중인 시간 안내 */
 .ttpend{margin:8px 0 0;color:var(--red);font-size:13px}
 .schtimes .ttpend{margin:2px 0 6px}
-/* v31: 고정 일정 과목 여러 개 - 왼쪽 색 줄을 나눠 칠함 */
-.ttb.fx.hsm{box-shadow:none}
-.ttb.fx.hsm::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--scg)}
+/* v31: 고정 일정(학원 등) 과목은 색 없이 글로 */
 .ttb.fx .tbs{font-size:11px;font-weight:700;color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
