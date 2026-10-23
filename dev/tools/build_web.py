@@ -191,6 +191,8 @@ sub("    case 'copy-rules':", r"""    case 'export-data':{
 exec(open(BASE + '/tools/web_rooms_part.py', encoding='utf-8').read())
 # 오프라인
 exec(open(BASE + '/tools/web_offline_part.py', encoding='utf-8').read())
+# 바뀐 것만 받기
+exec(open(BASE + '/tools/web_sync_part.py', encoding='utf-8').read())
 # 다른 방에서 내 것 가져오기
 exec(open(BASE + '/tools/web_carry_part.py', encoding='utf-8').read())
 OUT = BASE + ('/web-light' if LIGHT else '/web')
@@ -199,5 +201,5 @@ open(OUT + '/index.html', 'w', encoding='utf-8').write(s)
 import re as _re
 _vb = _re.search(r"var APP_BUILD='(\d+)';", s)
 assert _vb, 'APP_BUILD missing'
-open(OUT + '/version.txt', 'w').write(_vb.group(1) + '\n')
+open(OUT + '/version.txt', 'w').write(_vb.group(1) + (' force' if os.environ.get('FORCE') == '1' else '') + '\n')
 print('web built', len(s.encode('utf-8')))

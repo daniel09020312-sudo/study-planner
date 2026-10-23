@@ -104,6 +104,9 @@ P.evaluate("()=>{const b=document.querySelector('#dlg-carry [data-act=\"modal-cl
 
 # ---- 방장이면: 점수와 공부 기록 (따로 켜야만)
 STORE['rooms'][RD]['d']['meta']['config']['admin'] = 'm2'
+import time as _t
+def touch(p): STORE['rooms'][RD].setdefault('x', {})[p.replace('/', '|')] = '%x.t%d' % (int(_t.time()*1000), int(_t.time()*1000) % 997)  # 새 판처럼 바뀐 자리 표시
+touch('meta/config')
 P.reload(); P.wait_for_timeout(2500); closepin(P)
 click(P, '#meBtn', 700); click(P, '.rmact.cr', 600); click(P, '#dlg-carry [data-act="cr-pick"][data-id="%s"]' % RS, 1500)
 print('admin rec row :', ev(P, "(b=>b?b.getAttribute('aria-pressed')+' / '+b.innerText.replace(/\\n/g,' / '):null)(document.querySelector('[data-act=\"cr-opt\"][data-k=\"rec\"]'))"))
@@ -119,6 +122,7 @@ pr = D('progress/m2') or {}
 print('ledger/reset  :', pr.get('crl'), '| reset', pr.get('reset'), '| title', pr.get('title'))
 # 이 방에서 공부한 기록이 따로 있을 때 다시 가져와도 두 번 더해지지 않음
 STORE['rooms'][RD]['d']['days']['m2_' + T]['mins']['sa'] = STORE['rooms'][RD]['d']['days']['m2_' + T]['mins'].get('sa', 0) + 25
+touch('days/m2_' + T)
 P.reload(); P.wait_for_timeout(2500); closepin(P)
 click(P, '#meBtn', 700); click(P, '.rmact.cr', 600); click(P, '#dlg-carry [data-act="cr-pick"][data-id="%s"]' % RS, 1500)
 print('again rec     :', ev(P, "(b=>b?b.innerText.replace(/\\n/g,' / '):null)(document.querySelector('[data-act=\"cr-opt\"][data-k=\"rec\"]'))"))

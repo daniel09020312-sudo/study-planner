@@ -33,10 +33,12 @@ sub("</style>", ".notice.offn{background:color-mix(in srgb,var(--ink) 88%,transp
 assert s.count("init();\nif('serviceWorker' in navigator") == 1
 s = s.replace("init();\nif('serviceWorker' in navigator", r"""init();
 (function(){
-  var want=false,busy=false;
+  // 새 판은 바로 다시 읽지 않고, 다른 앱에 갔다가 돌아올 때 다시 읽는다(배포 때마다 모두가 한꺼번에 받지 않게).
+  // version.txt 에 'force'가 붙어 있으면 예전처럼 쉬는 틈에 바로 다시 읽는다.
+  var want=false,busy=false,force=false;
   function check(){
     if(busy||want||navigator.onLine===false||location.protocol!=='https:'||typeof APP_BUILD==='undefined')return;busy=true;
-    fetch('version.txt?t='+Date.now(),{cache:'no-store'}).then(function(r){return r.ok?r.text():'';}).then(function(t){busy=false;t=String(t||'').trim();if(/^\d+$/.test(t)&&+t>+APP_BUILD){var done='';try{done=sessionStorage.getItem('gbb_upd')||'';}catch(e){}if(done===t)return;want=t;tryReload();}}).catch(function(){busy=false;});
+    fetch('version.txt?t='+Date.now(),{cache:'no-store'}).then(function(r){return r.ok?r.text():'';}).then(function(t){busy=false;t=String(t||'').trim();var vm=/^(\d+)(\s+force)?$/.exec(t);if(vm&&+vm[1]>+APP_BUILD){var done='';try{done=sessionStorage.getItem('gbb_upd')||'';}catch(e){}if(done===vm[1])return;want=vm[1];force=!!vm[2];if(force||Date.now()-shownAt<20000)tryReload();}}).catch(function(){busy=false;});
   }
   function tryReload(){
     if(!want)return;
@@ -47,8 +49,9 @@ s = s.replace("init();\nif('serviceWorker' in navigator", r"""init();
     location.reload();
   }
   setTimeout(check,4000);
-  document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible'){check();tryReload();}});
+  var shownAt=Date.now();
+  document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible'){shownAt=Date.now();check();tryReload();}});
   setInterval(function(){if(document.visibilityState==='visible')check();},10*60000);
-  setInterval(tryReload,4000);
+  setInterval(function(){if(force||Date.now()-shownAt<20000)tryReload();},4000);
 })();
 if('serviceWorker' in navigator""")

@@ -22,7 +22,7 @@ function obFlush(){
   (function next(){
     var x=obLoad()[0];
     if(!x){OB_BUSY=false;if(sent){flash('인터넷이 다시 연결되어 모아 둔 기록 '+sent+'개를 올렸습니다.');}paintBanner();return;}
-    fetch(base+x.p+'.json',{method:x.d===null?'DELETE':'PUT',headers:{'Content-Type':'application/json'},body:x.d===null?undefined:JSON.stringify(x.d)})
+    (S.net&&S.net.send?S.net.send(x.p,x.d):fetch(base+x.p+'.json',{method:x.d===null?'DELETE':'PUT',headers:{'Content-Type':'application/json'},body:x.d===null?undefined:JSON.stringify(x.d)}))
       .then(function(r){
         if(r.status===401||r.status===403){obDrop(x.p);S.readOnly=true;next();return;}
         if(!r.ok)throw new Error('http');
@@ -34,8 +34,9 @@ function obFlush(){
 var CACHE_TREE=null;
 function cacheSave(tree){
   CACHE_TREE=tree;if(CACHE_T)return;
-  CACHE_T=setTimeout(function(){CACHE_T=null;try{lsSet('gbb_cache',JSON.stringify({at:Date.now(),t:CACHE_TREE}));}catch(e){try{lsSet('gbb_cache',null);}catch(e2){}}},1500);
+  CACHE_T=setTimeout(function(){CACHE_T=null;var mt={};try{if(S.net&&S.net.meta)mt=S.net.meta();}catch(e){}try{lsSet('gbb_cache',JSON.stringify({at:Date.now(),t:CACHE_TREE,x:mt.x||null,full:mt.full||0,sy:mt.sy||0}));}catch(e){try{lsSet('gbb_cache',null);}catch(e2){}}},1500);
 }
+function cacheGet(){var c=null;try{c=JSON.parse(lsGet('gbb_cache')||'null');}catch(e){}return c&&typeof c==='object'?c:null;}
 function cacheBoot(){
   var c=null;try{c=JSON.parse(lsGet('gbb_cache')||'null');}catch(e){}
   if(!c||!c.t||typeof c.t!=='object')return;

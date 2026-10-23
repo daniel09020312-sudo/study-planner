@@ -140,6 +140,7 @@ function roomSec(V){
   if(!S.net||S.net.mode!=='firebase'||!S.remote)return '';
   var ri=S.roomInfo||{},isAdm=!!(V.me&&adminId(V)===V.me);
   var h='<div class="sec rmsec"><h3>방</h3><div class="rmbox"><div><small>지금 방</small><b>'+esc(roomName())+'</b></div><div><small>참여 코드</small><b class="rmcode">'+(ri.code?fmtCode(ri.code):'만드는 중')+'</b></div></div>';
+  if(S.net.size)h+='<p class="hint rmsz">이 방 기록 '+fmtBytes(S.net.size())+' · 이 기기가 이번 달 받은 양 '+fmtBytes(dlMonth())+'</p>';
   h+='<div class="row" style="margin-top:10px"><button class="btn small primary" data-act="open" data-modal="invite"'+(ri.code?'':' disabled')+'>친구 초대하기</button>'+(isAdm&&ri.code?'<button class="btn small" data-act="open" data-modal="roomadm">방 이름, 코드 바꾸기</button>':'')+(isStandalone()?'':'<button class="btn small" data-act="open" data-modal="a2hs">앱으로 추가하기</button>')+'</div>';
   h+='<div class="rmacts"><button class="rmact mv" data-act="open" data-modal="rooms"><i aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 8h13M13 4l4 4-4 4M20 16H7M11 12l-4 4 4 4"/></svg></i><span><b>방 옮기기</b><small>다른 방으로 가기</small></span></button>';
   h+='<button class="rmact nw" data-act="open" data-modal="newroom"><i aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></i><span><b>새로운 방 만들기</b><small>기록은 새로 시작</small></span></button></div></div>';

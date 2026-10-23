@@ -119,6 +119,11 @@ def route(route_, request):
                 val = json.loads(request.post_data or 'null')
                 set_at(path, val)
                 resp = (200, CORS, 'application/json', json.dumps(val, ensure_ascii=False))
+            elif m == 'PATCH':
+                body = json.loads(request.post_data or '{}') or {}
+                for k, v in body.items():
+                    set_at(path.rstrip('/') + '/' + k, v)
+                resp = (200, CORS, 'application/json', json.dumps(body, ensure_ascii=False))
             elif m == 'DELETE':
                 set_at(path, None)
                 resp = (200, CORS, 'application/json', 'null')
