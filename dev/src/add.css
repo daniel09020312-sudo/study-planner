@@ -827,3 +827,11 @@ html.wkdragging,html.wkdragging *{cursor:grabbing !important}
 .schtimes .ttpend{margin:2px 0 6px}
 /* v31: 고정 일정(학원 등) 과목은 색 없이 글로 */
 .ttb.fx .tbs{font-size:11px;font-weight:700;color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* v33: 시간표 잠금 */
+.ttlock{display:inline-flex;align-items:center;gap:5px}
+.ttlock svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.ttlock[aria-pressed="true"]{background:var(--ink);color:var(--surface)}
+.ttlock[aria-pressed="true"] svg rect{fill:currentColor}
+.ttcol.lk{cursor:default}
+.ttchip[aria-disabled="true"]{cursor:default}
+.ttlkh{margin-top:12px}

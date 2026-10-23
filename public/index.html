@@ -1349,6 +1349,14 @@ html.wkdragging,html.wkdragging *{cursor:grabbing !important}
 .schtimes .ttpend{margin:2px 0 6px}
 /* v31: 고정 일정(학원 등) 과목은 색 없이 글로 */
 .ttb.fx .tbs{font-size:11px;font-weight:700;color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* v33: 시간표 잠금 */
+.ttlock{display:inline-flex;align-items:center;gap:5px}
+.ttlock svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.ttlock[aria-pressed="true"]{background:var(--ink);color:var(--surface)}
+.ttlock[aria-pressed="true"] svg rect{fill:currentColor}
+.ttcol.lk{cursor:default}
+.ttchip[aria-disabled="true"]{cursor:default}
+.ttlkh{margin-top:12px}
 #splash{position:fixed;inset:0;z-index:200;overflow:hidden;-webkit-tap-highlight-color:transparent}
 .spcv{position:absolute;inset:0;display:block;width:100%;height:100%;overflow:visible}
 .spcur,.sphole{fill:var(--bg)}
@@ -2614,7 +2622,7 @@ function viewTT(V){
   h+='</div><div class="vacts">'+calModeSeg()+(dd>0?'<span class="pill">2차 시험<b>D-'+dd+'</b></span>':'')+'</div></header>';
   var cols=days.map(function(d){
     var day=dayOf(V,V.me,d),mode=modeOf(d);
-    return {d:d,day:day,mode:mode,ro:mode==='view',fx:(function(f,sc){return sc.length?f.filter(function(b){return b.k!=='school';}):f;})(fixedOn(V,d),schItems(V,d)),sc:schItems(V,d),offN:fixedOn(V,d,true).filter(function(b){return b.off;}).length,
+    return {d:d,day:day,mode:mode,ro:mode==='view',lk:mode!=='view'&&ttLocked(),fx:(function(f,sc){return sc.length?f.filter(function(b){return b.k!=='school';}):f;})(fixedOn(V,d),schItems(V,d)),sc:schItems(V,d),offN:fixedOn(V,d,true).filter(function(b){return b.off;}).length,
       pl:day.goals.filter(placed),un:day.goals.filter(function(g){return !placed(g)&&!g.done&&!g.mv;})};
   });
   var r0=5*60,r1=29*60; // 새벽 5시부터 다음 날 새벽 5시까지(24시간)
@@ -2625,9 +2633,9 @@ function viewTT(V){
   if(hasT)auto=nm-60;
   else{var ends=[];cols.forEach(function(c){c.fx.forEach(function(b){if(b.k==='school')ends.push(b.e);});});auto=ends.length?Math.min.apply(null,ends)-30:9*60;}
   auto=Math.max(r0,Math.min(r1,auto));
-  var fillable=0;cols.forEach(function(c){if(!c.ro&&c.d>=t)fillable+=c.un.length;});
+  var fillable=0;cols.forEach(function(c){if(!c.ro&&!c.lk&&c.d>=t)fillable+=c.un.length;});
   h+='<div class="vbody'+(S.vbDir?' side':'')+'" id="vb-tt-'+days[0]+'-'+n+'" style="--vd:'+S.vbDir+'"><section class="card ttcard" id="c-tt" style="--k:0">';
-  h+='<div class="tttools"><div class="seg mini ttspan" style="--i:'+[1,3,7].indexOf(n)+';--n:3" role="group" aria-label="며칠씩 볼지">'+[[1,'1일'],[3,'3일'],[7,'7일']].map(function(x){return '<button data-act="tt-span" data-v="'+x[0]+'" aria-pressed="'+(n===x[0]?'true':'false')+'">'+x[1]+'</button>';}).join('')+'</div><div class="acts">'+(fillable?'<button class="btn small soft" data-act="tt-fill">빈 시간에 채우기</button>':'')+'<button class="btn small" data-act="open" data-modal="school">학교 시간표</button><button class="btn small" data-act="open" data-modal="ttset">고정 시간표</button></div></div>';
+  h+='<div class="tttools"><div class="seg mini ttspan" style="--i:'+[1,3,7].indexOf(n)+';--n:3" role="group" aria-label="며칠씩 볼지">'+[[1,'1일'],[3,'3일'],[7,'7일']].map(function(x){return '<button data-act="tt-span" data-v="'+x[0]+'" aria-pressed="'+(n===x[0]?'true':'false')+'">'+x[1]+'</button>';}).join('')+'</div><div class="acts"><button class="btn small ttlock" data-act="tt-lock" aria-pressed="'+(ttLocked()?'true':'false')+'" aria-label="시간표 잠금"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2.5"/><path d="M8 10.5V8a4 4 0 0 1 8 0'+(ttLocked()?'v2.5':'')+'"/></svg><span>'+(ttLocked()?'잠김':'잠금')+'</span></button>'+(fillable?'<button class="btn small soft" data-act="tt-fill">빈 시간에 채우기</button>':'')+'<button class="btn small" data-act="open" data-modal="school">학교 시간표</button><button class="btn small" data-act="open" data-modal="ttset">고정 시간표</button></div></div>';
   if(!T.b.length)h+='<div class="ttnote"><p>학교와 학원 시간을 먼저 넣어 두면 남는 시간에 할 일을 놓을 수 있습니다.</p><button class="btn small primary" data-act="open" data-modal="ttset">고정 시간표 넣기</button></div>';
   if(S.ttPick){var pg=dayOf(V,V.me,S.ttPick.d).goals.filter(function(g){return g.id===S.ttPick.id;})[0];
     if(pg)h+='<div class="ttpickbar" role="status" style="--sc:'+goalCol(V,pg)+'"><i></i><span><b>'+esc(cut(pg.text,28))+'</b> 놓을 시간을 누르세요</span><button class="btn small" data-act="tt-pick-x">취소</button></div>';else S.ttPick=null;}
@@ -2636,8 +2644,8 @@ function viewTT(V){
   cols.forEach(function(c){
     var dt=pd(c.d),g=c.day.goals,dn=g.filter(isDone).length,off=dt.getDay()===0||(EVENTS[c.d]&&EVENTS[c.d].off);
     h+='<div class="tth'+(c.d===t?' today':'')+(off?' sun':'')+(c.ro?' past':'')+'"><button class="tthd" data-act="tt-day" data-d="'+c.d+'" aria-label="'+esc(longDate(c.d))+(n===1?', 여러 날 보기로 돌아가기':', 이 날만 크게 보기')+'"><small>'+DOW[dt.getDay()]+'</small><b>'+dt.getDate()+'</b>'+(g.length?'<em>'+dn+'/'+g.length+'</em>':'')+'</button><div class="ttq" id="tq-'+c.d+'">';
-    if(!c.ro)c.un.forEach(function(x){var on=!!(S.ttPick&&S.ttPick.id===x.id);h+='<button class="ttchip'+(on?' on':'')+'" id="tqc-'+esc(x.id)+'" data-act="tt-pick" data-tdrag="q" data-d="'+c.d+'" data-id="'+esc(x.id)+'" data-dur="60" style="--sc:'+goalCol(V,x)+'" aria-pressed="'+(on?'true':'false')+'" aria-label="'+esc(x.text)+', 시간표에 넣기"><i></i><span>'+esc(x.text)+'</span></button>';});
-    if(c.offN&&!c.ro)h+='<button class="ttrest" data-act="tt-restore" data-d="'+c.d+'">뺀 고정 일정 '+c.offN+'개 되살리기</button>';
+    if(!c.ro)c.un.forEach(function(x){var on=!!(S.ttPick&&S.ttPick.id===x.id);h+='<button class="ttchip'+(on?' on':'')+'" id="tqc-'+esc(x.id)+'" '+(c.lk?'aria-disabled="true" ':'data-act="tt-pick" data-tdrag="q" ')+'data-d="'+c.d+'" data-id="'+esc(x.id)+'" data-dur="60" style="--sc:'+goalCol(V,x)+'" aria-pressed="'+(on?'true':'false')+'" aria-label="'+esc(x.text)+', 시간표에 넣기"><i></i><span>'+esc(x.text)+'</span></button>';});
+    if(c.offN&&!c.ro&&!c.lk)h+='<button class="ttrest" data-act="tt-restore" data-d="'+c.d+'">뺀 고정 일정 '+c.offN+'개 되살리기</button>';
     h+='</div></div>';
   });
   h+='<div class="ttax" style="height:'+tot+'px" aria-hidden="true">';
@@ -2646,9 +2654,9 @@ function viewTT(V){
   cols.forEach(function(c){
     var items=c.fx.map(function(b){return {k:'f',b:b,s:b.s,e:b.e};}).concat(c.sc.map(function(x){return {k:'sc',x:x,s:x.s,e:x.e};})).concat(c.pl.map(function(g){return {k:'g',g:g,s:+g.ts,e:+g.te};}));
     ttLanes(items);
-    h+='<div class="ttcol'+(c.ro?' ro':'')+(S.ttPick&&!c.ro?' picking':'')+(c.d===t?' today':'')+'" id="tc-'+c.d+'" data-act="tt-slot" data-d="'+c.d+'" data-r0="'+r0+'" data-r1="'+r1+'" data-hh="'+HH+'" style="height:'+tot+'px">';
+    h+='<div class="ttcol'+(c.ro?' ro':'')+(c.lk?' lk':'')+(S.ttPick&&!c.ro&&!c.lk?' picking':'')+(c.d===t?' today':'')+'" id="tc-'+c.d+'" '+(c.lk?'':'data-act="tt-slot" ')+'data-d="'+c.d+'" data-r0="'+r0+'" data-r1="'+r1+'" data-hh="'+HH+'" style="height:'+tot+'px">';
     items.forEach(function(it){
-      var top=px(it.s),ht=Math.max(16,px(it.e)-top),pos='top:'+top+'px;height:'+ht+'px;left:calc('+it.lane+' * 100% / '+it.lanes+');width:calc(100% / '+it.lanes+');--lc:'+Math.max(1,Math.min(4,Math.floor((ht-23)/16))),cls=(ht<30?' sm':'')+(ht<20?' xs':''),tm=fmtHM(it.s)+'~'+fmtHM(it.e),dr=c.ro?'':' data-tdrag="'+it.k+'"';
+      var top=px(it.s),ht=Math.max(16,px(it.e)-top),pos='top:'+top+'px;height:'+ht+'px;left:calc('+it.lane+' * 100% / '+it.lanes+');width:calc(100% / '+it.lanes+');--lc:'+Math.max(1,Math.min(4,Math.floor((ht-23)/16))),cls=(ht<30?' sm':'')+(ht<20?' xs':''),tm=fmtHM(it.s)+'~'+fmtHM(it.e),dr=c.ro||c.lk?'':' data-tdrag="'+it.k+'"';
       var dat=' data-d="'+c.d+'" data-s="'+it.s+'" data-e="'+it.e+'" data-dur="'+(it.e-it.s)+'"';
       if(it.k==='sc'){
         var sx=it.x,scc=sx.c,scn=(sx.i+1)+(sx.j>sx.i?'~'+(sx.j+1):'')+'교시',scol=SGRAY,sml=[scc.r,tm].filter(Boolean).join(' · ');
@@ -2656,22 +2664,24 @@ function viewTT(V){
       }else if(it.k==='f'){
         var b=it.b,lab=b.t||TTK[b.k],per=b.k==='school'?schPeriods(V,c.d,b):[],ps='';
         per.forEach(function(x){ps+='<i class="tper" style="top:'+(px(x.s)-px(b.s))+'px;height:'+Math.max(10,px(x.e)-px(x.s))+'px;--pc:'+SGRAY+'" aria-hidden="true"><b>'+(x.i+1)+'</b>'+esc(x.c.name)+'</i>';});
-        h+='<div class="ttb fx k-'+b.k+cls+(b.moved?' moved':'')+''+(per.length?' hasp':'')+'" id="tb-'+esc(b.id)+'-'+c.d+'" role="button" tabindex="0" data-act="tt-open" data-k="f" data-id="'+esc(b.id)+'"'+dr+dat+' style="'+pos+''+'" aria-label="'+esc(lab+', '+tm)+'">'+ps+'<span class="tbt">'+esc(lab)+'</span><small>'+tm+'</small>'+(fxSubs(V,b).length?'<small class="tbs">'+esc(fxSubs(V,b).map(function(s){return n===1?V.subName[s]:subAbbr(V,s);}).join(' · '))+'</small>':'')+(c.ro?'':'<i class="tbr" aria-hidden="true"></i>')+'</div>';
+        h+='<div class="ttb fx k-'+b.k+cls+(b.moved?' moved':'')+''+(per.length?' hasp':'')+'" id="tb-'+esc(b.id)+'-'+c.d+'" role="button" tabindex="0" data-act="tt-open" data-k="f" data-id="'+esc(b.id)+'"'+dr+dat+' style="'+pos+''+'" aria-label="'+esc(lab+', '+tm)+'">'+ps+'<span class="tbt">'+esc(lab)+'</span><small>'+tm+'</small>'+(fxSubs(V,b).length?'<small class="tbs">'+esc(fxSubs(V,b).map(function(s){return n===1?V.subName[s]:subAbbr(V,s);}).join(' · '))+'</small>':'')+(c.ro||c.lk?'':'<i class="tbr" aria-hidden="true"></i>')+'</div>';
       }else{
         var g=it.g,sub=g.sid&&V.subName[g.sid];
-        h+='<div class="ttb td'+cls+(g.done?' done':'')+'" id="tb-'+esc(g.id)+'" role="button" tabindex="0" data-act="tt-open" data-k="g" data-id="'+esc(g.id)+'"'+dr+dat+' style="'+pos+';--sc:'+goalCol(V,g)+'" aria-label="'+esc(g.text+', '+tm)+'">'+(c.mode==='full'?'<button class="ttbchk'+(g.done?' on':'')+'" data-act="goal-toggle" data-date="'+c.d+'" data-id="'+esc(g.id)+'" aria-pressed="'+(g.done?'true':'false')+'" aria-label="'+esc(g.text)+' 완료 표시"><span></span></button>':'')+'<span class="tbt">'+esc(g.text)+'</span><small>'+tm+(sub?' · '+esc(sub):'')+'</small>'+(c.ro?'':'<i class="tbr" aria-hidden="true"></i>')+'</div>';
+        h+='<div class="ttb td'+cls+(g.done?' done':'')+'" id="tb-'+esc(g.id)+'" role="button" tabindex="0" data-act="tt-open" data-k="g" data-id="'+esc(g.id)+'"'+dr+dat+' style="'+pos+';--sc:'+goalCol(V,g)+'" aria-label="'+esc(g.text+', '+tm)+'">'+(c.mode==='full'?'<button class="ttbchk'+(g.done?' on':'')+'" data-act="goal-toggle" data-date="'+c.d+'" data-id="'+esc(g.id)+'" aria-pressed="'+(g.done?'true':'false')+'" aria-label="'+esc(g.text)+' 완료 표시"><span></span></button>':'')+'<span class="tbt">'+esc(g.text)+'</span><small>'+tm+(sub?' · '+esc(sub):'')+'</small>'+(c.ro||c.lk?'':'<i class="tbr" aria-hidden="true"></i>')+'</div>';
       }
     });
     if(c.d===t&&nm>=r0&&nm<=r1)h+='<div class="ttnow" style="top:'+px(nm)+'px" aria-hidden="true"></div>';
     h+='</div>';
   });
   h+='</div></div>';
-  h+='<p class="hint tthint">빈 곳을 누르면 그 시간에 넣을 할 일을 고를 수 있습니다. 블록을 꾹 눌러 끌면 옮겨지고, 아래 끝을 끌면 길이가 바뀝니다.</p>';
+  h+='<p class="hint tthint">'+(ttLocked()?'시간표가 잠겨 있어 끌거나 눌러도 바뀌지 않습니다. 블록을 누르면 내용만 보입니다. 고치려면 위의 잠김을 눌러 푸세요.':'빈 곳을 누르면 그 시간에 넣을 할 일을 고를 수 있습니다. 블록을 꾹 눌러 끌면 옮겨지고, 아래 끝을 끌면 길이가 바뀝니다.')+'</p>';
   return h+'</section></div></div>';
 }
 
 /* ---------- 시간표 바꾸기 ---------- */
+function ttLocked(){return lsGet('gbb_ttlock')==='1';}
 function ttCommit(kind,from,id,s,e,to){
+  if(ttLocked()){S.ttPick=null;render();return;}
   var V=view();S.ttPick=null;
   if(!V.me||!need()){render();return;}
   if(kind==='f'){
@@ -2694,7 +2704,7 @@ function ttCommit(kind,from,id,s,e,to){
   render();
 }
 function ttFill(){
-  var V=view();if(!V.me||!need())return;
+  var V=view();if(!V.me||ttLocked()||!need())return;
   var t=today(),win=ttWin(V),nm=nowMin(),paths=[],plan=[],left=0,n=0;
   ttDays().filter(function(d){return d>=t;}).forEach(function(d){
     var day=dayOf(V,V.me,d),un=day.goals.filter(function(g){return !placed(g)&&!g.done&&!g.mv;});if(!un.length)return;
@@ -2742,18 +2752,19 @@ function modalTTG(V){
   var g=ttSelGoal();if(!g){S.modal=null;return '';}
   var d=S.ttSel.d,mode=modeOf(d),sub=g.sid&&V.subName[g.sid],on=placed(g),s=on?+g.ts:null,e=on?+g.te:null;
   var b='<div class="ttsum" style="--sc:'+goalCol(V,g)+'"><i></i><div><b>'+esc(g.text)+'</b><small>'+esc(longDate(d))+(sub?' · '+esc(sub):'')+(g.done?' · 끝냄':'')+'</small></div></div>';
-  if(mode!=='view'){
+  if(mode!=='view'&&ttLocked())b+='<p class="hint ttlkh">시간표가 잠겨 있어 시간을 바꿀 수 없습니다. 시간표 위의 잠김을 누르면 풀립니다.</p>';
+  if(mode!=='view'&&!ttLocked()){
     b+='<div class="fld"><h3>시간</h3>'+ttTimeRow('ttg-time',s,e,false,'ttg|'+d+'|'+g.id)+'<div class="chips" style="margin-top:10px">'+TT_DURS.map(function(x){return '<button class="chip" data-act="ttg-dur" data-m="'+x[0]+'" aria-pressed="'+(on&&!ttPendOf('ttg|'+d+'|'+g.id)&&e-s===x[0]?'true':'false')+'">'+x[1]+'</button>';}).join('')+'</div></div>';
   }
-  var f='<div class="df">'+(on&&mode!=='view'?'<button class="btn" data-act="ttg-off">시간표에서 빼기</button>':'')+'<button class="btn" data-act="ttg-cal">달력에서 열기</button>'+(mode==='full'?'<button class="btn primary" data-act="goal-toggle" data-date="'+d+'" data-id="'+esc(g.id)+'">'+(g.done?'완료 취소':'끝냈어요')+'</button>':'')+'</div>';
+  var f='<div class="df">'+(on&&mode!=='view'&&!ttLocked()?'<button class="btn" data-act="ttg-off">시간표에서 빼기</button>':'')+'<button class="btn" data-act="ttg-cal">달력에서 열기</button>'+(mode==='full'?'<button class="btn primary" data-act="goal-toggle" data-date="'+d+'" data-id="'+esc(g.id)+'">'+(g.done?'완료 취소':'끝냈어요')+'</button>':'')+'</div>';
   return dlg('',{id:'ttg',t:'할 일 시간'},b,f);
 }
 function modalTTF(V){
   var x=ttSelFixed();if(!x){S.modal=null;return '';}
-  var d=S.ttSel.d,lab=x.t||TTK[x.k],ro=modeOf(d)==='view',dws=x.tpl?[1,2,3,4,5,6,0].filter(function(i){return x.dw.charAt(i)==='1';}).map(function(i){return DOW[i];}).join(' '):'';
+  var d=S.ttSel.d,lab=x.t||TTK[x.k],ro=modeOf(d)==='view'||ttLocked(),dws=x.tpl?[1,2,3,4,5,6,0].filter(function(i){return x.dw.charAt(i)==='1';}).map(function(i){return DOW[i];}).join(' '):'';
   var b='<div class="ttsum fx k-'+x.k+'"'+'><i></i><div><b>'+esc(lab)+'</b><small>'+esc(TTK[x.k])+(fxSubs(V,x).length?' · '+esc(fxNames(V,fxSubs(V,x))):'')+' · '+(x.tpl?'매주 '+esc(dws)+' '+fmtHM(x.bs)+'~'+fmtHM(x.be):'이 날만 있는 일정')+'</small></div></div>';
   if(x.off)b+='<p class="hint" style="margin-top:12px">이 날은 빼 두었습니다.</p>';
-  else b+='<div class="fld"><h3>'+esc(shortDate(d)+' '+DOW[pd(d).getDay()]+'요일')+' 시간'+(x.tpl?'<small>여기서 바꾸면 이 날만 바뀝니다</small>':'')+'</h3>'+ttTimeRow('ttf-time',x.s,x.e,ro,'ttf|'+d+'|'+x.id)+'</div>';
+  else b+='<div class="fld"><h3>'+esc(shortDate(d)+' '+DOW[pd(d).getDay()]+'요일')+' 시간'+(x.tpl?'<small>여기서 바꾸면 이 날만 바뀝니다</small>':'')+'</h3>'+ttTimeRow('ttf-time',x.s,x.e,ro,'ttf|'+d+'|'+x.id)+'</div>'+(ttLocked()&&modeOf(d)!=='view'?'<p class="hint ttlkh">시간표가 잠겨 있어 시간을 바꿀 수 없습니다. 시간표 위의 잠김을 누르면 풀립니다.</p>':'');
   if(x.k==='school'){var sl0=schLine(V,d);b+='<div class="fld"><h3>이 날 교시</h3>'+(sl0?'<div class="schline">'+sl0+'</div>':'<p class="hint">학교 시간표를 넣으면 교시별 과목이 여기에 보입니다.</p>')+'</div>';}
   var f=ro?(x.k==='school'?'<div class="df"><button class="btn" data-act="open" data-modal="school">학교 시간표</button></div>':''):'<div class="df">'+(x.k==='school'?'<button class="btn" data-act="open" data-modal="school">학교 시간표</button>':'')+(x.moved?'<button class="btn" data-act="ttf-reset">원래 시간으로</button>':'')+(x.off?'':'<button class="btn" data-act="ttf-off">'+(x.one?'지우기':'이 날만 빼기')+'</button>')+(x.tpl?'<button class="btn primary" data-act="ttf-edit">매주 시간표 고치기</button>':'')+'</div>';
   return dlg('',{id:'ttf',t:'고정 일정'},b,f);
@@ -3638,7 +3649,7 @@ document.addEventListener('change',function(e){
 
 /* ---------- 처음 화면 ---------- */
 // 앱이 준비되면 알린다. 그림이 아직이면 다 그린 뒤에 열리고, 그림이 먼저 끝났으면 바로 열린다
-var APP_BUILD='1792740025';
+var APP_BUILD='1792740277';
 function splashDone(){
   var sp=document.getElementById('splash'),st=window.__sp;if(!sp||sp.getAttribute('data-out'))return;
   sp.setAttribute('data-out','1');
@@ -5013,7 +5024,7 @@ function modalSettings(V){
   [[22,'밤 10시'],[23,'밤 11시'],[24,'자정'],[25,'다음 날 새벽 1시'],[26,'다음 날 새벽 2시']].forEach(function(o){b+='<option value="'+o[0]+'"'+(V.certHour===o[0]?' selected':'')+'>'+o[1]+'</option>';});
   b+='</select>';
   b+='</div><div class="sec"><h3>키보드 단축키<small>키보드를 연결했을 때</small></h3><ul class="kbd">'+[['1 ~ 8','달력부터 메시지까지 화면 이동'],['N','할 일 추가'],['D','마감 있는 할 일 추가'],['L','달력, 할 일, 시간표 차례로 바꿔 보기'],['T','타이머 켜기, 끄기'],['F','타이머 크게 보기'],['Esc','창 닫기']].map(function(x){return '<li><kbd>'+x[0]+'</kbd><span>'+x[1]+'</span></li>';}).join('')+'</ul></div><div class="sec"><h3>저장 위치</h3><p class="hint">'+esc(S.net?({claude:'Claude 공유 저장소에 연결되어 있습니다. Claude에 로그인한 참여 인원끼리 실시간으로 같이 봅니다.',firebase:'공유 저장소에 연결되어 있습니다. 참여 코드로 들어온 사람 모두가 실시간으로 같이 봅니다.',local:'지금은 이 기기에만 저장됩니다. 다른 사람과 같이 보려면 공유 저장소 연결이 필요합니다.'}[S.net.mode]):'연결 중입니다.')+'</p>'+(S.net&&S.net.mode==='firebase'&&S.remote?'<div class="row" style="margin-top:10px"><button class="btn small" data-act="import-pick">기록 가져오기</button><button class="btn small" data-act="export-data">기록 파일로 저장</button><button class="del" data-act="setup-reset">'+(S.confirm==='disc'?'한 번 더 누르면 이 방에서 나갑니다':'이 기기에서 이 방 나가기')+'</button></div><p class="hint" style="margin-top:8px">'+esc(S.importMsg||'친구와 내 다른 기기는 위의 친구 초대하기로 들어옵니다. 기록 가져오기는 처음 연결한 뒤 한 번만 하면 됩니다.')+'</p>':'')+'</div>';
-  b+='<p class="hint appver">앱 버전 10월 23일 16:20</p>';
+  b+='<p class="hint appver">앱 버전 10월 23일 16:24</p>';
   return dlg('wide',{id:'settings',t:'설정'},b);
 }
 function modalCheck(V){
@@ -5659,7 +5670,7 @@ function act(name,el){
     case 'tt-pick':S.ttPick=S.ttPick&&S.ttPick.id===id?null:{d:el.getAttribute('data-d'),id:id};break;
     case 'tt-pick-x':S.ttPick=null;break;
     case 'tt-slot':{
-      if(el.classList.contains('ro'))break;
+      if(el.classList.contains('ro')||ttLocked())break;
       var sd=el.getAttribute('data-d'),r0s=+el.getAttribute('data-r0'),r1s=+el.getAttribute('data-r1'),hhs=+el.getAttribute('data-hh'),rc=el.getBoundingClientRect(),ms=r0s+((S.pt?S.pt.y:rc.top)-rc.top)*60/hhs;
       ms=Math.max(r0s,Math.min(r1s-60,Math.floor(ms/30)*30));
       if(S.ttPick){var pk=S.ttPick;S.ttPick=null;ttCommit('q',pk.d,pk.id,ms,ms+60,sd);return;}
@@ -5710,6 +5721,7 @@ function act(name,el){
     }
     case 'scol':{var sv=el.getAttribute('data-v');editProg(function(p){var c=obj(p.scol);c[id]=sv;p.scol=c;});break;}
     case 'tt-fill':ttFill();break;
+    case 'tt-lock':{var tlk=!ttLocked();lsSet('gbb_ttlock',tlk?'1':null);S.ttPick=null;flash(tlk?'시간표를 잠갔습니다. 끌거나 눌러도 바뀌지 않습니다.':'시간표 잠금을 풀었습니다.');break;}
     case 'sch-who':S.schWho=id;S.schSel=null;break;
     case 'sch-sel':{schMetaFromInputs(S.schSel);var sd0=+el.getAttribute('data-d'),si0=+el.getAttribute('data-i');S.schSel=S.schSel&&S.schSel.d===sd0&&S.schSel.i===si0?null:{d:sd0,i:si0};break;}
     case 'sch-put':case 'sch-text':{
