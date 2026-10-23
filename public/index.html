@@ -1362,6 +1362,84 @@ html.wkdragging,html.wkdragging *{cursor:grabbing !important}
 .ttcol.lk{cursor:default}
 .ttchip[aria-disabled="true"]{cursor:default}
 .ttlkh{margin-top:12px}
+/* ===== v34 상점: 잉크 ===== */
+:root{--inkc:#4F46E5;--inkc2:#8B5CF6;--inkon:#FFFFFF}
+[data-mode="dark"]{--inkc:#8E8CF9;--inkc2:#B39BFF;--inkon:#14123A}
+.inkd{width:1em;height:1em;flex:none;overflow:visible}
+.inkd path:first-child{fill:var(--inkc)}
+.inkd .hl{fill:none;stroke:color-mix(in srgb,#fff 75%,transparent);stroke-width:1.6;stroke-linecap:round}
+.inkt{display:inline-flex;align-items:center;gap:3px;font-variant-numeric:tabular-nums;font-weight:800;line-height:1}
+.inkt .inkd{width:14px;height:14px}
+/* 왼쪽 줄의 상점 단추 (설정 바로 위) */
+.shopbtn{margin-top:auto;background:none;border:0;padding:6px 4px 8px;display:grid;justify-items:center;gap:5px;font-size:11px;font-weight:600;color:var(--ink-3);transition:color .2s}
+.shopbtn svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.shopbtn:hover{color:var(--ink)}
+.shopbtn + .mebtn{margin-top:4px}
+@media (max-width:699px){.shopbtn{margin:0;align-self:center;padding:0 8px 0 2px}.shopbtn span{display:none}.shopbtn + .mebtn{margin:0}}
+/* 지갑 */
+.wallet{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:16px 18px;border-radius:18px;background:linear-gradient(135deg,color-mix(in srgb,var(--inkc) 15%,var(--surface)),color-mix(in srgb,var(--inkc2) 7%,var(--surface)));box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--inkc) 22%,transparent)}
+.wl{display:flex;align-items:center;gap:12px}
+.wl > .inkd{width:46px;height:46px;filter:drop-shadow(0 6px 10px color-mix(in srgb,var(--inkc) 35%,transparent));animation:inkBob 3.2s var(--ease) infinite}
+@keyframes inkBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+.wl small{display:block;font-size:12px;color:var(--ink-2);font-weight:600}
+.wl b{display:block;font-size:32px;font-weight:800;letter-spacing:-.02em;font-variant-numeric:tabular-nums;line-height:1.1;color:var(--ink)}
+.wl b em{font-style:normal;font-size:14px;font-weight:700;margin-left:3px;color:var(--ink-2)}
+.wr{margin:0;display:grid;gap:4px;justify-items:end;text-align:right;font-size:13px;color:var(--ink-2);font-weight:600}
+.wr small{font-size:12px;color:var(--ink-3);font-weight:500}
+.wt{display:inline-block;width:max-content;justify-self:end;margin-left:6px;padding:2px 8px;border-radius:999px;background:var(--inkc);color:var(--inkon);font-size:11.5px;font-weight:800;font-variant-numeric:tabular-nums}
+@media (max-width:520px){.wr{justify-items:start;text-align:left}.wt{justify-self:start;margin-left:0}}
+.seg.mini.shcats{position:relative;gap:0;margin:16px 0 12px;grid-template-columns:repeat(var(--n),minmax(0,1fr))}
+.seg.mini.shcats::before{content:"";position:absolute;top:3px;bottom:3px;left:3px;width:calc((100% - 6px) / var(--n));border-radius:9px;background:var(--accent);transform:translateX(calc(var(--i,0) * 100%));transition:transform .45s var(--spring)}
+.seg.mini.shcats button{position:relative;z-index:1;background:none !important;white-space:nowrap;padding:0 4px}
+.seg.mini.shcats button[aria-pressed="true"]{color:var(--on-accent)}
+/* 물건 */
+.shgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.shi{display:grid;gap:8px;padding:10px;border-radius:16px;background:var(--surface);box-shadow:inset 0 0 0 1px var(--line);align-content:start;animation:rowIn .35s var(--ease) both}
+.shi.foc{box-shadow:inset 0 0 0 2px var(--inkc)}
+.shi .shpv{display:block;width:100%;aspect-ratio:3/2;border-radius:11px;overflow:hidden}
+.shn b{display:block;font-size:14.5px;line-height:1.3}
+.shn small{display:block;font-size:12px;color:var(--ink-2);margin-top:2px;line-height:1.4}
+.sha{display:flex;align-items:center;gap:8px;flex-wrap:wrap;min-height:34px}
+.shbuy{display:inline-flex;align-items:center;justify-content:center;gap:4px;min-height:34px;padding:0 14px;border:0;border-radius:999px;background:var(--inkc);color:var(--inkon);font:inherit;font-size:13px;font-weight:800;cursor:pointer;transition:transform .3s var(--spring),background .2s}
+.shbuy:active{transform:scale(.94)}
+.shbuy .inkd path:first-child{fill:var(--inkon)}
+.shbuy .inkd .hl{stroke:var(--inkc)}
+.shbuy.cf{background:var(--ink);color:var(--surface)}
+.shbuy:disabled{background:var(--fill);color:var(--ink-3);cursor:default}
+.shbuy:disabled .inkd path:first-child{fill:var(--ink-3)}
+.shbuy:disabled .inkd .hl{stroke:var(--fill)}
+.shlack{font-size:12px;color:var(--ink-3)}
+.shst{font-size:12.5px;font-weight:700;color:var(--ink-2)}
+.shst.on{color:var(--accent-ink)}
+.shcol{display:flex !important;align-items:center;justify-content:center;gap:12px;background:var(--s)}
+.shcol i{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--a) 50%,var(--b) 50%);box-shadow:0 0 0 3px #fff,0 2px 8px rgba(0,0,0,.12)}
+.shcol u{text-decoration:none;padding:7px 12px;border-radius:999px;background:var(--a);color:#fff;font-size:12px;font-weight:700}
+.shstk{display:grid !important;grid-template-columns:repeat(4,minmax(0,1fr));align-items:center;gap:4px;padding:8px;background:var(--fill)}
+.shstk img{display:block;width:100%;height:auto;aspect-ratio:1;object-fit:contain}
+.shgrid.wide{grid-template-columns:1fr}
+.shgrid.wide .shi{grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);align-items:center;gap:10px 14px}
+.shgrid.wide .shi .shpv{aspect-ratio:auto;grid-row:span 2}
+.shgrid.wide .shpeek,.shgrid.wide .shall{grid-column:1/-1}
+@media (max-width:520px){.shgrid.wide .shi{grid-template-columns:1fr}.shgrid.wide .shi .shpv{grid-row:auto}}
+.shpeek{justify-self:start;border:0;background:none;padding:2px 0;font:inherit;font-size:13px;font-weight:700;color:var(--accent-ink);cursor:pointer}
+.shall{display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:8px;padding-top:2px;animation:rowIn .35s var(--ease) both}
+.shall .stk{width:auto;height:auto;display:grid;justify-items:center;gap:2px;border-radius:12px;background:var(--fill);padding:6px 4px 8px}
+.shall .stk img{width:76px;height:76px;animation-iteration-count:infinite}
+.shall small{font-size:11.5px;color:var(--ink-2);text-align:center}
+/* 설정 화면: 안 산 것 */
+.shrow{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:2px 0 12px;padding:9px 12px;border-radius:12px;background:color-mix(in srgb,var(--inkc) 8%,var(--surface));font-size:13px;color:var(--ink-2)}
+.shrow span{display:flex;align-items:center;gap:6px}
+.shrow .inkd{width:16px;height:16px}
+.cv.lk .cvp,.cv.lk .tsp{opacity:.62}
+.lkp{font-style:normal;font-size:11.5px;color:var(--ink-2)}
+.sw.lk{position:relative;opacity:.5}
+.sw.lk::after{content:"";position:absolute;inset:0;margin:auto;width:16px;height:16px;border-radius:50%;background:var(--surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23555' stroke-width='2.4' stroke-linecap='round'%3E%3Crect x='6' y='11' width='12' height='9' rx='2'/%3E%3Cpath d='M9 11V8.5a3 3 0 0 1 6 0V11'/%3E%3C/svg%3E") center/11px no-repeat}
+/* 메시지 이모티콘: 안 산 팩 */
+.stkpick .seg .lki{width:13px;height:13px;margin-right:3px;vertical-align:-2px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+.stklock{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:10px 12px;border-radius:12px;background:color-mix(in srgb,var(--inkc) 9%,var(--surface));font-size:13px;color:var(--ink-2)}
+.stkgrid.lockd .stkbtn{opacity:.55;cursor:default;width:100%;height:auto}
+.stkgrid.lockd .stkbtn img{animation-iteration-count:infinite}
+@media (prefers-reduced-motion:reduce){.wl > .inkd,.shall .stk img,.stkgrid.lockd .stkbtn img{animation:none}.seg.mini.shcats::before{transition:none}}
 #splash{position:fixed;inset:0;z-index:200;overflow:hidden;-webkit-tap-highlight-color:transparent}
 .spcv{position:absolute;inset:0;display:block;width:100%;height:100%;overflow:visible}
 .spcur,.sphole{fill:var(--bg)}
@@ -1567,6 +1645,7 @@ run(sp0,false);
       <button data-act="tab" data-tab="board"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 6.5h14a1.5 1.5 0 011.5 1.5v8a1.5 1.5 0 01-1.5 1.5h-7l-4 3v-3H5A1.5 1.5 0 013.5 16V8A1.5 1.5 0 015 6.5z"/></svg><span>게시판</span></button>
       <button data-act="tab" data-tab="chat"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 5.5L4 11.5l6 2.2M20 5.5l-3.5 13-6.5-4.8M20 5.5l-10 8.2v4.3l2.6-2.6"/></svg><span>메시지</span><i class="badge" id="chatBadge" hidden></i></button>
     </div>
+    <button class="shopbtn" id="shopBtn" data-act="open" data-modal="shop" aria-label="상점 열기"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5.5 8.5h13l-1 11a1.5 1.5 0 0 1-1.5 1.4H8a1.5 1.5 0 0 1-1.5-1.4z"/><path d="M9 10.5V7a3 3 0 0 1 6 0v3.5"/></svg><span>상점</span></button>
     <button class="mebtn" id="meBtn" data-act="open" data-modal="settings" aria-label="설정 열기"></button>
   </nav>
   <div class="stage">
@@ -3665,7 +3744,7 @@ document.addEventListener('change',function(e){
 
 /* ---------- 처음 화면 ---------- */
 // 앱이 준비되면 알린다. 그림이 아직이면 다 그린 뒤에 열리고, 그림이 먼저 끝났으면 바로 열린다
-var APP_BUILD='1792752144';
+var APP_BUILD='1792754732';
 function splashDone(){
   var sp=document.getElementById('splash'),st=window.__sp;if(!sp||sp.getAttribute('data-out'))return;
   sp.setAttribute('data-out','1');
@@ -3892,6 +3971,106 @@ function lockRow(L){
   else msg='켜짐. 잠금 화면에서 멈추면 타이머도 멈추고 기록됩니다. 타이머가 도는 동안 음악 앱은 멈춥니다.';
   return '<div class="lockrow"><button class="lockbtn" data-act="lock-toggle" aria-pressed="'+(on?'true':'false')+'"><i aria-hidden="true"></i><span><b>잠금 화면에 공부 시간 보이기</b><small>'+msg+'</small></span></button></div>';
 }
+
+/* ---------- 상점: 공부 10분마다 잉크 한 방울, 잉크로 모양만 바꾸는 것을 산다 ---------- */
+// 잉크는 이 방에서 공부한 시간(타이머 + 직접 넣은 시간은 하루 RULE.manualMax까지)으로 계산하고, 산 것만 progress.shop.own[물건]=값 으로 적는다.
+// 남은 잉크 = 모은 잉크 - 산 값의 합. 상점이 생기기 전에 이 기기에서 쓰던 컨셉, 대표 색, 타이머 모양은 처음 한 번 그냥 준다(shop.gf).
+// 이모티콘은 기본만 처음부터 쓰고, 장난과 감정은 팩으로 산다. 모양은 이 기기에 저장되고(예전과 같음), 산 것만 고를 수 있다.
+var INK_MIN=10;
+var SHOP_CATS=[['look','방 꾸미기'],['color','대표 색'],['timer','타이머'],['stk','이모티콘']];
+var SHOP_LOOK={grid:[150,'공책 모눈 위에 손글씨'],board:[200,'초록 칠판과 분필 글씨'],pop:[150,'동글동글 말랑한 버튼'],line:[100,'얇은 검은 선으로 또렷하게'],glass:[200,'뒤가 비치는 유리 카드'],night:[250,'별이 뜬 밤하늘']};
+var SHOP_TIMER={digits:[60,'큰 숫자만 깔끔하게'],bar:[60,'숫자 아래 줄어드는 막대'],pie:[80,'시간이 줄어드는 원판'],flip:[100,'넘어가는 넘김 시계']};
+var SHOP_STK={playful:[120,'어쩔~, 메롱, 뇌 정지 같은 장난'],emotions:[120,'신난다!, 부끄러워, 감동이야 같은 마음']};
+var INK_SVG='<svg class="inkd" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.8c3.2 4 6.2 7.6 6.2 11.2a6.2 6.2 0 0 1-12.4 0c0-3.6 3-7.2 6.2-11.2z"/><path class="hl" d="M9.4 14.6a2.8 2.8 0 0 0 2.4 2.7"/></svg>';
+var SHOP_GF=false;
+function shopItems(){
+  if(shopItems.c)return shopItems.c;var a=[];
+  CONCEPTS.forEach(function(x){var m=SHOP_LOOK[x.id];a.push({id:'c:'+x.id,v:x.id,cat:'look',name:x.name,price:m?m[0]:0,desc:m?m[1]:'처음 모양',free:x.id==='basic'});});
+  ACCENTS.forEach(function(x){a.push({id:'a:'+x.id,v:x.id,cat:'color',name:x.name,price:x.g==='p'?50:40,desc:x.g==='p'?'파스텔':'대표 색',free:x.id==='blue',ac:x});});
+  TSTYLES.forEach(function(x){var m=SHOP_TIMER[x[0]];a.push({id:'t:'+x[0],v:x[0],cat:'timer',name:x[1],price:m?m[0]:0,desc:m?m[1]:'처음 모양',free:x[0]==='ring'});});
+  STK_PACKS.forEach(function(x){var m=SHOP_STK[x[0]];a.push({id:'k:'+x[0],v:x[0],cat:'stk',name:x[1]+' 팩',price:m?m[0]:120,desc:m?m[1]:(x[0]==='basic'?'처음부터 쓰는 이모티콘':'새 이모티콘'),free:x[0]==='basic'});});
+  return shopItems.c=a;
+}
+function shopItem(id){return shopItems().filter(function(x){return x.id===id;})[0]||null;}
+function shopOwn(V){return obj(obj(obj(V.progress[V.me]).shop).own);}
+function shopOwns(V,id){var it=shopItem(id);if(!it)return false;if(it.free)return true;return V&&V.me?shopOwn(V)[id]!=null:false;}
+function inkMins(V,mid,date){
+  var pre=mid+'_',m=0;
+  Object.keys(V.days).forEach(function(k){if(k.indexOf(pre)!==0)return;if(date&&k!==pre+date)return;var d=obj(V.days[k]);m+=sumMins(d.mins)+Math.min(sumMins(d.manual),RULE.manualMax);});
+  return m;
+}
+function inkOf(V){
+  if(!V||!V.me)return {got:0,spent:0,bal:0,today:0};
+  if(V._ink)return V._ink;
+  var got=Math.floor(inkMins(V,V.me)/INK_MIN),own=shopOwn(V),spent=0;
+  Object.keys(own).forEach(function(k){spent+=Math.max(0,+own[k]||0);});
+  return V._ink={got:got,spent:spent,bal:Math.max(0,got-spent),today:Math.floor(inkMins(V,V.me,today())/INK_MIN)};
+}
+function roJ(w){w=String(w||'');var c=w.charCodeAt(w.length-1);if(!(c>=0xAC00&&c<=0xD7A3))return w+'로';var f=(c-0xAC00)%28;return w+(f&&f!==8?'으로':'로');}
+function inkTag(n){return '<span class="inkt">'+INK_SVG+'<b>'+n+'</b></span>';}
+function shopInUse(id){
+  var it=shopItem(id);if(!it)return false;
+  if(it.cat==='look')return conceptPref().id===it.v;
+  if(it.cat==='color')return accentPref().id===it.v;
+  if(it.cat==='timer')return tstyle()===it.v;
+  return false;
+}
+function shopUse(id){
+  var it=shopItem(id);if(!it)return;
+  if(it.cat==='look'){lsSet('gbb_concept',it.v);applyLook();}
+  else if(it.cat==='color'){lsSet('gbb_accent',it.v);applyLook();}
+  else if(it.cat==='timer'){S.tstyle=it.v;lsSet('gbb_tstyle',it.v);}
+  else if(it.cat==='stk'){S.stkPack=it.v;}
+}
+/* 상점이 생기기 전에 쓰던 모양은 한 번 그냥 준다 */
+function shopGf(){
+  if(SHOP_GF)return;var V=view();
+  if(!S.ready||!V||!V.me||!canWrite())return;
+  SHOP_GF=true;
+  if(obj(obj(V.progress[V.me]).shop).gf)return;
+  var give=[],c=conceptPref().id,a=accentPref().id,t=tstyle();
+  if(c!=='basic')give.push('c:'+c);if(a!=='blue')give.push('a:'+a);if(t!=='ring')give.push('t:'+t);
+  editProg(function(p){var sh=p.shop=obj(p.shop);sh.own=obj(sh.own);give.forEach(function(k){if(sh.own[k]==null)sh.own[k]=0;});sh.gf=1;});
+}
+/* 미리 보기 */
+function shopPrev(it){
+  if(it.cat==='look')return '<span class="cvp cvp-'+it.v+' shpv" aria-hidden="true"><i></i><i></i><i></i></span>';
+  if(it.cat==='color')return '<span class="shpv shcol" style="--a:'+it.ac.l.a+';--b:'+it.ac.d.a+';--s:'+it.ac.l.soft+'" aria-hidden="true"><i></i><u>공부 시작</u></span>';
+  if(it.cat==='timer')return '<span class="tsp tsp-'+it.v+' shpv" aria-hidden="true">'+TSPREV[it.v]+'</span>';
+  var ids=STK.filter(function(x){return x[0].indexOf(it.v+'-')===0;}).slice(0,4);
+  return '<span class="shpv shstk" aria-hidden="true">'+ids.map(function(x){return stkImg(x[0]);}).join('')+'</span>';
+}
+function shopBtn(V,it,ink){
+  var own=shopOwns(V,it.id),use=shopInUse(it.id);
+  if(own){
+    if(it.cat==='stk')return '<span class="shst">'+(it.free?'기본':'가지고 있음')+'</span>';
+    return use?'<span class="shst on">쓰는 중</span>':'<button class="btn small" data-act="shop-use" data-id="'+esc(it.id)+'">쓰기</button>';
+  }
+  var lack=it.price-ink.bal,cf=S.confirm==='buy:'+it.id;
+  if(lack>0)return '<button class="shbuy" disabled aria-label="'+esc(it.name)+', 잉크 '+it.price+'방울, '+lack+'방울 모자람">'+inkTag(it.price)+'</button><small class="shlack">'+lack+'방울 더</small>';
+  return '<button class="shbuy'+(cf?' cf':'')+'" data-act="shop-buy" data-id="'+esc(it.id)+'" aria-label="'+esc(it.name)+' 사기, 잉크 '+it.price+'방울">'+(cf?'한 번 더 누르면 삽니다':inkTag(it.price))+'</button>';
+}
+function modalShop(V){
+  var ink=inkOf(V),cat=S.shopCat||'look',items=shopItems().filter(function(x){return x.cat===cat;});
+  var b='<div class="wallet"><div class="wl">'+INK_SVG+'<div><small>내 잉크</small><b>'+ink.bal+'<em>방울</em></b></div></div>';
+  b+='<p class="wr">공부 10분마다 잉크 한 방울'+(ink.today?'<span class="wt">오늘 +'+ink.today+'</span>':'')+'<small>모은 잉크 '+ink.got+' · 쓴 잉크 '+ink.spent+'</small></p></div>';
+  b+='<div class="seg mini shcats" style="--i:'+SHOP_CATS.map(function(x){return x[0];}).indexOf(cat)+';--n:'+SHOP_CATS.length+'" role="group" aria-label="상품 종류">'+SHOP_CATS.map(function(x){return '<button data-act="shop-cat" data-v="'+x[0]+'" aria-pressed="'+(cat===x[0]?'true':'false')+'">'+x[1]+'</button>';}).join('')+'</div>';
+  b+='<div class="shgrid'+(cat==='stk'?' wide':'')+'" id="shg-'+cat+'">';
+  items.forEach(function(it){
+    var foc=S.shopFocus===it.id,peek=cat==='stk'&&S.shopPeek===it.id;
+    b+='<div class="shi'+(foc?' foc':'')+(shopOwns(V,it.id)?' own':'')+'" id="shi-'+esc(it.id.replace(':','-'))+'">'+shopPrev(it)+'<div class="shn"><b>'+esc(it.name)+'</b><small>'+esc(it.desc)+'</small></div><div class="sha">'+shopBtn(V,it,ink)+'</div>';
+    if(cat==='stk'){
+      b+='<button class="shpeek" data-act="shop-peek" data-id="'+esc(it.id)+'" aria-expanded="'+(peek?'true':'false')+'">'+(peek?'미리 보기 접기':'전체 미리 보기')+'</button>';
+      if(peek)b+='<div class="shall">'+STK.filter(function(x){return x[0].indexOf(it.v+'-')===0;}).map(function(x){return '<span class="stk" data-m="'+esc(x[2])+'">'+stkImg(x[0])+'<small>'+esc(x[1])+'</small></span>';}).join('')+'</div>';
+    }
+    b+='</div>';
+  });
+  b+='</div><p class="hint" style="margin-top:14px">산 것은 이 방에서 계속 쓸 수 있습니다. 모양만 바뀌고 기능과 점수는 그대로입니다. 고른 모양은 이 기기에 저장됩니다.</p>';
+  return dlg('wide',{id:'shop',t:'상점'},b);
+}
+/* 설정 화면: 안 산 것은 자물쇠와 값, 누르면 상점으로 */
+function shopLock(V,id){var it=shopItem(id);return it&&!shopOwns(V,id)?it:null;}
+function shopLockTag(it){return '<em class="lkp">'+inkTag(it.price)+'</em>';}
 
 /* ---------- 방: 참여 코드, 새 방, 방 바꾸기 (웹 판) ---------- */
 // 참여 링크: 사이트주소#join=<저장소 이름>  -> 참여 코드 6자리 -> 이름 고르기
@@ -4746,8 +4925,9 @@ function viewChat(V){
   });
   h+='</div><div id="stkSlot">';
   if(S.stkOpen&&!ed){
-    h+='<div class="stkpick" id="stkPick"><div class="seg" role="group" aria-label="이모티콘 묶음">'+STK_PACKS.map(function(p){return '<button data-act="stk-pack" data-id="'+p[0]+'" aria-pressed="'+(S.stkPack===p[0]?'true':'false')+'">'+p[1]+'</button>';}).join('')+'</div><div class="stkgrid" id="stg-'+esc(S.stkPack)+'">';
-    STK.forEach(function(x){if(x[0].indexOf(S.stkPack+'-')===0)h+='<button class="stkbtn" data-act="stk-send" data-id="'+x[0]+'" data-chan="'+esc(c)+'" aria-label="'+esc(x[1])+' 이모티콘 보내기">'+stkImg(x[0])+'</button>';});
+    h+='<div class="stkpick" id="stkPick"><div class="seg" role="group" aria-label="이모티콘 묶음">'+STK_PACKS.map(function(p){var plk=!shopOwns(V,'k:'+p[0]);return '<button data-act="stk-pack" data-id="'+p[0]+'" aria-pressed="'+(S.stkPack===p[0]?'true':'false')+'">'+(plk?'<svg class="lki" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2.5"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5"/></svg>':'')+p[1]+'</button>';}).join('')+'</div>'+(shopOwns(V,'k:'+S.stkPack)?'':(function(it){return '<div class="stklock"><span>'+esc(it.name)+'은 상점에서 잉크 '+it.price+'방울에 살 수 있습니다. 아래는 미리 보기입니다.</span><button class="btn small primary" data-act="shop-open" data-v="'+esc(it.id)+'">상점에서 보기</button></div>';})(shopItem('k:'+S.stkPack)))+'<div class="stkgrid'+(shopOwns(V,'k:'+S.stkPack)?'':' lockd')+'" id="stg-'+esc(S.stkPack)+'">';
+    var stOwn=shopOwns(V,'k:'+S.stkPack);
+    STK.forEach(function(x){if(x[0].indexOf(S.stkPack+'-')===0)h+=stOwn?'<button class="stkbtn" data-act="stk-send" data-id="'+x[0]+'" data-chan="'+esc(c)+'" aria-label="'+esc(x[1])+' 이모티콘 보내기">'+stkImg(x[0])+'</button>':'<span class="stkbtn stk" data-m="'+esc(x[2])+'" title="'+esc(x[1])+'">'+stkImg(x[0])+'</span>';});
     h+='</div></div>';
   }
   /* 입력칸이 화면 갱신 때 옮겨지지 않도록 자리(칸)를 항상 같은 순서로 둔다 */
@@ -5225,13 +5405,13 @@ function modalSettings(V){
   V.roster.forEach(function(m){b+='<button class="chip" data-act="who" data-id="'+esc(m.id)+'" aria-pressed="'+(m.id===V.me?'true':'false')+'">'+esc(V.byId[m.id].name)+'</button>';});
   b+='</div></div>';
   var tp=themePref(),acNow=accentPref().id,cNow=conceptPref();
-  function sws(g){return ACCENTS.filter(function(x){return x.g===g;}).map(function(x){return '<button class="sw" data-act="accent" data-v="'+x.id+'" style="--a:'+x.l.a+';--b:'+x.d.a+'" aria-pressed="'+(acNow===x.id?'true':'false')+'" aria-label="대표 색 '+x.name+'" title="'+x.name+'"></button>';}).join('');}
+  function sws(g){return ACCENTS.filter(function(x){return x.g===g;}).map(function(x){var lk=shopLock(V,'a:'+x.id);return '<button class="sw'+(lk?' lk':'')+'" data-act="'+(lk?'shop-open':'accent')+'" data-v="'+(lk?'a:':'')+x.id+'" style="--a:'+x.l.a+';--b:'+x.d.a+'" aria-pressed="'+(acNow===x.id?'true':'false')+'" aria-label="대표 색 '+x.name+(lk?', 상점에서 잉크 '+lk.price+'방울':'')+'" title="'+x.name+'"></button>';}).join('');}
   if(V.me){var hg=!!obj(V.progress[V.me]).hideGoals;b+='<div class="fld"><h3>내 할 일 공개<small>다른 사람이 볼 수 있는 범위</small></h3><div class="chips"><button class="chip" data-act="hide-goals" data-v="0" aria-pressed="'+(hg?'false':'true')+'">내용까지 보이기</button><button class="chip" data-act="hide-goals" data-v="1" aria-pressed="'+(hg?'true':'false')+'">개수만 보이기</button></div><p class="hint" style="margin-top:6px">'+(hg?'다른 사람에게는 할 일 개수와 끝낸 개수만 보입니다.':'참여 인원 목록에서 내 할 일 내용이 보입니다.')+'</p></div>';}
   if(V.me)b+='<div class="fld"><h3>학교 시간표<small>수업 전에 과목과 장소를 알려 줌</small></h3><div class="row"><button class="btn small" data-act="open" data-modal="school">'+(schOf(V,V.me).has?'고치기':'넣기')+'</button></div></div>';
   if(V.me)b+='<div class="fld"><h3>과목 색과 줄임말<small>나에게만 적용</small></h3><div class="row"><button class="btn small" data-act="abbr-open">바꾸기</button></div></div>';
-  b+='<div class="sec"><h3>화면<small>이 기기에만 적용</small></h3><h4 class="lb" style="margin-top:0">컨셉</h4><div class="cvs" role="group" aria-label="컨셉 디자인">'+CONCEPTS.map(function(x){return '<button class="cv" data-act="concept" data-v="'+x.id+'" aria-pressed="'+(cNow.id===x.id?'true':'false')+'"><span class="cvp cvp-'+x.id+'" aria-hidden="true"><i></i><i></i><i></i></span><span>'+x.name+'</span></button>';}).join('')+'</div>';
+  b+='<div class="sec"><h3>화면<small>이 기기에만 적용</small></h3><div class="shrow"><span>'+INK_SVG+'자물쇠가 있는 것은 상점에서 잉크로 삽니다</span><button class="btn small" data-act="open" data-modal="shop">상점</button></div><h4 class="lb" style="margin-top:0">컨셉</h4><div class="cvs" role="group" aria-label="컨셉 디자인">'+CONCEPTS.map(function(x){return (function(lk){return '<button class="cv'+(lk?' lk':'')+'" data-act="'+(lk?'shop-open':'concept')+'" data-v="'+(lk?'c:':'')+x.id+'" aria-pressed="'+(cNow.id===x.id?'true':'false')+'"'+(lk?' aria-label="'+esc(x.name)+', 상점에서 잉크 '+lk.price+'방울"':'')+'><span class="cvp cvp-'+x.id+'" aria-hidden="true"><i></i><i></i><i></i></span><span>'+x.name+'</span>'+(lk?shopLockTag(lk):'')+'</button>';})(shopLock(V,'c:'+x.id));}).join('')+'</div>';
   b+='<h4 class="lb">밝기</h4>'+(cNow.mode?'<p class="hint">'+cNow.name+' 컨셉은 항상 어둡게 보입니다.</p>':'<div class="chips">'+[['auto','기기 설정에 맞춤'],['light','밝게'],['dark','어둡게']].map(function(x){return '<button class="chip" data-act="theme" data-v="'+x[0]+'" aria-pressed="'+(tp===x[0]?'true':'false')+'">'+x[1]+'</button>';}).join('')+'</div>');
-  b+='<h4 class="lb">대표 색</h4><div class="sws" role="group" aria-label="대표 색">'+sws('b')+'</div><h4 class="lb">파스텔</h4><div class="sws" role="group" aria-label="파스텔 대표 색">'+sws('p')+'</div><h4 class="lb">타이머 모양</h4><div class="cvs tsv" role="group" aria-label="타이머 모양">'+TSTYLES.map(function(x){return '<button class="cv" data-act="tstyle" data-v="'+x[0]+'" aria-pressed="'+(tstyle()===x[0]?'true':'false')+'"><span class="tsp tsp-'+x[0]+'" aria-hidden="true">'+TSPREV[x[0]]+'</span>'+x[1]+'</button>';}).join('')+'</div><h4 class="lb">글자 크기</h4><div class="chips">'+[['s','작게'],['m','보통'],['l','크게']].map(function(x){var zn=lsGet('gbb_zoom')||'m';return chipBtn('zoom','z',x[0],x[1],zn===x[0]);}).join('')+'</div></div>';
+  b+='<h4 class="lb">대표 색</h4><div class="sws" role="group" aria-label="대표 색">'+sws('b')+'</div><h4 class="lb">파스텔</h4><div class="sws" role="group" aria-label="파스텔 대표 색">'+sws('p')+'</div><h4 class="lb">타이머 모양</h4><div class="cvs tsv" role="group" aria-label="타이머 모양">'+TSTYLES.map(function(x){return (function(lk){return '<button class="cv'+(lk?' lk':'')+'" data-act="'+(lk?'shop-open':'tstyle')+'" data-v="'+(lk?'t:':'')+x[0]+'" aria-pressed="'+(tstyle()===x[0]?'true':'false')+'"><span class="tsp tsp-'+x[0]+'" aria-hidden="true">'+TSPREV[x[0]]+'</span>'+x[1]+(lk?shopLockTag(lk):'')+'</button>';})(shopLock(V,'t:'+x[0]));}).join('')+'</div><h4 class="lb">글자 크기</h4><div class="chips">'+[['s','작게'],['m','보통'],['l','크게']].map(function(x){var zn=lsGet('gbb_zoom')||'m';return chipBtn('zoom','z',x[0],x[1],zn===x[0]);}).join('')+'</div></div>';
   if(V.me){var gmS=+obj(V.progress[V.me]).goalMins||0;b+='<div class="sec"><h3>하루 공부 목표<small>나만 보입니다</small></h3><div class="amt"><button data-act="sgoal" data-d="-30" aria-label="30분 줄이기">-30</button><b>'+(gmS?fmtMins(gmS):'없음')+'</b><button data-act="sgoal" data-d="30" aria-label="30분 늘리기">+30</button></div><p class="hint">정하면 공부방 타이머와 오늘 점수 칸에 얼마나 채웠는지 보입니다.</p></div>';}
   if(V.me)b+='<div class="sec"><h3>내 점수 초기화<small>'+esc(V.byId[V.me].name)+'</small></h3><p class="hint">지금까지 쌓인 내 점수만 0점으로 돌립니다. 할 일과 공부 시간 기록은 그대로 남고, 다른 사람 점수는 바뀌지 않습니다.</p><div class="row" style="margin-top:10px"><button class="btn" data-act="score-reset"'+dis+'>'+(S.confirm==='reset'?'한 번 더 누르면 초기화됩니다':'내 점수 초기화')+'</button></div></div>';
   var adm=adminId(V),isAdm=!!V.me&&adm===V.me,myLock=V.me&&lockOf(V,V.me);
@@ -5247,7 +5427,7 @@ function modalSettings(V){
   [[22,'밤 10시'],[23,'밤 11시'],[24,'자정'],[25,'다음 날 새벽 1시'],[26,'다음 날 새벽 2시']].forEach(function(o){b+='<option value="'+o[0]+'"'+(V.certHour===o[0]?' selected':'')+'>'+o[1]+'</option>';});
   b+='</select>';
   b+='</div><div class="sec"><h3>키보드 단축키<small>키보드를 연결했을 때</small></h3><ul class="kbd">'+[['1 ~ 8','달력부터 메시지까지 화면 이동'],['N','할 일 추가'],['D','마감 있는 할 일 추가'],['L','달력, 할 일, 시간표 차례로 바꿔 보기'],['T','타이머 켜기, 끄기'],['F','타이머 크게 보기'],['Esc','창 닫기']].map(function(x){return '<li><kbd>'+x[0]+'</kbd><span>'+x[1]+'</span></li>';}).join('')+'</ul></div><div class="sec"><h3>저장 위치</h3><p class="hint">'+esc(S.net?({claude:'Claude 공유 저장소에 연결되어 있습니다. Claude에 로그인한 참여 인원끼리 실시간으로 같이 봅니다.',firebase:'공유 저장소에 연결되어 있습니다. 참여 코드로 들어온 사람 모두가 실시간으로 같이 봅니다.',local:'지금은 이 기기에만 저장됩니다. 다른 사람과 같이 보려면 공유 저장소 연결이 필요합니다.'}[S.net.mode]):'연결 중입니다.')+'</p>'+(S.net&&S.net.mode==='firebase'&&S.remote?'<div class="row" style="margin-top:10px"><button class="btn small" data-act="import-pick">기록 가져오기</button><button class="btn small" data-act="export-data">기록 파일로 저장</button><button class="del" data-act="setup-reset">'+(S.confirm==='disc'?'한 번 더 누르면 이 방에서 나갑니다':'이 기기에서 이 방 나가기')+'</button></div><p class="hint" style="margin-top:8px">'+esc(S.importMsg||'친구와 내 다른 기기는 위의 친구 초대하기로 들어옵니다. 기록 가져오기는 처음 연결한 뒤 한 번만 하면 됩니다.')+'</p>':'')+'</div>';
-  b+='<p class="hint appver">앱 버전 10월 23일 19:42</p>';
+  b+='<p class="hint appver">앱 버전 10월 23일 20:25</p>';
   return dlg('wide',{id:'settings',t:'설정'},b);
 }
 function modalCheck(V){
@@ -5283,6 +5463,7 @@ function modalHtml(V){
   if(t==='roomadm')return modalRoomAdm(V);
   if(t==='invite')return modalInvite(V);
   if(t==='a2hs')return modalA2HS(V);
+  if(t==='shop')return modalShop(V);
   if(t==='pic'){var p=S.pics[S.modal.id];return '<div class="scrim" data-act="modal-close"></div><div class="dialog pic" id="dlg-pic" role="dialog" aria-modal="true" aria-label="사진 크게 보기" tabindex="-1">'+(typeof p==='string'&&p.indexOf('data:image/')===0?'<img src="'+esc(p)+'" alt="첨부한 사진">':'')+'<div class="df" style="justify-content:center;margin-top:12px"><button class="btn" data-act="modal-close">닫기</button></div></div>';}
   if(!V.me)return '';
   if(t==='score')return modalScore(V);
@@ -5359,7 +5540,7 @@ function afterChat(V){
   if(S.vtab==='chat'){
     var c=V.chat[S.chan]?S.chan:'all',list=V.chat[c],lastAt=list.length?+list[list.length-1].at:0,ml=document.getElementById('msgList'),key=c+':'+list.length;
     if(lastAt>(+S.read[c]||0)){S.read[c]=lastAt;lsSet('gbb_read',JSON.stringify(S.read));}
-    if(ml&&S.chatKey!==key){S.chatKey=key;ml.scrollTop=ml.scrollHeight;}
+    if(ml&&(S.chatKey!==key||!ml.__sc)){S.chatKey=key;ml.__sc=1;ml.scrollTop=ml.scrollHeight;[].forEach.call(ml.querySelectorAll('img'),function(im){if(!im.complete)im.addEventListener('load',function(){if(ml.scrollHeight-ml.scrollTop-ml.clientHeight<320)ml.scrollTop=ml.scrollHeight;},{once:true});});}
   }
   var nt=+S.noteTs||0,max=nt,fresh=[],un=0,k;
   for(k in V.chat){
@@ -5408,8 +5589,10 @@ function pop(delta){
 }
 
 /* ---------- 팝업 열고 닫기 ---------- */
+function shopGo(id){var it=shopItem(id);S.shopNext=it?{cat:it.cat,focus:it.id}:null;openModal('shop',null);}
 function openModal(type,el){
   var V=view();S.ttPend=null;
+  if(type==='shop'){var snx=S.shopNext;S.shopNext=null;S.shopCat=snx?snx.cat:(S.shopCat||'look');S.shopFocus=snx?snx.focus:null;S.shopPeek=snx&&snx.cat==='stk'?snx.focus:null;}
   if(type!=='settings'&&type!=='pic'&&type!=='rooms'&&type!=='newroom'&&type!=='invite'&&type!=='a2hs'&&!V.me)return;
   if(type==='lapse'){lapseStop('_new');delete S.lapse._new;S.lup={frames:[],busy:false};S.draft.lapseCap='';}
   if(type==='rooms'){S.jst.err='';S.draft.joinCode='';}
@@ -5541,6 +5724,7 @@ function humMig(){
 }
 function tick(){
   try{humMig();}catch(e){}
+  try{shopGf();}catch(e){}
   try{schTick();}catch(e){}
   try{lockTick();}catch(e){}
   var now=Date.now(),V=V0,els=document.querySelectorAll('[data-lv],[data-lvp],[data-lvf]'),memo={},key='',i,k;
@@ -5652,9 +5836,21 @@ function act(name,el){
     }
     case 'stk-toggle':S.stkOpen=!S.stkOpen;S.msgSel=null;if(S.stkOpen)S.scrollAfter='stkPick';break;
     case 'stk-pack':S.stkPack=id;break;
+    case 'shop-cat':S.shopCat=el.getAttribute('data-v')||'look';S.shopFocus=null;S.shopPeek=null;break;
+    case 'shop-peek':S.shopPeek=S.shopPeek===id?null:id;break;
+    case 'shop-open':shopGo(el.getAttribute('data-v'));return;
+    case 'shop-use':{var Vsu=view();if(shopOwns(Vsu,id)){shopUse(id);var siu=shopItem(id);flash(roJ(siu.name)+' 바꿨습니다.');}break;}
+    case 'shop-buy':{
+      var Vsb=view(),sbi=shopItem(id);if(!sbi||!Vsb.me||shopOwns(Vsb,id)||!need())break;
+      var sbk=inkOf(Vsb);if(sbk.bal<sbi.price){flash('잉크가 '+(sbi.price-sbk.bal)+'방울 모자랍니다.');break;}
+      if(prev!=='buy:'+id){S.confirm='buy:'+id;break;}
+      editProg(function(p){var sh=p.shop=obj(p.shop);sh.own=obj(sh.own);sh.own[id]=sbi.price;});
+      if(!canWrite())break;
+      shopUse(id);S.shopFocus=id;flash(jos(sbi.name,'을','를')+' 샀습니다. 잉크 '+sbi.price+'방울을 썼습니다.'+(sbi.cat==='stk'?' 메시지의 이모티콘에서 쓸 수 있습니다.':' 바로 바꿨습니다.'));break;
+    }
     case 'stk-send':{
       var Vk2=view(),ch=el.getAttribute('data-chan');
-      if(!Vk2.me||!STK_BY[id]||(ch!=='all'&&!Vk2.byId[ch])||!need())break;
+      if(!Vk2.me||!STK_BY[id]||!shopOwns(Vk2,'k:'+String(id).split('-')[0])||(ch!=='all'&&!Vk2.byId[ch])||!need())break;
       save('msgs/'+rid('x'),{from:Vk2.me,to:ch,stk:id,text:'',at:Date.now()});
       S.stkOpen=false;prune(Vk2);break;
     }
@@ -5688,8 +5884,8 @@ function act(name,el){
     }
     case 'rep-week':S.repWeek=id;break;
     case 'theme':lsSet('gbb_theme',el.getAttribute('data-v'));applyLook();break;
-    case 'accent':lsSet('gbb_accent',el.getAttribute('data-v'));applyLook();break;
-    case 'concept':lsSet('gbb_concept',el.getAttribute('data-v'));applyLook();break;
+    case 'accent':{var acv=el.getAttribute('data-v');if(!shopOwns(view(),'a:'+acv)){shopGo('a:'+acv);return;}lsSet('gbb_accent',acv);applyLook();break;}
+    case 'concept':{var cov=el.getAttribute('data-v');if(!shopOwns(view(),'c:'+cov)){shopGo('c:'+cov);return;}lsSet('gbb_concept',cov);applyLook();break;}
     case 'badge-title':editProg(function(p){p.title=p.title===id?'':id;});break;
     case 'pen-add':{
       var ptx=String(S.draft.penText||'').trim();if(!ptx)break;
@@ -6201,7 +6397,7 @@ function act(name,el){
       moveGoal(p9.parts[0].date,p9.parts[0].id,today());break;
     }
     case 'play-tab':if(PLAYTABS.some(function(x){return x[0]===id;})){S.playTab=id;lsSet('gbb_playtab',id);}break;
-    case 'tstyle':{var tsv=el.getAttribute('data-v');if(TSTYLES.some(function(x){return x[0]===tsv;})){S.tstyle=tsv;lsSet('gbb_tstyle',tsv);}break;}
+    case 'tstyle':{var tsv=el.getAttribute('data-v');if(!shopOwns(view(),'t:'+tsv)){shopGo('t:'+tsv);return;}if(TSTYLES.some(function(x){return x[0]===tsv;})){S.tstyle=tsv;lsSet('gbb_tstyle',tsv);}break;}
     case 'tmode':{var tmv=el.getAttribute('data-v');S.tmode=tmv==='pomo'||tmv==='goal'?tmv:'sw';lsSet('gbb_tmode',S.tmode);break;}
     case 'pomo-set':S.pomo={f:clampN(el.getAttribute('data-f'),10,90,25),b:clampN(el.getAttribute('data-b'),3,30,5)};S.pomoCustom=false;lsSet('gbb_pomo',JSON.stringify(S.pomo));break;
     case 'pomo-custom':S.pomoCustom=true;break;

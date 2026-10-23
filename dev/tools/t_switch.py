@@ -5,6 +5,7 @@ R=Rig()
 def look(p):
     return p.evaluate("()=>{const r=document.documentElement,cs=getComputedStyle(r);return [r.getAttribute('data-concept'),r.getAttribute('data-theme'),r.getAttribute('data-mode'),r.getAttribute('data-font'),cs.getPropertyValue('--bg').trim(),cs.getPropertyValue('--accent').trim(),cs.getPropertyValue('--accent-ink').trim(),cs.colorScheme].join(' | ')}")
 p=R.open();close_dlg(p)
+p.evaluate("()=>{window.__store['progress/m1']=Object.assign({},window.__store['progress/m1']||{},{shop:{gf:1,own:{'k:playful':120,'k:emotions':120,'c:grid':150,'c:board':200,'c:pop':150,'c:line':100,'c:glass':200,'c:night':250,'a:p-mint':50}}});window.__fire();}");p.wait_for_timeout(400)  # 상점에서 산 것으로
 print('start        :',look(p))
 click(p,'#meBtn',500)
 for c in ['board','grid','pop','glass','night','line','basic']:

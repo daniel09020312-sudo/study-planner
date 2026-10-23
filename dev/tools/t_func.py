@@ -21,6 +21,7 @@ click(p,'[data-act="msg-edit"]');print('edit mode:',st("JSON.stringify({bar:(doc
 p.fill('#msgInput','고친 메시지');p.screenshot(path=SH+'f_03_edit.png');click(p,'[data-act="msg-send"]',400)
 print('after edit:',st("JSON.stringify(window.__store['msgs/"+mine+"'])").replace('"',"'")[:120],'| meta:',st("document.querySelector('#m-"+mine+" .mt').textContent"),'| input:',repr(st("document.getElementById('msgInput').value")))
 click(p,'[data-act="stk-toggle"]',500);print('picker count:',st("document.querySelectorAll('.stkbtn').length"),'| imgs ok:',st("[...document.querySelectorAll('.stkbtn img')].filter(i=>i.complete&&i.naturalWidth>0).length"))
+p.evaluate("()=>{window.__store['progress/m1']=Object.assign({},window.__store['progress/m1']||{},{shop:{gf:1,own:{'k:playful':120,'k:emotions':120,'c:grid':150,'c:board':200,'c:pop':150,'c:line':100,'c:glass':200,'c:night':250,'a:p-mint':50}}});window.__fire();}");p.wait_for_timeout(400)  # 장난 팩을 산 것으로
 click(p,'[data-act="stk-pack"][data-id="playful"]',500);p.screenshot(path=SH+'f_04_picker.png')
 click(p,'[data-act="stk-send"][data-id="playful-08"]',600)
 print('sticker sent, picker open:',st("!!document.getElementById('stkPick')"))
