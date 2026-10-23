@@ -22,9 +22,9 @@ sub("ttTimeRow('ttg-time',s,e)", "ttTimeRow('ttg-time',s,e,false,'ttg|'+d+'|'+g.
 sub("ttTimeRow('ttf-time',x.s,x.e,ro)", "ttTimeRow('ttf-time',x.s,x.e,ro,'ttf|'+d+'|'+x.id)")
 
 sub("""    if(gq&&mq!=null){var isE=el.getAttribute('data-k')==='e',on=placed(gq),s1=on?+gq.ts:mq,e1=on?+gq.te:mq+60;if(isE){e1=mq;if(!on)s1=mq-60;}else{e1=mq+(e1-s1);s1=mq;}
-      if(e1>s1)editDay(S.ttSel.d,function(d){d.goals.forEach(function(x){if(x.id===gq.id){x.ts=s1;x.te=Math.min(e1,28*60);}});});else flash('끝나는 시간이 시작보다 늦어야 합니다.');}""",
+      if(e1>s1)editDay(S.ttSel.d,function(d){d.goals.forEach(function(x){if(x.id===gq.id){x.ts=s1;x.te=Math.min(e1,29*60);}});});else flash('끝나는 시간이 시작보다 늦어야 합니다.');}""",
     """    if(gq&&mq!=null){var on=placed(gq),gr=ttPendSet('ttg|'+S.ttSel.d+'|'+gq.id,{s:on?+gq.ts:null,e:on?+gq.te:null},el.getAttribute('data-k')==='e'?'e':'s',mq);
-      if(gr)editDay(S.ttSel.d,function(d){d.goals.forEach(function(x){if(x.id===gq.id){x.ts=gr.s;x.te=Math.min(gr.e,28*60);}});});}""")
+      if(gr)editDay(S.ttSel.d,function(d){d.goals.forEach(function(x){if(x.id===gq.id){x.ts=gr.s;x.te=Math.min(gr.e,29*60);}});});}""")
 sub("""    if(fq&&mf!=null){var isE2=el.getAttribute('data-k')==='e',s2=fq.s,e2=fq.e;if(isE2)e2=mf;else{e2=mf+(e2-s2);s2=mf;}
       if(e2>s2){var fd2=S.ttSel.d;editTT(function(T){if(fq.one)T.x[fd2]=arr(T.x[fd2]).map(function(x){return x.id===fq.id?Object.assign({},x,{s:s2,e:e2}):x;});else{var o=obj(T.ov[fd2]);o[fq.id]={s:s2,e:e2};T.ov[fd2]=o;}});}
       else flash('끝나는 시간이 시작보다 늦어야 합니다.');}""",

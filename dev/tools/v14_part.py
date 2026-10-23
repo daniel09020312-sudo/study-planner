@@ -17,9 +17,9 @@ sub("  if(type==='compose'){S.cmp={date:(el&&el.getAttribute('data-date'))||toda
     "  if(type==='ttset'){S.ttTab=S.ttTab||'fixed';S.ttEd=null;}\n"
     "  if(type==='compose'){var cat=el&&el.getAttribute('data-at');S.cmp={date:(el&&el.getAttribute('data-date'))||today(),sid:'',type:'',amt:0,unit:'',at:cat!=null&&cat!==''?+cat:null};")
 sub("      editDay(c.date,function(d){if(d.goals.length>=GMAX){full=true;return;}d.goals.push({id:rid('g'),text:text.slice(0,90),sid:c.sid||'',done:false});});",
-    "      editDay(c.date,function(d){if(d.goals.length>=GMAX){full=true;return;}var ng={id:rid('g'),text:text.slice(0,90),sid:c.sid||'',done:false};if(c.at!=null){ng.ts=c.at;ng.te=Math.min(c.at+60,28*60);}d.goals.push(ng);});")
+    "      editDay(c.date,function(d){if(d.goals.length>=GMAX){full=true;return;}var ng={id:rid('g'),text:text.slice(0,90),sid:c.sid||'',done:false};if(c.at!=null){ng.ts=c.at;ng.te=Math.min(c.at+60,29*60);}d.goals.push(ng);});")
 sub("      if(el.getAttribute('data-more')){S.cmp={date:c.date,sid:c.sid,type:'',amt:0,unit:''};break;}",
-    "      if(el.getAttribute('data-more')){S.cmp={date:c.date,sid:c.sid,type:'',amt:0,unit:'',at:c.at!=null&&c.at+120<=28*60?c.at+60:null};break;}")
+    "      if(el.getAttribute('data-more')){S.cmp={date:c.date,sid:c.sid,type:'',amt:0,unit:'',at:c.at!=null&&c.at+120<=29*60?c.at+60:null};break;}")
 
 # 동작
 sub("    case 'cal-today':", r"""    case 'tt-nav':{
@@ -46,16 +46,16 @@ sub("    case 'cal-today':", r"""    case 'tt-nav':{
       S.ttSlot={d:sd,m:ms};S.draft.ttXT='';S.ttXDur=60;S.ttXK='etc';openModal('ttslot',null);return;
     }
     case 'tt-open':{var tk=el.getAttribute('data-k');S.ttSel={k:tk,d:el.getAttribute('data-d'),id:id};S.ttPick=null;openModal(tk==='f'?'ttf':'ttg',null);return;}
-    case 'tt-put':{var sl=S.ttSlot;if(!sl)break;closeModal();ttCommit('q',sl.d,id,sl.m,Math.min(sl.m+60,28*60),sl.d);return;}
+    case 'tt-put':{var sl=S.ttSlot;if(!sl)break;closeModal();ttCommit('q',sl.d,id,sl.m,Math.min(sl.m+60,29*60),sl.d);return;}
     case 'tt-xdur':S.ttXDur=+el.getAttribute('data-m')||60;break;
     case 'tt-xk':S.ttXK=el.getAttribute('data-v')==='academy'?'academy':'etc';break;
     case 'tt-xadd':{
       var sl2=S.ttSlot,xt=String(S.draft.ttXT||'').trim();if(!sl2)break;
       if(!xt){flash('일정 이름을 적어 주세요.');break;}
-      editTT(function(T){var a=arr(T.x[sl2.d]);a.push({id:rid('x'),k:S.ttXK||'etc',t:xt.slice(0,20),s:sl2.m,e:Math.min(sl2.m+(S.ttXDur||60),28*60)});T.x[sl2.d]=a;});
+      editTT(function(T){var a=arr(T.x[sl2.d]);a.push({id:rid('x'),k:S.ttXK||'etc',t:xt.slice(0,20),s:sl2.m,e:Math.min(sl2.m+(S.ttXDur||60),29*60)});T.x[sl2.d]=a;});
       S.draft.ttXT='';closeModal();return;
     }
-    case 'ttg-dur':{var sg=ttSelGoal();if(!sg)break;var dm=+el.getAttribute('data-m')||60,s0=placed(sg)?+sg.ts:Math.max(ttWin(view()).s,S.ttSel.d===today()?Math.ceil(nowMin()/10)*10:0);editDay(S.ttSel.d,function(d){d.goals.forEach(function(x){if(x.id===sg.id){x.ts=s0;x.te=Math.min(s0+dm,28*60);}});});break;}
+    case 'ttg-dur':{var sg=ttSelGoal();if(!sg)break;var dm=+el.getAttribute('data-m')||60,s0=placed(sg)?+sg.ts:Math.max(ttWin(view()).s,S.ttSel.d===today()?Math.ceil(nowMin()/10)*10:0);editDay(S.ttSel.d,function(d){d.goals.forEach(function(x){if(x.id===sg.id){x.ts=s0;x.te=Math.min(s0+dm,29*60);}});});break;}
     case 'ttg-off':{var sg2=ttSelGoal();if(!sg2)break;var sn5=snap(['days/'+view().me+'_'+S.ttSel.d]);editDay(S.ttSel.d,function(d){d.goals.forEach(function(x){if(x.id===sg2.id){delete x.ts;delete x.te;}});});closeModal();flash('시간표에서 뺐습니다. 할 일은 그대로 있습니다.',sn5);return;}
     case 'ttg-cal':{var sg3=S.ttSel;closeModal();act('al-goal',{getAttribute:function(n){return n==='data-d'?sg3.d:n==='data-id'?sg3.id:null;}});return;}
     case 'ttf-off':{
@@ -98,7 +98,7 @@ sub("  else if(kind==='g-copy'){",
   else if(kind==='ttg-time'){
     var gq=ttSelGoal(),mq=parseHM(v);
     if(gq&&mq!=null){var isE=el.getAttribute('data-k')==='e',on=placed(gq),s1=on?+gq.ts:mq,e1=on?+gq.te:mq+60;if(isE){e1=mq;if(!on)s1=mq-60;}else{e1=mq+(e1-s1);s1=mq;}
-      if(e1>s1)editDay(S.ttSel.d,function(d){d.goals.forEach(function(x){if(x.id===gq.id){x.ts=s1;x.te=Math.min(e1,28*60);}});});else flash('끝나는 시간이 시작보다 늦어야 합니다.');}
+      if(e1>s1)editDay(S.ttSel.d,function(d){d.goals.forEach(function(x){if(x.id===gq.id){x.ts=s1;x.te=Math.min(e1,29*60);}});});else flash('끝나는 시간이 시작보다 늦어야 합니다.');}
   }
   else if(kind==='ttf-time'){
     var fq=ttSelFixed(),mf=parseHM(v);

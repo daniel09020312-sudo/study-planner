@@ -2619,9 +2619,9 @@ function viewTT(V){
     return {d:d,day:day,mode:mode,ro:mode==='view',fx:(function(f,sc){return sc.length?f.filter(function(b){return b.k!=='school';}):f;})(fixedOn(V,d),schItems(V,d)),sc:schItems(V,d),offN:fixedOn(V,d,true).filter(function(b){return b.off;}).length,
       pl:day.goals.filter(placed),un:day.goals.filter(function(g){return !placed(g)&&!g.done&&!g.mv;})};
   });
-  var r0=5*60,r1=26*60; // 새벽 5시부터 다음 날 새벽 2시까지
+  var r0=5*60,r1=29*60; // 새벽 5시부터 다음 날 새벽 5시까지(24시간)
   cols.forEach(function(c){c.fx.concat(c.sc).concat(c.pl.map(function(g){return {s:+g.ts,e:+g.te};})).forEach(function(b){r0=Math.min(r0,Math.floor(b.s/60)*60);r1=Math.max(r1,Math.ceil(b.e/60)*60);});});
-  r0=Math.max(0,r0);r1=Math.min(28*60,r1);
+  r0=Math.max(5*60,r0);r1=Math.min(29*60,r1);
   var tot=Math.round((r1-r0)*HH/60),px=function(m){return Math.round((m-r0)*HH/6)/10;};
   var auto;
   if(hasT)auto=nm-60;
@@ -3640,7 +3640,7 @@ document.addEventListener('change',function(e){
 
 /* ---------- 처음 화면 ---------- */
 // 앱이 준비되면 알린다. 그림이 아직이면 다 그린 뒤에 열리고, 그림이 먼저 끝났으면 바로 열린다
-var APP_BUILD='1792737892';
+var APP_BUILD='1792738204';
 function splashDone(){
   var sp=document.getElementById('splash'),st=window.__sp;if(!sp||sp.getAttribute('data-out'))return;
   sp.setAttribute('data-out','1');
@@ -5015,7 +5015,7 @@ function modalSettings(V){
   [[22,'밤 10시'],[23,'밤 11시'],[24,'자정'],[25,'다음 날 새벽 1시'],[26,'다음 날 새벽 2시']].forEach(function(o){b+='<option value="'+o[0]+'"'+(V.certHour===o[0]?' selected':'')+'>'+o[1]+'</option>';});
   b+='</select>';
   b+='</div><div class="sec"><h3>키보드 단축키<small>키보드를 연결했을 때</small></h3><ul class="kbd">'+[['1 ~ 8','달력부터 메시지까지 화면 이동'],['N','할 일 추가'],['D','마감 있는 할 일 추가'],['L','달력, 할 일, 시간표 차례로 바꿔 보기'],['T','타이머 켜기, 끄기'],['F','타이머 크게 보기'],['Esc','창 닫기']].map(function(x){return '<li><kbd>'+x[0]+'</kbd><span>'+x[1]+'</span></li>';}).join('')+'</ul></div><div class="sec"><h3>저장 위치</h3><p class="hint">'+esc(S.net?({claude:'Claude 공유 저장소에 연결되어 있습니다. Claude에 로그인한 참여 인원끼리 실시간으로 같이 봅니다.',firebase:'공유 저장소에 연결되어 있습니다. 참여 코드로 들어온 사람 모두가 실시간으로 같이 봅니다.',local:'지금은 이 기기에만 저장됩니다. 다른 사람과 같이 보려면 공유 저장소 연결이 필요합니다.'}[S.net.mode]):'연결 중입니다.')+'</p>'+(S.net&&S.net.mode==='firebase'&&S.remote?'<div class="row" style="margin-top:10px"><button class="btn small" data-act="import-pick">기록 가져오기</button><button class="btn small" data-act="export-data">기록 파일로 저장</button><button class="del" data-act="setup-reset">'+(S.confirm==='disc'?'한 번 더 누르면 이 방에서 나갑니다':'이 기기에서 이 방 나가기')+'</button></div><p class="hint" style="margin-top:8px">'+esc(S.importMsg||'친구와 내 다른 기기는 위의 친구 초대하기로 들어옵니다. 기록 가져오기는 처음 연결한 뒤 한 번만 하면 됩니다.')+'</p>':'')+'</div>';
-  b+='<p class="hint appver">앱 버전 10월 23일 15:44</p>';
+  b+='<p class="hint appver">앱 버전 10월 23일 15:50</p>';
   return dlg('wide',{id:'settings',t:'설정'},b);
 }
 function modalCheck(V){
@@ -5653,16 +5653,16 @@ function act(name,el){
       S.ttSlot={d:sd,m:ms};S.draft.ttXT='';S.ttXDur=60;S.ttXK='etc';openModal('ttslot',null);return;
     }
     case 'tt-open':{var tk=el.getAttribute('data-k');S.ttSel={k:tk,d:el.getAttribute('data-d'),id:id};S.ttPick=null;openModal(tk==='f'?'ttf':'ttg',null);return;}
-    case 'tt-put':{var sl=S.ttSlot;if(!sl)break;closeModal();ttCommit('q',sl.d,id,sl.m,Math.min(sl.m+60,28*60),sl.d);return;}
+    case 'tt-put':{var sl=S.ttSlot;if(!sl)break;closeModal();ttCommit('q',sl.d,id,sl.m,Math.min(sl.m+60,29*60),sl.d);return;}
     case 'tt-xdur':S.ttXDur=+el.getAttribute('data-m')||60;break;
     case 'tt-xk':S.ttXK=el.getAttribute('data-v')==='academy'?'academy':'etc';break;
     case 'tt-xadd':{
       var sl2=S.ttSlot,xt=String(S.draft.ttXT||'').trim();if(!sl2)break;
       if(!xt){flash('일정 이름을 적어 주세요.');break;}
-      editTT(function(T){var a=arr(T.x[sl2.d]);a.push({id:rid('x'),k:S.ttXK||'etc',t:xt.slice(0,20),s:sl2.m,e:Math.min(sl2.m+(S.ttXDur||60),28*60)});T.x[sl2.d]=a;});
+      editTT(function(T){var a=arr(T.x[sl2.d]);a.push({id:rid('x'),k:S.ttXK||'etc',t:xt.slice(0,20),s:sl2.m,e:Math.min(sl2.m+(S.ttXDur||60),29*60)});T.x[sl2.d]=a;});
       S.draft.ttXT='';closeModal();return;
     }
-    case 'ttg-dur':{var sg=ttSelGoal();if(!sg)break;var dm=+el.getAttribute('data-m')||60,sgp=ttPendOf('ttg|'+S.ttSel.d+'|'+sg.id);S.ttPend=null;var s0=sgp&&sgp.s!=null?sgp.s:placed(sg)?+sg.ts:Math.max(ttWin(view()).s,S.ttSel.d===today()?Math.ceil(nowMin()/10)*10:0);editDay(S.ttSel.d,function(d){d.goals.forEach(function(x){if(x.id===sg.id){x.ts=s0;x.te=Math.min(s0+dm,28*60);}});});break;}
+    case 'ttg-dur':{var sg=ttSelGoal();if(!sg)break;var dm=+el.getAttribute('data-m')||60,sgp=ttPendOf('ttg|'+S.ttSel.d+'|'+sg.id);S.ttPend=null;var s0=sgp&&sgp.s!=null?sgp.s:placed(sg)?+sg.ts:Math.max(ttWin(view()).s,S.ttSel.d===today()?Math.ceil(nowMin()/10)*10:0);editDay(S.ttSel.d,function(d){d.goals.forEach(function(x){if(x.id===sg.id){x.ts=s0;x.te=Math.min(s0+dm,29*60);}});});break;}
     case 'ttg-off':{var sg2=ttSelGoal();if(!sg2)break;var sn5=snap(['days/'+view().me+'_'+S.ttSel.d]);editDay(S.ttSel.d,function(d){d.goals.forEach(function(x){if(x.id===sg2.id){delete x.ts;delete x.te;}});});closeModal();flash('시간표에서 뺐습니다. 할 일은 그대로 있습니다.',sn5);return;}
     case 'ttg-cal':{var sg3=S.ttSel;closeModal();act('al-goal',{getAttribute:function(n){return n==='data-d'?sg3.d:n==='data-id'?sg3.id:null;}});return;}
     case 'ttf-off':{
@@ -5813,11 +5813,11 @@ function act(name,el){
     case 'cmp-add':{
       var text=cmpText();if(!text||!S.cmp)break;
       var full=false,c=S.cmp;
-      editDay(c.date,function(d){if(d.goals.length>=GMAX){full=true;return;}var ng={id:rid('g'),text:text.slice(0,90),sid:c.sid||'',done:false},cn0=String(S.draft.cmpNote||'').trim();if(c.type)ng.ct=c.type;if(c.amt>0){ng.ca=+c.amt;ng.cu=c.unit||'문제';}if(cn0)ng.cn=cn0;if(c.at!=null){ng.ts=c.at;ng.te=Math.min(c.at+60,28*60);}d.goals.push(ng);});
+      editDay(c.date,function(d){if(d.goals.length>=GMAX){full=true;return;}var ng={id:rid('g'),text:text.slice(0,90),sid:c.sid||'',done:false},cn0=String(S.draft.cmpNote||'').trim();if(c.type)ng.ct=c.type;if(c.amt>0){ng.ca=+c.amt;ng.cu=c.unit||'문제';}if(cn0)ng.cn=cn0;if(c.at!=null){ng.ts=c.at;ng.te=Math.min(c.at+60,29*60);}d.goals.push(ng);});
       if(full){flash('할 일은 하루 '+GMAX+'개까지 넣을 수 있습니다.');break;}
       if(!canWrite())break;
       S.draft.cmpNote='';
-      if(el.getAttribute('data-more')){S.cmp={date:c.date,sid:c.sid,type:'',amt:0,unit:'',at:c.at!=null&&c.at+120<=28*60?c.at+60:null};break;}
+      if(el.getAttribute('data-more')){S.cmp={date:c.date,sid:c.sid,type:'',amt:0,unit:'',at:c.at!=null&&c.at+120<=29*60?c.at+60:null};break;}
       closeModal();return;
     }
     case 'ev-set':{
@@ -6085,7 +6085,7 @@ function onChange(kind,el){
   else if(kind==='ttg-time'){
     var gq=ttSelGoal(),mq=parseHM(v);
     if(gq&&mq!=null){var on=placed(gq),gr=ttPendSet('ttg|'+S.ttSel.d+'|'+gq.id,{s:on?+gq.ts:null,e:on?+gq.te:null},el.getAttribute('data-k')==='e'?'e':'s',mq);
-      if(gr)editDay(S.ttSel.d,function(d){d.goals.forEach(function(x){if(x.id===gq.id){x.ts=gr.s;x.te=Math.min(gr.e,28*60);}});});}
+      if(gr)editDay(S.ttSel.d,function(d){d.goals.forEach(function(x){if(x.id===gq.id){x.ts=gr.s;x.te=Math.min(gr.e,29*60);}});});}
   }
   else if(kind==='ttf-time'){
     var fq=ttSelFixed(),mf=parseHM(v);

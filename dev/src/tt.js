@@ -74,9 +74,9 @@ function viewTT(V){
     return {d:d,day:day,mode:mode,ro:mode==='view',fx:fixedOn(V,d),offN:fixedOn(V,d,true).filter(function(b){return b.off;}).length,
       pl:day.goals.filter(placed),un:day.goals.filter(function(g){return !placed(g)&&!g.done&&!g.mv;})};
   });
-  var r0=5*60,r1=26*60; // 새벽 5시부터 다음 날 새벽 2시까지
+  var r0=5*60,r1=29*60; // 새벽 5시부터 다음 날 새벽 5시까지(24시간)
   cols.forEach(function(c){c.fx.concat(c.pl.map(function(g){return {s:+g.ts,e:+g.te};})).forEach(function(b){r0=Math.min(r0,Math.floor(b.s/60)*60);r1=Math.max(r1,Math.ceil(b.e/60)*60);});});
-  r0=Math.max(0,r0);r1=Math.min(28*60,r1);
+  r0=Math.max(5*60,r0);r1=Math.min(29*60,r1);
   var tot=Math.round((r1-r0)*HH/60),px=function(m){return Math.round((m-r0)*HH/6)/10;};
   var auto;
   if(hasT)auto=nm-60;
