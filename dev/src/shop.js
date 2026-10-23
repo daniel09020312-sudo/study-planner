@@ -92,7 +92,8 @@ function shopBtn(V,it,ink){
 function modalShop(V){
   var ink=inkOf(V),cat=S.shopCat||'look',items=shopItems().filter(function(x){return x.cat===cat;});
   var b='<div class="wallet'+(ink.unl?' unl':'')+'"><div class="wl">'+INK_SVG+'<div><small>내 잉크'+(ink.rooms>1?' · 방 '+ink.rooms+'개 합계':'')+'</small><b>'+(ink.unl?'무제한':ink.bal+'<em>방울</em>')+'</b></div></div>';
-  b+='<p class="wr">공부 10분마다 잉크 한 방울'+(ink.today?'<span class="wt">오늘 +'+ink.today+'</span>':'')+'<small>'+(ink.unl?'관리자는 잉크를 쓰지 않고 사고 선물합니다':'모은 잉크 '+ink.got+(ink.gi?' (받은 선물 '+ink.gi+')':'')+' · 쓴 잉크 '+ink.spent)+'</small><button class="btn small gfbtn" data-act="gift-open" aria-expanded="'+(S.giftOpen?'true':'false')+'">'+(S.giftOpen?'선물 닫기':'잉크 선물하기')+'</button></p></div>';
+  b+='<p class="wr">공부 10분마다 잉크 한 방울'+(ink.today?'<span class="wt">오늘 +'+ink.today+'</span>':'')+'<small>'+(ink.unl?'관리자는 잉크를 쓰지 않고 사고 선물합니다':'모은 잉크 '+ink.got+(ink.gi?' (받은 선물 '+ink.gi+')':'')+' · 쓴 잉크 '+ink.spent)+'</small><span class="wbtns">'+(WAL.on&&WALH.link?'<button class="btn small gfbtn" data-act="wal-open" aria-expanded="'+(S.walLinkOpen?'true':'false')+'">다른 방과 같이 쓰기</button>':'')+'<button class="btn small gfbtn" data-act="gift-open" aria-expanded="'+(S.giftOpen?'true':'false')+'">'+(S.giftOpen?'선물 닫기':'잉크 선물하기')+'</button></span></p></div>';
+  if(S.walLinkOpen&&WAL.on)b+=walPanel(V,ink);
   if(S.giftOpen)b+=giftPanel(V,ink);
   b+='<div class="seg mini shcats" style="--i:'+SHOP_CATS.map(function(x){return x[0];}).indexOf(cat)+';--n:'+SHOP_CATS.length+'" role="group" aria-label="상품 종류">'+SHOP_CATS.map(function(x){return '<button data-act="shop-cat" data-v="'+x[0]+'" aria-pressed="'+(cat===x[0]?'true':'false')+'">'+x[1]+'</button>';}).join('')+'</div>';
   b+='<div class="shgrid'+(cat==='stk'?' wide':'')+'" id="shg-'+cat+'">';
@@ -108,6 +109,16 @@ function modalShop(V){
   b+='</div><p class="hint" style="margin-top:14px">'+(WAL.on?'잉크와 산 것은 내가 들어간 모든 방에서 같이 씁니다. ':'산 것은 이 방에서 계속 쓸 수 있습니다. ')+'모양만 바뀌고 기능과 점수는 그대로입니다. 고른 모양은 이 기기에 저장됩니다.</p>';
   if(WAL.on&&WALH.adm&&!ink.unl)b+=S.admOpen?'<div class="admrow"><input type="password" id="admCode" data-draft="admCode" data-enter="adm-go" autocomplete="off" placeholder="관리자 코드" aria-label="관리자 코드"><button class="btn small" data-act="adm-go">확인</button></div>':'<button class="linkbtn admlink" data-act="adm-open">관리자 코드</button>';
   return dlg('wide',{id:'shop',t:'상점'},b);
+}
+/* 다른 방과 잉크 같이 쓰기(웹 판): 연동 코드를 만들어 다른 방에서 넣는다 */
+function walPanel(V,ink){
+  var names=Object.keys(obj(WAL.rm)).map(function(k){return String(obj(WAL.rm[k]).n||'');}).filter(Boolean);
+  var b='<div class="gift wlink" id="walLink"><h3>다른 방과 잉크 같이 쓰기</h3><p class="hint">한 방에서 연동 코드를 만들고, 다른 방 상점에서 그 코드를 넣으면 두 방의 잉크와 산 것이 합쳐집니다. 코드를 아는 사람만 연동할 수 있습니다.</p>';
+  if(names.length)b+='<p class="wlrooms"><small>같이 쓰는 방</small>'+names.map(function(n){return '<span class="tag">'+esc(n)+'</span>';}).join('')+'</p>';
+  b+=S.walCode?'<div class="wlcode"><b id="walCodeT">'+esc(S.walCode)+'</b><button class="btn small" data-act="wal-copy">복사</button></div><p class="hint">이 코드는 지금만 보입니다. 다시 만들면 예전 코드는 쓸 수 없습니다.</p>':'<div class="row"><button class="btn small" data-act="wal-code">연동 코드 만들기</button></div>';
+  b+='<div class="admrow"><input type="text" id="walLinkIn" data-draft="walLink" data-enter="wal-link" maxlength="9" autocomplete="off" autocapitalize="characters" placeholder="다른 방에서 만든 코드" aria-label="연동 코드"><button class="btn small primary" data-act="wal-link">연동</button></div>';
+  if(names.length>1)b+='<button class="del" data-act="wal-unlink">'+(S.confirm==='walun'?'한 번 더 누르면 이 방만 떼어 냅니다':'이 방만 떼어 내기')+'</button>';
+  return b+'</div>';
 }
 /* 잉크 선물: 받는 사람, 얼마, 한마디 */
 function giftPanel(V,ink){

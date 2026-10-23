@@ -936,3 +936,12 @@ html.wkdragging,html.wkdragging *{cursor:grabbing !important}
 .admlink{display:block;margin:10px auto 0;font-size:12px;color:var(--ink-3)}
 .admrow{display:flex;gap:8px;margin-top:10px}
 .admrow input{flex:1;min-width:0}
+/* v36: 다른 방과 잉크 같이 쓰기 */
+.wbtns{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;margin-top:4px}
+.wbtns .gfbtn{margin:0}
+@media (max-width:520px){.wbtns{justify-content:flex-start}}
+.wlrooms{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:0}
+.wlrooms small{color:var(--ink-3);font-size:12px;margin-right:2px}
+.wlcode{display:flex;align-items:center;gap:10px}
+.wlcode b{font-size:24px;font-weight:800;letter-spacing:.08em;font-variant-numeric:tabular-nums;color:var(--inkc);user-select:all;-webkit-user-select:all}
+.wlink .del{justify-self:start}

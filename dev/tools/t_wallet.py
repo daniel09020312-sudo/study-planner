@@ -34,66 +34,70 @@ def wallet_text(pg):
     return t
 def prog(r, m): return (get_at('/rooms/%s/d/progress/%s' % (r, m)) or {})
 
+def shop(pg): pg.evaluate("()=>document.getElementById('shopBtn').click()"); pg.wait_for_timeout(800)
+def close(pg): pg.evaluate("()=>{const b=document.querySelector('#dlg-shop [data-act=\"modal-close\"]');if(b)b.click();}"); pg.wait_for_timeout(400)
+def flash(pg): return ev(pg, "(document.querySelector('.flash span')||{}).textContent")
+def make_code(pg):
+    shop(pg); click(pg, '[data-act="wal-open"]', 400); click(pg, '[data-act="wal-code"]', 1500)
+    c = ev(pg, "(document.getElementById('walCodeT')||{}).textContent"); close(pg); return c
+def link(pg, code):
+    shop(pg); click(pg, '[data-act="wal-open"]', 400); pg.fill('#walLinkIn', code); click(pg, '[data-act="wal-link"]', 3500)
+    f = flash(pg); close(pg); return f
 # ---- 기기 D: 가 방(민준 m1)
 cD, D = dev({RA: 'm1', RB: 'm3'}, RA)
 w1 = prog(RA, 'm1').get('wal')
-print('A wallet      :', bool(w1), '| dev', ev(D, "localStorage.getItem('gbb_wallet')") is not None, '| shop', wallet_text(D))
-print('A synced rm   :', (W().get(w1) or {}).get('rm'))
-# 가 방에서 '선' 사기
-D.evaluate("()=>document.getElementById('shopBtn').click()"); D.wait_for_timeout(700)
-click(D, '[data-act="shop-buy"][data-id="c:line"]', 300); click(D, '[data-act="shop-buy"][data-id="c:line"]', 1500)
+print('A wallet      :', bool(w1), '| shop', wallet_text(D))
+shop(D); click(D, '[data-act="shop-buy"][data-id="c:line"]', 300); click(D, '[data-act="shop-buy"][data-id="c:line"]', 1500); close(D)
 print('A bought      :', (W().get(w1) or {}).get('own'))
-D.evaluate("()=>{const b=document.querySelector('#dlg-shop [data-act=\"modal-close\"]');if(b)b.click();}"); D.wait_for_timeout(400)
-# ---- 같은 기기에서 나 방(이름 '민 준', 띄어쓰기 달라도 같은 사람으로)
+# ---- 같은 기기, 같은 이름이어도 나 방은 따로
 go(D, RB)
-print('B linked      :', prog(RB, 'm3').get('wal') == w1, '| shop', wallet_text(D))
-D.evaluate("()=>document.getElementById('shopBtn').click()"); D.wait_for_timeout(700)
-print('B owns line   :', ev(D, "(document.querySelector('#shi-c-line .sha')||{}).innerText"))
-# 나 방에서 지호에게 선물 20
-click(D, '[data-act="gift-open"]', 400); click(D, '#giftPanel [data-act="gift-to"][data-id="m9"]', 300); click(D, '#giftPanel [data-act="gift-amt"][data-v="10"]', 300)
-D.fill('#giftN', '20'); D.wait_for_timeout(300)
-click(D, '[data-act="gift-send"]', 300); click(D, '[data-act="gift-send"]', 1500)
-print('B gift        :', list((get_at('/rooms/%s/d/gifts' % RB) or {}).values()))
-D.evaluate("()=>{const b=document.querySelector('#dlg-shop [data-act=\"modal-close\"]');if(b)b.click();}"); D.wait_for_timeout(23000)
-print('B after gift  :', wallet_text(D), '| rm', (W().get(w1) or {}).get('rm', {}).get(RB + '_m3'))
-# ---- 다른 기기 F에서 다 방(민준 m5)을 먼저 열면 지갑이 하나 더 생김
-cF, F = dev({RC: 'm5'}, RC)
-w2 = prog(RC, 'm5').get('wal')
-print('C new wallet  :', bool(w2) and w2 != w1, '| shop', wallet_text(F))
-# ---- 기기 D가 다 방을 열면 두 지갑이 합쳐짐
-D.evaluate("(r)=>{const a=JSON.parse(localStorage.getItem('gbb_rooms'));a.push({url:%s,room:r,name:r});localStorage.setItem('gbb_rooms',JSON.stringify(a));localStorage.setItem('gbb_me@'+r,'m5');localStorage.setItem('gbb_pinask@'+r,JSON.stringify({m5:1}));}" % json.dumps(DB), RC)
-go(D, RC)
-print('merge         : old->new', (W().get(w1) or {}).get('to') == w2, '| dev now', json.loads(ev(D, "localStorage.getItem('gbb_wallet')"))['id'] == w2, '| own moved', (W().get(w2) or {}).get('own'))
-print('C shop        :', wallet_text(D))
+wB = prog(RB, 'm3').get('wal')
+print('B separate    :', bool(wB) and wB != w1, '| shop', wallet_text(D))
+# ---- 가 방에서 연동 코드 만들기 -> 나 방에서 넣기
 go(D, RA)
-print('A follows     :', prog(RA, 'm1').get('wal') == w2, '| shop', wallet_text(D))
+code = make_code(D)
+print('code          :', bool(code) and len(code) == 9, '| mapping', [k for k in STORE['rooms'] if k.startswith('walletcode-')], '| code not stored in wallet', code.replace('-', '') not in json.dumps(W().get(w1)))
+go(D, RB)
+print('wrong code    :', link(D, 'ZZZZ-ZZZZ'))
+print('link          :', link(D, code))
+print('B linked      : pointer', prog(RB, 'm3').get('wal') == w1, '| old->new', (W().get(wB) or {}).get('to') == w1, '| shop', wallet_text(D))
+shop(D); print('B owns line   :', ev(D, "(document.querySelector('#shi-c-line .sha')||{}).innerText"), '| rooms', ev(D, "(document.querySelector('.wlrooms')||{innerText:''}).innerText")); close(D)
+# 나 방에서 지호에게 선물 20
+shop(D); click(D, '[data-act="gift-open"]', 400); click(D, '#giftPanel [data-act="gift-to"][data-id="m9"]', 300)
+D.fill('#giftN', '20'); D.wait_for_timeout(300); click(D, '[data-act="gift-send"]', 300); click(D, '[data-act="gift-send"]', 1500); close(D)
+D.wait_for_timeout(23000)
+print('B after gift  :', wallet_text(D))
+# ---- 다른 기기에서 이름이 같은 '민준'(다 방): 저절로 붙지 않음
+cF, F = dev({RC: 'm5'}, RC)
+w3 = prog(RC, 'm5').get('wal')
+print('C separate    :', w3 not in (w1, wB), '| shop', wallet_text(F))
+# 코드를 다시 만들면 예전 코드는 못 씀
+go(D, RA); code2 = make_code(D)
+print('regen         :', code2 != code, '| mappings', len([k for k in STORE['rooms'] if k.startswith('walletcode-')]))
+print('old code      :', link(F, code))
+print('new code      :', link(F, code2), '| C pointer', prog(RC, 'm5').get('wal') == w1, '| shop', wallet_text(F))
+# ---- 나 방만 떼어 내기
+go(D, RB)
+shop(D); click(D, '[data-act="wal-open"]', 400); click(D, '[data-act="wal-unlink"]', 300); click(D, '[data-act="wal-unlink"]', 3500); close(D)
+wB2 = prog(RB, 'm3').get('wal')
+print('unlink        :', wB2 not in (w1, wB), '| B key gone from shared', (RB + '_m3') not in (W().get(w1) or {}).get('rm', {}), '| shop', wallet_text(D))
+go(D, RA)
 # ---- 관리자 코드
 if ADM:
-    D.evaluate("()=>document.getElementById('shopBtn').click()"); D.wait_for_timeout(700)
-    click(D, '[data-act="adm-open"]', 400); D.fill('#admCode', 'wrong-code'); click(D, '[data-act="adm-go"]', 1200)
-    print('adm wrong     :', ev(D, "(document.querySelector('.flash span')||{}).textContent"))
+    shop(D); click(D, '[data-act="adm-open"]', 400); D.fill('#admCode', 'wrong-code'); click(D, '[data-act="adm-go"]', 1200)
+    print('adm wrong     :', flash(D))
     D.fill('#admCode', ADM); click(D, '[data-act="adm-go"]', 1800)
-    print('adm ok        :', ev(D, "(document.querySelector('.flash span')||{}).textContent"), '| unl saved', bool((W().get(w2) or {}).get('unl')), '| wallet', ev(D, "document.querySelector('.wl b').textContent"))
+    print('adm ok        :', flash(D), '| unl saved', bool((W().get(w1) or {}).get('unl')), '| wallet', ev(D, "document.querySelector('.wl b').textContent"))
     click(D, '[data-act="shop-buy"][data-id="c:night"]', 300); click(D, '[data-act="shop-buy"][data-id="c:night"]', 1500)
-    print('adm buy       :', (W().get(w2) or {}).get('own', {}).get('c:night'), '(0)')
+    print('adm buy       :', (W().get(w1) or {}).get('own', {}).get('c:night'), '(0)')
     click(D, '[data-act="gift-open"]', 400); click(D, '#giftPanel [data-act="gift-to"][data-id="m2"]', 300); D.fill('#giftN', '5000'); D.wait_for_timeout(300)
-    click(D, '[data-act="gift-send"]', 300); click(D, '[data-act="gift-send"]', 1500)
+    click(D, '[data-act="gift-send"]', 300); click(D, '[data-act="gift-send"]', 1500); close(D)
     print('adm gift      :', [g['n'] for g in (get_at('/rooms/%s/d/gifts' % RA) or {}).values()])
-    D.screenshot(path=SH + 'wallet_adm.png')
-    # 다른 기기에서 같은 지갑: 무제한으로 보임
-    cG, G = dev({RA: 'm1'}, RA)
-    print('other device  :', wallet_text(G))
-    # 가짜 서명을 다른 지갑에 넣어도 무제한 아님
-    with LOCK:
-        STORE['rooms']['wallet-' + w1].pop('to', None)
-        STORE['rooms']['wallet-' + w1]['unl'] = STORE['rooms']['wallet-' + w2]['unl']
-    cH, H = dev({RB: 'm9'}, RB)
-    wf = prog(RB, 'm9').get('wal')
-    with LOCK: STORE['rooms']['wallet-' + wf]['unl'] = STORE['rooms']['wallet-' + w2]['unl']
-    H.wait_for_timeout(4000)
-    go(H, RB)
-    print('forged copy   :', wallet_text(H))
-    # 받은 사람(서연, 가 방)
+    print('linked room C :', wallet_text(F) if F else '')
+    go(F, RC); print('C after reload:', wallet_text(F))
+    # 무제한 표시를 다른 지갑에 베껴도 안 됨
+    with LOCK: STORE['rooms']['wallet-' + wB2]['unl'] = STORE['rooms']['wallet-' + w1]['unl']
+    go(D, RB); print('forged copy   :', wallet_text(D))
     cS, Sp = dev({RA: 'm2'}, RA)
     print('receiver      :', wallet_text(Sp))
 print('errors', errors)
