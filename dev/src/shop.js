@@ -9,6 +9,9 @@ var SHOP_TIMER={digits:[60,'큰 숫자만 깔끔하게'],bar:[60,'숫자 아래 
 var SHOP_STK={playful:[120,'어쩔~, 메롱, 뇌 정지 같은 장난'],emotions:[120,'신난다!, 부끄러워, 감동이야 같은 마음']};
 var INK_SVG='<svg class="inkd" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.8c3.2 4 6.2 7.6 6.2 11.2a6.2 6.2 0 0 1-12.4 0c0-3.6 3-7.2 6.2-11.2z"/><path class="hl" d="M9.4 14.6a2.8 2.8 0 0 0 2.4 2.7"/></svg>';
 var SHOP_GF=false;
+// 모든 방 잉크(웹 판): wallet.js가 채운다. on이면 지갑의 다른 방 합계와 산 것을 더한다
+var WAL={on:false,id:'',key:'',own:{},rm:{},unl:false},WALH={buy:null,adm:null};
+var GIFT_AMTS=[10,30,50,100];
 function shopItems(){
   if(shopItems.c)return shopItems.c;var a=[];
   CONCEPTS.forEach(function(x){var m=SHOP_LOOK[x.id];a.push({id:'c:'+x.id,v:x.id,cat:'look',name:x.name,price:m?m[0]:0,desc:m?m[1]:'처음 모양',free:x.id==='basic'});});
@@ -19,18 +22,28 @@ function shopItems(){
 }
 function shopItem(id){return shopItems().filter(function(x){return x.id===id;})[0]||null;}
 function shopOwn(V){return obj(obj(obj(V.progress[V.me]).shop).own);}
-function shopOwns(V,id){var it=shopItem(id);if(!it)return false;if(it.free)return true;return V&&V.me?shopOwn(V)[id]!=null:false;}
+function walOwn(){return WAL.on?obj(WAL.own):{};}
+function shopOwns(V,id){var it=shopItem(id);if(!it)return false;if(it.free)return true;return V&&V.me?(shopOwn(V)[id]!=null||walOwn()[id]!=null):false;}
 function inkMins(V,mid,date){
   var pre=mid+'_',m=0;
   Object.keys(V.days).forEach(function(k){if(k.indexOf(pre)!==0)return;if(date&&k!==pre+date)return;var d=obj(V.days[k]);m+=sumMins(d.mins)+Math.min(sumMins(d.manual),RULE.manualMax);});
   return m;
 }
+/* 이 방에서: 공부한 분, 받은 선물, 보낸 선물 */
+function inkLocal(V){
+  var e=inkMins(V,V.me),gi=0,go=0,g=obj(V.gifts);
+  Object.keys(g).forEach(function(k){var x=obj(g[k]),n=Math.max(0,Math.floor(+x.n||0));if(x.to===V.me)gi+=n;if(x.from===V.me)go+=n;});
+  return {e:e,gi:gi,go:go};
+}
+/* 남은 잉크 = (공부한 분/10 + 받은 선물) - (산 값 + 보낸 선물). 지갑이 있으면 다른 방 것도 더한다 */
 function inkOf(V){
-  if(!V||!V.me)return {got:0,spent:0,bal:0,today:0};
+  if(!V||!V.me)return {got:0,spent:0,bal:0,today:0,gi:0,unl:false,rooms:1};
   if(V._ink)return V._ink;
-  var got=Math.floor(inkMins(V,V.me)/INK_MIN),own=shopOwn(V),spent=0;
+  var L=inkLocal(V),m=L.e,gi=L.gi,go=L.go,own=Object.assign({},shopOwn(V),walOwn()),spent=0,n=1;
+  if(WAL.on)Object.keys(obj(WAL.rm)).forEach(function(k){if(k===WAL.key)return;var r=obj(WAL.rm[k]);m+=Math.max(0,+r.e||0);gi+=Math.max(0,+r.gi||0);go+=Math.max(0,+r.go||0);n++;});
   Object.keys(own).forEach(function(k){spent+=Math.max(0,+own[k]||0);});
-  return V._ink={got:got,spent:spent,bal:Math.max(0,got-spent),today:Math.floor(inkMins(V,V.me,today())/INK_MIN)};
+  var got=Math.floor(m/INK_MIN)+gi;spent+=go;
+  return V._ink={got:got,spent:spent,bal:WAL.unl?Infinity:Math.max(0,got-spent),today:Math.floor(inkMins(V,V.me,today())/INK_MIN),gi:gi,unl:!!WAL.unl,rooms:n};
 }
 function roJ(w){w=String(w||'');var c=w.charCodeAt(w.length-1);if(!(c>=0xAC00&&c<=0xD7A3))return w+'로';var f=(c-0xAC00)%28;return w+(f&&f!==8?'으로':'로');}
 function inkTag(n){return '<span class="inkt">'+INK_SVG+'<b>'+n+'</b></span>';}
@@ -78,8 +91,9 @@ function shopBtn(V,it,ink){
 }
 function modalShop(V){
   var ink=inkOf(V),cat=S.shopCat||'look',items=shopItems().filter(function(x){return x.cat===cat;});
-  var b='<div class="wallet"><div class="wl">'+INK_SVG+'<div><small>내 잉크</small><b>'+ink.bal+'<em>방울</em></b></div></div>';
-  b+='<p class="wr">공부 10분마다 잉크 한 방울'+(ink.today?'<span class="wt">오늘 +'+ink.today+'</span>':'')+'<small>모은 잉크 '+ink.got+' · 쓴 잉크 '+ink.spent+'</small></p></div>';
+  var b='<div class="wallet'+(ink.unl?' unl':'')+'"><div class="wl">'+INK_SVG+'<div><small>내 잉크'+(ink.rooms>1?' · 방 '+ink.rooms+'개 합계':'')+'</small><b>'+(ink.unl?'무제한':ink.bal+'<em>방울</em>')+'</b></div></div>';
+  b+='<p class="wr">공부 10분마다 잉크 한 방울'+(ink.today?'<span class="wt">오늘 +'+ink.today+'</span>':'')+'<small>'+(ink.unl?'관리자는 잉크를 쓰지 않고 사고 선물합니다':'모은 잉크 '+ink.got+(ink.gi?' (받은 선물 '+ink.gi+')':'')+' · 쓴 잉크 '+ink.spent)+'</small><button class="btn small gfbtn" data-act="gift-open" aria-expanded="'+(S.giftOpen?'true':'false')+'">'+(S.giftOpen?'선물 닫기':'잉크 선물하기')+'</button></p></div>';
+  if(S.giftOpen)b+=giftPanel(V,ink);
   b+='<div class="seg mini shcats" style="--i:'+SHOP_CATS.map(function(x){return x[0];}).indexOf(cat)+';--n:'+SHOP_CATS.length+'" role="group" aria-label="상품 종류">'+SHOP_CATS.map(function(x){return '<button data-act="shop-cat" data-v="'+x[0]+'" aria-pressed="'+(cat===x[0]?'true':'false')+'">'+x[1]+'</button>';}).join('')+'</div>';
   b+='<div class="shgrid'+(cat==='stk'?' wide':'')+'" id="shg-'+cat+'">';
   items.forEach(function(it){
@@ -91,8 +105,21 @@ function modalShop(V){
     }
     b+='</div>';
   });
-  b+='</div><p class="hint" style="margin-top:14px">산 것은 이 방에서 계속 쓸 수 있습니다. 모양만 바뀌고 기능과 점수는 그대로입니다. 고른 모양은 이 기기에 저장됩니다.</p>';
+  b+='</div><p class="hint" style="margin-top:14px">'+(WAL.on?'잉크와 산 것은 내가 들어간 모든 방에서 같이 씁니다. ':'산 것은 이 방에서 계속 쓸 수 있습니다. ')+'모양만 바뀌고 기능과 점수는 그대로입니다. 고른 모양은 이 기기에 저장됩니다.</p>';
+  if(WAL.on&&WALH.adm&&!ink.unl)b+=S.admOpen?'<div class="admrow"><input type="password" id="admCode" data-draft="admCode" data-enter="adm-go" autocomplete="off" placeholder="관리자 코드" aria-label="관리자 코드"><button class="btn small" data-act="adm-go">확인</button></div>':'<button class="linkbtn admlink" data-act="adm-open">관리자 코드</button>';
   return dlg('wide',{id:'shop',t:'상점'},b);
+}
+/* 잉크 선물: 받는 사람, 얼마, 한마디 */
+function giftPanel(V,ink){
+  var to=S.giftTo&&V.byId[S.giftTo]&&S.giftTo!==V.me?S.giftTo:'',n=Math.floor(+S.draft.giftN||0),others=V.roster.filter(function(m){return m.id!==V.me;});
+  var b='<div class="gift" id="giftPanel"><h3>잉크 선물하기</h3>';
+  if(!others.length)return b+'<p class="hint">이 방에 선물할 사람이 없습니다.</p></div>';
+  b+='<div class="chips" role="group" aria-label="받는 사람">'+others.map(function(m){return '<button class="chip" data-act="gift-to" data-id="'+esc(m.id)+'" aria-pressed="'+(to===m.id?'true':'false')+'">'+esc(m.name)+'</button>';}).join('')+'</div>';
+  b+='<div class="chips gfamt" role="group" aria-label="보낼 잉크">'+GIFT_AMTS.map(function(a){return '<button class="chip" data-act="gift-amt" data-v="'+a+'" aria-pressed="'+(n===a?'true':'false')+'"'+(!ink.unl&&a>ink.bal?' disabled':'')+'>'+inkTag(a)+'</button>';}).join('')+'<input type="number" inputmode="numeric" min="1" id="giftN" data-draft="giftN" data-live="1" placeholder="직접" aria-label="보낼 잉크 직접 적기"></div>';
+  b+='<input type="text" id="giftMsg" data-draft="giftMsg" maxlength="60" placeholder="한마디 (없어도 됩니다)" aria-label="선물과 함께 보낼 말">';
+  var ok=to&&n>0&&(ink.unl||n<=ink.bal)&&n<=99999,cf=S.confirm==='gift';
+  b+='<div class="row"><button class="btn primary" data-act="gift-send"'+(ok?'':' disabled')+'>'+(ok?(cf?'한 번 더 누르면 보냅니다':esc(V.byId[to].name)+' 님에게 '+n+'방울 보내기'):(n>0&&!ink.unl&&n>ink.bal?'잉크가 모자랍니다':'받는 사람과 잉크를 고르세요'))+'</button></div>';
+  return b+'<p class="hint">보낸 잉크는 받는 사람의 잉크가 되고, 1:1 메시지로 알려 줍니다.</p></div>';
 }
 /* 설정 화면: 안 산 것은 자물쇠와 값, 누르면 상점으로 */
 function shopLock(V,id){var it=shopItem(id);return it&&!shopOwns(V,id)?it:null;}

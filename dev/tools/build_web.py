@@ -193,6 +193,8 @@ exec(open(BASE + '/tools/web_rooms_part.py', encoding='utf-8').read())
 exec(open(BASE + '/tools/web_offline_part.py', encoding='utf-8').read())
 # 바뀐 것만 받기
 exec(open(BASE + '/tools/web_sync_part.py', encoding='utf-8').read())
+# 모든 방 잉크
+exec(open(BASE + '/tools/web_wallet_part.py', encoding='utf-8').read())
 # 다른 방에서 내 것 가져오기
 exec(open(BASE + '/tools/web_carry_part.py', encoding='utf-8').read())
 OUT = BASE + ('/web-light' if LIGHT else '/web')
