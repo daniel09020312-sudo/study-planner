@@ -55,14 +55,37 @@ function lockState(V,L,now){
   }
   return {title:title,artist:artist,dur:Math.max(1,Math.round(dur)),pos:Math.max(0,pos),rest:!!o.rest};
 }
+/* 그림: 오늘 공부한 시간(돌고 있는 타이머 포함)과 하루 목표 대비 링. 목표가 없으면 링은 이번 1시간 안에서 돈다 */
+function lockToday(V,L,now){
+  var day=dayOf(V,V.me,today()),tot=sumMins(day.mins)+sumMins(day.manual);
+  if(L){var o=lv(L,now);tot+=Math.max(0,Math.floor(o.focus/60000)-credited(L));}
+  return tot;
+}
+function lockArt(V,L,now){
+  var tot=lockToday(V,L,now),gm=+obj(V.progress[V.me]).goalMins||0,col=L&&L.sid&&V.subName[L.sid]?subCol(V,L.sid):'#2B63E6';
+  var key=tot+'|'+gm+'|'+col;if(LK.artKey===key&&LK.art)return LK.art;
+  try{
+    var c=document.createElement('canvas');c.width=c.height=512;var x=c.getContext('2d'),F="-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Noto Sans KR',sans-serif";
+    var p=gm?Math.min(1,tot/gm):(tot%60)/60;
+    x.fillStyle='#F4F6FB';x.fillRect(0,0,512,512);
+    x.lineCap='round';x.lineWidth=44;x.strokeStyle='#DDE3EF';x.beginPath();x.arc(256,256,180,0,Math.PI*2);x.stroke();
+    if(p>0.002){x.strokeStyle=col;x.beginPath();x.arc(256,256,180,-Math.PI/2,-Math.PI/2+p*Math.PI*2);x.stroke();}
+    x.fillStyle='#141B2E';x.textAlign='center';x.textBaseline='alphabetic';x.font='800 124px '+F;
+    x.fillText(Math.floor(tot/60)+':'+String(tot%60).padStart(2,'0'),256,284);
+    x.fillStyle='#5A6377';x.font='700 32px '+F;
+    x.fillText(gm?(tot>=gm?'오늘 목표 채움':'오늘 / 목표 '+fmtMins(gm)):'오늘 공부',256,344);
+    LK.art=c.toDataURL('image/png');LK.artKey=key;
+  }catch(e){LK.art='';}
+  return LK.art;
+}
 function lockMeta(force){
   var V=view(),L=V&&V.me?liveOf(V,V.me):null;if(!L){lockStop();return;}
-  var st=lockState(V,L,Date.now()),key=st.title+'|'+st.artist+'|'+st.dur;
+  var now=Date.now(),st=lockState(V,L,now),art=lockArt(V,L,now),key=st.title+'|'+st.artist+'|'+st.dur+'|'+LK.artKey;
   try{
     var ms=navigator.mediaSession;
     if(force||key!==LK.key){
-      var art=document.querySelector('link[rel="apple-touch-icon"]')?[{src:'icon-512.png',sizes:'512x512',type:'image/png'},{src:'icon-192.png',sizes:'192x192',type:'image/png'}]:[];
-      ms.metadata=new MediaMetadata({title:st.title,artist:st.artist,album:'공부방',artwork:art});LK.key=key;force=true;
+      var aw=art?[{src:art,sizes:'512x512',type:'image/png'}]:[];
+      ms.metadata=new MediaMetadata({title:st.title,artist:st.artist,album:'공부방',artwork:aw});LK.key=key;force=true;
     }
     ms.playbackState='playing';
     if(ms.setPositionState&&(force||Math.abs(st.pos-LK.pos-(Date.now()-LK.start)/1000)>3)){
