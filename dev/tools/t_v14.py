@@ -13,7 +13,7 @@ def bx(p,sel):
     p.evaluate("(s)=>{const e=document.querySelector(s),sc=document.getElementById('ttScroll');document.getElementById('c-tt').scrollIntoView({block:'start'});sc.scrollTop=Math.max(0,e.offsetTop-170);}",sel);p.wait_for_timeout(150)
     return p.locator(sel).bounding_box()
 R=Rig()
-p=R.open(ls={'gbb_note':'9999999999999'});close_dlg(p)
+p=R.open(ls={'gbb_note':'9999999999999'},now='2026-10-20T15:00:00+09:00');close_dlg(p)
 T=p.evaluate(SEED);p.wait_for_timeout(600)
 add=lambda n: st(p,"(()=>{const d=new Date();d.setDate(d.getDate()+%d);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')})()"%n)
 T1,T2=add(1),add(2)

@@ -1344,6 +1344,13 @@ html.wkdragging,html.wkdragging *{cursor:grabbing !important}
 .lockbtn span{min-width:0}
 .lockbtn b{display:block;font-size:14px;font-weight:700}
 .lockbtn small{display:block;margin-top:2px;font-size:12.5px;line-height:1.5;color:var(--ink-3)}
+/* v31: 고치는 중인 시간 안내 */
+.ttpend{margin:8px 0 0;color:var(--red);font-size:13px}
+.schtimes .ttpend{margin:2px 0 6px}
+/* v31: 고정 일정 과목 여러 개 - 왼쪽 색 줄을 나눠 칠함 */
+.ttb.fx.hsm{box-shadow:none}
+.ttb.fx.hsm::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--scg)}
+.ttb.fx .tbs{font-size:11px;font-weight:700;color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #splash{position:fixed;inset:0;z-index:200;overflow:hidden;-webkit-tap-highlight-color:transparent}
 .spcv{position:absolute;inset:0;display:block;width:100%;height:100%;overflow:visible}
 .spcur,.sphole{fill:var(--bg)}
@@ -2567,12 +2574,16 @@ function editTT(fn){
     p.tt=t;
   });
 }
+function fxSids(b){var a=b&&b.sids?String(b.sids).split(','):[];if(!a.length&&b&&b.sid)a=[b.sid];return a.filter(function(x,i){return x&&a.indexOf(x)===i;});}
+function fxSubs(V,b){return fxSids(b).filter(function(s){return !!V.subName[s];});}
+function fxGrad(V,ss){if(ss.length<2)return ss.length?subCol(V,ss[0]):'';var n=ss.length;return 'linear-gradient(to bottom,'+ss.map(function(s,i){return subCol(V,s)+' '+(i*100/n).toFixed(1)+'% '+((i+1)*100/n).toFixed(1)+'%';}).join(',')+')';}
+function fxNames(V,ss){return ss.map(function(s){return V.subName[s];}).join(', ');}
 function fixedOn(V,d,all){
   var T=ttData(V),dw=pd(d).getDay(),ov=obj(T.ov[d]),out=[];
   T.b.forEach(function(b){
     if(String(b.d||'').charAt(dw)!=='1')return;
     var o=obj(ov[b.id]);if(o.off&&!all)return;
-    out.push({id:b.id,k:TTK[b.k]?b.k:'etc',t:String(b.t||''),sid:b.sid||'',s:o.s!=null?+o.s:+b.s,e:o.e!=null?+o.e:+b.e,bs:+b.s,be:+b.e,moved:o.s!=null,off:!!o.off,tpl:true,dw:String(b.d||'')});
+    out.push({id:b.id,k:TTK[b.k]?b.k:'etc',t:String(b.t||''),sid:b.sid||'',sids:b.sids||'',s:o.s!=null?+o.s:+b.s,e:o.e!=null?+o.e:+b.e,bs:+b.s,be:+b.e,moved:o.s!=null,off:!!o.off,tpl:true,dw:String(b.d||'')});
   });
   arr(T.x[d]).forEach(function(b){if(b&&b.id)out.push({id:b.id,k:TTK[b.k]?b.k:'etc',t:String(b.t||''),sid:b.sid||'',s:+b.s,e:+b.e,one:true});});
   return out.filter(function(b){return b.e>b.s;});
@@ -2594,7 +2605,7 @@ function ttDays(){var n=ttSpan(),st=S.ttStart||today(),out=[];for(var i=0;i<n;i+
 function ttEnter(){S.ttStart=S.date||today();S.ttPick=null;S.ttScrollY='auto';}
 function ttSelGoal(){var sl=S.ttSel,V=view();if(!sl||!V.me)return null;return dayOf(V,V.me,sl.d).goals.filter(function(g){return g.id===sl.id;})[0]||null;}
 function ttSelFixed(){var sl=S.ttSel,V=view();if(!sl||!V.me)return null;return fixedOn(V,sl.d,true).filter(function(b){return b.id===sl.id;})[0]||null;}
-function ttEdFrom(V,id){var b=ttData(V).b.filter(function(x){return x.id===id;})[0];if(!b)return null;S.draft.ttEdT=b.t||'';return {id:b.id,k:TTK[b.k]?b.k:'etc',sid:b.sid||'',d:String(b.d||'0000000'),s:+b.s,e:+b.e};}
+function ttEdFrom(V,id){var b=ttData(V).b.filter(function(x){return x.id===id;})[0];if(!b)return null;S.draft.ttEdT=b.t||'';return {id:b.id,k:TTK[b.k]?b.k:'etc',sid:b.sid||'',ss:fxSids(b),d:String(b.d||'0000000'),s:+b.s,e:+b.e};}
 
 /* ---------- 시간표 화면 ---------- */
 function viewTT(V){
@@ -2647,7 +2658,7 @@ function viewTT(V){
       }else if(it.k==='f'){
         var b=it.b,lab=b.t||TTK[b.k],per=b.k==='school'?schPeriods(V,c.d,b):[],ps='';
         per.forEach(function(x){ps+='<i class="tper" style="top:'+(px(x.s)-px(b.s))+'px;height:'+Math.max(10,px(x.e)-px(x.s))+'px;--pc:'+(x.c.sid?subCol(V,x.c.sid):SGRAY)+'" aria-hidden="true"><b>'+(x.i+1)+'</b>'+esc(x.c.name)+'</i>';});
-        h+='<div class="ttb fx k-'+b.k+cls+(b.moved?' moved':'')+(b.sid?' hs':'')+(per.length?' hasp':'')+'" id="tb-'+esc(b.id)+'-'+c.d+'" role="button" tabindex="0" data-act="tt-open" data-k="f" data-id="'+esc(b.id)+'"'+dr+dat+' style="'+pos+(b.sid?';--sc:'+subCol(V,b.sid):'')+'" aria-label="'+esc(lab+', '+tm)+'">'+ps+'<span class="tbt">'+esc(lab)+'</span><small>'+tm+'</small>'+(c.ro?'':'<i class="tbr" aria-hidden="true"></i>')+'</div>';
+        h+='<div class="ttb fx k-'+b.k+cls+(b.moved?' moved':'')+(fxSubs(V,b).length?' hs'+(fxSubs(V,b).length>1?' hsm':''):'')+(per.length?' hasp':'')+'" id="tb-'+esc(b.id)+'-'+c.d+'" role="button" tabindex="0" data-act="tt-open" data-k="f" data-id="'+esc(b.id)+'"'+dr+dat+' style="'+pos+(fxSubs(V,b).length?';--sc:'+subCol(V,fxSubs(V,b)[0])+';--scg:'+fxGrad(V,fxSubs(V,b)):'')+'" aria-label="'+esc(lab+', '+tm)+'">'+ps+'<span class="tbt">'+esc(lab)+'</span><small>'+tm+'</small>'+(fxSubs(V,b).length>1?'<small class="tbs">'+esc(fxSubs(V,b).map(function(s){return subAbbr(V,s);}).join(' · '))+'</small>':'')+(c.ro?'':'<i class="tbr" aria-hidden="true"></i>')+'</div>';
       }else{
         var g=it.g,sub=g.sid&&V.subName[g.sid];
         h+='<div class="ttb td'+cls+(g.done?' done':'')+'" id="tb-'+esc(g.id)+'" role="button" tabindex="0" data-act="tt-open" data-k="g" data-id="'+esc(g.id)+'"'+dr+dat+' style="'+pos+';--sc:'+goalCol(V,g)+'" aria-label="'+esc(g.text+', '+tm)+'">'+(c.mode==='full'?'<button class="ttbchk'+(g.done?' on':'')+'" data-act="goal-toggle" data-date="'+c.d+'" data-id="'+esc(g.id)+'" aria-pressed="'+(g.done?'true':'false')+'" aria-label="'+esc(g.text)+' 완료 표시"><span></span></button>':'')+'<span class="tbt">'+esc(g.text)+'</span><small>'+tm+(sub?' · '+esc(sub):'')+'</small>'+(c.ro?'':'<i class="tbr" aria-hidden="true"></i>')+'</div>';
@@ -2710,7 +2721,22 @@ function ttFill(){
 }
 
 /* ---------- 시간표 창 ---------- */
-function ttTimeRow(kind,s,e,dis){
+/* 고치는 중인 시간(아직 저장 안 됨): {key,s,e} */
+function ttPendSet(key,cur,k,m){
+  var p=Object.assign({},S.ttPend&&S.ttPend.key===key?S.ttPend:{key:key,s:cur.s,e:cur.e});p[k]=m;
+  if(p.s!=null&&p.e!=null&&p.e>p.s){S.ttPend=null;return p;}
+  S.ttPend=p;return null;
+}
+function ttPendOf(key){return S.ttPend&&S.ttPend.key===key?S.ttPend:null;}
+function ttPendHint(tp,dur){
+  if(!tp)return '';
+  return '<p class="hint ttpend" role="status">'+(tp.s==null||tp.e==null?(dur?'나머지 시간도 넣거나 아래에서 길이를 고르면 저장됩니다.':'나머지 시간도 넣으면 저장됩니다.'):'끝 시간이 시작보다 늦어야 저장됩니다. 끝 시간도 고쳐 주세요.')+'</p>';
+}
+function ttTimeRow(kind,s,e,dis,pk){
+  var tp=pk?ttPendOf(pk):null;if(tp){s=tp.s;e=tp.e;}
+  return ttTimeRow0(kind,s,e,dis)+ttPendHint(tp,kind==='ttg-time');
+}
+function ttTimeRow0(kind,s,e,dis){
   return '<div class="ttime"><input type="time" step="600" value="'+(s!=null?fmtHM(s):'')+'" data-chg="'+kind+'" data-k="s" aria-label="시작 시간"'+(dis?' disabled':'')+'><span>~</span><input type="time" step="600" value="'+(e!=null?fmtHM(e):'')+'" data-chg="'+kind+'" data-k="e" aria-label="끝 시간"'+(dis?' disabled':'')+'></div>';
 }
 var TT_DURS=[[30,'30분'],[60,'1시간'],[90,'1시간 30분'],[120,'2시간']];
@@ -2719,7 +2745,7 @@ function modalTTG(V){
   var d=S.ttSel.d,mode=modeOf(d),sub=g.sid&&V.subName[g.sid],on=placed(g),s=on?+g.ts:null,e=on?+g.te:null;
   var b='<div class="ttsum" style="--sc:'+goalCol(V,g)+'"><i></i><div><b>'+esc(g.text)+'</b><small>'+esc(longDate(d))+(sub?' · '+esc(sub):'')+(g.done?' · 끝냄':'')+'</small></div></div>';
   if(mode!=='view'){
-    b+='<div class="fld"><h3>시간</h3>'+ttTimeRow('ttg-time',s,e)+'<div class="chips" style="margin-top:10px">'+TT_DURS.map(function(x){return '<button class="chip" data-act="ttg-dur" data-m="'+x[0]+'" aria-pressed="'+(on&&e-s===x[0]?'true':'false')+'">'+x[1]+'</button>';}).join('')+'</div></div>';
+    b+='<div class="fld"><h3>시간</h3>'+ttTimeRow('ttg-time',s,e,false,'ttg|'+d+'|'+g.id)+'<div class="chips" style="margin-top:10px">'+TT_DURS.map(function(x){return '<button class="chip" data-act="ttg-dur" data-m="'+x[0]+'" aria-pressed="'+(on&&!ttPendOf('ttg|'+d+'|'+g.id)&&e-s===x[0]?'true':'false')+'">'+x[1]+'</button>';}).join('')+'</div></div>';
   }
   var f='<div class="df">'+(on&&mode!=='view'?'<button class="btn" data-act="ttg-off">시간표에서 빼기</button>':'')+'<button class="btn" data-act="ttg-cal">달력에서 열기</button>'+(mode==='full'?'<button class="btn primary" data-act="goal-toggle" data-date="'+d+'" data-id="'+esc(g.id)+'">'+(g.done?'완료 취소':'끝냈어요')+'</button>':'')+'</div>';
   return dlg('',{id:'ttg',t:'할 일 시간'},b,f);
@@ -2727,9 +2753,9 @@ function modalTTG(V){
 function modalTTF(V){
   var x=ttSelFixed();if(!x){S.modal=null;return '';}
   var d=S.ttSel.d,lab=x.t||TTK[x.k],ro=modeOf(d)==='view',dws=x.tpl?[1,2,3,4,5,6,0].filter(function(i){return x.dw.charAt(i)==='1';}).map(function(i){return DOW[i];}).join(' '):'';
-  var b='<div class="ttsum fx k-'+x.k+'"'+(x.sid?' style="--sc:'+subCol(V,x.sid)+'"':'')+'><i></i><div><b>'+esc(lab)+'</b><small>'+esc(TTK[x.k])+' · '+(x.tpl?'매주 '+esc(dws)+' '+fmtHM(x.bs)+'~'+fmtHM(x.be):'이 날만 있는 일정')+'</small></div></div>';
+  var b='<div class="ttsum fx k-'+x.k+'"'+(fxSubs(V,x).length?' style="--sc:'+fxGrad(V,fxSubs(V,x))+'"':'')+'><i></i><div><b>'+esc(lab)+'</b><small>'+esc(TTK[x.k])+(fxSubs(V,x).length?' · '+esc(fxNames(V,fxSubs(V,x))):'')+' · '+(x.tpl?'매주 '+esc(dws)+' '+fmtHM(x.bs)+'~'+fmtHM(x.be):'이 날만 있는 일정')+'</small></div></div>';
   if(x.off)b+='<p class="hint" style="margin-top:12px">이 날은 빼 두었습니다.</p>';
-  else b+='<div class="fld"><h3>'+esc(shortDate(d)+' '+DOW[pd(d).getDay()]+'요일')+' 시간'+(x.tpl?'<small>여기서 바꾸면 이 날만 바뀝니다</small>':'')+'</h3>'+ttTimeRow('ttf-time',x.s,x.e,ro)+'</div>';
+  else b+='<div class="fld"><h3>'+esc(shortDate(d)+' '+DOW[pd(d).getDay()]+'요일')+' 시간'+(x.tpl?'<small>여기서 바꾸면 이 날만 바뀝니다</small>':'')+'</h3>'+ttTimeRow('ttf-time',x.s,x.e,ro,'ttf|'+d+'|'+x.id)+'</div>';
   if(x.k==='school'){var sl0=schLine(V,d);b+='<div class="fld"><h3>이 날 교시</h3>'+(sl0?'<div class="schline">'+sl0+'</div>':'<p class="hint">학교 시간표를 넣으면 교시별 과목이 여기에 보입니다.</p>')+'</div>';}
   var f=ro?(x.k==='school'?'<div class="df"><button class="btn" data-act="open" data-modal="school">학교 시간표</button></div>':''):'<div class="df">'+(x.k==='school'?'<button class="btn" data-act="open" data-modal="school">학교 시간표</button>':'')+(x.moved?'<button class="btn" data-act="ttf-reset">원래 시간으로</button>':'')+(x.off?'':'<button class="btn" data-act="ttf-off">'+(x.one?'지우기':'이 날만 빼기')+'</button>')+(x.tpl?'<button class="btn primary" data-act="ttf-edit">매주 시간표 고치기</button>':'')+'</div>';
   return dlg('',{id:'ttf',t:'고정 일정'},b,f);
@@ -2756,7 +2782,7 @@ function modalTTSet(V){
       b+='<div class="fld"><h3>이름</h3><input type="text" id="ttEdT" data-draft="ttEdT" maxlength="20" placeholder="'+(E.k==='academy'?'예: 수학 학원':E.k==='school'?'예: 학교':'예: 독서실')+'" aria-label="일정 이름"></div>';
       b+='<div class="fld"><h3>요일</h3><div class="dows">'+[1,2,3,4,5,6,0].map(function(i){return '<button class="dw'+(i===0?' sun':'')+'" data-act="tt-ed-dow" data-v="'+i+'" aria-pressed="'+(E.d.charAt(i)==='1'?'true':'false')+'">'+DOW[i]+'</button>';}).join('')+'</div></div>';
       b+='<div class="fld"><h3>시간</h3>'+ttTimeRow('tt-ed-time',E.s,E.e)+'</div>';
-      b+='<div class="fld"><h3>과목<small>선택, 고르면 그 과목 색 줄이 붙습니다</small></h3><div class="chips">'+mySubs(V).map(function(s){return '<button class="chip" data-act="tt-ed-set" data-k="sid" data-v="'+esc(s.id)+'" aria-pressed="'+(E.sid===s.id?'true':'false')+'">'+esc(s.name)+'</button>';}).join('')+'</div></div>';
+      b+='<div class="fld"><h3>과목<small>선택, 여러 개 고를 수 있습니다</small></h3><div class="chips">'+mySubs(V).map(function(s){return '<button class="chip" data-act="tt-ed-set" data-k="sid" data-v="'+esc(s.id)+'" aria-pressed="'+((E.ss||[]).indexOf(s.id)>=0?'true':'false')+'">'+esc(s.name)+'</button>';}).join('')+'</div></div>';
       f='<div class="df">'+(E.id?'<button class="btn" data-act="tt-ed-del">'+(S.confirm==='ttdel:'+E.id?'한 번 더 누르면 삭제':'삭제')+'</button>':'')+'<button class="btn" data-act="tt-ed-x">취소</button><button class="btn primary" data-act="tt-ed-save">저장</button></div>';
     }else{
       if(!T.b.length)b+='<p class="hint" style="margin-top:14px">학교와 학원처럼 매주 같은 시간에 있는 일정을 넣어 두면 시간표에 고정으로 깔립니다. 시간표에서 끌어 옮기면 그 날만 바뀝니다.</p>';
@@ -2764,7 +2790,7 @@ function modalTTSet(V){
         b+='<div class="ttrows">';
         T.b.slice().sort(function(a,c){return a.s-c.s;}).forEach(function(x){
           var k=TTK[x.k]?x.k:'etc',dws=[1,2,3,4,5,6,0].filter(function(i){return String(x.d||'').charAt(i)==='1';}).map(function(i){return DOW[i];}).join(' ');
-          b+='<button class="ttrow k-'+k+'" data-act="tt-ed" data-id="'+esc(x.id)+'"'+(x.sid?' style="--sc:'+subCol(V,x.sid)+'"':'')+'><i></i><span><b>'+esc(x.t||TTK[k])+'</b><small>'+esc(dws||'요일 없음')+' · '+fmtHM(x.s)+'~'+fmtHM(x.e)+'</small></span><em>고치기</em></button>';
+          b+='<button class="ttrow k-'+k+'" data-act="tt-ed" data-id="'+esc(x.id)+'"'+(fxSubs(V,x).length?' style="--sc:'+fxGrad(V,fxSubs(V,x))+'"':'')+'><i></i><span><b>'+esc(x.t||TTK[k])+'</b><small>'+esc(dws||'요일 없음')+' · '+fmtHM(x.s)+'~'+fmtHM(x.e)+(fxSubs(V,x).length?' · '+esc(fxNames(V,fxSubs(V,x))):'')+'</small></span><em>고치기</em></button>';
         });
         b+='</div>';
       }
@@ -3028,7 +3054,7 @@ function modalSchool(V){
     b+='<div class="sec schsec"><div class="row"><button class="btn small" data-act="sch-times" aria-expanded="'+(S.schTimes?'true':'false')+'">'+(S.schTimes?'교시 시간 접기':'교시 시간 고치기')+'</button><button class="btn small" data-act="sch-fit">고정 시간표의 학교 시간 맞추기</button></div>';
     if(S.schTimes){
       b+='<div class="schtimes">';
-      sch.p.forEach(function(p,i){b+='<div class="schtr"><b>'+(i+1)+'교시</b><div class="ttime"><input type="time" step="300" value="'+fmtHM(p.s)+'" data-chg="sch-time" data-k="s" data-i="'+i+'" aria-label="'+(i+1)+'교시 시작"><span>~</span><input type="time" step="300" value="'+fmtHM(p.e)+'" data-chg="sch-time" data-k="e" data-i="'+i+'" aria-label="'+(i+1)+'교시 끝"></div></div>';});
+      sch.p.forEach(function(p0,i){var stp=ttPendOf('sch|'+i),p=stp||p0;b+='<div class="schtr"><b>'+(i+1)+'교시</b><div class="ttime"><input type="time" step="300" value="'+fmtHM(p.s)+'" data-chg="sch-time" data-k="s" data-i="'+i+'" aria-label="'+(i+1)+'교시 시작"><span>~</span><input type="time" step="300" value="'+fmtHM(p.e)+'" data-chg="sch-time" data-k="e" data-i="'+i+'" aria-label="'+(i+1)+'교시 끝"></div></div>'+ttPendHint(stp,false);});
       b+='<div class="row" style="margin-top:8px"><button class="btn small" data-act="sch-padd"'+(sch.p.length>=10?' disabled':'')+'>교시 추가</button><button class="btn small" data-act="sch-pdel"'+(sch.p.length<=1?' disabled':'')+'>마지막 교시 빼기</button></div></div>';
     }
     b+='</div>';
@@ -3614,7 +3640,7 @@ document.addEventListener('change',function(e){
 
 /* ---------- 처음 화면 ---------- */
 // 앱이 준비되면 알린다. 그림이 아직이면 다 그린 뒤에 열리고, 그림이 먼저 끝났으면 바로 열린다
-var APP_BUILD='1792715191';
+var APP_BUILD='1792737892';
 function splashDone(){
   var sp=document.getElementById('splash'),st=window.__sp;if(!sp||sp.getAttribute('data-out'))return;
   sp.setAttribute('data-out','1');
@@ -4989,7 +5015,7 @@ function modalSettings(V){
   [[22,'밤 10시'],[23,'밤 11시'],[24,'자정'],[25,'다음 날 새벽 1시'],[26,'다음 날 새벽 2시']].forEach(function(o){b+='<option value="'+o[0]+'"'+(V.certHour===o[0]?' selected':'')+'>'+o[1]+'</option>';});
   b+='</select>';
   b+='</div><div class="sec"><h3>키보드 단축키<small>키보드를 연결했을 때</small></h3><ul class="kbd">'+[['1 ~ 8','달력부터 메시지까지 화면 이동'],['N','할 일 추가'],['D','마감 있는 할 일 추가'],['L','달력, 할 일, 시간표 차례로 바꿔 보기'],['T','타이머 켜기, 끄기'],['F','타이머 크게 보기'],['Esc','창 닫기']].map(function(x){return '<li><kbd>'+x[0]+'</kbd><span>'+x[1]+'</span></li>';}).join('')+'</ul></div><div class="sec"><h3>저장 위치</h3><p class="hint">'+esc(S.net?({claude:'Claude 공유 저장소에 연결되어 있습니다. Claude에 로그인한 참여 인원끼리 실시간으로 같이 봅니다.',firebase:'공유 저장소에 연결되어 있습니다. 참여 코드로 들어온 사람 모두가 실시간으로 같이 봅니다.',local:'지금은 이 기기에만 저장됩니다. 다른 사람과 같이 보려면 공유 저장소 연결이 필요합니다.'}[S.net.mode]):'연결 중입니다.')+'</p>'+(S.net&&S.net.mode==='firebase'&&S.remote?'<div class="row" style="margin-top:10px"><button class="btn small" data-act="import-pick">기록 가져오기</button><button class="btn small" data-act="export-data">기록 파일로 저장</button><button class="del" data-act="setup-reset">'+(S.confirm==='disc'?'한 번 더 누르면 이 방에서 나갑니다':'이 기기에서 이 방 나가기')+'</button></div><p class="hint" style="margin-top:8px">'+esc(S.importMsg||'친구와 내 다른 기기는 위의 친구 초대하기로 들어옵니다. 기록 가져오기는 처음 연결한 뒤 한 번만 하면 됩니다.')+'</p>':'')+'</div>';
-  b+='<p class="hint appver">앱 버전 10월 23일 09:26</p>';
+  b+='<p class="hint appver">앱 버전 10월 23일 15:44</p>';
   return dlg('wide',{id:'settings',t:'설정'},b);
 }
 function modalCheck(V){
@@ -5150,7 +5176,7 @@ function pop(delta){
 
 /* ---------- 팝업 열고 닫기 ---------- */
 function openModal(type,el){
-  var V=view();
+  var V=view();S.ttPend=null;
   if(type!=='settings'&&type!=='pic'&&type!=='rooms'&&type!=='newroom'&&type!=='invite'&&type!=='a2hs'&&!V.me)return;
   if(type==='lapse'){lapseStop('_new');delete S.lapse._new;S.lup={frames:[],busy:false};S.draft.lapseCap='';}
   if(type==='rooms'){S.jst.err='';S.draft.joinCode='';}
@@ -5171,6 +5197,7 @@ function openModal(type,el){
 }
 function closeModal(){
   if(!S.modal||S.closing)return;
+  S.ttPend=null;
   if(S.modal.type==='school'){try{schMetaFromInputs(S.schSel);}catch(e){}}
   if(S.modal.type==='pin')S.autoReward=null;
   if(S.modal.type==='a2hs')lsSet('gbb_a2hs',null);
@@ -5635,7 +5662,7 @@ function act(name,el){
       editTT(function(T){var a=arr(T.x[sl2.d]);a.push({id:rid('x'),k:S.ttXK||'etc',t:xt.slice(0,20),s:sl2.m,e:Math.min(sl2.m+(S.ttXDur||60),28*60)});T.x[sl2.d]=a;});
       S.draft.ttXT='';closeModal();return;
     }
-    case 'ttg-dur':{var sg=ttSelGoal();if(!sg)break;var dm=+el.getAttribute('data-m')||60,s0=placed(sg)?+sg.ts:Math.max(ttWin(view()).s,S.ttSel.d===today()?Math.ceil(nowMin()/10)*10:0);editDay(S.ttSel.d,function(d){d.goals.forEach(function(x){if(x.id===sg.id){x.ts=s0;x.te=Math.min(s0+dm,28*60);}});});break;}
+    case 'ttg-dur':{var sg=ttSelGoal();if(!sg)break;var dm=+el.getAttribute('data-m')||60,sgp=ttPendOf('ttg|'+S.ttSel.d+'|'+sg.id);S.ttPend=null;var s0=sgp&&sgp.s!=null?sgp.s:placed(sg)?+sg.ts:Math.max(ttWin(view()).s,S.ttSel.d===today()?Math.ceil(nowMin()/10)*10:0);editDay(S.ttSel.d,function(d){d.goals.forEach(function(x){if(x.id===sg.id){x.ts=s0;x.te=Math.min(s0+dm,28*60);}});});break;}
     case 'ttg-off':{var sg2=ttSelGoal();if(!sg2)break;var sn5=snap(['days/'+view().me+'_'+S.ttSel.d]);editDay(S.ttSel.d,function(d){d.goals.forEach(function(x){if(x.id===sg2.id){delete x.ts;delete x.te;}});});closeModal();flash('시간표에서 뺐습니다. 할 일은 그대로 있습니다.',sn5);return;}
     case 'ttg-cal':{var sg3=S.ttSel;closeModal();act('al-goal',{getAttribute:function(n){return n==='data-d'?sg3.d:n==='data-id'?sg3.id:null;}});return;}
     case 'ttf-off':{
@@ -5649,18 +5676,18 @@ function act(name,el){
     case 'tt-tab':S.ttTab=el.getAttribute('data-v')||'fixed';S.ttEd=null;break;
     case 'tt-new':{
       var nk=el.getAttribute('data-v');nk=TTK[nk]?nk:'etc';
-      S.ttEd={id:null,k:nk,sid:'',d:nk==='school'?'0111110':'0000000',s:nk==='school'?500:nk==='academy'?1080:1140,e:nk==='school'?990:nk==='academy'?1260:1200};
+      S.ttEd={id:null,k:nk,sid:'',ss:[],d:nk==='school'?'0111110':'0000000',s:nk==='school'?500:nk==='academy'?1080:1140,e:nk==='school'?990:nk==='academy'?1260:1200};
       S.draft.ttEdT=nk==='school'?'학교':nk==='academy'?'학원':'';S.sync=true;break;
     }
     case 'tt-ed':S.ttEd=ttEdFrom(view(),id);S.sync=true;break;
-    case 'tt-ed-set':{if(!S.ttEd)break;var ek=el.getAttribute('data-k'),ev=el.getAttribute('data-v');if(ek==='k'){var oldK=S.ttEd.k;S.ttEd.k=TTK[ev]?ev:'etc';var dt0=String(S.draft.ttEdT||'').trim();if(!dt0||dt0===TTK[oldK]){S.draft.ttEdT=S.ttEd.k==='etc'?'':TTK[S.ttEd.k];S.sync=true;}}else if(ek==='sid')S.ttEd.sid=S.ttEd.sid===ev?'':ev;break;}
+    case 'tt-ed-set':{if(!S.ttEd)break;var ek=el.getAttribute('data-k'),ev=el.getAttribute('data-v');if(ek==='k'){var oldK=S.ttEd.k;S.ttEd.k=TTK[ev]?ev:'etc';var dt0=String(S.draft.ttEdT||'').trim();if(!dt0||dt0===TTK[oldK]){S.draft.ttEdT=S.ttEd.k==='etc'?'':TTK[S.ttEd.k];S.sync=true;}}else if(ek==='sid'){var ssx=(S.ttEd.ss||[]).slice(),ssi=ssx.indexOf(ev);if(ssi>=0)ssx.splice(ssi,1);else ssx.push(ev);S.ttEd.ss=ssx;S.ttEd.sid=ssx[0]||'';}break;}
     case 'tt-ed-dow':{if(!S.ttEd)break;var di=+el.getAttribute('data-v'),ds=S.ttEd.d.split('');ds[di]=ds[di]==='1'?'0':'1';S.ttEd.d=ds.join('');break;}
     case 'tt-ed-x':S.ttEd=null;break;
     case 'tt-ed-save':{
       var E=S.ttEd;if(!E)break;var et=String(S.draft.ttEdT||'').trim()||TTK[E.k];
       if(E.d.indexOf('1')<0){flash('요일을 하나 이상 골라 주세요.');break;}
       if(!(E.e>E.s)){flash('끝나는 시간이 시작보다 늦어야 합니다.');break;}
-      editTT(function(T){var nb={id:E.id||rid('b'),k:E.k,t:et.slice(0,20),sid:E.sid||'',d:E.d,s:E.s,e:E.e},f=false;T.b=T.b.map(function(x){if(x.id===nb.id){f=true;return nb;}return x;});if(!f)T.b.push(nb);});
+      var ssv=(E.ss||[]).filter(function(s){return !!view().subName[s];});editTT(function(T){var nb={id:E.id||rid('b'),k:E.k,t:et.slice(0,20),sid:ssv[0]||'',d:E.d,s:E.s,e:E.e},f=false;if(ssv.length>1)nb.sids=ssv.join(',');T.b=T.b.map(function(x){if(x.id===nb.id){f=true;return nb;}return x;});if(!f)T.b.push(nb);});
       if(canWrite()){S.ttEd=null;flash(jos(et,'을','를')+' 저장했습니다.');}break;
     }
     case 'tt-ed-del':{
@@ -6057,17 +6084,17 @@ function onChange(kind,el){
   else if(kind==='tt-ed-time'){if(S.ttEd){var me0=parseHM(v);if(me0!=null)S.ttEd[el.getAttribute('data-k')==='e'?'e':'s']=me0;}}
   else if(kind==='ttg-time'){
     var gq=ttSelGoal(),mq=parseHM(v);
-    if(gq&&mq!=null){var isE=el.getAttribute('data-k')==='e',on=placed(gq),s1=on?+gq.ts:mq,e1=on?+gq.te:mq+60;if(isE){e1=mq;if(!on)s1=mq-60;}else{e1=mq+(e1-s1);s1=mq;}
-      if(e1>s1)editDay(S.ttSel.d,function(d){d.goals.forEach(function(x){if(x.id===gq.id){x.ts=s1;x.te=Math.min(e1,28*60);}});});else flash('끝나는 시간이 시작보다 늦어야 합니다.');}
+    if(gq&&mq!=null){var on=placed(gq),gr=ttPendSet('ttg|'+S.ttSel.d+'|'+gq.id,{s:on?+gq.ts:null,e:on?+gq.te:null},el.getAttribute('data-k')==='e'?'e':'s',mq);
+      if(gr)editDay(S.ttSel.d,function(d){d.goals.forEach(function(x){if(x.id===gq.id){x.ts=gr.s;x.te=Math.min(gr.e,28*60);}});});}
   }
   else if(kind==='ttf-time'){
     var fq=ttSelFixed(),mf=parseHM(v);
-    if(fq&&mf!=null){var isE2=el.getAttribute('data-k')==='e',s2=fq.s,e2=fq.e;if(isE2)e2=mf;else{e2=mf+(e2-s2);s2=mf;}
-      if(e2>s2){var fd2=S.ttSel.d;editTT(function(T){if(fq.one)T.x[fd2]=arr(T.x[fd2]).map(function(x){return x.id===fq.id?Object.assign({},x,{s:s2,e:e2}):x;});else{var o=obj(T.ov[fd2]);o[fq.id]={s:s2,e:e2};T.ov[fd2]=o;}});}
-      else flash('끝나는 시간이 시작보다 늦어야 합니다.');}
+    if(fq&&mf!=null){var fd2=S.ttSel.d,fr=ttPendSet('ttf|'+fd2+'|'+fq.id,{s:+fq.s,e:+fq.e},el.getAttribute('data-k')==='e'?'e':'s',mf);
+      if(fr)editTT(function(T){if(fq.one)T.x[fd2]=arr(T.x[fd2]).map(function(x){return x.id===fq.id?Object.assign({},x,{s:fr.s,e:fr.e}):x;});else{var o=obj(T.ov[fd2]);o[fq.id]={s:fr.s,e:fr.e};T.ov[fd2]=o;}});}
   }
   else if(kind==='tt-win'){var mw=parseHM(v);if(mw!=null)editTT(function(T){T.win=obj(T.win);T.win[el.getAttribute('data-k')==='e'?'e':'s']=mw;});}
-  else if(kind==='sch-time'){var smi=parseHM(v),sii=+el.getAttribute('data-i'),skk=el.getAttribute('data-k')==='e'?'e':'s';if(smi!=null)editSch(function(s){var p=s.p[sii];if(!p)return;var np={s:+p.s,e:+p.e};np[skk]=smi;if(np.e>np.s)s.p[sii]=np;else flash('끝나는 시간이 시작보다 늦어야 합니다.');});}
+  else if(kind==='sch-time'){var smi=parseHM(v),sii=+el.getAttribute('data-i'),skk=el.getAttribute('data-k')==='e'?'e':'s',Vst=view(),spp=schOf(Vst,Vst.me).p[sii];
+    if(smi!=null&&spp){var str=ttPendSet('sch|'+sii,{s:+spp.s,e:+spp.e},skk,smi);if(str)editSch(function(s){if(s.p[sii])s.p[sii]={s:str.s,e:str.e};});}}
   else if(kind==='ev-date'){if(S.evd&&/^\d{4}-\d{2}-\d{2}$/.test(v))S.evd.date=v;}
   else if(kind==='g-copy'){if(/^\d{4}-\d{2}-\d{2}$/.test(v))copyGoal(el.getAttribute('data-date'),id,v);}
   else if(kind==='pl-due-edit'){
