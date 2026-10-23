@@ -5,8 +5,8 @@ sub("fx:fixedOn(V,d),", "fx:(function(f,sc){return sc.length?f.filter(function(b
 sub("c.fx.concat(c.pl.map(function(g){return {s:+g.ts,e:+g.te};}))", "c.fx.concat(c.sc).concat(c.pl.map(function(g){return {s:+g.ts,e:+g.te};}))")
 sub("var items=c.fx.map(function(b){return {k:'f',b:b,s:b.s,e:b.e};}).concat(c.pl.map(", "var items=c.fx.map(function(b){return {k:'f',b:b,s:b.s,e:b.e};}).concat(c.sc.map(function(x){return {k:'sc',x:x,s:x.s,e:x.e};})).concat(c.pl.map(")
 sub("      if(it.k==='f'){", r"""      if(it.k==='sc'){
-        var sx=it.x,scc=sx.c,scn=(sx.i+1)+(sx.j>sx.i?'~'+(sx.j+1):'')+'교시',scol=scc.sid?subCol(V,scc.sid):SGRAY,sml=[scc.r,tm].filter(Boolean).join(' · ');
-        h+='<div class="ttb fx k-school ttsc hs'+cls+'" id="tsc-'+c.d+'-'+sx.i+'" role="button" tabindex="0" data-act="open" data-modal="school"'+dat+' style="'+pos+';--sc:'+scol+'" aria-label="'+esc(scn+' '+scc.name+(scc.r?', '+scc.r:'')+', '+tm)+'"><span class="tbt"><b class="scn">'+scn+'</b> '+esc(scc.name)+'</span><small>'+esc(sml)+'</small></div>';
+        var sx=it.x,scc=sx.c,scn=(sx.i+1)+(sx.j>sx.i?'~'+(sx.j+1):'')+'교시',scol=SGRAY,sml=[scc.r,tm].filter(Boolean).join(' · ');
+        h+='<div class="ttb fx k-school ttsc'+cls+'" id="tsc-'+c.d+'-'+sx.i+'" role="button" tabindex="0" data-act="open" data-modal="school"'+dat+' style="'+pos+';--sc:'+scol+'" aria-label="'+esc(scn+' '+scc.name+(scc.r?', '+scc.r:'')+', '+tm)+'"><span class="tbt"><b class="scn">'+scn+'</b> '+esc(scc.name)+'</span><small>'+esc(sml)+'</small></div>';
       }else if(it.k==='f'){""")
 sub("var busy=fixedOn(V,d).map(function(b){return [b.s,b.e];})", "var busy=fixedOn(V,d).map(function(b){return [b.s,b.e];}).concat(schItems(V,d).map(function(b){return [b.s,b.e];}))")
 # 빌드 번호: 웹 판은 version.txt와 비교해 새 판이 올라왔으면 다시 읽는다(web_offline_part.py)

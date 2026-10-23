@@ -1626,7 +1626,7 @@ var UNITS=['문제','쪽','단원','회','강','분'];
 var DEFAULT_ITEMS=['개념 정리','교과서와 프린트 복습','문제집 풀이','기출 풀이','오답 정리'];
 var EXTRA_TYPES=['암기','수행평가 준비'];
 var EV_KINDS=['수행평가','발표','제출','퀴즈','시험','행사','기타'];
-var TEMPLATE=['화법과 언어','미적분Ⅰ','확률과 통계','영어 비평적 읽기와 쓰기','화학 반응의 세계','세포와 물질대사','생물의 유전','생명과학 실험'];
+var TEMPLATE=['화법과 언어','미적분Ⅰ','확률과 통계','영어 비평적 읽기와 쓰기','화학 반응의 세계','세포와 물질대사','생물의 유전','생명과학 실험','후마니타스'];
 var NEWRULE='2026-10-21';
 var RULE={allCert:50,allLate:20,goal:10,goalMax:5,clear:10,per30:5,timeMax:60,manualMax:60,certOn:10,certLate:3,quiz:10,help:3,helpMax:3,rank:[15,10,5]};
 var RULES=[
@@ -2653,11 +2653,11 @@ function viewTT(V){
       var top=px(it.s),ht=Math.max(16,px(it.e)-top),pos='top:'+top+'px;height:'+ht+'px;left:calc('+it.lane+' * 100% / '+it.lanes+');width:calc(100% / '+it.lanes+');--lc:'+Math.max(1,Math.min(4,Math.floor((ht-23)/16))),cls=(ht<30?' sm':'')+(ht<20?' xs':''),tm=fmtHM(it.s)+'~'+fmtHM(it.e),dr=c.ro?'':' data-tdrag="'+it.k+'"';
       var dat=' data-d="'+c.d+'" data-s="'+it.s+'" data-e="'+it.e+'" data-dur="'+(it.e-it.s)+'"';
       if(it.k==='sc'){
-        var sx=it.x,scc=sx.c,scn=(sx.i+1)+(sx.j>sx.i?'~'+(sx.j+1):'')+'교시',scol=scc.sid?subCol(V,scc.sid):SGRAY,sml=[scc.r,tm].filter(Boolean).join(' · ');
-        h+='<div class="ttb fx k-school ttsc hs'+cls+'" id="tsc-'+c.d+'-'+sx.i+'" role="button" tabindex="0" data-act="open" data-modal="school"'+dat+' style="'+pos+';--sc:'+scol+'" aria-label="'+esc(scn+' '+scc.name+(scc.r?', '+scc.r:'')+', '+tm)+'"><span class="tbt"><b class="scn">'+scn+'</b> '+esc(scc.name)+'</span><small>'+esc(sml)+'</small></div>';
+        var sx=it.x,scc=sx.c,scn=(sx.i+1)+(sx.j>sx.i?'~'+(sx.j+1):'')+'교시',scol=SGRAY,sml=[scc.r,tm].filter(Boolean).join(' · ');
+        h+='<div class="ttb fx k-school ttsc'+cls+'" id="tsc-'+c.d+'-'+sx.i+'" role="button" tabindex="0" data-act="open" data-modal="school"'+dat+' style="'+pos+';--sc:'+scol+'" aria-label="'+esc(scn+' '+scc.name+(scc.r?', '+scc.r:'')+', '+tm)+'"><span class="tbt"><b class="scn">'+scn+'</b> '+esc(scc.name)+'</span><small>'+esc(sml)+'</small></div>';
       }else if(it.k==='f'){
         var b=it.b,lab=b.t||TTK[b.k],per=b.k==='school'?schPeriods(V,c.d,b):[],ps='';
-        per.forEach(function(x){ps+='<i class="tper" style="top:'+(px(x.s)-px(b.s))+'px;height:'+Math.max(10,px(x.e)-px(x.s))+'px;--pc:'+(x.c.sid?subCol(V,x.c.sid):SGRAY)+'" aria-hidden="true"><b>'+(x.i+1)+'</b>'+esc(x.c.name)+'</i>';});
+        per.forEach(function(x){ps+='<i class="tper" style="top:'+(px(x.s)-px(b.s))+'px;height:'+Math.max(10,px(x.e)-px(x.s))+'px;--pc:'+SGRAY+'" aria-hidden="true"><b>'+(x.i+1)+'</b>'+esc(x.c.name)+'</i>';});
         h+='<div class="ttb fx k-'+b.k+cls+(b.moved?' moved':'')+(fxSubs(V,b).length?' hs'+(fxSubs(V,b).length>1?' hsm':''):'')+(per.length?' hasp':'')+'" id="tb-'+esc(b.id)+'-'+c.d+'" role="button" tabindex="0" data-act="tt-open" data-k="f" data-id="'+esc(b.id)+'"'+dr+dat+' style="'+pos+(fxSubs(V,b).length?';--sc:'+subCol(V,fxSubs(V,b)[0])+';--scg:'+fxGrad(V,fxSubs(V,b)):'')+'" aria-label="'+esc(lab+', '+tm)+'">'+ps+'<span class="tbt">'+esc(lab)+'</span><small>'+tm+'</small>'+(fxSubs(V,b).length>1?'<small class="tbs">'+esc(fxSubs(V,b).map(function(s){return subAbbr(V,s);}).join(' · '))+'</small>':'')+(c.ro?'':'<i class="tbr" aria-hidden="true"></i>')+'</div>';
       }else{
         var g=it.g,sub=g.sid&&V.subName[g.sid];
@@ -2977,7 +2977,7 @@ function schNow(V,now){
 }
 function schNowHtml(V){
   var x=schNow(V,Date.now());if(!x)return '';
-  var b=x.b,c=b.c,multi=schTeachers(V,schOf(V,V.me),c.key).length>1,col=c.sid?subCol(V,c.sid):SGRAY;
+  var b=x.b,c=b.c,multi=schTeachers(V,schOf(V,V.me),c.key).length>1,col=SGRAY;
   var per=(b.i+1)+(b.j>b.i?'~'+(b.j+1):'')+'교시';
   return '<div class="notice schnow" role="status" style="--sc:'+col+'"><span class="snl">'+(x.now?'지금 수업':fmtHM(b.s)+' 시작')+'</span><b class="snp">'+per+'</b><b class="sns">'+esc(c.name)+(multi&&c.tc?'<small>'+esc(c.tc)+'</small>':'')+'</b>'+(c.r?'<span class="snr">'+esc(c.r)+'</span>':'')+(b.j>b.i?'<span class="snx">'+(b.j-b.i+1)+'시간 연속</span>':'')+'</div>';
 }
@@ -3009,7 +3009,7 @@ function schPeriods(V,date,b){
 }
 function schLine(V,date){
   var sch=schOf(V,V.me),dw=pd(date).getDay();if(!sch.has||dw<1||dw>5)return '';
-  var out=[];sch.p.forEach(function(p,i){var c=schCell(V,sch,dw,i);if(c)out.push('<span style="--sc:'+(c.sid?subCol(V,c.sid):SGRAY)+'"><b>'+(i+1)+'</b>'+esc(c.name)+'</span>');});
+  var out=[];sch.p.forEach(function(p,i){var c=schCell(V,sch,dw,i);if(c)out.push('<span style="--sc:'+SGRAY+'"><b>'+(i+1)+'</b>'+esc(c.name)+'</span>');});
   return out.join('');
 }
 function modalSchool(V){
@@ -3022,7 +3022,7 @@ function modalSchool(V){
   sch.p.forEach(function(p,i){
     b+='<tr><th><b>'+(i+1)+'</b><small>'+fmtHM(p.s)+'</small></th>';
     SCH_DAYS.forEach(function(d){
-      var c=schCell(V,sch,d,i),on=!!(sel&&sel.d===d&&sel.i===i),col=c&&c.sid?subCol(V,c.sid):SGRAY;
+      var c=schCell(V,sch,d,i),on=!!(sel&&sel.d===d&&sel.i===i),col=SGRAY;
       var cont=!!(c&&schSame(c,schCell(V,sch,d,i-1))&&schJoin(sch,i)),jn=!!(c&&schSame(c,schCell(V,sch,d,i+1))&&schJoin(sch,i+1));
       var mt=c&&schTeachers(V,sch,c.key).length>1?c.tc:'',meta=c?(mt?'<small>'+esc(mt)+'</small>':'')+(c.r?'<small>'+esc(c.r)+'</small>':''):'';
       var lab=DOW[d]+'요일 '+(i+1)+'교시'+(c?', '+c.name+(c.tc?', '+c.tc+' 선생님':'')+(c.r?', '+c.r:'')+(cont?', 앞 교시에 이어서':''):', 비어 있음');
@@ -3036,7 +3036,7 @@ function modalSchool(V){
   if(mine&&sel){
     var cur=schCell(V,sch,sel.d,sel.i);
     b+='<div class="schpick" id="schPick"><h3>'+DOW[sel.d]+'요일 '+(sel.i+1)+'교시<small>'+fmtHM(sch.p[sel.i].s)+'~'+fmtHM(sch.p[sel.i].e)+'</small></h3><div class="chips">';
-    b+=mySubs(V).map(function(s){return '<button class="chip sch-sub" data-act="sch-put" data-v="'+esc(s.id)+'" style="--sc:'+subCol(V,s.id)+'" aria-pressed="'+(cur&&cur.sid===s.id?'true':'false')+'"><i></i>'+esc(s.name)+'</button>';}).join('');
+    b+=mySubs(V).map(function(s){return '<button class="chip sch-sub" data-act="sch-put" data-v="'+esc(s.id)+'" style="--sc:'+SGRAY+'" aria-pressed="'+(cur&&cur.sid===s.id?'true':'false')+'"><i></i>'+esc(s.name)+'</button>';}).join('');
     b+=SCH_QUICK.map(function(t){return '<button class="chip" data-act="sch-put" data-t="'+esc(t)+'" aria-pressed="'+(cur&&cur.t===t?'true':'false')+'">'+esc(t)+'</button>';}).join('');
     b+='</div><div class="row" style="margin-top:10px"><input type="text" data-draft="schT" data-enter="sch-text" maxlength="12" placeholder="직접 쓰기 (예: 체육)" aria-label="과목 직접 쓰기"><button class="btn small" data-act="sch-text">넣기</button></div>';
     if(cur){
@@ -3587,7 +3587,7 @@ function viewProgAll(V){
 }
 
 /* ---------- 달력 칸: 일정은 과목 줄임말 색 칩으로만, 자세한 내용은 날짜를 누르면 ---------- */
-var SUB_ABBR={'생물의 유전':'유전','확률과 통계':'확통','화법과 언어':'화언','화법과 작문':'화작','언어와 매체':'언매','생명과학 실험':'생실','미적분Ⅰ':'미적','미적분Ⅱ':'미적2','미적분':'미적'};
+var SUB_ABBR={'후마니타스':'후마','생물의 유전':'유전','확률과 통계':'확통','화법과 언어':'화언','화법과 작문':'화작','언어와 매체':'언매','생명과학 실험':'생실','미적분Ⅰ':'미적','미적분Ⅱ':'미적2','미적분':'미적'};
 function subShort(name){name=String(name||'').trim();if(SUB_ABBR[name])return SUB_ABBR[name];var w=name.split(/\s+/)[0].replace(/(의|과|와)$/,'');return w.length>2?w.slice(0,2):w;}
 function subAbbr(V,sid){var c=String(obj(obj(V.progress[V.me]).abbr)[sid]||'').trim();return c||subShort(V.subName[sid]);}
 function evSid(V,e){
@@ -3640,7 +3640,7 @@ document.addEventListener('change',function(e){
 
 /* ---------- 처음 화면 ---------- */
 // 앱이 준비되면 알린다. 그림이 아직이면 다 그린 뒤에 열리고, 그림이 먼저 끝났으면 바로 열린다
-var APP_BUILD='1792738204';
+var APP_BUILD='1792738506';
 function splashDone(){
   var sp=document.getElementById('splash'),st=window.__sp;if(!sp||sp.getAttribute('data-out'))return;
   sp.setAttribute('data-out','1');
@@ -5015,7 +5015,7 @@ function modalSettings(V){
   [[22,'밤 10시'],[23,'밤 11시'],[24,'자정'],[25,'다음 날 새벽 1시'],[26,'다음 날 새벽 2시']].forEach(function(o){b+='<option value="'+o[0]+'"'+(V.certHour===o[0]?' selected':'')+'>'+o[1]+'</option>';});
   b+='</select>';
   b+='</div><div class="sec"><h3>키보드 단축키<small>키보드를 연결했을 때</small></h3><ul class="kbd">'+[['1 ~ 8','달력부터 메시지까지 화면 이동'],['N','할 일 추가'],['D','마감 있는 할 일 추가'],['L','달력, 할 일, 시간표 차례로 바꿔 보기'],['T','타이머 켜기, 끄기'],['F','타이머 크게 보기'],['Esc','창 닫기']].map(function(x){return '<li><kbd>'+x[0]+'</kbd><span>'+x[1]+'</span></li>';}).join('')+'</ul></div><div class="sec"><h3>저장 위치</h3><p class="hint">'+esc(S.net?({claude:'Claude 공유 저장소에 연결되어 있습니다. Claude에 로그인한 참여 인원끼리 실시간으로 같이 봅니다.',firebase:'공유 저장소에 연결되어 있습니다. 참여 코드로 들어온 사람 모두가 실시간으로 같이 봅니다.',local:'지금은 이 기기에만 저장됩니다. 다른 사람과 같이 보려면 공유 저장소 연결이 필요합니다.'}[S.net.mode]):'연결 중입니다.')+'</p>'+(S.net&&S.net.mode==='firebase'&&S.remote?'<div class="row" style="margin-top:10px"><button class="btn small" data-act="import-pick">기록 가져오기</button><button class="btn small" data-act="export-data">기록 파일로 저장</button><button class="del" data-act="setup-reset">'+(S.confirm==='disc'?'한 번 더 누르면 이 방에서 나갑니다':'이 기기에서 이 방 나가기')+'</button></div><p class="hint" style="margin-top:8px">'+esc(S.importMsg||'친구와 내 다른 기기는 위의 친구 초대하기로 들어옵니다. 기록 가져오기는 처음 연결한 뒤 한 번만 하면 됩니다.')+'</p>':'')+'</div>';
-  b+='<p class="hint appver">앱 버전 10월 23일 15:50</p>';
+  b+='<p class="hint appver">앱 버전 10월 23일 15:55</p>';
   return dlg('wide',{id:'settings',t:'설정'},b);
 }
 function modalCheck(V){
@@ -5291,7 +5291,22 @@ function makeCheck(deadline){
   opts.sort(function(){return Math.random()-.5;});
   return {code:code,opts:opts,deadline:deadline,beeped:Date.now()};
 }
+var HUM_DONE=false;
+function humMig(){
+  if(HUM_DONE)return;var V=view();
+  if(!S.ready||!V||!V.me||!canWrite()||!V.subs.length)return;
+  HUM_DONE=true;
+  if(obj(V.cfg).migHum)return;
+  var names=V.subs.map(function(s){return s.name;});
+  if(TEMPLATE.filter(function(n){return names.indexOf(n)>=0;}).length<4)return;
+  if(names.indexOf('후마니타스')<0){
+    var ord=V.subs.reduce(function(a,s){return Math.max(a,+s.order||0);},0)+1;
+    save('subjects/shum',{name:'후마니타스',order:ord,items:itemsOf(DEFAULT_ITEMS)});
+  }
+  editCfg(function(c){c.migHum=1;});
+}
 function tick(){
+  try{humMig();}catch(e){}
   try{schTick();}catch(e){}
   try{lockTick();}catch(e){}
   var now=Date.now(),V=V0,els=document.querySelectorAll('[data-lv],[data-lvp],[data-lvf]'),memo={},key='',i,k;

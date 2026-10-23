@@ -1,0 +1,45 @@
+# v32: 후마니타스 과목 한 번만 더하기, 학교 시간표 회색
+import sys,json
+sys.path.insert(0,'/home/claude/planner/tools')
+from rig import *
+SH='/home/claude/planner/shots/'
+R=Rig()
+p=R.open(390,844,ls={'gbb_note':'9999999999999'},now='2026-10-21T08:10:00+09:00');close_dlg(p)
+def ev(js):return p.evaluate('()=>'+js)
+def store(k):return json.loads(ev("JSON.stringify(window.__store[%s]||null)"%json.dumps(k)))
+p.wait_for_timeout(1500)
+print('added        :', store('subjects/shum'), '| flag', (store('meta/config') or {}).get('migHum'))
+print('subjects     :', ev("Object.values(window.__store).length&&Object.keys(window.__store).filter(k=>k.startsWith('subjects/')).length"))
+# 지우고 다시 열어도 다시 안 넣음
+ev("(()=>{delete window.__store['subjects/shum'];window.__fire();return 1})()");p.wait_for_timeout(500)
+p.add_init_script("(function(){var s=window.__store;if(s&&s['meta/config'])s['meta/config'].migHum=1;})();")  # 다시 열 때: 한 번 넣은 방(표시 있음), 과목은 지운 상태
+p.reload();p.wait_for_timeout(2500);close_dlg(p)
+print('after delete :', store('subjects/shum'), '(None: 다시 안 넣음)')
+# 학교 시간표: 칸, 과목 칩 회색
+ev("(()=>{window.__store['subjects/shum']={name:'후마니타스',order:9,items:[]};window.__fire();return 1})()");p.wait_for_timeout(500)
+click(p,'#meBtn',700);click(p,'.dialog [data-modal="school"]',700)
+click(p,'[data-act="sch-sel"][data-d="3"][data-i="0"]',400)
+print('picker       :', ev("[...document.querySelectorAll('.schpick .sch-sub')].map(e=>e.textContent).join(',')"))
+click(p,'.schpick [data-act="sch-put"][data-v="s2"]',500)
+click(p,'[data-act="sch-next"]',500)
+click(p,'.schpick [data-act="sch-put"][data-v="shum"]',500)
+click(p,'[data-act="sch-next"]',500)
+print('cell colors  :', ev("[...document.querySelectorAll('[data-act=\"sch-sel\"][data-d=\"3\"]')].slice(0,2).map(b=>b.innerText.replace(/\\n/g,'/')+' '+(b.getAttribute('style')||'')).join(' | ')"))
+print('chip colors  :', ev("[...new Set([...document.querySelectorAll('.schpick .sch-sub')].map(e=>e.style.getPropertyValue('--sc')))].join(',')"))
+p.screenshot(path=SH+'v32_sch.png')
+close_dlg(p)
+click(p,'[data-act="cal-mode"][data-id="tt"]',900)
+print('tt school    :', ev("[...document.querySelectorAll('.ttsc')].map(e=>e.className+' '+e.style.getPropertyValue('--sc')+' '+e.innerText.replace(/\\n/g,' ')).join(' | ')"))
+ev("(()=>{const sc=document.getElementById('ttScroll');const t=document.querySelector('.ttsc');if(sc&&t)sc.scrollTop=t.offsetTop-40;return 1})()");p.wait_for_timeout(300)
+p.screenshot(path=SH+'v32_tt_school.png')
+print('banner       :', ev("(b=>b?b.innerText.replace(/\\n/g,' ')+' '+b.style.getPropertyValue('--sc'):'')(document.querySelector('.notice.schnow'))"))
+print('errors',R.errors)
+R.close()
+# 다른 과목 목록 방: 안 넣음
+R=Rig()
+q=R.open(390,844,ls={'gbb_note':'9999999999999'},now='2026-10-21T08:10:00+09:00')
+q.add_init_script("(function(){var s=window.__store;if(!s)return;var n=['국어','수학','영어','물리','화학','지구과학','역사','음악'];for(var i=1;i<=8;i++){if(s['subjects/s'+i])s['subjects/s'+i].name=n[i-1];}})();")
+q.reload();q.wait_for_timeout(2500)
+print('other room   :', q.evaluate("()=>JSON.stringify(window.__store['subjects/shum']||null)+' flag '+JSON.stringify((window.__store['meta/config']||{}).migHum||null)+' | names '+Object.keys(window.__store).filter(k=>k.startsWith('subjects/')).map(k=>window.__store[k].name).slice(0,3).join(',')"))
+print('errors',R.errors)
+R.close()

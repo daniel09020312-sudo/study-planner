@@ -56,7 +56,7 @@ function schNow(V,now){
 }
 function schNowHtml(V){
   var x=schNow(V,Date.now());if(!x)return '';
-  var b=x.b,c=b.c,multi=schTeachers(V,schOf(V,V.me),c.key).length>1,col=c.sid?subCol(V,c.sid):SGRAY;
+  var b=x.b,c=b.c,multi=schTeachers(V,schOf(V,V.me),c.key).length>1,col=SGRAY;
   var per=(b.i+1)+(b.j>b.i?'~'+(b.j+1):'')+'교시';
   return '<div class="notice schnow" role="status" style="--sc:'+col+'"><span class="snl">'+(x.now?'지금 수업':fmtHM(b.s)+' 시작')+'</span><b class="snp">'+per+'</b><b class="sns">'+esc(c.name)+(multi&&c.tc?'<small>'+esc(c.tc)+'</small>':'')+'</b>'+(c.r?'<span class="snr">'+esc(c.r)+'</span>':'')+(b.j>b.i?'<span class="snx">'+(b.j-b.i+1)+'시간 연속</span>':'')+'</div>';
 }
@@ -88,7 +88,7 @@ function schPeriods(V,date,b){
 }
 function schLine(V,date){
   var sch=schOf(V,V.me),dw=pd(date).getDay();if(!sch.has||dw<1||dw>5)return '';
-  var out=[];sch.p.forEach(function(p,i){var c=schCell(V,sch,dw,i);if(c)out.push('<span style="--sc:'+(c.sid?subCol(V,c.sid):SGRAY)+'"><b>'+(i+1)+'</b>'+esc(c.name)+'</span>');});
+  var out=[];sch.p.forEach(function(p,i){var c=schCell(V,sch,dw,i);if(c)out.push('<span style="--sc:'+SGRAY+'"><b>'+(i+1)+'</b>'+esc(c.name)+'</span>');});
   return out.join('');
 }
 function modalSchool(V){
@@ -101,7 +101,7 @@ function modalSchool(V){
   sch.p.forEach(function(p,i){
     b+='<tr><th><b>'+(i+1)+'</b><small>'+fmtHM(p.s)+'</small></th>';
     SCH_DAYS.forEach(function(d){
-      var c=schCell(V,sch,d,i),on=!!(sel&&sel.d===d&&sel.i===i),col=c&&c.sid?subCol(V,c.sid):SGRAY;
+      var c=schCell(V,sch,d,i),on=!!(sel&&sel.d===d&&sel.i===i),col=SGRAY;
       var cont=!!(c&&schSame(c,schCell(V,sch,d,i-1))&&schJoin(sch,i)),jn=!!(c&&schSame(c,schCell(V,sch,d,i+1))&&schJoin(sch,i+1));
       var mt=c&&schTeachers(V,sch,c.key).length>1?c.tc:'',meta=c?(mt?'<small>'+esc(mt)+'</small>':'')+(c.r?'<small>'+esc(c.r)+'</small>':''):'';
       var lab=DOW[d]+'요일 '+(i+1)+'교시'+(c?', '+c.name+(c.tc?', '+c.tc+' 선생님':'')+(c.r?', '+c.r:'')+(cont?', 앞 교시에 이어서':''):', 비어 있음');
@@ -115,7 +115,7 @@ function modalSchool(V){
   if(mine&&sel){
     var cur=schCell(V,sch,sel.d,sel.i);
     b+='<div class="schpick" id="schPick"><h3>'+DOW[sel.d]+'요일 '+(sel.i+1)+'교시<small>'+fmtHM(sch.p[sel.i].s)+'~'+fmtHM(sch.p[sel.i].e)+'</small></h3><div class="chips">';
-    b+=mySubs(V).map(function(s){return '<button class="chip sch-sub" data-act="sch-put" data-v="'+esc(s.id)+'" style="--sc:'+subCol(V,s.id)+'" aria-pressed="'+(cur&&cur.sid===s.id?'true':'false')+'"><i></i>'+esc(s.name)+'</button>';}).join('');
+    b+=mySubs(V).map(function(s){return '<button class="chip sch-sub" data-act="sch-put" data-v="'+esc(s.id)+'" style="--sc:'+SGRAY+'" aria-pressed="'+(cur&&cur.sid===s.id?'true':'false')+'"><i></i>'+esc(s.name)+'</button>';}).join('');
     b+=SCH_QUICK.map(function(t){return '<button class="chip" data-act="sch-put" data-t="'+esc(t)+'" aria-pressed="'+(cur&&cur.t===t?'true':'false')+'">'+esc(t)+'</button>';}).join('');
     b+='</div><div class="row" style="margin-top:10px"><input type="text" data-draft="schT" data-enter="sch-text" maxlength="12" placeholder="직접 쓰기 (예: 체육)" aria-label="과목 직접 쓰기"><button class="btn small" data-act="sch-text">넣기</button></div>';
     if(cur){

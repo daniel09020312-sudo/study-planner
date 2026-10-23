@@ -109,7 +109,7 @@ function viewTT(V){
       var dat=' data-d="'+c.d+'" data-s="'+it.s+'" data-e="'+it.e+'" data-dur="'+(it.e-it.s)+'"';
       if(it.k==='f'){
         var b=it.b,lab=b.t||TTK[b.k],per=b.k==='school'?schPeriods(V,c.d,b):[],ps='';
-        per.forEach(function(x){ps+='<i class="tper" style="top:'+(px(x.s)-px(b.s))+'px;height:'+Math.max(10,px(x.e)-px(x.s))+'px;--pc:'+(x.c.sid?subCol(V,x.c.sid):SGRAY)+'" aria-hidden="true"><b>'+(x.i+1)+'</b>'+esc(x.c.name)+'</i>';});
+        per.forEach(function(x){ps+='<i class="tper" style="top:'+(px(x.s)-px(b.s))+'px;height:'+Math.max(10,px(x.e)-px(x.s))+'px;--pc:'+SGRAY+'" aria-hidden="true"><b>'+(x.i+1)+'</b>'+esc(x.c.name)+'</i>';});
         h+='<div class="ttb fx k-'+b.k+cls+(b.moved?' moved':'')+(b.sid?' hs':'')+(per.length?' hasp':'')+'" id="tb-'+esc(b.id)+'-'+c.d+'" role="button" tabindex="0" data-act="tt-open" data-k="f" data-id="'+esc(b.id)+'"'+dr+dat+' style="'+pos+(b.sid?';--sc:'+subCol(V,b.sid):'')+'" aria-label="'+esc(lab+', '+tm)+'">'+ps+'<span class="tbt">'+esc(lab)+'</span><small>'+tm+'</small>'+(c.ro?'':'<i class="tbr" aria-hidden="true"></i>')+'</div>';
       }else{
         var g=it.g,sub=g.sid&&V.subName[g.sid];
