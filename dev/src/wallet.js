@@ -119,7 +119,7 @@ function walAutoAdm(){
   walSign(WAL.id,d).then(function(sig){return walVerify(WAL.id,sig).then(function(ok){if(!ok)return;return walPatch(WAL.id,{unl:sig}).then(function(){WALS.unlChk[WAL.id+'|'+sig]=true;WAL.unl=true;render();});});}).catch(function(){});
 }
 function walTick(){
-  if(!S.remote||!S.ready||!S.net||S.net.mode!=='firebase'||WALS.busy)return;
+  if(!S.remote||!S.ready||!S.net||S.net.mode!=='firebase'||WALS.busy||!netFresh())return;
   if(++WALS.tick%3)return;
   var V=view();if(!V.me||!V.byId[V.me]||!canWrite()||navigator.onLine===false)return;
   var key=S.remote.room+'_'+V.me,pw=String(obj(V.progress[V.me]).wal||'');

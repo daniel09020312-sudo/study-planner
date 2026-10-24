@@ -11,19 +11,29 @@ sub("    if(ml&&(S.chatKey!==key||!ml.__sc)){",
     "    var sps=document.querySelector('.stkpick .seg');if(sps&&sps.__pk!==S.stkPack){sps.__pk=S.stkPack;var spb=sps.querySelector('[aria-pressed=\"true\"]');if(spb){var spa=spb.getBoundingClientRect(),spr=sps.getBoundingClientRect();if(spa.left<spr.left||spa.right>spr.right)sps.scrollLeft+=spa.left-spr.left-(spr.width-spa.width)/2;}}\n    if(ml&&(S.chatKey!==key||!ml.__sc)){")
 # 움직이는 이모티콘: 아이폰(Safari)은 움직이는 webp를 아주 느리게 돌리므로, 장면을 옆으로 이어 붙인 한 장(STK의 4번째 값=장면마다 ms)을
 # object-fit:cover로 한 칸만 보이게 하고 object-position을 장면 시간대로 옮긴다(@keyframes는 처음 쓸 때 만든다)
-sub(""" decoding="async">':'';}""", """ decoding="async"'+stkSa(x)+'>':'';}
-var STK_SA={},STK_SAN=0;
+sub(""" decoding="async">':'';}""", """ decoding="async">':'';}
+var STK_SA={},STK_SAN=0,STK_PX='data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
 function stkSa(x){
   var f=x&&x[3];if(!f||!f.length)return '';
   var key=f.join('_'),a=STK_SA[key];
   if(!a){
     var n=f.length,tot=0,t=0,kf='';f.forEach(function(v){tot+=+v||0;});if(!tot)return '';
-    for(var i=0;i<n;i++){kf+=(Math.round(t/tot*10000)/100)+'%{object-position:'+(n>1?Math.round(i/(n-1)*10000)/100:0)+'% 0}';t+=+f[i]||0;}
+    for(var i=0;i<n;i++){kf+=(Math.round(t/tot*10000)/100)+'%{background-position:'+(n>1?Math.round(i/(n-1)*1000000)/10000:0)+'% 0}';t+=+f[i]||0;}
     a=STK_SA[key]={nm:'stkSa'+(STK_SAN++),d:tot};
-    try{var st=document.createElement('style');st.textContent='@keyframes '+a.nm+'{'+kf+'100%{object-position:100% 0}}';document.head.appendChild(st);}catch(e){}
+    try{var st=document.createElement('style');st.textContent='@keyframes '+a.nm+'{'+kf+'100%{background-position:100% 0}}';document.head.appendChild(st);}catch(e){}
   }
-  return ' class="sa" style="animation:'+a.nm+' '+a.d+'ms step-end infinite"';
+  return 'animation:'+a.nm+' '+a.d+'ms step-end infinite';
+}
+/* 움직이는 이모티콘: 투명한 1점 그림 위에 장면을 이어 붙인 한 장을 배경으로 깔고(칸 크기에 꼭 맞게) 한 칸씩 넘긴다.
+   (object-fit/object-position으로 넘기면 아이폰 Safari에서 조금씩 밀려 보여서). 이 정의가 위의 stkImg보다 뒤에 있어 이것이 쓰인다 */
+function stkImg(id){
+  var x=STK_BY[id];if(!x)return '';
+  var u=typeof stkSrc==='function'?stkSrc(x[0]):'stickers/'+x[0]+'.webp',an=stkSa(x),at=' alt="'+esc(x[1])+' 이모티콘" width="160" height="160"';
+  if(!an)return '<img src="'+u+'"'+at+' decoding="async">';
+  return '<img src="'+STK_PX+'"'+at+' class="sa" style="background-image:url('+u+');background-size:'+(x[3].length*100)+'% 100%;'+an+'">';
 }""")
+# 말랑이(기본·장난·감정)도 고르는 칸에서 움직이게
+sub(""":stOwn?'<button class="stkbtn" data-act="stk-send" data-id="'+x[0]+'\"""", """:stOwn?'<button class="stkbtn" data-m="'+esc(x[2])+'" data-act="stk-send" data-id="'+x[0]+'\"""")
 # 숨은 팩이 열리는 순간 연출(stkReveal): 사자마자, 그리고 상점을 볼 때 매초 확인
 sub("+(sbi.cat==='stk'?' 메시지의 이모티콘에서 쓸 수 있습니다.':' 바로 바꿨습니다.'));break;",
     "+(sbi.cat==='stk'?' 메시지의 이모티콘에서 쓸 수 있습니다.':' 바로 바꿨습니다.'));setTimeout(stkRevealTick,500);break;")

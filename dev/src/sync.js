@@ -19,7 +19,7 @@ function dlAdd(n){
 function dlMonth(){var o=null;try{o=JSON.parse(localStorage.getItem('gbb_dl')||'null');}catch(e){}return o&&o.m===today().slice(0,7)?+o.b||0:0;}
 function fmtBytes(n){n=+n||0;if(n<1024)return n+'B';if(n<1048576)return Math.round(n/1024)+'KB';if(n<1073741824)return (n/1048576).toFixed(n<10485760?1:0)+'MB';return (n/1073741824).toFixed(2)+'GB';}
 function firebaseNet(base,room){
-  var rm=base.replace(/\/+$/,'')+'/rooms/'+encodeURIComponent(room),tree={},X={},L={},full=0,syncAt=0,sizeT=0,sizeV=0,paintT=null;
+  var rm=base.replace(/\/+$/,'')+'/rooms/'+encodeURIComponent(room),tree={},X={},L={},full=0,syncAt=0,sizeT=0,sizeV=0,paintT=null,fresh=false,live=false;
   function paintSoon(){if(paintT)return;paintT=setTimeout(function(){paintT=null;fromTree(tree);},60);}
   function url(path){return path.indexOf('pics/')===0?rm+'/p/'+path.slice(5)+'.json':rm+'/d/'+path+'.json';}
   function chk(r){if(!r.ok){var e=new Error('http '+r.status);e.code=(r.status===401||r.status===403)?'not_granted':'unavailable';throw e;}return r;}
@@ -37,8 +37,33 @@ function firebaseNet(base,room){
       return done(r,true);
     });
   }
+  // 바뀐 칸만 쓴다: d/<문서>/<칸>들과 문서의 표를 PATCH 한 번으로. 다른 기기는 표를 보고 문서 전체를 다시 받는다
+  function docOf(path){return String(path).split('/').slice(0,2).join('/');}
+  function sendPatch(path,ops){
+    // 이 기기가 그 문서의 마지막 판을 갖고 있었고(실시간 연결 중), 보내는 동안 다른 쓰기가 오지 않았을 때만 '최신'으로 친다. 아니면 표를 보고 다시 받는다
+    var tok=xTok(),k=xKey(docOf(path)),body={},l0=L[k],cur=live&&X[k]===l0;
+    Object.keys(ops).forEach(function(r){body['d/'+path+'/'+r]=ops[r]===undefined?null:ops[r];});body['x/'+k]=tok;
+    function done(r,logged){
+      if(r.ok){Object.keys(ops).forEach(function(r2){tree=setAt(tree,path+'/'+r2,ops[r2]==null?null:clone(ops[r2]));});if(logged&&cur&&L[k]===l0){X[k]=tok;if(L[k]===undefined)L[k]=tok;}paintSoon();}
+      return r;
+    }
+    return fetch(rm+'.json',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}).then(function(r){
+      if(r.status===400)return fetch(url(path),{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(ops)}).then(function(r2){return done(r2,false);});
+      return done(r,true);
+    });
+  }
+  function getAt(path){var o=tree,a=String(path).split('/').filter(Boolean);for(var i=0;i<a.length;i++){if(!o||typeof o!=='object')return undefined;o=o[a[i]];}return o===undefined?undefined:clone(o);}
   return {mode:'firebase',
     send:send,
+    sendPatch:sendPatch,
+    peek:getAt,
+    fresh:function(){return fresh;},
+    patch:function(path,ops){
+      function off(){var e=new Error('offline');e.code='offline';return e;}
+      if(navigator.onLine===false||obHas(path)){obQueueOps(path,ops);if(navigator.onLine!==false)obFlush();return Promise.resolve();}
+      return sendPatch(path,ops).then(chk).then(function(){})
+        .catch(function(e){if(e&&e.code)throw e;obQueueOps(path,ops);});
+    },
     meta:function(){return {x:X,full:full,sy:syncAt};},
     size:function(){var n=Date.now();if(n-sizeT>8000){sizeT=n;try{sizeV=u8len(JSON.stringify(tree));}catch(e){sizeV=0;}}return sizeV;},
     write:function(path,d){
@@ -52,7 +77,8 @@ function firebaseNet(base,room){
     },
     read:function(path){return getText(url(path)).then(function(t){return JSON.parse(t);});},
     start:function(){
-      var es=null,first=true,pend={},fullBusy=false;
+      var es=null,first=true,pend={},fullBusy=false,snapped=false;
+      function chkFresh(){if(!fresh&&snapped&&!fullBusy&&!Object.keys(pend).length){fresh=true;paintSoon();}}
       var c=cacheGet(),now=Date.now();
       if(c&&c.t&&c.x&&typeof c.x==='object'){tree=clone(c.t);X=clone(c.x);full=+c.full||0;syncAt=+c.sy||0;}
       var fullEvery=function(){return Date.now()<SYNC_EARLY_UNTIL?SYNC_FULL_EARLY:SYNC_FULL;};
@@ -64,13 +90,14 @@ function firebaseNet(base,room){
           var d=JSON.parse(t),p=pend[k];delete pend[k];
           tree=setAt(tree,xPath(k),d===null?null:d);X[k]=want;paintSoon();
           if(p&&p.again&&L[k]!==X[k])fetchPath(k);
+          chkFresh();
         }).catch(function(){delete pend[k];setTimeout(function(){if(L[k]!==undefined&&L[k]!==X[k])fetchPath(k);},4000);});
       }
       function diff(keys){keys.forEach(function(k){if(L[k]!==undefined&&L[k]!==X[k]&&!fullBusy)fetchPath(k);});}
       function doFull(){
         if(fullBusy)return;fullBusy=true;var x0=clone(L);
         getText(rm+'/d.json').then(function(t){
-          fullBusy=false;tree=obj(JSON.parse(t));X=x0;full=Date.now();syncAt=full;fromTree(tree);diff(Object.keys(L));
+          fullBusy=false;tree=obj(JSON.parse(t));X=x0;full=Date.now();syncAt=full;fromTree(tree);diff(Object.keys(L));chkFresh();
         }).catch(function(){fullBusy=false;if(!S.ready){S.ready=true;render();}});
       }
       function prune(){
@@ -84,7 +111,7 @@ function firebaseNet(base,room){
         var stale=Date.now()-syncAt>SYNC_KEEP-86400000;
         if((first&&needFull)||stale||!Object.keys(tree).length)doFull();
         else{if(first)fromTree(tree);diff(Object.keys(L));syncAt=Date.now();}
-        first=false;prune();
+        first=false;snapped=true;chkFresh();prune();
       }
       function onKey(k,v){
         if(!k)return;
@@ -101,8 +128,8 @@ function firebaseNet(base,room){
       es.addEventListener('keep-alive',function(){syncAt=Date.now();});
       es.addEventListener('cancel',function(){S.readOnly=true;S.ready=true;render();});
       es.addEventListener('auth_revoked',function(){S.readOnly=true;S.ready=true;render();});
-      es.onopen=function(){clearTimeout(S.sseT);S.sseT=null;if(S.sseDown){S.sseDown=false;paintBanner();}obFlush();};
-      es.onerror=function(){if(!S.sseT)S.sseT=setTimeout(function(){S.sseT=null;if(!es||es.readyState!==1){S.sseDown=true;paintBanner();}},4000);if(!S.ready){S.ready=true;if(navigator.onLine!==false)flash('공유 저장소에 연결하지 못했습니다. 인터넷 연결을 확인하세요.');render();}};
+      es.onopen=function(){live=true;clearTimeout(S.sseT);S.sseT=null;if(S.sseDown){S.sseDown=false;paintBanner();}obFlush();};
+      es.onerror=function(){live=false;if(!S.sseT)S.sseT=setTimeout(function(){S.sseT=null;if(!es||es.readyState!==1){S.sseDown=true;paintBanner();}},4000);if(!S.ready){S.ready=true;if(navigator.onLine!==false)flash('공유 저장소에 연결하지 못했습니다. 인터넷 연결을 확인하세요.');render();}};
       }
     }};
 }

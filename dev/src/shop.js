@@ -72,7 +72,7 @@ function shopUse(id){
 }
 /* 상점이 생기기 전에 쓰던 모양은 한 번 그냥 준다 */
 function shopGf(){
-  if(SHOP_GF)return;var V=view();
+  if(SHOP_GF||!netFresh())return;var V=view();
   if(!S.ready||!V||!V.me||!canWrite())return;
   SHOP_GF=true;
   if(obj(obj(V.progress[V.me]).shop).gf)return;

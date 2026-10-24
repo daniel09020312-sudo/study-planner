@@ -4,6 +4,15 @@ function obLoad(){if(OB)return OB;try{OB=JSON.parse(lsGet('gbb_outbox')||'[]');}
 function obSave(){try{lsSet('gbb_outbox',OB.length?JSON.stringify(OB):null);}catch(e){}}
 function obCount(){return obLoad().length;}
 function obQueue(path,d){obLoad();OB=OB.filter(function(x){return x.p!==path;});OB.push({p:path,d:d===undefined?null:d});obSave();paintBanner();}
+function obHas(path){return obLoad().some(function(x){return x.p===path;});}
+/* 바뀐 칸만 모아 두기: 같은 문서가 이미 있으면 그 안에 합친다 */
+function obQueueOps(path,ops){
+  obLoad();var ex=OB.filter(function(x){return x.p===path;})[0];
+  if(ex&&ex.ops)opsMerge(ex.ops,clone(ops));
+  else if(ex){var d=ex.d&&typeof ex.d==='object'?ex.d:{};Object.keys(ops).forEach(function(r){d=setAt(d,r,ops[r]==null?null:clone(ops[r]));});ex.d=d;}
+  else OB.push({p:path,ops:clone(ops)});
+  obSave();paintBanner();
+}
 function obDrop(path){obLoad();var n=OB.length;OB=OB.filter(function(x){return x.p!==path;});if(OB.length!==n)obSave();}
 function isOffline(){return navigator.onLine===false||!!S.sseDown;}
 function obApply(){
@@ -13,7 +22,9 @@ function obApply(){
     if(p==='meta/config'){S.config=x.d;return;}
     if(p==='meta/room'){S.roomInfo=obj(x.d);return;}
     if(COLLS.indexOf(c)<0)return;
-    var m=Object.assign({},obj(S[c]));if(x.d===null)delete m[id];else m[id]=x.d;S[c]=m;
+    var m=Object.assign({},obj(S[c]));
+    if(x.ops){var cur=clone(obj(m[id]));Object.keys(x.ops).forEach(function(r){cur=setAt(cur,r,x.ops[r]==null?null:clone(x.ops[r]));});m[id]=cur;}
+    else if(x.d===null)delete m[id];else m[id]=x.d;S[c]=m;
   });
 }
 function obFlush(){
@@ -22,7 +33,7 @@ function obFlush(){
   (function next(){
     var x=obLoad()[0];
     if(!x){OB_BUSY=false;if(sent){flash('인터넷이 다시 연결되어 모아 둔 기록 '+sent+'개를 올렸습니다.');}paintBanner();return;}
-    (S.net&&S.net.send?S.net.send(x.p,x.d):fetch(base+x.p+'.json',{method:x.d===null?'DELETE':'PUT',headers:{'Content-Type':'application/json'},body:x.d===null?undefined:JSON.stringify(x.d)}))
+    (x.ops?(S.net&&S.net.sendPatch?S.net.sendPatch(x.p,x.ops):Promise.resolve({ok:true,status:200})):S.net&&S.net.send?S.net.send(x.p,x.d):fetch(base+x.p+'.json',{method:x.d===null?'DELETE':'PUT',headers:{'Content-Type':'application/json'},body:x.d===null?undefined:JSON.stringify(x.d)}))
       .then(function(r){
         if(r.status===401||r.status===403){obDrop(x.p);S.readOnly=true;next();return;}
         if(!r.ok)throw new Error('http');

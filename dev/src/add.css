@@ -47,18 +47,18 @@
 .mt{background:none;border:0;padding:2px 6px 0;font-size:11px;color:var(--ink-3)}
 .mact{display:flex;gap:6px;margin-top:6px;animation:rowIn .3s var(--ease) both}
 .stk{display:block;width:128px;height:128px;border-radius:14px;flex:none}
-.stk img{display:block;width:100%;height:100%;object-fit:contain;transform-origin:50% 82%;animation-duration:2.4s;animation-timing-function:ease-in-out;animation-iteration-count:3}
-.stk[data-m="bounce"] img{animation-name:ssBounce}
-.stk[data-m="sway"] img{animation-name:ssSway}
-.stk[data-m="tilt"] img{animation-name:ssTilt}
-.stk[data-m="sleep"] img{animation-name:ssSleep;animation-duration:3.6s}
-.stk[data-m="nod"] img{animation-name:ssNod}
-.stk[data-m="pulse"] img{animation-name:ssPulse}
-.stk[data-m="breathe"] img{animation-name:ssPulse;animation-duration:4s}
-.stk[data-m="shake"] img{animation-name:ssShake}
-.stk[data-m="nudge"] img{animation-name:ssNudge}
-.stk[data-m="float"] img{animation-name:ssFloat}
-.stk[data-m="pop"] img{animation-name:ssPop}
+.stk img,.stkbtn[data-m] img{display:block;width:100%;height:100%;object-fit:contain;transform-origin:50% 82%;animation-duration:2.4s;animation-timing-function:ease-in-out;animation-iteration-count:infinite}
+.stk[data-m="bounce"] img,.stkbtn[data-m="bounce"] img{animation-name:ssBounce}
+.stk[data-m="sway"] img,.stkbtn[data-m="sway"] img{animation-name:ssSway}
+.stk[data-m="tilt"] img,.stkbtn[data-m="tilt"] img{animation-name:ssTilt}
+.stk[data-m="sleep"] img,.stkbtn[data-m="sleep"] img{animation-name:ssSleep;animation-duration:3.6s}
+.stk[data-m="nod"] img,.stkbtn[data-m="nod"] img{animation-name:ssNod}
+.stk[data-m="pulse"] img,.stkbtn[data-m="pulse"] img{animation-name:ssPulse}
+.stk[data-m="breathe"] img,.stkbtn[data-m="breathe"] img{animation-name:ssPulse;animation-duration:4s}
+.stk[data-m="shake"] img,.stkbtn[data-m="shake"] img{animation-name:ssShake}
+.stk[data-m="nudge"] img,.stkbtn[data-m="nudge"] img{animation-name:ssNudge}
+.stk[data-m="float"] img,.stkbtn[data-m="float"] img{animation-name:ssFloat}
+.stk[data-m="pop"] img,.stkbtn[data-m="pop"] img{animation-name:ssPop}
 @keyframes ssBounce{0%,35%,65%,100%{transform:translateY(0)}48%{transform:translateY(-7%) scale(.98,1.02)}58%{transform:scale(1.02,.98)}}
 @keyframes ssSway{0%,100%{transform:rotate(0)}25%{transform:rotate(-3deg)}75%{transform:rotate(3deg)}}
 @keyframes ssTilt{0%,25%,100%{transform:rotate(0)}45%,70%{transform:rotate(-7deg)}}
@@ -960,7 +960,7 @@ html.wkdragging,html.wkdragging *{cursor:grabbing !important}
 .shi.hid .shst{display:inline-flex;align-items:center;gap:4px}
 .shi.hid .lki{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
 .shnew{display:inline-block;margin-left:6px;padding:1px 7px;border-radius:99px;background:var(--inkc);color:var(--inkon);font-style:normal;font-size:11px;font-weight:700;vertical-align:2px}
-img.sa{object-fit:cover !important;object-position:0 0;aspect-ratio:1/1}
+img.sa{background-repeat:no-repeat;background-position:0 0;aspect-ratio:1/1}
 @media (prefers-reduced-motion:reduce){img.sa{animation:none !important}}
 /* 숨은 팩이 열릴 때 (어두운 한 가지 모습으로) */
 .rvfx{position:fixed;inset:0;z-index:200;display:grid;grid-template-rows:1fr auto;justify-items:center;align-items:end;padding:calc(24px + env(safe-area-inset-top,0px)) 16px calc(28px + env(safe-area-inset-bottom,0px));overflow:hidden;color:#fff;color-scheme:dark;-webkit-tap-highlight-color:transparent}
@@ -1006,3 +1006,4 @@ img.sa{object-fit:cover !important;object-position:0 0;aspect-ratio:1/1}
 .rvfx.calm *,.rvfx.calm{animation-duration:.01ms !important;animation-delay:0s !important;animation-iteration-count:1 !important}
 .rvfx.calm .rp,.rvfx.calm .rvflash,.rvfx.calm .rvring,.rvfx.calm .tw{display:none}
 @media (prefers-reduced-motion:reduce){.rvfx *,.rvfx{animation-duration:.01ms !important;animation-delay:0s !important;animation-iteration-count:1 !important}}
+@media (prefers-reduced-motion:reduce){.stk img,.stkbtn[data-m] img{animation:none !important}}
