@@ -34,7 +34,7 @@ stk = {}
 for f in sorted(os.listdir(BASE + '/stickers')):
     if f.endswith('.webp'):
         stk[f[:-5]] = base64.b64encode(open(BASE + '/stickers/' + f, 'rb').read()).decode('ascii')
-assert len(stk) == 36
+assert len(stk) == 72
 import sys
 LIGHT = '--light' in sys.argv  # 이모티콘을 파일 안에 넣지 않고 stickers 폴더에서 불러오는 가벼운 판
 if not LIGHT:

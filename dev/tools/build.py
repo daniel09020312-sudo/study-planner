@@ -103,7 +103,7 @@ try{new MutationObserver(function(){var v=document.documentElement.getAttribute(
 
 /* ---------- 이모티콘 ---------- */
 var STK=__STK__;
-var STK_PACKS=[['basic','기본'],['playful','장난'],['emotions','감정']],STK_BY={};
+var STK_PACKS=[['basic','기본'],['playful','장난'],['emotions','감정'],['cat','까만 고양이'],['dog','하얀 강아지'],['nyang','냥댕이']],STK_BY={};
 STK.forEach(function(x){STK_BY[x[0]]=x;});
 var DUEL_DAYS=2;
 
@@ -398,6 +398,8 @@ exec(open(BASE + '/tools/v34_part.py', encoding='utf-8').read())
 exec(open(BASE + '/tools/v35_part.py', encoding='utf-8').read())
 exec(open(BASE + '/tools/v36_part.py', encoding='utf-8').read())
 exec(open(BASE + '/tools/v37_part.py', encoding='utf-8').read())
+exec(open(BASE + '/tools/v38_part.py', encoding='utf-8').read())
+exec(open(BASE + '/tools/v39_part.py', encoding='utf-8').read())
 
 assert "7일 동안" not in s.split("/* ---------- 도전")[1].split("/* ---------- 팝업")[0] or True
 open(BASE + '/study-room-planner.html', 'w', encoding='utf-8').write(s)

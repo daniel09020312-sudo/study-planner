@@ -1470,6 +1470,18 @@ html.wkdragging,html.wkdragging *{cursor:grabbing !important}
 /* v37: 어제 늦은 인증 안내 */
 .cert.late{background:color-mix(in srgb,var(--ink-3) 8%,var(--surface))}
 .cert.late .row{margin:0;flex-wrap:wrap;justify-content:flex-end}
+/* v39 움직이는 이모티콘 팩, 숨은 팩 */
+.stkpick .seg{max-width:100%;overflow-x:auto;scrollbar-width:none;grid-auto-columns:max-content;overscroll-behavior-x:contain}
+.stkpick .seg::-webkit-scrollbar{display:none}
+.stkpick .seg button{padding:0 12px}
+.stkq{display:grid !important;place-items:center;aspect-ratio:1;width:100%;height:auto;border-radius:14px;border:1.5px dashed color-mix(in srgb,var(--inkc) 45%,var(--line));background:color-mix(in srgb,var(--inkc) 6%,var(--surface));color:color-mix(in srgb,var(--inkc) 70%,var(--ink-2));font-size:26px;font-weight:800;cursor:default}
+.shq{padding:10px}
+.shq i{display:grid;place-items:center;aspect-ratio:1;border-radius:12px;border:1.5px dashed color-mix(in srgb,var(--inkc) 45%,var(--line));background:color-mix(in srgb,var(--inkc) 8%,var(--surface));color:color-mix(in srgb,var(--inkc) 75%,var(--ink-2));font-style:normal;font-size:22px;font-weight:800}
+.shq i:nth-child(2){transform:rotate(-4deg)}.shq i:nth-child(3){transform:rotate(3deg)}
+.shi.hid{background:color-mix(in srgb,var(--inkc) 4%,var(--surface))}
+.shi.hid .shst{display:inline-flex;align-items:center;gap:4px}
+.shi.hid .lki{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+.shnew{display:inline-block;margin-left:6px;padding:1px 7px;border-radius:99px;background:var(--inkc);color:var(--inkon);font-style:normal;font-size:11px;font-weight:700;vertical-align:2px}
 #splash{position:fixed;inset:0;z-index:200;overflow:hidden;-webkit-tap-highlight-color:transparent}
 .spcv{position:absolute;inset:0;display:block;width:100%;height:100%;overflow:visible}
 .spcur,.sphole{fill:var(--bg)}
@@ -1873,8 +1885,8 @@ try{window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',
 try{new MutationObserver(function(){var v=document.documentElement.getAttribute('data-theme');if(v===lastSet)return;hostTheme=v;applyLook();}).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});}catch(e){}
 
 /* ---------- 이모티콘 ---------- */
-var STK=[["basic-01","공부 시작","bounce"],["basic-02","집중 중","nod"],["basic-03","졸려…","sleep"],["basic-04","해냈다!","bounce"],["basic-05","질문 있어","tilt"],["basic-06","고마워","pulse"],["basic-07","파이팅!","bounce"],["basic-08","으앙","shake"],["basic-09","잠깐 쉬자","breathe"],["basic-10","안녕","sway"],["basic-11","콕 찌르기","nudge"],["basic-12","같이 하자","bounce"],["playful-01","어쩔~","tilt"],["playful-02","메롱","sway"],["playful-03","살려줘","sleep"],["playful-04","공부 중임","nod"],["playful-05","뇌 정지","float"],["playful-06","도망가자","nudge"],["playful-07","지켜보고 있다","sway"],["playful-08","뇌 빌려줘","pulse"],["playful-09","자는 척","sleep"],["playful-10","여유로운 척","tilt"],["playful-11","공부해라 콕","nudge"],["playful-12","정상인 없음","shake"],["emotions-01","신난다!","bounce"],["emotions-02","부끄러워","sway"],["emotions-03","헉?","pop"],["emotions-04","나 삐짐","tilt"],["emotions-05","화났어","shake"],["emotions-06","미안…","nod"],["emotions-07","몰라…","tilt"],["emotions-08","감동이야","pulse"],["emotions-09","걱정돼","shake"],["emotions-10","괜찮아","breathe"],["emotions-11","무표정","still"],["emotions-12","최고야","pulse"]];
-var STK_PACKS=[['basic','기본'],['playful','장난'],['emotions','감정']],STK_BY={};
+var STK=[["basic-01","공부 시작","bounce"],["basic-02","집중 중","nod"],["basic-03","졸려…","sleep"],["basic-04","해냈다!","bounce"],["basic-05","질문 있어","tilt"],["basic-06","고마워","pulse"],["basic-07","파이팅!","bounce"],["basic-08","으앙","shake"],["basic-09","잠깐 쉬자","breathe"],["basic-10","안녕","sway"],["basic-11","콕 찌르기","nudge"],["basic-12","같이 하자","bounce"],["playful-01","어쩔~","tilt"],["playful-02","메롱","sway"],["playful-03","살려줘","sleep"],["playful-04","공부 중임","nod"],["playful-05","뇌 정지","float"],["playful-06","도망가자","nudge"],["playful-07","지켜보고 있다","sway"],["playful-08","뇌 빌려줘","pulse"],["playful-09","자는 척","sleep"],["playful-10","여유로운 척","tilt"],["playful-11","공부해라 콕","nudge"],["playful-12","정상인 없음","shake"],["emotions-01","신난다!","bounce"],["emotions-02","부끄러워","sway"],["emotions-03","헉?","pop"],["emotions-04","나 삐짐","tilt"],["emotions-05","화났어","shake"],["emotions-06","미안…","nod"],["emotions-07","몰라…","tilt"],["emotions-08","감동이야","pulse"],["emotions-09","걱정돼","shake"],["emotions-10","괜찮아","breathe"],["emotions-11","무표정","still"],["emotions-12","최고야","pulse"],["cat-01","출석!","anim"],["cat-02","공부 시작","anim"],["cat-03","집중 중","anim"],["cat-04","질문 있어","anim"],["cat-05","졸려…","anim"],["cat-06","끝냈다!","anim"],["cat-07","잠깐만","anim"],["cat-08","이해했어","anim"],["cat-09","멘탈 바사삭","anim"],["cat-10","해보자","anim"],["cat-11","쉬는 중","anim"],["cat-12","오늘도 수고했어","anim"],["dog-01","왔어!","anim"],["dog-02","개힘듦","anim"],["dog-03","할 게 산더미","anim"],["dog-04","복습 중","anim"],["dog-05","가보자고","anim"],["dog-06","딴생각 중…","anim"],["dog-07","이게 맞나?","anim"],["dog-08","충전 중","anim"],["dog-09","간식 필요","anim"],["dog-10","잠깐 숨 좀","anim"],["dog-11","다 했다!","anim"],["dog-12","내일의 나에게…","anim"],["nyang-01","여기부터 같이","anim"],["nyang-02","내가 알려줄게","anim"],["nyang-03","깨워줘…","anim"],["nyang-04","하나씩 하자","anim"],["nyang-05","당 충전","anim"],["nyang-06","같이 집중","anim"],["nyang-07","틀려도 괜찮아","anim"],["nyang-08","너도 할 수 있어","anim"],["nyang-09","해냈다!","anim"],["nyang-10","잠깐 쉬자","anim"],["nyang-11","이불 반 나눔","anim"],["nyang-12","오늘은 여기까지","anim"]];
+var STK_PACKS=[['basic','기본'],['playful','장난'],['emotions','감정'],['cat','까만 고양이'],['dog','하얀 강아지'],['nyang','냥댕이']],STK_BY={};
 STK.forEach(function(x){STK_BY[x[0]]=x;});
 var DUEL_DAYS=2;
 
@@ -2238,7 +2250,7 @@ function clearHint(V,date,day,late,certed){
 /* 지난 날의 할 일: 지우거나 이름을 바꿀 수 없고, 인증 마감 뒤에는 완료 표시도 바꿀 수 없다.
    다른 날로 옮기면 그날에는 '다른 날로 옮김'으로 남아서 모두 끝낸 날이 되지 않는다. */
 function dayLocked(V,date){return date<today()&&Date.now()>certEnd(V,date).getTime();}
-function doneLocked(V,date){return dayLocked(V,date)&&date<addDays(today(),-1);}
+function doneLocked(V,date){return date<CAL_MIN;}
 function guardDay(path,data){
   if(S.crRaw)return data;
   var m=/^days\/(.+)_(\d{4}-\d{2}-\d{2})$/.exec(path);
@@ -2259,7 +2271,7 @@ function guardDay(path,data){
 function goalRow(V,date,mode,day,x,isT){
   if(x.mv)return '<li class="goal mv" id="g-'+esc(x.id)+'-mv"><span class="chk ghost" aria-hidden="true"><span></span></span><div class="gt">'+(x.sid&&V.subName[x.sid]&&S.gGroup!=='sub'?subTag(V,x):'')+'<span>'+esc(x.text)+'</span><em class="tag">다른 날로 옮김</em></div><span></span></li>';
   var key=date+'|'+x.id,f=isT&&day.focus===x.id&&!x.done,sub=x.sid&&V.subName[x.sid],p=x.pid&&V.plans[x.pid]?obj(V.plans[x.pid]):null,sel=S.gSel===key,ed=S.gEdit===key;
-  var h='<li class="goal'+(x.done?' done':'')+(f?' focus':'')+(sel?' sel':'')+'" id="g-'+esc(x.id)+'"><button class="chk'+(x.done?' on':'')+'" data-act="goal-toggle" data-date="'+date+'" data-id="'+esc(x.id)+'" aria-pressed="'+(x.done?'true':'false')+'" aria-label="'+esc(x.text)+' 완료 표시"'+(mode!=='full'||doneLocked(V,date)?' disabled':'')+'><span></span></button>';
+  var h='<li class="goal'+(x.done?' done':'')+(f?' focus':'')+(sel?' sel':'')+'" id="g-'+esc(x.id)+'"><button class="chk'+(x.done?' on':'')+'" data-act="goal-toggle" data-date="'+date+'" data-id="'+esc(x.id)+'" aria-pressed="'+(x.done?'true':'false')+'" aria-label="'+esc(x.text)+' 완료 표시"'+(mode==='plan'||doneLocked(V,date)?' disabled':'')+'><span></span></button>';
   if(ed)h+='<div class="gt gedit"><input type="text" id="gEditIn" data-draft="gEdit" data-enter="g-save" data-date="'+date+'" data-id="'+esc(x.id)+'" maxlength="90" aria-label="할 일 고치기"><button class="btn small primary" data-act="g-save" data-date="'+date+'" data-id="'+esc(x.id)+'">저장</button><button class="btn small" data-act="g-sel" data-date="'+date+'" data-id="'+esc(x.id)+'">취소</button></div>';
   else h+='<div class="gt">'+(sub&&S.gGroup!=='sub'?subTag(V,x):'')+'<span>'+esc(x.text)+'</span>'+(placed(x)?'<em class="tag">'+fmtHM(x.ts)+'</em>':'')+(p?'<em class="tag due">'+esc(shortDate(p.due))+' 마감'+(x.part?', '+esc(x.part):'')+'</em>':'')+(f?'<em class="tag a">지금 하는 중</em>':'')+'</div>';
   var canAct=mode!=='view'||!x.done;
@@ -2313,10 +2325,10 @@ function goalsCard(V,date,k){
     h+='<p class="empty">'+(isT?'오늘 끝낼 일을 정해보세요. 과목과 할 일을 눌러서 고르면 됩니다.':'이날 할 일을 미리 적어둘 수 있습니다.')+'</p>';
     if(yu)h+='<div class="row" style="margin-top:8px"><button class="btn small soft" data-act="carry" data-date="'+date+'">전날 남은 '+yu+'개 가져오기</button></div>';
   }
-  if(mode==='full'){
+  if(mode==='full'||(mode==='view'&&date>=START&&day.goals.length)){
     var hour=certLabel(V.certHour),past=Date.now()>certEnd(V,date).getTime(),yd=addDays(date,-1);
     if(isT&&!dayOf(V,V.me,yd).certAt&&Date.now()<=certEnd(V,yd).getTime())h+='<div class="cert"><div class="what"><b>어제 공부 인증</b><span class="hint">'+esc(certLabel(V.certHour).replace('다음 날 ','오늘 '))+'까지 인증하면 어제 점수에 10점이 더해집니다.</span></div><button class="btn small soft" data-act="cert" data-date="'+yd+'">어제 인증하기</button></div>';
-    else if(isT&&yd>=START&&!dayOf(V,V.me,yd).certAt&&dayOf(V,V.me,yd).goals.filter(function(g){return g&&!g.mv;}).length)h+='<div class="cert late"><div class="what"><b>어제 공부 인증 (마감 지남)</b><span class="hint">어제 할 일은 지금도 완료 표시를 할 수 있습니다. 지금 인증하면 '+RULE.certLate+'점이고, 어제 할 일을 다 끝냈으면 '+RULE.allLate+'점이 더해집니다.</span></div><div class="row"><button class="btn small" data-act="pick-date" data-d="'+yd+'">어제 할 일 보기</button><button class="btn small soft" data-act="cert" data-date="'+yd+'">어제 인증하기</button></div></div>';
+    else if(isT&&yd>=START&&!dayOf(V,V.me,yd).certAt&&dayOf(V,V.me,yd).goals.filter(function(g){return g&&!g.mv;}).length)h+='<div class="cert late"><div class="what"><b>어제 공부 인증 (마감 지남)</b><span class="hint">어제 할 일은 지금도 완료 표시를 할 수 있습니다(더 지난 날은 달력에서 그 날을 눌러서). 지금 인증하면 '+RULE.certLate+'점이고, 어제 할 일을 다 끝냈으면 '+RULE.allLate+'점이 더해집니다.</span></div><div class="row"><button class="btn small" data-act="pick-date" data-d="'+yd+'">어제 할 일 보기</button><button class="btn small soft" data-act="cert" data-date="'+yd+'">어제 인증하기</button></div></div>';
     h+='<div class="cert">';
     if(day.certAt){var late=isLate(V,date,day.certAt);h+='<div class="what"><b>'+esc(fmtClock(day.certAt))+' 인증 완료</b><span class="hint">'+(late?'마감 뒤 인증이라 3점입니다.':'마감 전 인증으로 10점을 받았습니다.')+clearHint(V,date,day,late,true)+'</span></div><button class="btn small" data-act="uncert" data-date="'+date+'">취소</button>';}
     else h+='<div class="what"><b>하루 공부 인증</b><span class="hint">'+(past?'마감이 지나 지금 인증하면 3점입니다.':esc(hour)+'까지 인증하면 10점입니다.')+clearHint(V,date,day,past,false)+'</span></div><button class="btn small soft" data-act="cert" data-date="'+date+'">인증하기</button>';
@@ -2634,7 +2646,7 @@ function wkItem(V,d,mode,x,t){
   if(x.ts!=null&&x.te>x.ts)meta.push(fmtHM(x.ts));
   if(p)meta.push(esc(shortDate(p.due))+' 마감'+(x.part?' '+esc(x.part):''));
   var h='<div class="wki'+(x.done?' done':'')+(late?' late':'')+'" id="wi-'+esc(x.id)+'"'+(x.done?'':' data-wdrag="1"')+' data-d="'+d+'" data-id="'+esc(x.id)+'" style="--sc:'+goalCol(V,x)+'">';
-  h+='<button class="wkchk'+(x.done?' on':'')+'" data-act="goal-toggle" data-date="'+d+'" data-id="'+esc(x.id)+'" aria-pressed="'+(x.done?'true':'false')+'" aria-label="'+esc(x.text)+' 완료 표시"'+(mode!=='full'||doneLocked(V,d)?' disabled':'')+'><span></span></button>';
+  h+='<button class="wkchk'+(x.done?' on':'')+'" data-act="goal-toggle" data-date="'+d+'" data-id="'+esc(x.id)+'" aria-pressed="'+(x.done?'true':'false')+'" aria-label="'+esc(x.text)+' 완료 표시"'+(mode==='plan'||doneLocked(V,d)?' disabled':'')+'><span></span></button>';
   h+='<button class="wkt" data-act="al-goal" data-d="'+d+'" data-id="'+esc(x.id)+'" aria-label="'+esc(x.text)+', 달력에서 열어 고치기"><span class="t">'+esc(x.text)+'</span>'+(meta.length||late?'<small>'+meta.join(' · ')+(late?'<em>못 끝냄</em>':'')+'</small>':'')+'</button>';
   return h+'</div>';
 }
@@ -2794,7 +2806,7 @@ function viewTT(V){
         h+='<div class="ttb fx k-'+b.k+cls+(b.moved?' moved':'')+''+(per.length?' hasp':'')+'" id="tb-'+esc(b.id)+'-'+c.d+'" role="button" tabindex="0" data-act="tt-open" data-k="f" data-id="'+esc(b.id)+'"'+dr+dat+' style="'+pos+''+'" aria-label="'+esc(lab+', '+tm)+'">'+ps+'<span class="tbt">'+esc(lab)+'</span><small>'+tm+'</small>'+(fxSubs(V,b).length?'<small class="tbs">'+esc(fxSubs(V,b).map(function(s){return n===1?V.subName[s]:subAbbr(V,s);}).join(' · '))+'</small>':'')+(c.ro||c.lk?'':'<i class="tbr" aria-hidden="true"></i>')+'</div>';
       }else{
         var g=it.g,sub=g.sid&&V.subName[g.sid];
-        h+='<div class="ttb td'+cls+(g.done?' done':'')+'" id="tb-'+esc(g.id)+'" role="button" tabindex="0" data-act="tt-open" data-k="g" data-id="'+esc(g.id)+'"'+dr+dat+' style="'+pos+';--sc:'+goalCol(V,g)+'" aria-label="'+esc(g.text+', '+tm)+'">'+(c.mode==='full'?'<button class="ttbchk'+(g.done?' on':'')+'" data-act="goal-toggle" data-date="'+c.d+'" data-id="'+esc(g.id)+'" aria-pressed="'+(g.done?'true':'false')+'" aria-label="'+esc(g.text)+' 완료 표시"><span></span></button>':'')+'<span class="tbt">'+esc(g.text)+'</span><small>'+tm+(sub?' · '+esc(sub):'')+'</small>'+(c.ro||c.lk?'':'<i class="tbr" aria-hidden="true"></i>')+'</div>';
+        h+='<div class="ttb td'+cls+(g.done?' done':'')+'" id="tb-'+esc(g.id)+'" role="button" tabindex="0" data-act="tt-open" data-k="g" data-id="'+esc(g.id)+'"'+dr+dat+' style="'+pos+';--sc:'+goalCol(V,g)+'" aria-label="'+esc(g.text+', '+tm)+'">'+(c.mode!=='plan'?'<button class="ttbchk'+(g.done?' on':'')+'" data-act="goal-toggle" data-date="'+c.d+'" data-id="'+esc(g.id)+'" aria-pressed="'+(g.done?'true':'false')+'" aria-label="'+esc(g.text)+' 완료 표시"><span></span></button>':'')+'<span class="tbt">'+esc(g.text)+'</span><small>'+tm+(sub?' · '+esc(sub):'')+'</small>'+(c.ro||c.lk?'':'<i class="tbr" aria-hidden="true"></i>')+'</div>';
       }
     });
     if(c.d===t&&nm>=r0&&nm<=r1)h+='<div class="ttnow" style="top:'+px(nm)+'px" aria-hidden="true"></div>';
@@ -3776,7 +3788,7 @@ document.addEventListener('change',function(e){
 
 /* ---------- 처음 화면 ---------- */
 // 앱이 준비되면 알린다. 그림이 아직이면 다 그린 뒤에 열리고, 그림이 먼저 끝났으면 바로 열린다
-var APP_BUILD='1792825140';
+var APP_BUILD='1792834194';
 function splashDone(){
   var sp=document.getElementById('splash'),st=window.__sp;if(!sp||sp.getAttribute('data-out'))return;
   sp.setAttribute('data-out','1');
@@ -4012,7 +4024,9 @@ var INK_MIN=10;
 var SHOP_CATS=[['look','방 꾸미기'],['color','대표 색'],['timer','타이머'],['stk','이모티콘']];
 var SHOP_LOOK={grid:[150,'공책 모눈 위에 손글씨'],board:[200,'초록 칠판과 분필 글씨'],pop:[150,'동글동글 말랑한 버튼'],line:[100,'얇은 검은 선으로 또렷하게'],glass:[200,'뒤가 비치는 유리 카드'],night:[250,'별이 뜬 밤하늘']};
 var SHOP_TIMER={digits:[60,'큰 숫자만 깔끔하게'],bar:[60,'숫자 아래 줄어드는 막대'],pie:[80,'시간이 줄어드는 원판'],flip:[100,'넘어가는 넘김 시계']};
-var SHOP_STK={playful:[120,'어쩔~, 메롱, 뇌 정지 같은 장난'],emotions:[120,'신난다!, 부끄러워, 감동이야 같은 마음']};
+var SHOP_STK={playful:[120,'어쩔~, 메롱, 뇌 정지 같은 장난'],emotions:[120,'신난다!, 부끄러워, 감동이야 같은 마음'],cat:[120,'출석!, 멘탈 바사삭, 오늘도 수고했어. 움직이는 까만 고양이'],dog:[120,'개힘듦, 할 게 산더미, 간식 필요. 움직이는 하얀 강아지'],nyang:[120,'고양이와 강아지가 같이 공부합니다. 움직이는 둘']};
+// 숨은 팩: 앞의 팩을 모두 사야 무엇인지 보이고 살 수 있다
+var SHOP_HIDE={nyang:['cat','dog']};
 var INK_SVG='<svg class="inkd" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.8c3.2 4 6.2 7.6 6.2 11.2a6.2 6.2 0 0 1-12.4 0c0-3.6 3-7.2 6.2-11.2z"/><path class="hl" d="M9.4 14.6a2.8 2.8 0 0 0 2.4 2.7"/></svg>';
 var SHOP_GF=false;
 // 모든 방 잉크(웹 판): wallet.js가 채운다. on이면 지갑의 다른 방 합계와 산 것을 더한다
@@ -4028,6 +4042,10 @@ function shopItems(){
 }
 function shopItem(id){return shopItems().filter(function(x){return x.id===id;})[0]||null;}
 function shopOwn(V){return obj(obj(obj(V.progress[V.me]).shop).own);}
+function shopShown(V,id){var it=shopItem(id),req=it&&it.cat==='stk'?SHOP_HIDE[it.v]:null;if(!req)return true;return shopOwns(V,id)||req.every(function(p){return shopOwns(V,'k:'+p);});}
+function stkHid(V,pack){return !shopShown(V,'k:'+pack);}
+function stkHidNote(pack){var req=SHOP_HIDE[pack]||[];return req.map(function(p){var it=shopItem('k:'+p);return it?it.name:p;}).join('과 ')+'을 모두 사면 무엇인지 보이고 살 수 있습니다.';}
+function stkHidPrev(){return '<span class="shpv shstk shq" aria-hidden="true"><i>?</i><i>?</i><i>?</i><i>?</i></span>';}
 function walOwn(){return WAL.on?obj(WAL.own):{};}
 function shopOwns(V,id){var it=shopItem(id);if(!it)return false;if(it.free)return true;return V&&V.me?(shopOwn(V)[id]!=null||walOwn()[id]!=null):false;}
 function inkMins(V,mid,date){
@@ -4105,7 +4123,13 @@ function modalShop(V){
   b+='<div class="shgrid'+(cat==='stk'?' wide':'')+'" id="shg-'+cat+'">';
   items.forEach(function(it){
     var foc=S.shopFocus===it.id,peek=cat==='stk'&&S.shopPeek===it.id;
-    b+='<div class="shi'+(foc?' foc':'')+(shopOwns(V,it.id)?' own':'')+'" id="shi-'+esc(it.id.replace(':','-'))+'">'+shopPrev(it)+'<div class="shn"><b>'+esc(it.name)+'</b><small>'+esc(it.desc)+'</small></div><div class="sha">'+shopBtn(V,it,ink)+'</div>';
+    if(!shopShown(V,it.id)){
+      var hreq=SHOP_HIDE[it.v]||[],hgot=hreq.filter(function(p){return shopOwns(V,'k:'+p);}).length;
+      b+='<div class="shi hid'+(foc?' foc':'')+'" id="shi-'+esc(it.id.replace(':','-'))+'">'+stkHidPrev()+'<div class="shn"><b>비밀 팩</b><small>'+esc(stkHidNote(it.v))+'</small></div><div class="sha"><span class="shst"><svg class="lki" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2.5"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5"/></svg>'+hreq.length+'개 중 '+hgot+'개 샀음</span></div></div>';
+      return;
+    }
+    var fresh=SHOP_HIDE[it.v]&&!shopOwns(V,it.id);
+    b+='<div class="shi'+(foc?' foc':'')+(shopOwns(V,it.id)?' own':'')+'" id="shi-'+esc(it.id.replace(':','-'))+'">'+shopPrev(it)+'<div class="shn"><b>'+esc(it.name)+(fresh?'<em class="shnew">새로 열림</em>':'')+'</b><small>'+esc(it.desc)+'</small></div><div class="sha">'+shopBtn(V,it,ink)+'</div>';
     if(cat==='stk'){
       b+='<button class="shpeek" data-act="shop-peek" data-id="'+esc(it.id)+'" aria-expanded="'+(peek?'true':'false')+'">'+(peek?'미리 보기 접기':'전체 미리 보기')+'</button>';
       if(peek)b+='<div class="shall">'+STK.filter(function(x){return x[0].indexOf(it.v+'-')===0;}).map(function(x){return '<span class="stk" data-m="'+esc(x[2])+'">'+stkImg(x[0])+'<small>'+esc(x[1])+'</small></span>';}).join('')+'</div>';
@@ -5140,9 +5164,9 @@ function viewChat(V){
   });
   h+='</div><div id="stkSlot">';
   if(S.stkOpen&&!ed){
-    h+='<div class="stkpick" id="stkPick"><div class="seg" role="group" aria-label="이모티콘 묶음">'+STK_PACKS.map(function(p){var plk=!shopOwns(V,'k:'+p[0]);return '<button data-act="stk-pack" data-id="'+p[0]+'" aria-pressed="'+(S.stkPack===p[0]?'true':'false')+'">'+(plk?'<svg class="lki" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2.5"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5"/></svg>':'')+p[1]+'</button>';}).join('')+'</div>'+(shopOwns(V,'k:'+S.stkPack)?'':(function(it){return '<div class="stklock"><span>'+esc(it.name)+'은 상점에서 잉크 '+it.price+'방울에 살 수 있습니다. 아래는 미리 보기입니다.</span><button class="btn small primary" data-act="shop-open" data-v="'+esc(it.id)+'">상점에서 보기</button></div>';})(shopItem('k:'+S.stkPack)))+'<div class="stkgrid'+(shopOwns(V,'k:'+S.stkPack)?'':' lockd')+'" id="stg-'+esc(S.stkPack)+'">';
-    var stOwn=shopOwns(V,'k:'+S.stkPack);
-    STK.forEach(function(x){if(x[0].indexOf(S.stkPack+'-')===0)h+=stOwn?'<button class="stkbtn" data-act="stk-send" data-id="'+x[0]+'" data-chan="'+esc(c)+'" aria-label="'+esc(x[1])+' 이모티콘 보내기">'+stkImg(x[0])+'</button>':'<span class="stkbtn stk" data-m="'+esc(x[2])+'" title="'+esc(x[1])+'">'+stkImg(x[0])+'</span>';});
+    h+='<div class="stkpick" id="stkPick"><div class="seg" role="group" aria-label="이모티콘 묶음">'+STK_PACKS.map(function(p){var plk=!shopOwns(V,'k:'+p[0]);return '<button data-act="stk-pack" data-id="'+p[0]+'" aria-pressed="'+(S.stkPack===p[0]?'true':'false')+'">'+(plk?'<svg class="lki" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2.5"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5"/></svg>':'')+(stkHid(V,p[0])?'비밀':p[1])+'</button>';}).join('')+'</div>'+(shopOwns(V,'k:'+S.stkPack)?'':stkHid(V,S.stkPack)?'<div class="stklock"><span>비밀 팩입니다. '+esc(stkHidNote(S.stkPack))+'</span><button class="btn small primary" data-act="shop-open" data-v="k:'+esc(S.stkPack)+'">상점에서 보기</button></div>':(function(it){return '<div class="stklock"><span>'+esc(it.name)+'은 상점에서 잉크 '+it.price+'방울에 살 수 있습니다. 아래는 미리 보기입니다.</span><button class="btn small primary" data-act="shop-open" data-v="'+esc(it.id)+'">상점에서 보기</button></div>';})(shopItem('k:'+S.stkPack)))+'<div class="stkgrid'+(shopOwns(V,'k:'+S.stkPack)?'':' lockd')+'" id="stg-'+esc(S.stkPack)+'">';
+    var stOwn=shopOwns(V,'k:'+S.stkPack),stHid=stkHid(V,S.stkPack);
+    STK.forEach(function(x){if(x[0].indexOf(S.stkPack+'-')===0)h+=stHid?'<span class="stkbtn stkq" aria-hidden="true">?</span>':stOwn?'<button class="stkbtn" data-act="stk-send" data-id="'+x[0]+'" data-chan="'+esc(c)+'" aria-label="'+esc(x[1])+' 이모티콘 보내기">'+stkImg(x[0])+'</button>':'<span class="stkbtn stk" data-m="'+esc(x[2])+'" title="'+esc(x[1])+'">'+stkImg(x[0])+'</span>';});
     h+='</div></div>';
   }
   /* 입력칸이 화면 갱신 때 옮겨지지 않도록 자리(칸)를 항상 같은 순서로 둔다 */
@@ -5642,7 +5666,7 @@ function modalSettings(V){
   [[22,'밤 10시'],[23,'밤 11시'],[24,'자정'],[25,'다음 날 새벽 1시'],[26,'다음 날 새벽 2시'],[27,'다음 날 새벽 3시'],[28,'다음 날 새벽 4시'],[29,'다음 날 새벽 5시']].forEach(function(o){b+='<option value="'+o[0]+'"'+(V.certHour===o[0]?' selected':'')+'>'+o[1]+'</option>';});
   b+='</select>';
   b+='</div><div class="sec"><h3>키보드 단축키<small>키보드를 연결했을 때</small></h3><ul class="kbd">'+[['1 ~ 8','달력부터 메시지까지 화면 이동'],['N','할 일 추가'],['D','마감 있는 할 일 추가'],['L','달력, 할 일, 시간표 차례로 바꿔 보기'],['T','타이머 켜기, 끄기'],['F','타이머 크게 보기'],['Esc','창 닫기']].map(function(x){return '<li><kbd>'+x[0]+'</kbd><span>'+x[1]+'</span></li>';}).join('')+'</ul></div><div class="sec"><h3>저장 위치</h3><p class="hint">'+esc(S.net?({claude:'Claude 공유 저장소에 연결되어 있습니다. Claude에 로그인한 참여 인원끼리 실시간으로 같이 봅니다.',firebase:'공유 저장소에 연결되어 있습니다. 참여 코드로 들어온 사람 모두가 실시간으로 같이 봅니다.',local:'지금은 이 기기에만 저장됩니다. 다른 사람과 같이 보려면 공유 저장소 연결이 필요합니다.'}[S.net.mode]):'연결 중입니다.')+'</p>'+(S.net&&S.net.mode==='firebase'&&S.remote?'<div class="row" style="margin-top:10px"><button class="btn small" data-act="import-pick">기록 가져오기</button><button class="btn small" data-act="export-data">기록 파일로 저장</button><button class="del" data-act="setup-reset">'+(S.confirm==='disc'?'한 번 더 누르면 이 방에서 나갑니다':'이 기기에서 이 방 나가기')+'</button></div><p class="hint" style="margin-top:8px">'+esc(S.importMsg||'친구와 내 다른 기기는 위의 친구 초대하기로 들어옵니다. 기록 가져오기는 처음 연결한 뒤 한 번만 하면 됩니다.')+'</p>':'')+'</div>';
-  b+='<p class="hint appver">앱 버전 10월 24일 15:59</p>';
+  b+='<p class="hint appver">앱 버전 10월 24일 18:29</p>';
   return dlg('wide',{id:'settings',t:'설정'},b);
 }
 function modalCheck(V){
@@ -6089,7 +6113,7 @@ function act(name,el){
     case 'shop-open':shopGo(el.getAttribute('data-v'));return;
     case 'shop-use':{var Vsu=view();if(shopOwns(Vsu,id)){shopUse(id);var siu=shopItem(id);flash(roJ(siu.name)+' 바꿨습니다.');}break;}
     case 'shop-buy':{
-      var Vsb=view(),sbi=shopItem(id);if(!sbi||!Vsb.me||shopOwns(Vsb,id)||!need())break;
+      var Vsb=view(),sbi=shopItem(id);if(!sbi||!Vsb.me||shopOwns(Vsb,id)||!shopShown(Vsb,id)||!need())break;
       var sbk=inkOf(Vsb);if(sbk.bal<sbi.price){flash('잉크가 '+(sbi.price-sbk.bal)+'방울 모자랍니다.');break;}
       if(prev!=='buy:'+id){S.confirm='buy:'+id;break;}
       var sbp=sbk.unl?0:sbi.price;editProg(function(p){var sh=p.shop=obj(p.shop);sh.own=obj(sh.own);sh.own[id]=sbp;});if(canWrite()&&WALH.buy)WALH.buy(id,sbp);

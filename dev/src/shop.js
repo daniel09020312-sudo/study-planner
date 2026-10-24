@@ -6,7 +6,9 @@ var INK_MIN=10;
 var SHOP_CATS=[['look','방 꾸미기'],['color','대표 색'],['timer','타이머'],['stk','이모티콘']];
 var SHOP_LOOK={grid:[150,'공책 모눈 위에 손글씨'],board:[200,'초록 칠판과 분필 글씨'],pop:[150,'동글동글 말랑한 버튼'],line:[100,'얇은 검은 선으로 또렷하게'],glass:[200,'뒤가 비치는 유리 카드'],night:[250,'별이 뜬 밤하늘']};
 var SHOP_TIMER={digits:[60,'큰 숫자만 깔끔하게'],bar:[60,'숫자 아래 줄어드는 막대'],pie:[80,'시간이 줄어드는 원판'],flip:[100,'넘어가는 넘김 시계']};
-var SHOP_STK={playful:[120,'어쩔~, 메롱, 뇌 정지 같은 장난'],emotions:[120,'신난다!, 부끄러워, 감동이야 같은 마음']};
+var SHOP_STK={playful:[120,'어쩔~, 메롱, 뇌 정지 같은 장난'],emotions:[120,'신난다!, 부끄러워, 감동이야 같은 마음'],cat:[120,'출석!, 멘탈 바사삭, 오늘도 수고했어. 움직이는 까만 고양이'],dog:[120,'개힘듦, 할 게 산더미, 간식 필요. 움직이는 하얀 강아지'],nyang:[120,'고양이와 강아지가 같이 공부합니다. 움직이는 둘']};
+// 숨은 팩: 앞의 팩을 모두 사야 무엇인지 보이고 살 수 있다
+var SHOP_HIDE={nyang:['cat','dog']};
 var INK_SVG='<svg class="inkd" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.8c3.2 4 6.2 7.6 6.2 11.2a6.2 6.2 0 0 1-12.4 0c0-3.6 3-7.2 6.2-11.2z"/><path class="hl" d="M9.4 14.6a2.8 2.8 0 0 0 2.4 2.7"/></svg>';
 var SHOP_GF=false;
 // 모든 방 잉크(웹 판): wallet.js가 채운다. on이면 지갑의 다른 방 합계와 산 것을 더한다
@@ -22,6 +24,10 @@ function shopItems(){
 }
 function shopItem(id){return shopItems().filter(function(x){return x.id===id;})[0]||null;}
 function shopOwn(V){return obj(obj(obj(V.progress[V.me]).shop).own);}
+function shopShown(V,id){var it=shopItem(id),req=it&&it.cat==='stk'?SHOP_HIDE[it.v]:null;if(!req)return true;return shopOwns(V,id)||req.every(function(p){return shopOwns(V,'k:'+p);});}
+function stkHid(V,pack){return !shopShown(V,'k:'+pack);}
+function stkHidNote(pack){var req=SHOP_HIDE[pack]||[];return req.map(function(p){var it=shopItem('k:'+p);return it?it.name:p;}).join('과 ')+'을 모두 사면 무엇인지 보이고 살 수 있습니다.';}
+function stkHidPrev(){return '<span class="shpv shstk shq" aria-hidden="true"><i>?</i><i>?</i><i>?</i><i>?</i></span>';}
 function walOwn(){return WAL.on?obj(WAL.own):{};}
 function shopOwns(V,id){var it=shopItem(id);if(!it)return false;if(it.free)return true;return V&&V.me?(shopOwn(V)[id]!=null||walOwn()[id]!=null):false;}
 function inkMins(V,mid,date){
@@ -99,7 +105,13 @@ function modalShop(V){
   b+='<div class="shgrid'+(cat==='stk'?' wide':'')+'" id="shg-'+cat+'">';
   items.forEach(function(it){
     var foc=S.shopFocus===it.id,peek=cat==='stk'&&S.shopPeek===it.id;
-    b+='<div class="shi'+(foc?' foc':'')+(shopOwns(V,it.id)?' own':'')+'" id="shi-'+esc(it.id.replace(':','-'))+'">'+shopPrev(it)+'<div class="shn"><b>'+esc(it.name)+'</b><small>'+esc(it.desc)+'</small></div><div class="sha">'+shopBtn(V,it,ink)+'</div>';
+    if(!shopShown(V,it.id)){
+      var hreq=SHOP_HIDE[it.v]||[],hgot=hreq.filter(function(p){return shopOwns(V,'k:'+p);}).length;
+      b+='<div class="shi hid'+(foc?' foc':'')+'" id="shi-'+esc(it.id.replace(':','-'))+'">'+stkHidPrev()+'<div class="shn"><b>비밀 팩</b><small>'+esc(stkHidNote(it.v))+'</small></div><div class="sha"><span class="shst"><svg class="lki" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2.5"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5"/></svg>'+hreq.length+'개 중 '+hgot+'개 샀음</span></div></div>';
+      return;
+    }
+    var fresh=SHOP_HIDE[it.v]&&!shopOwns(V,it.id);
+    b+='<div class="shi'+(foc?' foc':'')+(shopOwns(V,it.id)?' own':'')+'" id="shi-'+esc(it.id.replace(':','-'))+'">'+shopPrev(it)+'<div class="shn"><b>'+esc(it.name)+(fresh?'<em class="shnew">새로 열림</em>':'')+'</b><small>'+esc(it.desc)+'</small></div><div class="sha">'+shopBtn(V,it,ink)+'</div>';
     if(cat==='stk'){
       b+='<button class="shpeek" data-act="shop-peek" data-id="'+esc(it.id)+'" aria-expanded="'+(peek?'true':'false')+'">'+(peek?'미리 보기 접기':'전체 미리 보기')+'</button>';
       if(peek)b+='<div class="shall">'+STK.filter(function(x){return x[0].indexOf(it.v+'-')===0;}).map(function(x){return '<span class="stk" data-m="'+esc(x[2])+'">'+stkImg(x[0])+'<small>'+esc(x[1])+'</small></span>';}).join('')+'</div>';
