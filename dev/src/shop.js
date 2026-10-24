@@ -12,7 +12,7 @@ var SHOP_HIDE={nyang:['cat','dog']};
 var INK_SVG='<svg class="inkd" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.8c3.2 4 6.2 7.6 6.2 11.2a6.2 6.2 0 0 1-12.4 0c0-3.6 3-7.2 6.2-11.2z"/><path class="hl" d="M9.4 14.6a2.8 2.8 0 0 0 2.4 2.7"/></svg>';
 var SHOP_GF=false;
 // 모든 방 잉크(웹 판): wallet.js가 채운다. on이면 지갑의 다른 방 합계와 산 것을 더한다
-var WAL={on:false,id:'',key:'',own:{},rm:{},unl:false},WALH={buy:null,adm:null};
+var WAL={on:false,id:'',key:'',own:{},rm:{},rk:{},unl:false},WALH={buy:null,adm:null,revoke:null};
 var GIFT_AMTS=[10,30,50,100];
 function shopItems(){
   if(shopItems.c)return shopItems.c;var a=[];
@@ -29,7 +29,10 @@ function stkHid(V,pack){return !shopShown(V,'k:'+pack);}
 function stkHidNote(pack){var req=SHOP_HIDE[pack]||[];return req.map(function(p){var it=shopItem('k:'+p);return it?it.name:p;}).join('과 ')+'을 모두 사면 무엇인지 보이고 살 수 있습니다.';}
 function stkHidPrev(){return '<span class="shpv shstk shq" aria-hidden="true"><i>?</i><i>?</i><i>?</i><i>?</i></span>';}
 function walOwn(){return WAL.on?obj(WAL.own):{};}
-function shopOwns(V,id){var it=shopItem(id);if(!it)return false;if(it.free)return true;return V&&V.me?(shopOwn(V)[id]!=null||walOwn()[id]!=null):false;}
+/* 관리자가 되돌린 것: 지갑 rk에 적혀 있으면 다른 방 기록에 남은 것도 산 것으로 치지 않는다 */
+function shopRk(id){return WAL.on&&obj(WAL.rk)[id]!=null;}
+function shopOwnLive(V){var o=shopOwn(V),r={};Object.keys(o).forEach(function(k){if(!shopRk(k))r[k]=o[k];});return r;}
+function shopOwns(V,id){var it=shopItem(id);if(!it)return false;if(it.free)return true;return V&&V.me?(shopOwnLive(V)[id]!=null||walOwn()[id]!=null):false;}
 function inkMins(V,mid,date){
   var pre=mid+'_',m=0;
   Object.keys(V.days).forEach(function(k){if(k.indexOf(pre)!==0)return;if(date&&k!==pre+date)return;var d=obj(V.days[k]);m+=sumMins(d.mins)+Math.min(sumMins(d.manual),RULE.manualMax);});
@@ -45,7 +48,7 @@ function inkLocal(V){
 function inkOf(V){
   if(!V||!V.me)return {got:0,spent:0,bal:0,today:0,gi:0,unl:false,rooms:1};
   if(V._ink)return V._ink;
-  var L=inkLocal(V),m=L.e,gi=L.gi,go=L.go,own=Object.assign({},shopOwn(V),walOwn()),spent=0,n=1;
+  var L=inkLocal(V),m=L.e,gi=L.gi,go=L.go,own=Object.assign({},shopOwnLive(V),walOwn()),spent=0,n=1;
   if(WAL.on)Object.keys(obj(WAL.rm)).forEach(function(k){if(k===WAL.key)return;var r=obj(WAL.rm[k]);m+=Math.max(0,+r.e||0);gi+=Math.max(0,+r.gi||0);go+=Math.max(0,+r.go||0);n++;});
   Object.keys(own).forEach(function(k){spent+=Math.max(0,+own[k]||0);});
   var got=Math.floor(m/INK_MIN)+gi;spent+=go;
@@ -120,7 +123,19 @@ function modalShop(V){
   });
   b+='</div><p class="hint" style="margin-top:14px">'+(WAL.on?'잉크와 산 것은 내가 들어간 모든 방에서 같이 씁니다. ':'산 것은 이 방에서 계속 쓸 수 있습니다. ')+'모양만 바뀌고 기능과 점수는 그대로입니다. 고른 모양은 이 기기에 저장됩니다.</p>';
   if(WAL.on&&WALH.adm&&!ink.unl)b+=S.admOpen?'<div class="admrow"><input type="password" id="admCode" data-draft="admCode" data-enter="adm-go" autocomplete="off" placeholder="관리자 코드" aria-label="관리자 코드"><button class="btn small" data-act="adm-go">확인</button></div>':'<button class="linkbtn admlink" data-act="adm-open">관리자 코드</button>';
+  if(ink.unl){var rvn=shopRevokeList(V).length;if(rvn)b+='<button class="linkbtn admlink" data-act="adm-revoke">'+(S.confirm==='admrv'?'한 번 더 누르면 산 이모티콘 팩 '+rvn+'개를 되돌립니다':'관리자: 산 이모티콘 팩 되돌리기')+'</button>';}
   return dlg('wide',{id:'shop',t:'상점'},b);
+}
+/* 관리자: 산 이모티콘 팩을 되돌려 다시 살 수 있게(숨은 팩 연출도 다시 나오게) */
+function shopRevokeList(V){return shopItems().filter(function(x){return x.cat==='stk'&&!x.free&&shopOwns(V,x.id);}).map(function(x){return x.id;});}
+function shopRevokeStk(V){
+  var ids=shopRevokeList(V);if(!ids.length)return 0;
+  editProg(function(p){var sh=p.shop=obj(p.shop);sh.own=obj(sh.own);ids.forEach(function(k){delete sh.own[k];});});
+  if(WALH.revoke)WALH.revoke(ids);
+  Object.keys(SHOP_HIDE).forEach(function(pk){lsSet('gbb_rv_'+pk,null);});
+  if(ids.indexOf('k:'+S.stkPack)>=0)S.stkPack='basic';
+  S.shopPeek=null;S.shopFocus=null;
+  return ids.length;
 }
 /* 다른 방과 잉크 같이 쓰기(웹 판): 연동 코드를 만들어 다른 방에서 넣는다 */
 function walPanel(V,ink){
@@ -155,7 +170,10 @@ function stkRevealTick(){
   var V=view();if(!V||!V.me)return;
   Object.keys(SHOP_HIDE).some(function(pk){
     var id='k:'+pk;
-    if(SHOP_HIDE[pk].every(function(p){return shopOwns(V,'k:'+p);})&&!shopOwns(V,id)&&!lsGet('gbb_rv_'+pk)){lsSet('gbb_rv_'+pk,'1');stkReveal(pk);return true;}
+    // 본 시각을 적어 두고, 관리자가 그 뒤에 되돌렸으면(지갑 rk) 다른 기기에서도 다시 보인다
+    var seen=+lsGet('gbb_rv_'+pk)||0,rk=obj(WAL.on?WAL.rk:null);
+    if(seen&&[pk].concat(SHOP_HIDE[pk]).some(function(p){return +rk['k:'+p]>seen;}))seen=0;
+    if(SHOP_HIDE[pk].every(function(p){return shopOwns(V,'k:'+p);})&&!shopOwns(V,id)&&!seen){lsSet('gbb_rv_'+pk,String(Date.now()));stkReveal(pk);return true;}
     return false;
   });
 }

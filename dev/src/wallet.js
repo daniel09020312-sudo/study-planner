@@ -25,7 +25,7 @@ function walSign(id,d){
 }
 /* 받아 온 지갑을 화면에 반영 (관리자 서명은 확인한 뒤에) */
 function walSet(id,w,key){
-  WAL.on=true;WAL.id=id;WAL.key=key;WAL.own=obj(w.own);WAL.rm=obj(w.rm);WAL.name=String(w.name||'');
+  WAL.on=true;WAL.id=id;WAL.key=key;WAL.own=obj(w.own);WAL.rm=obj(w.rm);WAL.rk=obj(w.rk);WAL.name=String(w.name||'');
   var sig=String(w.unl||'');
   if(!sig){WAL.unl=false;}
   else if(WALS.unlChk[id+'|'+sig]!==undefined){WAL.unl=WALS.unlChk[id+'|'+sig];}
@@ -105,7 +105,7 @@ function walSync(V){
   if(!WAL.on||!WAL.id||Date.now()-WALS.syncAt<20000)return;
   var L=inkLocal(V),cur=obj(WAL.rm[WAL.key]),body={};
   if((+cur.e||0)!==L.e||(+cur.gi||0)!==L.gi||(+cur.go||0)!==L.go||String(cur.n||'')!==roomName())body['rm/'+WAL.key]={e:L.e,gi:L.gi,go:L.go,n:roomName(),at:Date.now()};
-  var own=obj(obj(obj(V.progress[V.me]).shop).own);Object.keys(own).forEach(function(k){if(WAL.own[k]==null)body['own/'+k]=+own[k]||0;});
+  var own=obj(obj(obj(V.progress[V.me]).shop).own);Object.keys(own).forEach(function(k){if(WAL.own[k]==null&&obj(WAL.rk)[k]==null)body['own/'+k]=+own[k]||0;});
   if(!Object.keys(body).length)return;
   WALS.syncAt=Date.now();
   walPatch(WAL.id,body).then(function(){Object.keys(body).forEach(function(k){var a=k.split('/');if(a[0]==='rm')WAL.rm[a[1]]=body[k];else WAL.own[a[1]]=body[k];});}).catch(function(){WALS.syncAt=0;});
@@ -128,6 +128,8 @@ function walTick(){
   walFind(V).then(function(id){return walLoad(V,id);}).then(function(){WALS.busy=false;walSync(view());}).catch(function(){WALS.busy=false;WALS.loadAt=Date.now()-4*60000;});
 }
 WALH.buy=function(id,price){if(!WAL.on||!WAL.id)return;WAL.own[id]=price;var b={};b['own/'+id]=price;walPatch(WAL.id,b).catch(function(){});};
+/* 관리자가 되돌리기: 지갑에서 빼고 rk에 그 시각을 적는다(다른 방 기록에 남은 것이 다시 들어오지 않게, 다른 기기에서도 숨은 팩 연출이 다시 나오게). 다시 사면 지갑 own에 들어가므로 rk는 남겨 둔다 */
+WALH.revoke=function(ids){if(!WAL.on||!WAL.id||!ids.length)return;var b={},t=Date.now();WAL.rk=obj(WAL.rk);ids.forEach(function(id){b['own/'+id]=null;b['rk/'+id]=t;delete WAL.own[id];WAL.rk[id]=t;});walPatch(WAL.id,b).catch(function(){});};
 WALH.adm=function(code){
   if(!WAL.on||!WAL.id||!code)return;
   walSign(WAL.id,code).then(function(sig){return walVerify(WAL.id,sig).then(function(ok){
