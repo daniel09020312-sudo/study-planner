@@ -945,3 +945,6 @@ html.wkdragging,html.wkdragging *{cursor:grabbing !important}
 .wlcode{display:flex;align-items:center;gap:10px}
 .wlcode b{font-size:24px;font-weight:800;letter-spacing:.08em;font-variant-numeric:tabular-nums;color:var(--inkc);user-select:all;-webkit-user-select:all}
 .wlink .del{justify-self:start}
+/* v37: 어제 늦은 인증 안내 */
+.cert.late{background:color-mix(in srgb,var(--ink-3) 8%,var(--surface))}
+.cert.late .row{margin:0;flex-wrap:wrap;justify-content:flex-end}

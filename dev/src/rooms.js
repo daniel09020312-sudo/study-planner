@@ -193,7 +193,7 @@ function makeRoom(){
   var url=S.remote.url,room=newRoom(),cfg=clone(obj(S.config)),subs=S.nrSubj?clone(obj(S.subjects)):{};
   delete cfg.roster;delete cfg.admin;
   cfg.roster=ppl.map(function(n,i){return {id:'m'+(i+1),name:n};});
-  if(typeof cfg.certHour!=='number')cfg.certHour=26;
+  if(typeof cfg.certHour!=='number')cfg.certHour=29;
   S.nrBusy=true;render();
   newCode(url).then(function(code){
     var now=Date.now(),jobs=[[room+'/d/meta/config',cfg],[room+'/d/meta/room',{name:nm,code:code,at:now}]];

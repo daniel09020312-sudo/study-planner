@@ -24,7 +24,7 @@ click(p,'[data-act="cert"][data-date="%s"]'%T,800)
 st(p,"(()=>{const b=document.querySelector('.dialog [data-act=\"modal-close\"]');if(b)b.click();})()");p.wait_for_timeout(400)
 print('cert done    :',st(p,"[...document.querySelectorAll('.cert .hint')].map(e=>e.textContent).join(' / ')"))
 print('score after  :',score_rows())
-# 어제: 삭제 단추 없음, 완료 표시 잠김
+# 어제: 삭제 단추 없음, 완료 표시는 마감 뒤에도 됨(v37)
 p.evaluate("(d)=>{const b=document.querySelector('.cal [data-act=pick-date][data-d=\"'+d+'\"]')||document.querySelector('[data-act=pick-date][data-d=\"'+d+'\"]');if(b)b.click();}",Y);p.wait_for_timeout(700)
 print('picked       :',st(p,"(document.querySelector('.daycol')||{}).id"))
 yg=[g for g in store(p,'days/m1_'+Y)['goals']]

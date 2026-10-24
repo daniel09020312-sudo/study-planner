@@ -1467,6 +1467,9 @@ html.wkdragging,html.wkdragging *{cursor:grabbing !important}
 .wlcode{display:flex;align-items:center;gap:10px}
 .wlcode b{font-size:24px;font-weight:800;letter-spacing:.08em;font-variant-numeric:tabular-nums;color:var(--inkc);user-select:all;-webkit-user-select:all}
 .wlink .del{justify-self:start}
+/* v37: 어제 늦은 인증 안내 */
+.cert.late{background:color-mix(in srgb,var(--ink-3) 8%,var(--surface))}
+.cert.late .row{margin:0;flex-wrap:wrap;justify-content:flex-end}
 #splash{position:fixed;inset:0;z-index:200;overflow:hidden;-webkit-tap-highlight-color:transparent}
 .spcv{position:absolute;inset:0;display:block;width:100%;height:100%;overflow:visible}
 .spcur,.sphole{fill:var(--bg)}
@@ -1906,7 +1909,7 @@ function merged(name){
 function view(){
   var cfg=obj(Object.prototype.hasOwnProperty.call(O,'meta/config')?O['meta/config']:S.config);
   var roster=arr(cfg.roster).filter(function(m){return m&&m.id;});
-  var V={cfg:cfg,roster:roster,certHour:typeof cfg.certHour==='number'?cfg.certHour:26,checkMin:Math.max(5,Math.min(60,Math.round(+cfg.checkMin||15))),penalty:String(cfg.penalty||''),penaltyFinal:String(cfg.penaltyFinal||''),
+  var V={cfg:cfg,roster:roster,certHour:typeof cfg.certHour==='number'?cfg.certHour:29,checkMin:Math.max(5,Math.min(60,Math.round(+cfg.checkMin||15))),penalty:String(cfg.penalty||''),penaltyFinal:String(cfg.penaltyFinal||''),
     locks:merged('locks'),flags:merged('flags'),msgs:merged('msgs'),songs:merged('songs'),duels:merged('duels'),spins:merged('spins'),subjects:merged('subjects'),progress:merged('progress'),days:merged('days'),quiz:merged('quiz'),events:merged('events'),live:merged('live'),replies:merged('replies'),plans:merged('plans'),gifts:merged('gifts'),byId:{},subById:{},subName:{}};
   V.me=null;
   roster.forEach(function(m){V.byId[m.id]={id:m.id,name:String(m.name||'이름 없음')};});
@@ -2235,6 +2238,7 @@ function clearHint(V,date,day,late,certed){
 /* 지난 날의 할 일: 지우거나 이름을 바꿀 수 없고, 인증 마감 뒤에는 완료 표시도 바꿀 수 없다.
    다른 날로 옮기면 그날에는 '다른 날로 옮김'으로 남아서 모두 끝낸 날이 되지 않는다. */
 function dayLocked(V,date){return date<today()&&Date.now()>certEnd(V,date).getTime();}
+function doneLocked(V,date){return dayLocked(V,date)&&date<addDays(today(),-1);}
 function guardDay(path,data){
   if(S.crRaw)return data;
   var m=/^days\/(.+)_(\d{4}-\d{2}-\d{2})$/.exec(path);
@@ -2246,7 +2250,7 @@ function guardDay(path,data){
     if(!o){if(open)out.push(g);return;}
     var c=clone(g);c.text=o.text;c.sid=o.sid||'';
     if(o.mv&&!g.mv){delete c.mv;c.done=false;}
-    else if(!open)c.done=!!o.done;
+    else if(doneLocked(V,m[2]))c.done=!!o.done;
     out.push(c);
   });
   og.forEach(function(o){if(o.id&&!byNew[o.id]){var c=clone(o);if(!c.done)c.mv=1;out.push(c);}});
@@ -2255,7 +2259,7 @@ function guardDay(path,data){
 function goalRow(V,date,mode,day,x,isT){
   if(x.mv)return '<li class="goal mv" id="g-'+esc(x.id)+'-mv"><span class="chk ghost" aria-hidden="true"><span></span></span><div class="gt">'+(x.sid&&V.subName[x.sid]&&S.gGroup!=='sub'?subTag(V,x):'')+'<span>'+esc(x.text)+'</span><em class="tag">다른 날로 옮김</em></div><span></span></li>';
   var key=date+'|'+x.id,f=isT&&day.focus===x.id&&!x.done,sub=x.sid&&V.subName[x.sid],p=x.pid&&V.plans[x.pid]?obj(V.plans[x.pid]):null,sel=S.gSel===key,ed=S.gEdit===key;
-  var h='<li class="goal'+(x.done?' done':'')+(f?' focus':'')+(sel?' sel':'')+'" id="g-'+esc(x.id)+'"><button class="chk'+(x.done?' on':'')+'" data-act="goal-toggle" data-date="'+date+'" data-id="'+esc(x.id)+'" aria-pressed="'+(x.done?'true':'false')+'" aria-label="'+esc(x.text)+' 완료 표시"'+(mode!=='full'||dayLocked(V,date)?' disabled':'')+'><span></span></button>';
+  var h='<li class="goal'+(x.done?' done':'')+(f?' focus':'')+(sel?' sel':'')+'" id="g-'+esc(x.id)+'"><button class="chk'+(x.done?' on':'')+'" data-act="goal-toggle" data-date="'+date+'" data-id="'+esc(x.id)+'" aria-pressed="'+(x.done?'true':'false')+'" aria-label="'+esc(x.text)+' 완료 표시"'+(mode!=='full'||doneLocked(V,date)?' disabled':'')+'><span></span></button>';
   if(ed)h+='<div class="gt gedit"><input type="text" id="gEditIn" data-draft="gEdit" data-enter="g-save" data-date="'+date+'" data-id="'+esc(x.id)+'" maxlength="90" aria-label="할 일 고치기"><button class="btn small primary" data-act="g-save" data-date="'+date+'" data-id="'+esc(x.id)+'">저장</button><button class="btn small" data-act="g-sel" data-date="'+date+'" data-id="'+esc(x.id)+'">취소</button></div>';
   else h+='<div class="gt">'+(sub&&S.gGroup!=='sub'?subTag(V,x):'')+'<span>'+esc(x.text)+'</span>'+(placed(x)?'<em class="tag">'+fmtHM(x.ts)+'</em>':'')+(p?'<em class="tag due">'+esc(shortDate(p.due))+' 마감'+(x.part?', '+esc(x.part):'')+'</em>':'')+(f?'<em class="tag a">지금 하는 중</em>':'')+'</div>';
   var canAct=mode!=='view'||!x.done;
@@ -2312,6 +2316,7 @@ function goalsCard(V,date,k){
   if(mode==='full'){
     var hour=certLabel(V.certHour),past=Date.now()>certEnd(V,date).getTime(),yd=addDays(date,-1);
     if(isT&&!dayOf(V,V.me,yd).certAt&&Date.now()<=certEnd(V,yd).getTime())h+='<div class="cert"><div class="what"><b>어제 공부 인증</b><span class="hint">'+esc(certLabel(V.certHour).replace('다음 날 ','오늘 '))+'까지 인증하면 어제 점수에 10점이 더해집니다.</span></div><button class="btn small soft" data-act="cert" data-date="'+yd+'">어제 인증하기</button></div>';
+    else if(isT&&yd>=START&&!dayOf(V,V.me,yd).certAt&&dayOf(V,V.me,yd).goals.filter(function(g){return g&&!g.mv;}).length)h+='<div class="cert late"><div class="what"><b>어제 공부 인증 (마감 지남)</b><span class="hint">어제 할 일은 지금도 완료 표시를 할 수 있습니다. 지금 인증하면 '+RULE.certLate+'점이고, 어제 할 일을 다 끝냈으면 '+RULE.allLate+'점이 더해집니다.</span></div><div class="row"><button class="btn small" data-act="pick-date" data-d="'+yd+'">어제 할 일 보기</button><button class="btn small soft" data-act="cert" data-date="'+yd+'">어제 인증하기</button></div></div>';
     h+='<div class="cert">';
     if(day.certAt){var late=isLate(V,date,day.certAt);h+='<div class="what"><b>'+esc(fmtClock(day.certAt))+' 인증 완료</b><span class="hint">'+(late?'마감 뒤 인증이라 3점입니다.':'마감 전 인증으로 10점을 받았습니다.')+clearHint(V,date,day,late,true)+'</span></div><button class="btn small" data-act="uncert" data-date="'+date+'">취소</button>';}
     else h+='<div class="what"><b>하루 공부 인증</b><span class="hint">'+(past?'마감이 지나 지금 인증하면 3점입니다.':esc(hour)+'까지 인증하면 10점입니다.')+clearHint(V,date,day,past,false)+'</span></div><button class="btn small soft" data-act="cert" data-date="'+date+'">인증하기</button>';
@@ -2629,7 +2634,7 @@ function wkItem(V,d,mode,x,t){
   if(x.ts!=null&&x.te>x.ts)meta.push(fmtHM(x.ts));
   if(p)meta.push(esc(shortDate(p.due))+' 마감'+(x.part?' '+esc(x.part):''));
   var h='<div class="wki'+(x.done?' done':'')+(late?' late':'')+'" id="wi-'+esc(x.id)+'"'+(x.done?'':' data-wdrag="1"')+' data-d="'+d+'" data-id="'+esc(x.id)+'" style="--sc:'+goalCol(V,x)+'">';
-  h+='<button class="wkchk'+(x.done?' on':'')+'" data-act="goal-toggle" data-date="'+d+'" data-id="'+esc(x.id)+'" aria-pressed="'+(x.done?'true':'false')+'" aria-label="'+esc(x.text)+' 완료 표시"'+(mode!=='full'||dayLocked(V,d)?' disabled':'')+'><span></span></button>';
+  h+='<button class="wkchk'+(x.done?' on':'')+'" data-act="goal-toggle" data-date="'+d+'" data-id="'+esc(x.id)+'" aria-pressed="'+(x.done?'true':'false')+'" aria-label="'+esc(x.text)+' 완료 표시"'+(mode!=='full'||doneLocked(V,d)?' disabled':'')+'><span></span></button>';
   h+='<button class="wkt" data-act="al-goal" data-d="'+d+'" data-id="'+esc(x.id)+'" aria-label="'+esc(x.text)+', 달력에서 열어 고치기"><span class="t">'+esc(x.text)+'</span>'+(meta.length||late?'<small>'+meta.join(' · ')+(late?'<em>못 끝냄</em>':'')+'</small>':'')+'</button>';
   return h+'</div>';
 }
@@ -3771,7 +3776,7 @@ document.addEventListener('change',function(e){
 
 /* ---------- 처음 화면 ---------- */
 // 앱이 준비되면 알린다. 그림이 아직이면 다 그린 뒤에 열리고, 그림이 먼저 끝났으면 바로 열린다
-var APP_BUILD='1792757483';
+var APP_BUILD='1792825140';
 function splashDone(){
   var sp=document.getElementById('splash'),st=window.__sp;if(!sp||sp.getAttribute('data-out'))return;
   sp.setAttribute('data-out','1');
@@ -4332,7 +4337,7 @@ function makeRoom(){
   var url=S.remote.url,room=newRoom(),cfg=clone(obj(S.config)),subs=S.nrSubj?clone(obj(S.subjects)):{};
   delete cfg.roster;delete cfg.admin;
   cfg.roster=ppl.map(function(n,i){return {id:'m'+(i+1),name:n};});
-  if(typeof cfg.certHour!=='number')cfg.certHour=26;
+  if(typeof cfg.certHour!=='number')cfg.certHour=29;
   S.nrBusy=true;render();
   newCode(url).then(function(code){
     var now=Date.now(),jobs=[[room+'/d/meta/config',cfg],[room+'/d/meta/room',{name:nm,code:code,at:now}]];
@@ -5634,10 +5639,10 @@ function modalSettings(V){
   if(adm&&V.byId[adm])b+='<p class="hint" style="margin-top:10px">그만두는 사람은 옆의 삭제를 두 번 눌러 목록에서 뺄 수 있습니다. 다른 사람 이름 수정과 비밀번호 초기화, '+esc(V.byId[adm].name)+' 님 삭제는 '+esc(V.byId[adm].name)+' 님만 할 수 있습니다.</p>';
   b+='<div class="row" style="margin-top:10px"><input type="text" maxlength="12" data-draft="memberName" data-enter="member-add" placeholder="추가할 이름" aria-label="추가할 이름"'+dis+'><button class="btn" data-act="member-add"'+dis+'>인원 추가</button></div></div>';
   b+='<div class="sec"><h3>규칙</h3><label for="certHour">인증 마감 시각</label><select id="certHour" data-chg="certHour"'+dis+'>';
-  [[22,'밤 10시'],[23,'밤 11시'],[24,'자정'],[25,'다음 날 새벽 1시'],[26,'다음 날 새벽 2시']].forEach(function(o){b+='<option value="'+o[0]+'"'+(V.certHour===o[0]?' selected':'')+'>'+o[1]+'</option>';});
+  [[22,'밤 10시'],[23,'밤 11시'],[24,'자정'],[25,'다음 날 새벽 1시'],[26,'다음 날 새벽 2시'],[27,'다음 날 새벽 3시'],[28,'다음 날 새벽 4시'],[29,'다음 날 새벽 5시']].forEach(function(o){b+='<option value="'+o[0]+'"'+(V.certHour===o[0]?' selected':'')+'>'+o[1]+'</option>';});
   b+='</select>';
   b+='</div><div class="sec"><h3>키보드 단축키<small>키보드를 연결했을 때</small></h3><ul class="kbd">'+[['1 ~ 8','달력부터 메시지까지 화면 이동'],['N','할 일 추가'],['D','마감 있는 할 일 추가'],['L','달력, 할 일, 시간표 차례로 바꿔 보기'],['T','타이머 켜기, 끄기'],['F','타이머 크게 보기'],['Esc','창 닫기']].map(function(x){return '<li><kbd>'+x[0]+'</kbd><span>'+x[1]+'</span></li>';}).join('')+'</ul></div><div class="sec"><h3>저장 위치</h3><p class="hint">'+esc(S.net?({claude:'Claude 공유 저장소에 연결되어 있습니다. Claude에 로그인한 참여 인원끼리 실시간으로 같이 봅니다.',firebase:'공유 저장소에 연결되어 있습니다. 참여 코드로 들어온 사람 모두가 실시간으로 같이 봅니다.',local:'지금은 이 기기에만 저장됩니다. 다른 사람과 같이 보려면 공유 저장소 연결이 필요합니다.'}[S.net.mode]):'연결 중입니다.')+'</p>'+(S.net&&S.net.mode==='firebase'&&S.remote?'<div class="row" style="margin-top:10px"><button class="btn small" data-act="import-pick">기록 가져오기</button><button class="btn small" data-act="export-data">기록 파일로 저장</button><button class="del" data-act="setup-reset">'+(S.confirm==='disc'?'한 번 더 누르면 이 방에서 나갑니다':'이 기기에서 이 방 나가기')+'</button></div><p class="hint" style="margin-top:8px">'+esc(S.importMsg||'친구와 내 다른 기기는 위의 친구 초대하기로 들어옵니다. 기록 가져오기는 처음 연결한 뒤 한 번만 하면 됩니다.')+'</p>':'')+'</div>';
-  b+='<p class="hint appver">앱 버전 10월 23일 21:11</p>';
+  b+='<p class="hint appver">앱 버전 10월 24일 15:59</p>';
   return dlg('wide',{id:'settings',t:'설정'},b);
 }
 function modalCheck(V){
@@ -5933,7 +5938,16 @@ function humMig(){
   }
   editCfg(function(c){c.migHum=1;});
 }
+var CERT_MIG=false;
+function certMig(){
+  if(CERT_MIG)return;var V=view();
+  if(!S.ready||!V||!V.me||!canWrite())return;
+  CERT_MIG=true;var c=obj(V.cfg);
+  if(c.migCert5||!(typeof c.certHour==='number'&&c.certHour<29))return;
+  editCfg(function(x){x.certHour=29;x.migCert5=1;});
+}
 function tick(){
+  try{certMig();}catch(e){}
   try{humMig();}catch(e){}
   try{shopGf();}catch(e){}
   try{walTick();}catch(e){}
@@ -6301,7 +6315,7 @@ function act(name,el){
     case 'name-add':{
       var nn=String(S.draft.newName||'').trim();if(!nn||!need())break;
       var full1=false,nid=rid('m');
-      editCfg(function(c){if(c.roster.length>=12){full1=true;return;}c.roster.push({id:nid,name:nn.slice(0,12)});if(typeof c.certHour!=='number')c.certHour=26;});
+      editCfg(function(c){if(c.roster.length>=12){full1=true;return;}c.roster.push({id:nid,name:nn.slice(0,12)});if(typeof c.certHour!=='number')c.certHour=29;});
       if(full1){flash('참여 인원은 12명까지 추가할 수 있습니다.');break;}
       setMe(nid);S.draft.newName='';S.pinAsked[nid]=1;lsSet('gbb_pinask',JSON.stringify(S.pinAsked));openPin('set',nid);return;
     }
@@ -6460,7 +6474,7 @@ function act(name,el){
     case 'scol-open':S.scolOpen=S.scolOpen===id?null:id;break;
     case 'scol-reset':if(prev!=='scolreset'){S.confirm='scolreset';break;}editProg(function(p){delete p.scol;});if(canWrite())flash('과목 색을 무지개 순서로 맞췄습니다.');break;
     case 'pick-date':{var pdv=el.getAttribute('data-d');S.date=pdv;if(MONTHS.indexOf(pdv.slice(0,7))>=0)S.month=pdv.slice(0,7);break;}
-    case 'goal-toggle':if(dayLocked(view(),date)){flash('인증 마감이 지나 완료 표시를 바꿀 수 없습니다.');break;}editDay(date,function(d){d.goals.forEach(function(g){if(g.id===id){g.done=!g.done;if(g.done&&d.focus===id)d.focus=null;}});});break;
+    case 'goal-toggle':if(doneLocked(view(),date)){flash('인증 마감이 지나 완료 표시를 바꿀 수 없습니다.');break;}editDay(date,function(d){d.goals.forEach(function(g){if(g.id===id){g.done=!g.done;if(g.done&&d.focus===id)d.focus=null;}});});break;
     case 'goal-del':{if(date<today()){flash('지난 날의 할 일은 지울 수 없습니다.');break;}if(prev!=='gdel:'+id){S.confirm='gdel:'+id;break;}var Vgd=view(),sgd=snap(['days/'+Vgd.me+'_'+date]);editDay(date,function(d){d.goals=d.goals.filter(function(g){return g.id!==id;});if(d.focus===id)d.focus=null;});S.gSel=null;if(canWrite())flash('할 일을 지웠습니다.',sgd);break;}
     case 'carry':{
       var Vc=view(),list=Vc.me?carryList(Vc,date):[],yd=addDays(date,-1),moved=[];
@@ -6765,7 +6779,7 @@ function onChange(kind,el){
   if(kind==='member-name'){var Vc0=view();if(!v||!Vc0.me||(id!==Vc0.me&&adminId(Vc0)!==Vc0.me))return;editCfg(function(c){c.roster.forEach(function(m){if(m&&m.id===id)m.name=v.slice(0,12);});});}
   else if(kind==='penalty'){editCfg(function(c){c.penalty=v.slice(0,60);});}
   else if(kind==='penaltyFinal'){editCfg(function(c){c.penaltyFinal=v.slice(0,60);});}
-  else if(kind==='certHour'){editCfg(function(c){c.certHour=+v||26;});}
+  else if(kind==='certHour'){editCfg(function(c){c.certHour=+v||29;c.migCert5=1;});}
   else if(kind==='checkMin'){editCfg(function(c){c.checkMin=+v||15;});}
   else if(kind==='pl-due'||kind==='pl-start'){if(S.pl&&/^\d{4}-\d{2}-\d{2}$/.test(v)){if(kind==='pl-due')S.pl.due=v;else S.pl.start=v;S.pl.off={};}}
   else if(kind==='tt-ed-time'){if(S.ttEd){var me0=parseHM(v);if(me0!=null)S.ttEd[el.getAttribute('data-k')==='e'?'e':'s']=me0;}}
