@@ -109,7 +109,7 @@ var DUEL_DAYS=2;
 
 """
 LOOK = LOOK.replace('__ACCENTS__', json.dumps(accents, ensure_ascii=False, separators=(',', ':')))
-LOOK = LOOK.replace('__STK__', json.dumps([[x['id'], x['label'], x['motion']] for x in stk], ensure_ascii=False, separators=(',', ':')))
+LOOK = LOOK.replace('__STK__', json.dumps([[x['id'], x['label'], x['motion']] + ([x['fr']] if x.get('fr') else []) for x in stk], ensure_ascii=False, separators=(',', ':')))
 cut("var ACCENTS=[", "/* ---------- 상태 ---------- */", LOOK)
 sub("S.locks={};S.flags={};S.mlog=[];S.mseq=0;S.pin=null;", "S.locks={};S.flags={};S.mlog=[];S.mseq=0;S.msgSel=null;S.msgEdit=null;S.stkOpen=false;S.stkPack='basic';S.busyMsg=false;S.focusAfter=null;S.pin=null;")
 

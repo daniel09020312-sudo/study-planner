@@ -864,8 +864,8 @@ html.wkdragging,html.wkdragging *{cursor:grabbing !important}
 .wl b em{font-style:normal;font-size:14px;font-weight:700;margin-left:3px;color:var(--ink-2)}
 .wr{margin:0;display:grid;gap:4px;justify-items:end;text-align:right;font-size:13px;color:var(--ink-2);font-weight:600}
 .wr small{font-size:12px;color:var(--ink-3);font-weight:500}
-.wt{display:inline-block;width:max-content;justify-self:end;margin-left:6px;padding:2px 8px;border-radius:999px;background:var(--inkc);color:var(--inkon);font-size:11.5px;font-weight:800;font-variant-numeric:tabular-nums}
-@media (max-width:520px){.wr{justify-items:start;text-align:left}.wt{justify-self:start;margin-left:0}}
+.wtd{display:inline-block;width:max-content;justify-self:end;margin-left:6px;padding:2px 8px;border-radius:999px;background:var(--inkc);color:var(--inkon);font-size:11.5px;font-weight:800;font-variant-numeric:tabular-nums}
+@media (max-width:520px){.wr{justify-items:start;text-align:left}.wtd{justify-self:start;margin-left:0}}
 .seg.mini.shcats{position:relative;gap:0;margin:16px 0 12px;grid-template-columns:repeat(var(--n),minmax(0,1fr))}
 .seg.mini.shcats::before{content:"";position:absolute;top:3px;bottom:3px;left:3px;width:calc((100% - 6px) / var(--n));border-radius:9px;background:var(--accent);transform:translateX(calc(var(--i,0) * 100%));transition:transform .45s var(--spring)}
 .seg.mini.shcats button{position:relative;z-index:1;background:none !important;white-space:nowrap;padding:0 4px}
@@ -960,3 +960,49 @@ html.wkdragging,html.wkdragging *{cursor:grabbing !important}
 .shi.hid .shst{display:inline-flex;align-items:center;gap:4px}
 .shi.hid .lki{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
 .shnew{display:inline-block;margin-left:6px;padding:1px 7px;border-radius:99px;background:var(--inkc);color:var(--inkon);font-style:normal;font-size:11px;font-weight:700;vertical-align:2px}
+img.sa{object-fit:cover !important;object-position:0 0;aspect-ratio:1/1}
+@media (prefers-reduced-motion:reduce){img.sa{animation:none !important}}
+/* 숨은 팩이 열릴 때 (어두운 한 가지 모습으로) */
+.rvfx{position:fixed;inset:0;z-index:200;display:grid;grid-template-rows:1fr auto;justify-items:center;align-items:end;padding:calc(24px + env(safe-area-inset-top,0px)) 16px calc(28px + env(safe-area-inset-bottom,0px));overflow:hidden;color:#fff;color-scheme:dark;-webkit-tap-highlight-color:transparent}
+.rvfx.out{animation:rvOut .4s ease forwards}
+.rvbg{position:absolute;inset:0;background:radial-gradient(circle at 50% 40%,rgba(92,60,170,.62),rgba(18,12,48,.9) 46%,rgba(4,4,16,.96) 78%);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);animation:rvFade .35s ease both}
+.rvrays{position:absolute;left:50%;top:40%;width:190vmax;height:190vmax;margin:-95vmax 0 0 -95vmax;background:repeating-conic-gradient(from 0deg,rgba(255,226,150,.30) 0deg 5deg,rgba(255,226,150,0) 5deg 15deg);-webkit-mask:radial-gradient(circle,#000 0,rgba(0,0,0,.65) 16%,transparent 44%);mask:radial-gradient(circle,#000 0,rgba(0,0,0,.65) 16%,transparent 44%);opacity:0;animation:rvRaysIn .8s 1.4s ease-out forwards,rvSpin 16s 1.4s linear infinite}
+.rvflash{position:absolute;inset:0;background:radial-gradient(circle at 50% 40%,#fff 0,rgba(255,240,210,.85) 18%,rgba(255,255,255,0) 60%);opacity:0;animation:rvFlash .75s 1.42s ease-out both;pointer-events:none}
+.rvtw{position:absolute;inset:0;pointer-events:none}
+.rvtw .tw{position:absolute;left:var(--tx);top:var(--ty);width:var(--ts);height:var(--ts);color:#FFE7A8;opacity:0;animation:rvTw 1.8s calc(1.6s + var(--td)) ease-in-out infinite}
+.rvtw svg,.rp svg{display:block;width:100%;height:100%;fill:currentColor}
+.rvstage{position:relative;align-self:center;width:min(66vw,290px);aspect-ratio:1;margin-top:4vh}
+.rvring{position:absolute;inset:-18%;border-radius:50%;border:2px solid rgba(255,220,140,.7);opacity:0;animation:rvRing 1s 1.42s cubic-bezier(.2,.7,.3,1) both}
+.rvcard{position:absolute;inset:0;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:10px;padding:14px;border-radius:30px;background:linear-gradient(150deg,#2B2266,#1A1546);box-shadow:0 0 0 1.5px rgba(214,196,255,.45),0 18px 50px rgba(0,0,0,.5);animation:rvPop .5s .05s cubic-bezier(.3,1.5,.5,1) both,rvShake .95s .5s linear,rvGlow 2.4s 1.45s ease-in-out infinite;perspective:700px}
+.rvt{position:relative;transform-style:preserve-3d;-webkit-transform-style:preserve-3d;animation:rvFlip .7s calc(1.45s + var(--n)*.09s) cubic-bezier(.3,1.4,.5,1) both}
+.rvt > *{position:absolute;inset:0;border-radius:18px;-webkit-backface-visibility:hidden;backface-visibility:hidden}
+.rvf{display:grid;place-items:center;border:2px dashed rgba(214,196,255,.6);background:rgba(160,130,255,.14);color:#D9CCFF;font-size:clamp(28px,8vw,40px);font-weight:800;font-style:normal}
+.rvb{transform:rotateY(180deg);background:rgba(255,255,255,.94);display:block;overflow:hidden;box-shadow:0 0 22px rgba(255,214,120,.55)}
+.rvb img{display:block;width:100%;height:100%;object-fit:contain}
+.rvparts{position:absolute;left:50%;top:50%;width:0;height:0}
+.rp{position:absolute;left:0;top:0;width:var(--s);height:var(--s);margin:calc(var(--s)/-2);color:var(--c);opacity:0;animation:rvBurst var(--du) calc(1.45s + var(--dl)) cubic-bezier(.12,.75,.3,1) forwards}
+.rp.dot{border-radius:50%;background:var(--c);box-shadow:0 0 8px var(--c)}
+.rvtxt{position:relative;display:grid;justify-items:center;gap:6px;text-align:center;max-width:420px}
+.rvtxt small{font-size:13px;font-weight:700;letter-spacing:.14em;color:#E6DAFF;opacity:0;animation:rvUp .5s 1.75s ease-out both}
+.rvtxt h2{margin:0;font-size:clamp(32px,9vw,46px);font-weight:900;line-height:1.1;letter-spacing:-.01em;background:linear-gradient(100deg,#FFE29A 0%,#FFB3CF 30%,#CDB8FF 55%,#9FDBFF 75%,#FFE29A 100%);background-size:220% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 4px 18px rgba(255,200,120,.35));opacity:0;animation:rvTitle .7s 1.85s cubic-bezier(.3,1.6,.5,1) both,rvShim 3.2s 2.4s linear infinite}
+.rvtxt p{margin:0;font-size:14.5px;color:rgba(255,255,255,.82);opacity:0;animation:rvUp .5s 2.05s ease-out both}
+.rvbtns{display:flex;gap:10px;margin-top:12px;opacity:0;animation:rvUp .5s 2.3s ease-out both}
+.rvbtns .btn{min-width:112px}
+@keyframes rvFade{from{opacity:0}}
+@keyframes rvOut{to{opacity:0;transform:scale(1.04)}}
+@keyframes rvPop{from{opacity:0;transform:scale(.55) rotate(-6deg)}}
+@keyframes rvShake{0%,100%{transform:none}10%{transform:rotate(-2deg)}20%{transform:rotate(2deg)}30%{transform:rotate(-3deg) scale(1.01)}40%{transform:rotate(3deg) scale(1.02)}50%{transform:rotate(-4deg) scale(1.03)}60%{transform:rotate(5deg) scale(1.04)}70%{transform:rotate(-6deg) scale(1.05)}80%{transform:rotate(6deg) scale(1.06)}90%{transform:rotate(-3deg) scale(.94)}}
+@keyframes rvGlow{0%,100%{box-shadow:0 0 0 1.5px rgba(255,220,150,.6),0 0 40px rgba(255,190,120,.35),0 18px 50px rgba(0,0,0,.5)}50%{box-shadow:0 0 0 1.5px rgba(255,220,150,.9),0 0 70px rgba(255,170,210,.55),0 18px 50px rgba(0,0,0,.5)}}
+@keyframes rvFlip{from{transform:rotateY(0)}to{transform:rotateY(180deg)}}
+@keyframes rvFlash{0%{opacity:0}18%{opacity:1}100%{opacity:0}}
+@keyframes rvRaysIn{to{opacity:1}}
+@keyframes rvSpin{to{transform:rotate(360deg)}}
+@keyframes rvRing{0%{opacity:.9;transform:scale(.55)}100%{opacity:0;transform:scale(1.6)}}
+@keyframes rvBurst{0%{opacity:1;transform:translate(0,0) scale(.2) rotate(0)}12%{opacity:1}70%{opacity:1;transform:translate(var(--x),var(--y)) scale(1) rotate(var(--r))}100%{opacity:0;transform:translate(var(--x),calc(var(--y) + 70px)) scale(.8) rotate(var(--r))}}
+@keyframes rvTw{0%,100%{opacity:0;transform:scale(.4) rotate(0)}50%{opacity:1;transform:scale(1) rotate(45deg)}}
+@keyframes rvUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@keyframes rvTitle{0%{opacity:0;transform:scale(.5)}60%{opacity:1;transform:scale(1.1)}100%{opacity:1;transform:none}}
+@keyframes rvShim{to{background-position:-220% 0}}
+.rvfx.calm *,.rvfx.calm{animation-duration:.01ms !important;animation-delay:0s !important;animation-iteration-count:1 !important}
+.rvfx.calm .rp,.rvfx.calm .rvflash,.rvfx.calm .rvring,.rvfx.calm .tw{display:none}
+@media (prefers-reduced-motion:reduce){.rvfx *,.rvfx{animation-duration:.01ms !important;animation-delay:0s !important;animation-iteration-count:1 !important}}

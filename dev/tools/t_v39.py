@@ -26,7 +26,7 @@ print('after cat     :', txt('#shi-k-nyang .sha'))
 click(p,'[data-act="shop-buy"][data-id="k:dog"]',300);click(p,'[data-act="shop-buy"][data-id="k:dog"]',800)
 print('after dog     :', txt('#shi-k-nyang .shn'), '| buy btn', ev("document.querySelectorAll('#shi-k-nyang [data-act=\"shop-buy\"]').length"))
 click(p,'[data-act="shop-peek"][data-id="k:nyang"]',900)
-print('peek nyang    :', ev("document.querySelectorAll('#shi-k-nyang .shall .stk').length"), '| loaded', ev("[...document.querySelectorAll('#shi-k-nyang .shall img')].filter(i=>i.complete&&i.naturalWidth===320).length"))
+print('peek nyang    :', ev("document.querySelectorAll('#shi-k-nyang .shall .stk').length"), '| loaded', ev("[...document.querySelectorAll('#shi-k-nyang .shall img')].filter(i=>i.complete&&i.naturalWidth>=2880&&i.classList.contains('sa')).length"))
 clean();ev("(()=>{const e=document.getElementById('shi-k-nyang');e.scrollIntoView({block:'start'});return 1})()");p.wait_for_timeout(600);p.screenshot(path=SH+'v39_shop_open.png')
 close_dlg(p)
 # 메시지: 냥댕이 안 산 상태 -> 탭 이름은 그대로(이제 보임), 산 뒤 보내기

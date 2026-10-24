@@ -17,7 +17,7 @@ var GIFT_AMTS=[10,30,50,100];
 function shopItems(){
   if(shopItems.c)return shopItems.c;var a=[];
   CONCEPTS.forEach(function(x){var m=SHOP_LOOK[x.id];a.push({id:'c:'+x.id,v:x.id,cat:'look',name:x.name,price:m?m[0]:0,desc:m?m[1]:'처음 모양',free:x.id==='basic'});});
-  ACCENTS.forEach(function(x){a.push({id:'a:'+x.id,v:x.id,cat:'color',name:x.name,price:x.g==='p'?50:40,desc:x.g==='p'?'파스텔':'대표 색',free:x.id==='blue',ac:x});});
+  ACCENTS.forEach(function(x){a.push({id:'a:'+x.id,v:x.id,cat:'color',name:x.name,price:x.g==='p'?15:10,desc:x.g==='p'?'파스텔':'대표 색',free:x.id==='blue',ac:x});});
   TSTYLES.forEach(function(x){var m=SHOP_TIMER[x[0]];a.push({id:'t:'+x[0],v:x[0],cat:'timer',name:x[1],price:m?m[0]:0,desc:m?m[1]:'처음 모양',free:x[0]==='ring'});});
   STK_PACKS.forEach(function(x){var m=SHOP_STK[x[0]];a.push({id:'k:'+x[0],v:x[0],cat:'stk',name:x[1]+' 팩',price:m?m[0]:120,desc:m?m[1]:(x[0]==='basic'?'처음부터 쓰는 이모티콘':'새 이모티콘'),free:x[0]==='basic'});});
   return shopItems.c=a;
@@ -98,7 +98,7 @@ function shopBtn(V,it,ink){
 function modalShop(V){
   var ink=inkOf(V),cat=S.shopCat||'look',items=shopItems().filter(function(x){return x.cat===cat;});
   var b='<div class="wallet'+(ink.unl?' unl':'')+'"><div class="wl">'+INK_SVG+'<div><small>내 잉크'+(ink.rooms>1?' · 방 '+ink.rooms+'개 합계':'')+'</small><b>'+(ink.unl?'무제한':ink.bal+'<em>방울</em>')+'</b></div></div>';
-  b+='<p class="wr">공부 10분마다 잉크 한 방울'+(ink.today?'<span class="wt">오늘 +'+ink.today+'</span>':'')+'<small>'+(ink.unl?'관리자는 잉크를 쓰지 않고 사고 선물합니다':'모은 잉크 '+ink.got+(ink.gi?' (받은 선물 '+ink.gi+')':'')+' · 쓴 잉크 '+ink.spent)+'</small><span class="wbtns">'+(WAL.on&&WALH.link?'<button class="btn small gfbtn" data-act="wal-open" aria-expanded="'+(S.walLinkOpen?'true':'false')+'">다른 방과 같이 쓰기</button>':'')+'<button class="btn small gfbtn" data-act="gift-open" aria-expanded="'+(S.giftOpen?'true':'false')+'">'+(S.giftOpen?'선물 닫기':'잉크 선물하기')+'</button></span></p></div>';
+  b+='<p class="wr">공부 10분마다 잉크 한 방울'+(ink.today?'<span class="wtd">오늘 +'+ink.today+'</span>':'')+'<small>'+(ink.unl?'관리자는 잉크를 쓰지 않고 사고 선물합니다':'모은 잉크 '+ink.got+(ink.gi?' (받은 선물 '+ink.gi+')':'')+' · 쓴 잉크 '+ink.spent)+'</small><span class="wbtns">'+(WAL.on&&WALH.link?'<button class="btn small gfbtn" data-act="wal-open" aria-expanded="'+(S.walLinkOpen?'true':'false')+'">다른 방과 같이 쓰기</button>':'')+'<button class="btn small gfbtn" data-act="gift-open" aria-expanded="'+(S.giftOpen?'true':'false')+'">'+(S.giftOpen?'선물 닫기':'잉크 선물하기')+'</button></span></p></div>';
   if(S.walLinkOpen&&WAL.on)b+=walPanel(V,ink);
   if(S.giftOpen)b+=giftPanel(V,ink);
   b+='<div class="seg mini shcats" style="--i:'+SHOP_CATS.map(function(x){return x[0];}).indexOf(cat)+';--n:'+SHOP_CATS.length+'" role="group" aria-label="상품 종류">'+SHOP_CATS.map(function(x){return '<button data-act="shop-cat" data-v="'+x[0]+'" aria-pressed="'+(cat===x[0]?'true':'false')+'">'+x[1]+'</button>';}).join('')+'</div>';
@@ -147,3 +147,49 @@ function giftPanel(V,ink){
 /* 설정 화면: 안 산 것은 자물쇠와 값, 누르면 상점으로 */
 function shopLock(V,id){var it=shopItem(id);return it&&!shopOwns(V,id)?it:null;}
 function shopLockTag(it){return '<em class="lkp">'+inkTag(it.price)+'</em>';}
+/* 숨은 팩이 열릴 때: 물음표 카드가 흔들리다 터지며 빛줄기, 잉크 방울과 발자국이 퍼지고 이모티콘이 뒤집혀 나타난다.
+   상점을 보고 있을 때(사자마자, 또는 다른 방에서 사서 상점을 열었을 때) 이 기기에서 한 번만 */
+var STK_RV=null;
+function stkRevealTick(){
+  if(STK_RV||!S.ready||!S.modal||S.modal.type!=='shop')return;
+  var V=view();if(!V||!V.me)return;
+  Object.keys(SHOP_HIDE).some(function(pk){
+    var id='k:'+pk;
+    if(SHOP_HIDE[pk].every(function(p){return shopOwns(V,'k:'+p);})&&!shopOwns(V,id)&&!lsGet('gbb_rv_'+pk)){lsSet('gbb_rv_'+pk,'1');stkReveal(pk);return true;}
+    return false;
+  });
+}
+function stkReveal(pk){
+  var it=shopItem('k:'+pk);if(!it||STK_RV)return;
+  var ids=STK.filter(function(x){return x[0].indexOf(pk+'-')===0;}),pick=[0,5,8,11].map(function(i){return ids[i]||ids[0];});
+  var red=false;try{red=window.matchMedia('(prefers-reduced-motion: reduce)').matches;}catch(e){}
+  var SV={
+    dot:function(){return '';},
+    star:function(){return '<svg viewBox="0 0 24 24"><path d="M12 1.5l2.4 8.1 8.1 2.4-8.1 2.4L12 22.5l-2.4-8.1L1.5 12l8.1-2.4z"/></svg>';},
+    paw:function(){return '<svg viewBox="0 0 24 24"><ellipse cx="12" cy="16" rx="5.2" ry="4.4"/><circle cx="5.6" cy="10.6" r="2.3"/><circle cx="9.4" cy="6.4" r="2.4"/><circle cx="14.6" cy="6.4" r="2.4"/><circle cx="18.4" cy="10.6" r="2.3"/></svg>';},
+    ink:function(){return '<svg viewBox="0 0 24 24"><path d="M12 2.8c3.2 4 6.2 7.6 6.2 11.2a6.2 6.2 0 0 1-12.4 0c0-3.6 3-7.2 6.2-11.2z"/></svg>';}
+  };
+  var kinds=['dot','star','paw','ink','star','dot'],cols=['#FFD36E','#FF8FB1','#9FD8FF','#C3A6FF','#FFFFFF','#8EE6C0','#FFB27A'],parts='';
+  for(var i=0;i<56;i++){
+    var a=Math.random()*Math.PI*2,d=120+Math.random()*Math.min(340,Math.max(window.innerWidth,window.innerHeight)*0.48),k=kinds[i%kinds.length],sz=k==='dot'?5+Math.random()*7:12+Math.random()*16;
+    parts+='<i class="rp '+k+'" style="--x:'+Math.round(Math.cos(a)*d)+'px;--y:'+Math.round(Math.sin(a)*d)+'px;--r:'+Math.round(Math.random()*720-360)+'deg;--s:'+sz.toFixed(1)+'px;--c:'+cols[i%cols.length]+';--dl:'+(Math.random()*0.18).toFixed(2)+'s;--du:'+(1.1+Math.random()*0.8).toFixed(2)+'s">'+SV[k]()+'</i>';
+  }
+  var tw='';for(var j=0;j<14;j++)tw+='<i class="tw" style="--tx:'+(6+Math.random()*88).toFixed(1)+'%;--ty:'+(6+Math.random()*88).toFixed(1)+'%;--td:'+(Math.random()*2).toFixed(2)+'s;--ts:'+(8+Math.random()*12).toFixed(0)+'px">'+SV.star()+'</i>';
+  var el=document.createElement('div');
+  el.className='rvfx'+(red?' calm':'');el.setAttribute('role','dialog');el.setAttribute('aria-modal','true');el.setAttribute('aria-label','비밀 팩이 열렸습니다. '+it.name);
+  el.innerHTML='<div class="rvbg"></div><div class="rvrays"></div><div class="rvtw">'+tw+'</div><div class="rvflash"></div>'+
+    '<div class="rvstage"><div class="rvring"></div><div class="rvcard">'+pick.map(function(x,n){return '<div class="rvt" style="--n:'+n+'"><b class="rvf">?</b><span class="rvb">'+stkImg(x[0])+'</span></div>';}).join('')+'</div><div class="rvparts">'+parts+'</div></div>'+
+    '<div class="rvtxt"><small>비밀 팩이 열렸습니다</small><h2>'+esc(it.name)+'</h2><p>'+esc(it.desc)+'</p><div class="rvbtns"><button class="btn primary" data-rv="go">보러 가기</button><button class="btn" data-rv="x">닫기</button></div></div>';
+  document.body.appendChild(el);STK_RV=el;
+  function done(go){
+    if(!el.parentNode||el.classList.contains('out'))return;
+    el.classList.add('out');window.removeEventListener('keydown',key,true);
+    setTimeout(function(){if(el.parentNode)el.parentNode.removeChild(el);STK_RV=null;},420);
+    if(go){S.shopCat='stk';S.shopFocus='k:'+pk;S.shopPeek='k:'+pk;render();setTimeout(function(){var c=document.getElementById('shi-k-'+pk);if(c&&c.scrollIntoView)c.scrollIntoView({block:'start',behavior:red?'auto':'smooth'});},60);}
+  }
+  function key(e){if(e.key==='Escape'){e.preventDefault();e.stopImmediatePropagation();done(false);}}
+  window.addEventListener('keydown',key,true);
+  el.addEventListener('click',function(e){var b=e.target.closest?e.target.closest('[data-rv]'):null;if(!b)return;e.preventDefault();e.stopPropagation();done(b.getAttribute('data-rv')==='go');});
+  if(!red)setTimeout(function(){try{if(navigator.vibrate)navigator.vibrate([18,40,30,40,70]);}catch(e){}},1450);
+  setTimeout(function(){var b=el.querySelector('[data-rv="go"]');if(b&&el.parentNode)try{b.focus({preventScroll:true});}catch(e){}},red?300:2400);
+}
