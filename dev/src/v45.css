@@ -1,0 +1,14 @@
+/* v45: 왼쪽 줄(사이드바)은 화면이 낮으면 위아래로 밀어 볼 수 있게 */
+@media (min-width:700px){
+  .rail{overflow-y:auto;overflow-x:hidden;min-height:0;scrollbar-width:none;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;touch-action:pan-y}
+  .rail::-webkit-scrollbar{display:none}
+  .rail > *{flex:none}
+}
+@media (min-width:700px) and (max-height:640px){
+  .navs button{height:50px;gap:3px}
+  .rail{padding:8px 0}
+}
+@media (max-width:699px){
+  .rail{overflow-x:auto;overflow-y:hidden;scrollbar-width:none;touch-action:pan-x}
+  .rail::-webkit-scrollbar{display:none}
+}

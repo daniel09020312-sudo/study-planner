@@ -15,3 +15,6 @@ sub("    case 'notice-x':", r"""    case 'period-save':{
     }
     case 'period-reset':{var Vpr=view();if(!Vpr.me||adminId(Vpr)!==Vpr.me||!need())break;editCfg(function(c){delete c.period;});S.draft.periodS='';S.draft.periodE='';if(canWrite())flash('처음 기간으로 되돌렸습니다.');break;}
     case 'notice-x':""")
+
+V45_CSS = open(BASE + '/src/v45.css', encoding='utf-8').read()
+sub("</style>", V45_CSS + "</style>")
