@@ -23,9 +23,7 @@ sub("  {id:'night',name:'밤하늘',mode:'dark',soft:[.17,'#151A3F'],font:'Gowun
     "  {id:'night',name:'밤하늘',mode:'dark',soft:[.17,'#151A3F'],font:'Gowun+Batang:wght@700',face:'Gowun Batang',w:700},\n"
     "  {id:'paper',name:'크라프트지',font:'Gaegu:wght@700',face:'Gaegu',w:700},\n"
     "  {id:'news',name:'신문',font:'Gowun+Batang:wght@700',face:'Gowun Batang',w:700},\n"
-    "  {id:'sunset',name:'노을'},\n"
-    "  {id:'forest',name:'숲',mode:'dark',soft:[.16,'#1E3329']},\n"
-    "  {id:'sakura',name:'벚꽃',font:'Jua',face:'Jua',w:400}\n];")
+    "  {id:'sunset',name:'노을'}\n];")
 
 # 5) 타임랩스 없애기: 게시판 종류, 올리기 단추, 배지에서 빼고 예전 글도 보이지 않게 (기록은 지우지 않음)
 sub(".filter(function(q){return q.q||q.pic||q.vid;})", ".filter(function(q){return q.kind!=='lapse'&&(q.q||q.pic);})")

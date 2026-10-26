@@ -1799,9 +1799,9 @@ img.sa{background-repeat:no-repeat;background-position:0 0;aspect-ratio:1/1}
 
 /* ===== 새 컨셉 ===== */
 /* 크라프트지: 따뜻한 종이와 스티치 */
-:root[data-concept="paper"]{--bg:#E8DCC5;--surface:#F8F2E6;--fill:#EFE5D3;--line:#D8C8AB;--ink:#3A2E21;--ink-2:#66553F;--ink-3:#968266;--stitch:rgba(120,88,48,.38);--font-display:'Gaegu',var(--font-body)}
+:root[data-concept="paper"]{--bg:#F4ECDD;--surface:#FFFCF6;--fill:#F8F1E4;--line:#E6D9C2;--ink:#3A2E21;--ink-2:#66553F;--ink-3:#968266;--stitch:rgba(120,88,48,.3);--font-display:'Gaegu',var(--font-body)}
 :root[data-concept="paper"][data-mode="dark"]{--bg:#1F1A13;--surface:#2A231A;--fill:#342C21;--line:#4A3E2E;--ink:#F2E7D3;--ink-2:#CDBDA1;--ink-3:#A08E72;--stitch:rgba(230,200,150,.25)}
-[data-concept="paper"] body{background-image:radial-gradient(rgba(120,90,50,.07) 1px,transparent 1.2px),radial-gradient(rgba(120,90,50,.05) 1px,transparent 1.2px);background-size:7px 7px,11px 11px;background-position:0 0,3px 5px}
+[data-concept="paper"] body{background-image:radial-gradient(rgba(120,90,50,.05) 1px,transparent 1.2px),radial-gradient(rgba(120,90,50,.035) 1px,transparent 1.2px);background-size:7px 7px,11px 11px;background-position:0 0,3px 5px}
 [data-concept="paper"] :is(.card,.tile,.note){border-radius:14px;box-shadow:0 1px 0 rgba(255,255,255,.5) inset,0 10px 24px -18px rgba(70,45,10,.45);outline:1.5px dashed var(--stitch);outline-offset:-7px}
 [data-concept="paper"] .dialog:not(.pic){outline:1.5px dashed var(--stitch);outline-offset:-8px}
 [data-concept="paper"] :is(.pill,.ib,.seg){box-shadow:inset 0 0 0 1px var(--line)}
@@ -1816,34 +1816,19 @@ img.sa{background-repeat:no-repeat;background-position:0 0;aspect-ratio:1/1}
 [data-concept="news"] .vhead h1{border-bottom:3px double var(--ink);padding-bottom:6px}
 [data-concept="news"] :is(.btn,.chip,.seg,.pill,.ib,.tag){border-radius:2px}
 /* 노을: 하늘빛 그러데이션 위에 흐린 면 */
-:root[data-concept="sunset"]{--bg:#FBE7DD;--surface:#FFFFFF;--fill:rgba(140,90,120,.09);--line:rgba(140,90,120,.18)}
+:root[data-concept="sunset"]{--bg:#FFF3EC;--surface:#FFFFFF;--fill:rgba(140,90,120,.09);--line:rgba(140,90,120,.18)}
 :root[data-concept="sunset"][data-mode="dark"]{--bg:#1A1324;--surface:#231A30;--fill:rgba(255,220,240,.08);--line:rgba(255,220,240,.14)}
-[data-concept="sunset"] body{background:linear-gradient(170deg,#FFD9C4 0%,#F9C9D9 38%,#D9CBF3 72%,#BFD3F6 100%) fixed}
+[data-concept="sunset"] body{background:linear-gradient(170deg,#FFE9DC 0%,#FDE0EA 38%,#EAE2FB 72%,#DCE8FC 100%) fixed}
 [data-concept="sunset"][data-mode="dark"] body{background:linear-gradient(170deg,#3A1E36 0%,#2A1C3E 45%,#151A33 100%) fixed}
-[data-concept="sunset"] :is(.card,.tile,.note){background:color-mix(in srgb,var(--surface) 72%,transparent);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);border-radius:24px;box-shadow:0 20px 40px -28px rgba(120,50,90,.45)}
+[data-concept="sunset"] :is(.card,.tile,.note){background:color-mix(in srgb,var(--surface) 84%,transparent);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);border-radius:24px;box-shadow:0 20px 40px -28px rgba(120,50,90,.45)}
 [data-concept="sunset"] :is(.pill,.ib,.seg){background:color-mix(in srgb,var(--surface) 65%,transparent)}
 [data-concept="sunset"] .rail{background:color-mix(in srgb,var(--surface) 70%,transparent);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px)}
-/* 숲 (항상 어둡게) */
-:root[data-concept="forest"]{--bg:#0E1913;--surface:#15231B;--fill:#1D3026;--line:#2A4335;--ink:#E7F0E9;--ink-2:#B3C8B9;--ink-3:#84A08C;--red:#FF9A8F;--red-soft:#3A2522;--scrim:rgba(4,10,7,.66);--shadow:0 30px 70px -26px rgba(0,0,0,.8)}
-[data-concept="forest"] body{background:radial-gradient(90% 60% at 10% 0%,rgba(80,140,95,.22),transparent 70%),radial-gradient(70% 50% at 100% 100%,rgba(40,90,70,.28),transparent 70%),#0E1913}
-[data-concept="forest"] :is(.card,.tile,.note){border:1px solid var(--line);border-radius:20px;box-shadow:0 18px 36px -24px rgba(0,0,0,.8)}
-[data-concept="forest"] :is(.pill,.ib,.seg){border:1px solid var(--line)}
-[data-concept="forest"] .rail{background:#0C1611}
-/* 벚꽃: 분홍빛 바탕에 꽃잎 */
-:root[data-concept="sakura"]{--bg:#FFF2F5;--surface:#FFFFFF;--fill:#FCE8EE;--line:#F4D2DC;--font-display:'Jua',var(--font-body)}
-:root[data-concept="sakura"][data-mode="dark"]{--bg:#1D1418;--surface:#271B21;--fill:#33232B;--line:#4A3440}
-[data-concept="sakura"] body{background-image:radial-gradient(ellipse 5px 3px at 20px 30px,rgba(244,143,177,.35) 98%,transparent),radial-gradient(ellipse 4px 2.5px at 90px 80px,rgba(244,143,177,.28) 98%,transparent),radial-gradient(ellipse 3px 2px at 150px 20px,rgba(244,143,177,.3) 98%,transparent);background-size:180px 120px,180px 120px,180px 120px}
-[data-concept="sakura"] :is(.card,.tile,.note){border-radius:22px;box-shadow:0 14px 30px -22px rgba(214,90,130,.45)}
-[data-concept="sakura"] :is(.pill,.ib,.seg){box-shadow:inset 0 0 0 1px var(--line)}
-[data-font="ok"][data-concept="sakura"] :is(.vhead h1,.gatebox h1,.dh h2,.ct h2){font-weight:400;letter-spacing:0}
 /* 미리 보기 */
-.cvp.cvp-paper{--pb:#E8DCC5;--pc:#F8F2E6;--pe:rgba(120,88,48,.45);--pr:5px;background-image:radial-gradient(rgba(120,90,50,.1) 1px,transparent 1.2px);background-size:5px 5px}
+.cvp.cvp-paper{--pb:#F4ECDD;--pc:#FFFCF6;--pe:rgba(120,88,48,.45);--pr:5px;background-image:radial-gradient(rgba(120,90,50,.1) 1px,transparent 1.2px);background-size:5px 5px}
 .cvp-paper i{border-style:dashed}
 .cvp.cvp-news{--pb:#F3F0E8;--pc:#FBFAF6;--pe:transparent;--pr:0}
 .cvp-news i{border-top:2px double #111 !important}
-.cvp.cvp-sunset{--pb:#FBE7DD;--pc:rgba(255,255,255,.7);--pe:transparent;--pr:6px;background:linear-gradient(170deg,#FFD9C4,#F9C9D9 40%,#D9CBF3 75%,#BFD3F6)}
-.cvp.cvp-forest{--pb:#0E1913;--pc:#15231B;--pe:#2A4335;--pr:6px;background:radial-gradient(90% 70% at 0 0,rgba(80,140,95,.35),transparent 70%),#0E1913}
-.cvp.cvp-sakura{--pb:#FFF2F5;--pc:#FFFFFF;--pe:#F4D2DC;--pr:7px;background-image:radial-gradient(ellipse 3px 2px at 8px 10px,rgba(244,143,177,.6) 98%,transparent),radial-gradient(ellipse 2.5px 1.6px at 30px 26px,rgba(244,143,177,.5) 98%,transparent);background-size:40px 34px}
+.cvp.cvp-sunset{--pb:#FFF3EC;--pc:rgba(255,255,255,.82);--pe:transparent;--pr:6px;background:linear-gradient(170deg,#FFE9DC,#FDE0EA 40%,#EAE2FB 75%,#DCE8FC)}
 .ibhead .linkbtn{border:0;background:none;padding:0;font:inherit;font-size:13px;font-weight:700;color:var(--accent-ink);cursor:pointer}
 @media (max-width:560px){
   .bdgs{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
@@ -2200,9 +2185,7 @@ var CONCEPTS=[
   {id:'night',name:'밤하늘',mode:'dark',soft:[.17,'#151A3F'],font:'Gowun+Batang:wght@700',face:'Gowun Batang',w:700},
   {id:'paper',name:'크라프트지',font:'Gaegu:wght@700',face:'Gaegu',w:700},
   {id:'news',name:'신문',font:'Gowun+Batang:wght@700',face:'Gowun Batang',w:700},
-  {id:'sunset',name:'노을'},
-  {id:'forest',name:'숲',mode:'dark',soft:[.16,'#1E3329']},
-  {id:'sakura',name:'벚꽃',font:'Jua',face:'Jua',w:400}
+  {id:'sunset',name:'노을'}
 ];
 var hostTheme=document.documentElement.getAttribute('data-theme'),lastSet=hostTheme;
 function themePref(){var t=lsGet('gbb_theme');return t==='dark'||t==='light'?t:'auto';}
@@ -4220,7 +4203,7 @@ document.addEventListener('change',function(e){
 
 /* ---------- 처음 화면 ---------- */
 // 앱이 준비되면 알린다. 그림이 아직이면 다 그린 뒤에 열리고, 그림이 먼저 끝났으면 바로 열린다
-var APP_BUILD='1793028442';
+var APP_BUILD='1793029432';
 function splashDone(){
   var sp=document.getElementById('splash'),st=window.__sp;if(!sp||sp.getAttribute('data-out'))return;
   sp.setAttribute('data-out','1');
@@ -4454,9 +4437,9 @@ function lockRow(L){
 // 이모티콘은 기본만 처음부터 쓰고, 장난과 감정은 팩으로 산다. 모양은 이 기기에 저장되고(예전과 같음), 산 것만 고를 수 있다.
 var INK_MIN=10;
 var SHOP_CATS=[['look','방 꾸미기'],['color','대표 색'],['timer','타이머'],['stk','이모티콘']];
-var SHOP_LOOK={grid:[120,'공책 모눈 위에 손글씨'],board:[160,'초록 칠판과 분필 글씨'],pop:[120,'동글동글 말랑한 버튼'],line:[80,'얇은 검은 선으로 또렷하게'],glass:[160,'뒤가 비치는 유리 카드'],night:[200,'별이 뜬 밤하늘'],paper:[100,'따뜻한 크라프트 종이와 스티치'],news:[120,'흑백 신문 지면과 명조 제목'],sunset:[160,'노을빛 그러데이션 하늘'],forest:[180,'깊은 숲의 초록 밤'],sakura:[140,'벚꽃잎이 흩날리는 분홍빛']};
-var SHOP_TIMER={digits:[60,'큰 숫자만 깔끔하게'],bar:[60,'숫자 아래 줄어드는 막대'],pie:[80,'시간이 줄어드는 원판'],flip:[100,'넘어가는 넘김 시계'],analog:[120,'눈금과 바늘이 있는 아날로그 시계'],orbit:[120,'분과 초가 함께 도는 두 겹 고리']};
-var SHOP_STK={playful:[120,'어쩔~, 메롱, 뇌 정지 같은 장난'],emotions:[120,'신난다!, 부끄러워, 감동이야 같은 마음'],cat:[120,'출석!, 멘탈 바사삭, 오늘도 수고했어. 움직이는 까만 고양이'],dog:[120,'개힘듦, 할 게 산더미, 간식 필요. 움직이는 하얀 강아지'],nyang:[120,'고양이와 강아지가 같이 공부합니다. 움직이는 둘']};
+var SHOP_LOOK={grid:[100,'공책 모눈 위에 손글씨'],board:[100,'초록 칠판과 분필 글씨'],pop:[100,'동글동글 말랑한 버튼'],line:[100,'얇은 검은 선으로 또렷하게'],glass:[100,'뒤가 비치는 유리 카드'],night:[100,'별이 뜬 밤하늘'],paper:[100,'따뜻한 크라프트 종이와 스티치'],news:[100,'흑백 신문 지면과 명조 제목'],sunset:[100,'노을빛 그러데이션 하늘']};
+var SHOP_TIMER={digits:[50,'큰 숫자만 깔끔하게'],bar:[50,'숫자 아래 줄어드는 막대'],pie:[50,'시간이 줄어드는 원판'],flip:[50,'넘어가는 넘김 시계'],analog:[50,'눈금과 바늘이 있는 아날로그 시계'],orbit:[50,'분과 초가 함께 도는 두 겹 고리']};
+var SHOP_STK={playful:[50,'어쩔~, 메롱, 뇌 정지 같은 장난'],emotions:[50,'신난다!, 부끄러워, 감동이야 같은 마음'],cat:[100,'출석!, 멘탈 바사삭, 오늘도 수고했어. 움직이는 까만 고양이'],dog:[100,'개힘듦, 할 게 산더미, 간식 필요. 움직이는 하얀 강아지'],nyang:[150,'고양이와 강아지가 같이 공부합니다. 움직이는 둘']};
 // 숨은 팩: 앞의 팩을 모두 사야 무엇인지 보이고 살 수 있다
 var SHOP_HIDE={nyang:['cat','dog']};
 var INK_SVG='<svg class="inkd" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.8c3.2 4 6.2 7.6 6.2 11.2a6.2 6.2 0 0 1-12.4 0c0-3.6 3-7.2 6.2-11.2z"/><path class="hl" d="M9.4 14.6a2.8 2.8 0 0 0 2.4 2.7"/></svg>';
