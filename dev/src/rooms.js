@@ -189,7 +189,7 @@ function modalRoomAdm(V){
 function makeRoom(){
   if(!S.remote||!S.net||S.nrBusy)return;
   var nm=String(S.draft.nrName||'').trim().slice(0,16)||'새 공부방',seen={};
-  var ppl=String(S.draft.nrPeople||'').split(/[\n,]+/).map(function(x){return x.trim().slice(0,12);}).filter(function(x){if(!x||seen[x])return false;seen[x]=1;return true;}).slice(0,12);
+  var ppl=String(S.draft.nrPeople||'').split(/[\n,]+/).map(function(x){return x.trim().slice(0,12);}).filter(function(x){if(!x||seen[x])return false;seen[x]=1;return true;}).slice(0,50);
   var url=S.remote.url,room=newRoom(),cfg=clone(obj(S.config)),subs=S.nrSubj?clone(obj(S.subjects)):{};
   delete cfg.roster;delete cfg.admin;
   cfg.roster=ppl.map(function(n,i){return {id:'m'+(i+1),name:n};});

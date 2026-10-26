@@ -1,4 +1,4 @@
-/* ---------- 배지(등급과 점수), 주간 우승 점수, 최종 결과, 선물과 벌칙 ---------- */
+/* ---------- 배지(등급과 점수), 주간 우승 점수, 최종 결과, 1·2·3등 상품 ---------- */
 var TIERS={b:['동',10],s:['은',30],g:['금',60],l:['전설',100]};
 var WEEK_BONUS=[100,60,30];
 var BADGE_CATS=[['att','출석'],['time','공부 시간'],['plan','할 일과 인증'],['rank','순위'],['board','게시판'],['play','빙고와 대결']];
@@ -24,40 +24,26 @@ function finalStandings(V){
     .sort(function(a,b){return b.total-a.total||b.base-a.base||b.mins-a.mins||a.p.name.localeCompare(b.p.name);});
 }
 function finBreak(x){return '<div class="finbk"><span>누적 '+fmtN(x.base)+'</span><span>주간 순위 +'+fmtN(x.wb)+'</span><span>배지 +'+fmtN(x.bp)+'</span><b>'+fmtN(x.total)+'<small>점</small></b></div>';}
-/* 선물과 벌칙 */
-function penItems(V){
-  return arr(V.cfg.penalties).map(function(x,i){var o=typeof x==='object'&&x?x:{t:x};return {t:String(o.t||'').trim(),by:o.by?String(o.by):'',i:i};}).filter(function(x){return x.t;});
+/* 상품: 최종 1·2·3등. cfg.prizes={p1:{t,by},p2:..,p3:..}(숫자 열쇠는 Firebase가 배열로 돌려줘서 p를 붙임), 예전 cfg.prize는 1등 상품으로 읽는다 */
+var PRIZE_N=3;
+function prizeOf(V,k){
+  k=k||1;var ps=obj(V.cfg.prizes),p=ps['p'+k];
+  if(p==null&&k===1)p=V.cfg.prize;
+  return p&&typeof p==='object'?{t:String(p.t||''),by:String(p.by||'')}:{t:String(p||''),by:''};
 }
-function prizeOf(V){var p=V.cfg.prize;return p&&typeof p==='object'?{t:String(p.t||''),by:String(p.by||'')}:{t:String(p||''),by:''};}
-function penLoser(V){var fs=finalStandings(V);return fs.length>1&&fs[0].total>0?fs[fs.length-1]:null;}
 function prizeCard(V,k){
-  var rev=finalOpen(),pz=prizeOf(V),items=penItems(V),mine=items.filter(function(x){return x.by===V.me;}).length,adm=V.me&&adminId(V)===V.me;
-  var h='<section class="card" id="c-prize" style="--k:'+k+'"><div class="ct"><h2>선물과 벌칙<small>시험이 끝나면 정해집니다</small></h2></div>';
-  h+='<div class="prz"><small>최종 1등 선물</small><b>'+(pz.t?esc(pz.t):'아직 정하지 않았습니다')+'</b>'+(pz.by&&V.byId[pz.by]?'<span class="hint">'+esc(V.byId[pz.by].name)+' 님이 적음</span>':'')+'</div>';
-  if(!rev&&V.me)h+='<div class="row" style="margin-top:8px"><input type="text" data-draft="prizeText" data-enter="prize-save" maxlength="40" placeholder="예: 꼴찌가 사는 기프티콘" aria-label="1등 선물"><button class="btn small" data-act="prize-save">'+(pz.t?'바꾸기':'정하기')+'</button></div>';
-  h+='<div class="sec"><h3>벌칙 후보<small>한 사람당 2개까지</small></h3>';
-  if(!items.length)h+='<p class="empty">아직 벌칙 후보가 없습니다. 모두 하나씩 적어 두면 결과 발표 때 꼴찌가 룰렛을 돌려 하나를 뽑습니다.</p>';
-  items.forEach(function(x){
-    var who=x.by&&V.byId[x.by]?V.byId[x.by].name:'',can=!rev&&V.me&&(x.by===V.me||adm||!x.by);
-    h+='<div class="pl" id="pn-'+x.i+'"><span>'+esc(x.t)+(who?'<small class="pby">'+esc(who)+'</small>':'')+'</span>'+(can?'<button class="del" data-act="pen2-del" data-i="'+x.i+'">'+(S.confirm==='pen2:'+x.i?'한 번 더 누르면 삭제':'삭제')+'</button>':'')+'</div>';
-  });
-  if(!rev&&V.me){
-    if(mine<2&&items.length<12)h+='<div class="row" style="margin-top:8px"><input type="text" data-draft="penText" data-enter="pen2-add" maxlength="40" placeholder="예: 매점 간식 사기" aria-label="추가할 벌칙"><button class="btn" data-act="pen2-add">추가</button></div>';
-    else h+='<p class="hint" style="margin-top:8px">'+(mine>=2?'벌칙 후보는 한 사람당 2개까지 적을 수 있습니다.':'벌칙 후보가 12개로 가득 찼습니다.')+'</p>';
-  }else if(rev)h+='<p class="hint" style="margin-top:8px">결과가 나와서 더 고칠 수 없습니다.</p>';
-  return h+'</div></section>';
-}
-function loserLine(V){
-  var lo=penLoser(V);if(!lo)return '';
-  var sp=obj(V.spins.final),items=penItems(V);
-  var h='<div class="finpen"><div><small>최종 꼴찌 벌칙</small><b>'+esc(lo.p.name)+'</b></div>';
-  if(sp.text)h+='<p>뽑힌 벌칙: <b>'+esc(sp.text)+'</b></p>';
-  else if(lo.p.id===V.me)h+='<button class="btn primary" data-act="roul-open" data-key="final"'+(items.length<2?' disabled':'')+'>벌칙 룰렛 돌리기</button>'+(items.length<2?'<span class="hint">벌칙 후보가 2개 이상 있어야 돌릴 수 있습니다.</span>':'');
-  else h+='<p class="hint">'+esc(lo.p.name)+' 님이 룰렛을 돌리면 여기 결과가 나옵니다.</p>';
-  return h+'</div>';
+  var rev=finalOpen(),h='<section class="card" id="c-prize" style="--k:'+k+'"><div class="ct"><h2>상품<small>최종 1등부터 '+PRIZE_N+'등까지</small></h2></div><div class="przs">';
+  for(var i=1;i<=PRIZE_N;i++){
+    var pz=prizeOf(V,i),who=pz.by&&V.byId[pz.by]?V.byId[pz.by].name:'';
+    h+='<div class="prz p'+i+'" id="prz-'+i+'"><small>'+i+'등 상품</small><b>'+(pz.t?esc(pz.t):'아직 정하지 않았습니다')+'</b>'+(who?'<span class="hint">'+esc(who)+' 님이 적음</span>':'');
+    if(!rev&&V.me)h+='<div class="row"><input type="text" data-draft="prizeText'+i+'" data-enter="prize-save" data-id="'+i+'" maxlength="40" placeholder="'+(i===1?'예: 기프티콘':i===2?'예: 간식 세트':'예: 음료수')+'" aria-label="'+i+'등 상품"><button class="btn small" data-act="prize-save" data-id="'+i+'">'+(pz.t?'바꾸기':'정하기')+'</button></div>';
+    h+='</div>';
+  }
+  h+='</div><p class="hint" style="margin-top:8px">'+(rev?'결과가 나와서 더 고칠 수 없습니다.':'2차 시험이 끝난 다음 날 최종 결과와 함께 1·2·3등이 정해집니다.')+'</p>';
+  return h+'</section>';
 }
 function finalBody(V){
-  var t=today(),rev=finalOpen(),fs=finalStandings(V),me=fs.filter(function(x){return x.p.id===V.me;})[0],wr=weekResults(V),L='',pz=prizeOf(V);
+  var t=today(),rev=finalOpen(),fs=finalStandings(V),me=fs.filter(function(x){return x.p.id===V.me;})[0],wr=weekResults(V),L='';
   if(!rev){
     var open=addDays(END,1);
     L+='<section class="card fin" id="c-fin-wait" style="--k:0"><div class="ct"><h2>최종 결과<small>'+esc(longDate(open))+' 공개</small></h2></div>';
@@ -68,10 +54,10 @@ function finalBody(V){
     L+='<section class="card fin" id="c-fin" style="--k:0"><div class="ct"><h2>최종 결과<small>'+esc(shortDate(START)+' ~ '+shortDate(END))+'</small></h2></div>';
     if(!fs.some(function(x){return x.total>0;}))return L+'<p class="empty">기간 동안 쌓인 점수가 없습니다.</p></section></div><div class="stack">'+prizeCard(V,2);
     L+='<div class="podium">';
-    [1,0,2].forEach(function(i){var x=fs[i];if(!x)return;L+='<div class="pd p'+(i+1)+'">'+av(x.p)+'<b>'+esc(x.p.name)+'</b><small>'+fmtN(x.total)+'점</small><span class="pdn">'+(i+1)+'</span>'+(i===0&&pz.t?'<em class="tag a">선물: '+esc(pz.t)+'</em>':'')+'</div>';});
+    [1,0,2].forEach(function(i){var x=fs[i];if(!x)return;L+='<div class="pd p'+(i+1)+'">'+av(x.p)+'<b>'+esc(x.p.name)+'</b><small>'+fmtN(x.total)+'점</small><span class="pdn">'+(i+1)+'</span>'+(prizeOf(V,i+1).t?'<em class="tag a">상품: '+esc(prizeOf(V,i+1).t)+'</em>':'')+'</div>';});
     L+='</div>';
-    fs.forEach(function(x,i){var last=i===fs.length-1&&fs.length>1;L+='<div class="rk fr2'+(x.p.me?' me':'')+'" id="fn-'+esc(x.p.id)+'"><div class="n">'+(i+1)+'</div>'+av(x.p)+'<div><div class="line"><b>'+esc(x.p.name)+'</b>'+titleTag(V,x.p.id)+(i===0?'<span class="tag a">1등</span>':'')+(last?'<span class="tag r">벌칙</span>':'')+'</div>'+finBreak(x)+'</div></div>';});
-    L+=loserLine(V)+'</section>';
+    fs.forEach(function(x,i){L+='<div class="rk fr2'+(x.p.me?' me':'')+'" id="fn-'+esc(x.p.id)+'"><div class="n">'+(i+1)+'</div>'+av(x.p)+'<div><div class="line"><b>'+esc(x.p.name)+'</b>'+titleTag(V,x.p.id)+(i<PRIZE_N&&x.total>0?'<span class="tag a">'+(i+1)+'등</span>':'')+'</div>'+finBreak(x)+'</div></div>';});
+    L+='</section>';
   }
   L+='<section class="card" id="c-weeks" style="--k:1"><div class="ct"><h2>주간 우승 기록<small>1등 '+WEEK_BONUS[0]+'점, 2등 '+WEEK_BONUS[1]+'점, 3등 '+WEEK_BONUS[2]+'점</small></h2></div>';
   if(!wr.length)L+='<p class="empty">아직 끝난 주가 없습니다.</p>';

@@ -1542,6 +1542,16 @@ img.sa{background-repeat:no-repeat;background-position:0 0;aspect-ratio:1/1}
 .loading{display:flex;align-items:center;justify-content:center;min-height:60vh;padding:0 !important;font-size:14px;color:var(--ink-3) !important}
 @media (prefers-reduced-motion:reduce){#splash.wait .spw{animation:none}}
 .appver{margin-top:18px;text-align:center;font-size:12px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+.przs{display:grid;gap:8px}
+.prz .row{margin-top:8px}
+.prz input,.prz .btn{background:var(--surface)}
+.prz.p2{background:color-mix(in srgb,var(--ts) 12%,var(--surface))}
+.prz.p3{background:color-mix(in srgb,var(--tb) 10%,var(--surface))}
+.tbl.many{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.tbl.many .orow{grid-template-columns:var(--lw,180px) repeat(var(--n),var(--cw));min-width:max-content}
+@media (max-width:640px){.tbl.many{--lw:128px}}
+.tbl.many .olabel{position:sticky;left:0;z-index:1;background:var(--surface)}
+.tbl.many .ounits{position:sticky;left:0;max-width:calc(100vw - 32px)}
 #c-setup .row input{min-width:0}
 #c-setup .lb{margin-top:0}
 .serr{color:var(--red);margin-top:8px}
@@ -1829,7 +1839,7 @@ var RULES=[
   ['스터디 빙고','한 줄을 채울 때마다 10점. 주간 점수와 최종 점수에 더함'],
   ['주간 순위','한 주가 끝나면 1등 100점, 2등 60점, 3등 30점을 최종 점수에 더함'],
   ['배지','받은 배지마다 동 10점, 은 30점, 금 60점, 전설 100점을 최종 점수에 더함'],
-  ['최종 결과','2차 시험이 끝난 다음 날 공개. 1등은 선물, 꼴찌는 모두가 낸 벌칙 후보 중 룰렛으로 뽑은 벌칙']
+  ['최종 결과','2차 시험이 끝난 다음 날 공개. 1등, 2등, 3등은 미리 정해 둔 상품']
 ];
 function attReward(n){return Math.min(10,4+n)+(n%7===0?10:0);}
 
@@ -2428,7 +2438,7 @@ function goalsCard(V,date,k){
   }
   return h+'</section>';
 }
-var GMAX=12;
+var GMAX=12,ROSTER_MAX=50;
 function plText(type,unit,note,amt){
   var parts=[];if(type)parts.push(type);if(amt>0)parts.push(amt+(unit||'문제'));
   var t=parts.join(' ');note=String(note||'').trim();
@@ -3654,7 +3664,7 @@ function viewEvents(V){
   return h;
 }
 
-/* ---------- 배지(등급과 점수), 주간 우승 점수, 최종 결과, 선물과 벌칙 ---------- */
+/* ---------- 배지(등급과 점수), 주간 우승 점수, 최종 결과, 1·2·3등 상품 ---------- */
 var TIERS={b:['동',10],s:['은',30],g:['금',60],l:['전설',100]};
 var WEEK_BONUS=[100,60,30];
 var BADGE_CATS=[['att','출석'],['time','공부 시간'],['plan','할 일과 인증'],['rank','순위'],['board','게시판'],['play','빙고와 대결']];
@@ -3680,40 +3690,26 @@ function finalStandings(V){
     .sort(function(a,b){return b.total-a.total||b.base-a.base||b.mins-a.mins||a.p.name.localeCompare(b.p.name);});
 }
 function finBreak(x){return '<div class="finbk"><span>누적 '+fmtN(x.base)+'</span><span>주간 순위 +'+fmtN(x.wb)+'</span><span>배지 +'+fmtN(x.bp)+'</span><b>'+fmtN(x.total)+'<small>점</small></b></div>';}
-/* 선물과 벌칙 */
-function penItems(V){
-  return arr(V.cfg.penalties).map(function(x,i){var o=typeof x==='object'&&x?x:{t:x};return {t:String(o.t||'').trim(),by:o.by?String(o.by):'',i:i};}).filter(function(x){return x.t;});
+/* 상품: 최종 1·2·3등. cfg.prizes={p1:{t,by},p2:..,p3:..}(숫자 열쇠는 Firebase가 배열로 돌려줘서 p를 붙임), 예전 cfg.prize는 1등 상품으로 읽는다 */
+var PRIZE_N=3;
+function prizeOf(V,k){
+  k=k||1;var ps=obj(V.cfg.prizes),p=ps['p'+k];
+  if(p==null&&k===1)p=V.cfg.prize;
+  return p&&typeof p==='object'?{t:String(p.t||''),by:String(p.by||'')}:{t:String(p||''),by:''};
 }
-function prizeOf(V){var p=V.cfg.prize;return p&&typeof p==='object'?{t:String(p.t||''),by:String(p.by||'')}:{t:String(p||''),by:''};}
-function penLoser(V){var fs=finalStandings(V);return fs.length>1&&fs[0].total>0?fs[fs.length-1]:null;}
 function prizeCard(V,k){
-  var rev=finalOpen(),pz=prizeOf(V),items=penItems(V),mine=items.filter(function(x){return x.by===V.me;}).length,adm=V.me&&adminId(V)===V.me;
-  var h='<section class="card" id="c-prize" style="--k:'+k+'"><div class="ct"><h2>선물과 벌칙<small>시험이 끝나면 정해집니다</small></h2></div>';
-  h+='<div class="prz"><small>최종 1등 선물</small><b>'+(pz.t?esc(pz.t):'아직 정하지 않았습니다')+'</b>'+(pz.by&&V.byId[pz.by]?'<span class="hint">'+esc(V.byId[pz.by].name)+' 님이 적음</span>':'')+'</div>';
-  if(!rev&&V.me)h+='<div class="row" style="margin-top:8px"><input type="text" data-draft="prizeText" data-enter="prize-save" maxlength="40" placeholder="예: 꼴찌가 사는 기프티콘" aria-label="1등 선물"><button class="btn small" data-act="prize-save">'+(pz.t?'바꾸기':'정하기')+'</button></div>';
-  h+='<div class="sec"><h3>벌칙 후보<small>한 사람당 2개까지</small></h3>';
-  if(!items.length)h+='<p class="empty">아직 벌칙 후보가 없습니다. 모두 하나씩 적어 두면 결과 발표 때 꼴찌가 룰렛을 돌려 하나를 뽑습니다.</p>';
-  items.forEach(function(x){
-    var who=x.by&&V.byId[x.by]?V.byId[x.by].name:'',can=!rev&&V.me&&(x.by===V.me||adm||!x.by);
-    h+='<div class="pl" id="pn-'+x.i+'"><span>'+esc(x.t)+(who?'<small class="pby">'+esc(who)+'</small>':'')+'</span>'+(can?'<button class="del" data-act="pen2-del" data-i="'+x.i+'">'+(S.confirm==='pen2:'+x.i?'한 번 더 누르면 삭제':'삭제')+'</button>':'')+'</div>';
-  });
-  if(!rev&&V.me){
-    if(mine<2&&items.length<12)h+='<div class="row" style="margin-top:8px"><input type="text" data-draft="penText" data-enter="pen2-add" maxlength="40" placeholder="예: 매점 간식 사기" aria-label="추가할 벌칙"><button class="btn" data-act="pen2-add">추가</button></div>';
-    else h+='<p class="hint" style="margin-top:8px">'+(mine>=2?'벌칙 후보는 한 사람당 2개까지 적을 수 있습니다.':'벌칙 후보가 12개로 가득 찼습니다.')+'</p>';
-  }else if(rev)h+='<p class="hint" style="margin-top:8px">결과가 나와서 더 고칠 수 없습니다.</p>';
-  return h+'</div></section>';
-}
-function loserLine(V){
-  var lo=penLoser(V);if(!lo)return '';
-  var sp=obj(V.spins.final),items=penItems(V);
-  var h='<div class="finpen"><div><small>최종 꼴찌 벌칙</small><b>'+esc(lo.p.name)+'</b></div>';
-  if(sp.text)h+='<p>뽑힌 벌칙: <b>'+esc(sp.text)+'</b></p>';
-  else if(lo.p.id===V.me)h+='<button class="btn primary" data-act="roul-open" data-key="final"'+(items.length<2?' disabled':'')+'>벌칙 룰렛 돌리기</button>'+(items.length<2?'<span class="hint">벌칙 후보가 2개 이상 있어야 돌릴 수 있습니다.</span>':'');
-  else h+='<p class="hint">'+esc(lo.p.name)+' 님이 룰렛을 돌리면 여기 결과가 나옵니다.</p>';
-  return h+'</div>';
+  var rev=finalOpen(),h='<section class="card" id="c-prize" style="--k:'+k+'"><div class="ct"><h2>상품<small>최종 1등부터 '+PRIZE_N+'등까지</small></h2></div><div class="przs">';
+  for(var i=1;i<=PRIZE_N;i++){
+    var pz=prizeOf(V,i),who=pz.by&&V.byId[pz.by]?V.byId[pz.by].name:'';
+    h+='<div class="prz p'+i+'" id="prz-'+i+'"><small>'+i+'등 상품</small><b>'+(pz.t?esc(pz.t):'아직 정하지 않았습니다')+'</b>'+(who?'<span class="hint">'+esc(who)+' 님이 적음</span>':'');
+    if(!rev&&V.me)h+='<div class="row"><input type="text" data-draft="prizeText'+i+'" data-enter="prize-save" data-id="'+i+'" maxlength="40" placeholder="'+(i===1?'예: 기프티콘':i===2?'예: 간식 세트':'예: 음료수')+'" aria-label="'+i+'등 상품"><button class="btn small" data-act="prize-save" data-id="'+i+'">'+(pz.t?'바꾸기':'정하기')+'</button></div>';
+    h+='</div>';
+  }
+  h+='</div><p class="hint" style="margin-top:8px">'+(rev?'결과가 나와서 더 고칠 수 없습니다.':'2차 시험이 끝난 다음 날 최종 결과와 함께 1·2·3등이 정해집니다.')+'</p>';
+  return h+'</section>';
 }
 function finalBody(V){
-  var t=today(),rev=finalOpen(),fs=finalStandings(V),me=fs.filter(function(x){return x.p.id===V.me;})[0],wr=weekResults(V),L='',pz=prizeOf(V);
+  var t=today(),rev=finalOpen(),fs=finalStandings(V),me=fs.filter(function(x){return x.p.id===V.me;})[0],wr=weekResults(V),L='';
   if(!rev){
     var open=addDays(END,1);
     L+='<section class="card fin" id="c-fin-wait" style="--k:0"><div class="ct"><h2>최종 결과<small>'+esc(longDate(open))+' 공개</small></h2></div>';
@@ -3724,10 +3720,10 @@ function finalBody(V){
     L+='<section class="card fin" id="c-fin" style="--k:0"><div class="ct"><h2>최종 결과<small>'+esc(shortDate(START)+' ~ '+shortDate(END))+'</small></h2></div>';
     if(!fs.some(function(x){return x.total>0;}))return L+'<p class="empty">기간 동안 쌓인 점수가 없습니다.</p></section></div><div class="stack">'+prizeCard(V,2);
     L+='<div class="podium">';
-    [1,0,2].forEach(function(i){var x=fs[i];if(!x)return;L+='<div class="pd p'+(i+1)+'">'+av(x.p)+'<b>'+esc(x.p.name)+'</b><small>'+fmtN(x.total)+'점</small><span class="pdn">'+(i+1)+'</span>'+(i===0&&pz.t?'<em class="tag a">선물: '+esc(pz.t)+'</em>':'')+'</div>';});
+    [1,0,2].forEach(function(i){var x=fs[i];if(!x)return;L+='<div class="pd p'+(i+1)+'">'+av(x.p)+'<b>'+esc(x.p.name)+'</b><small>'+fmtN(x.total)+'점</small><span class="pdn">'+(i+1)+'</span>'+(prizeOf(V,i+1).t?'<em class="tag a">상품: '+esc(prizeOf(V,i+1).t)+'</em>':'')+'</div>';});
     L+='</div>';
-    fs.forEach(function(x,i){var last=i===fs.length-1&&fs.length>1;L+='<div class="rk fr2'+(x.p.me?' me':'')+'" id="fn-'+esc(x.p.id)+'"><div class="n">'+(i+1)+'</div>'+av(x.p)+'<div><div class="line"><b>'+esc(x.p.name)+'</b>'+titleTag(V,x.p.id)+(i===0?'<span class="tag a">1등</span>':'')+(last?'<span class="tag r">벌칙</span>':'')+'</div>'+finBreak(x)+'</div></div>';});
-    L+=loserLine(V)+'</section>';
+    fs.forEach(function(x,i){L+='<div class="rk fr2'+(x.p.me?' me':'')+'" id="fn-'+esc(x.p.id)+'"><div class="n">'+(i+1)+'</div>'+av(x.p)+'<div><div class="line"><b>'+esc(x.p.name)+'</b>'+titleTag(V,x.p.id)+(i<PRIZE_N&&x.total>0?'<span class="tag a">'+(i+1)+'등</span>':'')+'</div>'+finBreak(x)+'</div></div>';});
+    L+='</section>';
   }
   L+='<section class="card" id="c-weeks" style="--k:1"><div class="ct"><h2>주간 우승 기록<small>1등 '+WEEK_BONUS[0]+'점, 2등 '+WEEK_BONUS[1]+'점, 3등 '+WEEK_BONUS[2]+'점</small></h2></div>';
   if(!wr.length)L+='<p class="empty">아직 끝난 주가 없습니다.</p>';
@@ -3803,7 +3799,7 @@ function viewProgMine(V){
 }
 function viewProgAll(V){
   var R=V.roster,n=R.length||1;
-  var h='<section class="card tbl" id="c-tbl" style="--k:0;--n:'+n+(n>6?';--cw:46px':'')+'"><div class="orow ohead"><span class="olabel">과목</span>';
+  var h='<section class="card tbl'+(n>8?' many':'')+'" id="c-tbl" style="--k:0;--n:'+n+(n>6?';--cw:46px':'')+'"><div class="orow ohead"><span class="olabel">과목</span>';
   R.forEach(function(m){h+='<span class="ocell'+(m.id===V.me?' me':'')+'">'+esc(shortName(V.byId[m.id].name))+'</span>';});
   h+='</div>';
   V.subs.forEach(function(s){
@@ -3880,7 +3876,7 @@ document.addEventListener('change',function(e){
 
 /* ---------- 처음 화면 ---------- */
 // 앱이 준비되면 알린다. 그림이 아직이면 다 그린 뒤에 열리고, 그림이 먼저 끝났으면 바로 열린다
-var APP_BUILD='1792840578';
+var APP_BUILD='1793026453';
 function splashDone(){
   var sp=document.getElementById('splash'),st=window.__sp;if(!sp||sp.getAttribute('data-out'))return;
   sp.setAttribute('data-out','1');
@@ -4513,7 +4509,7 @@ function modalRoomAdm(V){
 function makeRoom(){
   if(!S.remote||!S.net||S.nrBusy)return;
   var nm=String(S.draft.nrName||'').trim().slice(0,16)||'새 공부방',seen={};
-  var ppl=String(S.draft.nrPeople||'').split(/[\n,]+/).map(function(x){return x.trim().slice(0,12);}).filter(function(x){if(!x||seen[x])return false;seen[x]=1;return true;}).slice(0,12);
+  var ppl=String(S.draft.nrPeople||'').split(/[\n,]+/).map(function(x){return x.trim().slice(0,12);}).filter(function(x){if(!x||seen[x])return false;seen[x]=1;return true;}).slice(0,50);
   var url=S.remote.url,room=newRoom(),cfg=clone(obj(S.config)),subs=S.nrSubj?clone(obj(S.subjects)):{};
   delete cfg.roster;delete cfg.admin;
   cfg.roster=ppl.map(function(n,i){return {id:'m'+(i+1),name:n};});
@@ -5103,7 +5099,7 @@ function viewProgEdit(V){
   var R=V.roster,n=R.length||1;
   var allOpen=V.subs.length>0&&V.subs.every(function(s){return S.open[s.id];});
   var h='<div class="view" id="view-prog"><header class="vhead"><div><h1>과목과 항목 편집</h1><p>과목과 공부 항목은 모두에게 똑같이 보입니다. 단원은 내 진도에서 각자 정합니다.</p></div><div class="vacts"><button class="btn small" data-act="prog-all">'+(allOpen?'모두 접기':'모두 펼치기')+'</button><button class="btn small'+(S.edit?' primary':'')+'" data-act="prog-edit" aria-pressed="'+(S.edit?'true':'false')+'">'+(S.edit?'편집 끝내기':'과목과 항목 편집')+'</button></div></header>';
-  h+='<section class="card tbl" id="c-tbl" style="--k:0;--n:'+n+(n>6?';--cw:46px':'')+'"><div class="orow ohead"><span class="olabel">과목</span>';
+  h+='<section class="card tbl'+(n>8?' many':'')+'" id="c-tbl" style="--k:0;--n:'+n+(n>6?';--cw:46px':'')+'"><div class="orow ohead"><span class="olabel">과목</span>';
   R.forEach(function(m){h+='<span class="ocell'+(m.id===V.me?' me':'')+'">'+esc(shortName(V.byId[m.id].name))+'</span>';});
   h+='</div>';
   if(!V.subs.length)h+='<div class="ofoot"><p class="hint">아직 과목이 없습니다.</p>'+(canWrite()?'<div class="row"><button class="btn primary" data-act="seed">기본 과목 8개 넣기</button><button class="btn" data-act="prog-edit">직접 추가하기</button></div>':'')+'</div>';
@@ -5435,7 +5431,7 @@ function rollSong(){
   })();
 }
 
-/* ---------- 도전: 빙고, 배지, 1:1 대결, 벌칙 룰렛 ---------- */
+/* ---------- 도전: 빙고, 배지, 1:1 대결 ---------- */
 var BINGO_POOL=[
   {t:'이번 주 공부 30시간',max:1800,u:'m',f:function(o){return o.mins;}},
   {t:'5시간 넘게 공부한 날 4일',max:4,f:function(o){return o.daily.filter(function(x){return x>=300;}).length;}},
@@ -5583,35 +5579,6 @@ function titleOf(V,mid){
   var b=badgeList(V,mid).filter(function(x){return x.id===id&&x.on;})[0];return b?b.title:'';
 }
 function titleTag(V,mid){var id=obj(V.progress[mid]).title;if(!id)return '';var b=badgeList(V,mid).filter(function(x){return x.id===id&&x.on;})[0];return b?'<em class="tag tt-'+b.tier+'">'+esc(b.title)+'</em>':'';}
-function penList(V){
-  var l=penItems(V).map(function(x){return x.t;});
-  if(!l.length&&V.penalty)l=[V.penalty];
-  return l;
-}
-function weekLoser(V,mon){
-  if(mon<START)return null;
-  var st=standings(V,mon,addDays(mon,6));
-  return st.length>1&&st.some(function(x){return x.total>0;})?st[st.length-1].p:null;
-}
-function penCard(V,k){
-  var list=penList(V),t=today(),mon=mondayOf(t),lw=addDays(mon,-7),lo=weekLoser(V,lw),h='<section class="card" id="c-pen" style="--k:'+k+'"><div class="ct"><h2>벌칙 룰렛<small>벌칙 '+list.length+'개</small></h2></div>';
-  function line(label,p,key){
-    var sp=obj(V.spins[key]),r='<div><small>'+label+'</small><b>'+esc(p.name)+'</b>';
-    if(sp.text)r+='<p style="margin-top:4px">뽑힌 벌칙: <b>'+esc(sp.text)+'</b></p>';
-    else if(p.id===V.me)r+='<div class="row" style="margin-top:8px"><button class="btn small primary" data-act="roul-open" data-key="'+esc(key)+'"'+(list.length<2?' disabled':'')+'>룰렛 돌리기</button>'+(list.length<2?'<span class="hint">벌칙을 2개 이상 적어야 돌릴 수 있습니다.</span>':'')+'</div>';
-    else r+='<p class="hint" style="margin-top:4px">아직 룰렛을 돌리지 않았습니다.</p>';
-    return r+'</div>';
-  }
-  h+='<div class="pen">';
-  if(lo)h+=line('지난주 꼴찌 ('+shortDate(lw)+' ~ '+shortDate(addDays(lw,6))+')',lo,'w_'+lw);
-  if(t>END){var fs=standings(V,START,END);if(fs.length>1&&fs[0].total>0)h+=line('최종 꼴찌',fs[fs.length-1].p,'final');}
-  if(!lo&&t<=END)h+='<div><small>아직 뽑을 사람이 없습니다</small><b>한 주가 끝나면 그 주 꼴찌가 여기서 룰렛을 돌립니다.</b></div>';
-  h+='</div><div class="sec"><h3>벌칙 목록<small>누구나 추가할 수 있습니다</small></h3>';
-  if(!list.length)h+='<p class="empty">벌칙을 2개 이상 적어두세요.</p>';
-  list.forEach(function(x,i){h+='<div class="pl" id="pn-'+i+'"><span>'+esc(x)+'</span><button class="del" data-act="pen-del" data-i="'+i+'">삭제</button></div>';});
-  h+='<div class="row" style="margin-top:8px"><input type="text" data-draft="penText" data-enter="pen-add" maxlength="40" placeholder="예: 매점 간식 사기" aria-label="추가할 벌칙"><button class="btn" data-act="pen-add">추가</button></div></div>';
-  return h+'</section>';
-}
 function duelRow(V,d){
   var A=V.byId[d.a],B=V.byId[d.b],h='<div class="duel" id="du-'+esc(d.id)+'">';
   if(d.state==='pending'){
@@ -5656,36 +5623,11 @@ function viewPlay(V){
   }
   return h+'</div></div>';
 }
-function wheelSvg(labels){
-  var n=labels.length,seg=360/n,fills=['var(--accent-soft)','var(--fill)','var(--surface)'],svg='';
-  function pt(a,r){var rad=a*Math.PI/180;return (r*Math.sin(rad)).toFixed(2)+','+(-r*Math.cos(rad)).toFixed(2);}
-  labels.forEach(function(g,i){
-    var a0=i*seg,a1=(i+1)*seg,c=a0+seg/2,fill=fills[(i===n-1&&i%3===0)?1:i%3];
-    svg+='<path d="M0,0 L'+pt(a0,100)+' A100,100 0 '+(seg>180?1:0)+',1 '+pt(a1,100)+' Z" fill="'+fill+'" stroke="var(--line)" stroke-width="1"/>';
-    svg+='<text transform="rotate('+(c-90).toFixed(2)+') translate(58,0)" text-anchor="middle" dominant-baseline="central">'+esc(cut(g,n>5?8:11))+'</text>';
-  });
-  return svg+'<circle r="100" fill="none" stroke="var(--line)" stroke-width="2"/>';
-}
-function modalRoul(V){
-  var w=S.roul,sp=obj(V.spins[w.key]),n=w.items.length;
-  var b='<div class="wheelbox"><span class="pin" aria-hidden="true"></span><div class="wheel" id="rwheel" style="transform:rotate('+w.rot+'deg)"><svg viewBox="-102 -102 204 204" role="img" aria-label="벌칙 '+n+'개가 적힌 룰렛">'+wheelSvg(w.items)+'</svg></div><span class="hub" aria-hidden="true"></span></div>';
-  if(sp.text&&!w.spinning)b+='<div class="picked" id="rpicked" role="status"><small>뽑힌 벌칙</small><p>'+esc(sp.text)+'</p></div><div class="df"><button class="btn primary" data-act="modal-close">확인</button></div>';
-  else b+='<button class="btn xl primary" data-act="roul-spin"'+(w.spinning?' disabled':'')+'>'+(w.spinning?'돌아가는 중':'돌리기')+'</button><p class="hint center" style="margin-top:10px">한 번만 돌릴 수 있고, 결과는 모두에게 보입니다.</p>';
-  return dlg('',{id:'roul',t:'벌칙 룰렛'},b);
-}
 function modalDuel(V){
   var f=S.duelF,b='<p class="hint">상대가 수락한 다음 날부터 2일 동안 얻은 점수의 합으로 겨룹니다.</p><div class="fld"><h3>상대</h3><div class="chips">';
   V.roster.forEach(function(m){if(m.id!==V.me)b+=chipBtn('duel-set','b',m.id,V.byId[m.id].name,f.b===m.id);});
   b+='</div></div>';
   return dlg('wide',{id:'duel',t:'1:1 대결 신청'},b,'<span class="hint">신청하면 상대에게 알림이 갑니다.</span><div class="df"><button class="btn primary" data-act="duel-add"'+(f.b?'':' disabled')+'>신청하기</button></div>');
-}
-function spinRoul(){
-  var w=S.roul;if(!w||w.spinning)return;
-  var V=view();if(!V.me||!need()||obj(V.spins[w.key]).text)return;
-  var n=w.items.length,seg=360/n,idx=Math.floor(Math.random()*n),jit=(Math.random()-.5)*seg*.6;
-  w.rot=Math.ceil(w.rot/360)*360+360*5+(360-(idx+.5)*seg)+jit;w.spinning=true;
-  render();
-  setTimeout(function(){w.spinning=false;if(S.roul===w&&canWrite())save('spins/'+w.key,{mid:V.me,text:w.items[idx],at:Date.now()});render();},reduced?60:4500);
 }
 function afterPlay(V){
   var t=today();if(t<START||t>END)return;
@@ -5855,7 +5797,7 @@ function modalSettings(V){
   [[22,'밤 10시'],[23,'밤 11시'],[24,'자정'],[25,'다음 날 새벽 1시'],[26,'다음 날 새벽 2시'],[27,'다음 날 새벽 3시'],[28,'다음 날 새벽 4시'],[29,'다음 날 새벽 5시']].forEach(function(o){b+='<option value="'+o[0]+'"'+(V.certHour===o[0]?' selected':'')+'>'+o[1]+'</option>';});
   b+='</select>';
   b+='</div><div class="sec"><h3>키보드 단축키<small>키보드를 연결했을 때</small></h3><ul class="kbd">'+[['1 ~ 8','달력부터 메시지까지 화면 이동'],['N','할 일 추가'],['D','마감 있는 할 일 추가'],['L','달력, 할 일, 시간표 차례로 바꿔 보기'],['T','타이머 켜기, 끄기'],['F','타이머 크게 보기'],['Esc','창 닫기']].map(function(x){return '<li><kbd>'+x[0]+'</kbd><span>'+x[1]+'</span></li>';}).join('')+'</ul></div><div class="sec"><h3>저장 위치</h3><p class="hint">'+esc(S.net?({claude:'Claude 공유 저장소에 연결되어 있습니다. Claude에 로그인한 참여 인원끼리 실시간으로 같이 봅니다.',firebase:'공유 저장소에 연결되어 있습니다. 참여 코드로 들어온 사람 모두가 실시간으로 같이 봅니다.',local:'지금은 이 기기에만 저장됩니다. 다른 사람과 같이 보려면 공유 저장소 연결이 필요합니다.'}[S.net.mode]):'연결 중입니다.')+'</p>'+(S.net&&S.net.mode==='firebase'&&S.remote?'<div class="row" style="margin-top:10px"><button class="btn small" data-act="import-pick">기록 가져오기</button><button class="btn small" data-act="export-data">기록 파일로 저장</button><button class="del" data-act="setup-reset">'+(S.confirm==='disc'?'한 번 더 누르면 이 방에서 나갑니다':'이 기기에서 이 방 나가기')+'</button></div><p class="hint" style="margin-top:8px">'+esc(S.importMsg||'친구와 내 다른 기기는 위의 친구 초대하기로 들어옵니다. 기록 가져오기는 처음 연결한 뒤 한 번만 하면 됩니다.')+'</p>':'')+'</div>';
-  b+='<p class="hint appver">앱 버전 10월 24일 20:16</p>';
+  b+='<p class="hint appver">앱 버전 10월 26일 23:54</p>';
   return dlg('wide',{id:'settings',t:'설정'},b);
 }
 function modalCheck(V){
@@ -5909,7 +5851,6 @@ function modalHtml(V){
   if(t==='post')return modalPost(V);
   if(t==='wheel')return modalWheel(V);
   if(t==='duel'&&S.duelF)return modalDuel(V);
-  if(t==='roul'&&S.roul)return modalRoul(V);
   return '';
 }
 /* ---------- 그리기 ---------- */
@@ -6355,22 +6296,6 @@ function act(name,el){
     case 'accent':{var acv=el.getAttribute('data-v');if(!shopOwns(view(),'a:'+acv)){shopGo('a:'+acv);return;}lsSet('gbb_accent',acv);applyLook();break;}
     case 'concept':{var cov=el.getAttribute('data-v');if(!shopOwns(view(),'c:'+cov)){shopGo('c:'+cov);return;}lsSet('gbb_concept',cov);applyLook();break;}
     case 'badge-title':editProg(function(p){p.title=p.title===id?'':id;});break;
-    case 'pen-add':{
-      var ptx=String(S.draft.penText||'').trim();if(!ptx)break;
-      var Vn=view(),cur=penList(Vn);
-      if(cur.length>=12){flash('벌칙은 12개까지 적을 수 있습니다.');break;}
-      editCfg(function(c){c.penalties=cur.concat([ptx.slice(0,40)]);});
-      if(canWrite())S.draft.penText='';break;
-    }
-    case 'pen-del':{var pi=+el.getAttribute('data-i'),cur2=penList(view());cur2.splice(pi,1);editCfg(function(c){c.penalties=cur2;c.penalty='';});break;}
-    case 'roul-open':{
-      var Vo=view(),its=penList(Vo).slice(0,12),rkey=el.getAttribute('data-key');
-      if(!Vo.me||!rkey)break;
-      if(its.length<2&&!obj(Vo.spins[rkey]).text){flash('벌칙을 2개 이상 적어야 돌릴 수 있습니다.');break;}
-      S.roul={key:rkey,items:its,rot:0,spinning:false};
-      S.modal={type:'roul'};S.closing=false;break;
-    }
-    case 'roul-spin':spinRoul();return;
     case 'duel-set':{
       var dk2=el.getAttribute('data-k'),dv2=el.getAttribute('data-v');if(!S.duelF)break;
       if(dk2==='b')S.duelF.b=S.duelF.b===dv2?'':dv2;else S.duelF.stake=dv2==='text'?'text':'roul';
@@ -6535,8 +6460,8 @@ function act(name,el){
     case 'name-add':{
       var nn=String(S.draft.newName||'').trim();if(!nn||!need())break;
       var full1=false,nid=rid('m');
-      editCfg(function(c){if(c.roster.length>=12){full1=true;return;}c.roster.push({id:nid,name:nn.slice(0,12)});if(typeof c.certHour!=='number')c.certHour=29;});
-      if(full1){flash('참여 인원은 12명까지 추가할 수 있습니다.');break;}
+      editCfg(function(c){if(c.roster.length>=ROSTER_MAX){full1=true;return;}c.roster.push({id:nid,name:nn.slice(0,12)});if(typeof c.certHour!=='number')c.certHour=29;});
+      if(full1){flash('참여 인원은 '+ROSTER_MAX+'명까지 추가할 수 있습니다.');break;}
       setMe(nid);S.draft.newName='';S.pinAsked[nid]=1;lsSet('gbb_pinask',JSON.stringify(S.pinAsked));openPin('set',nid);return;
     }
     case 'checkin':editDay(today(),function(d){if(!d.in)d.in=new Date().toISOString();});break;
@@ -6675,20 +6600,10 @@ function act(name,el){
     case 'ev-past':S.evPast=!S.evPast;S.vbDir=S.evPast?-1:1;break;
     case 'ev-new':{openModal('event',el);if(S.evd){S.evd.kind=el.getAttribute('data-k')||'수행평가';S.evd.pickDate=true;if(S.evd.date<today())S.evd.date=today();}render();return;}
     case 'hide-goals':{var hgv=el.getAttribute('data-v')==='1';editProg(function(p){if(hgv)p.hideGoals=true;else delete p.hideGoals;});break;}
-    case 'prize-save':{var pzt=String(S.draft.prizeText||'').trim().slice(0,40),Vz=view();if(!pzt||!Vz.me||finalOpen())break;editCfg(function(c){c.prize={t:pzt,by:Vz.me};});if(canWrite()){S.draft.prizeText='';S.sync=true;flash('1등 선물을 정했습니다.');}break;}
-    case 'pen2-add':{
-      var p2t=String(S.draft.penText||'').trim().slice(0,40),Vp=view();if(!p2t||!Vp.me||finalOpen())break;
-      var its2=penItems(Vp);if(its2.length>=12){flash('벌칙 후보는 12개까지 적을 수 있습니다.');break;}
-      if(its2.filter(function(x){return x.by===Vp.me;}).length>=2){flash('벌칙 후보는 한 사람당 2개까지 적을 수 있습니다.');break;}
-      editCfg(function(c){c.penalties=arr(c.penalties).concat([{t:p2t,by:Vp.me}]);});
-      if(canWrite()){S.draft.penText='';S.sync=true;}break;
-    }
-    case 'pen2-del':{
-      var pi2=+el.getAttribute('data-i'),Vq=view();if(finalOpen())break;
-      var it2=penItems(Vq).filter(function(x){return x.i===pi2;})[0];if(!it2)break;
-      if(it2.by&&it2.by!==Vq.me&&adminId(Vq)!==Vq.me)break;
-      if(prev!=='pen2:'+pi2){S.confirm='pen2:'+pi2;break;}
-      editCfg(function(c){var l=arr(c.penalties);l.splice(pi2,1);c.penalties=l;c.penalty='';});break;
+    case 'prize-save':{
+      var pzk=Math.max(1,Math.min(PRIZE_N,Math.floor(+id||1))),pzt=String(S.draft['prizeText'+pzk]||'').trim().slice(0,40),Vz=view();if(!pzt||!Vz.me||finalOpen())break;
+      editCfg(function(c){var ps=obj(c.prizes);if(pzk===1&&c.prize)delete c.prize;ps['p'+pzk]={t:pzt,by:Vz.me};c.prizes=ps;});
+      if(canWrite()){S.draft['prizeText'+pzk]='';S.sync=true;flash(pzk+'등 상품을 정했습니다.');}break;
     }
     case 'abbr-open':S.ttTab='color';openModal('ttset',el);return;
     case 'scol-open':S.scolOpen=S.scolOpen===id?null:id;break;
@@ -6982,7 +6897,7 @@ function act(name,el){
       break;
     case 'member-add':{
       var mn=String(S.draft.memberName||'').trim();if(!mn)break;
-      editCfg(function(c){if(c.roster.length>=12){flash('참여 인원은 12명까지 추가할 수 있습니다.');return;}c.roster.push({id:rid('m'),name:mn.slice(0,12)});});
+      editCfg(function(c){if(c.roster.length>=ROSTER_MAX){flash('참여 인원은 '+ROSTER_MAX+'명까지 추가할 수 있습니다.');return;}c.roster.push({id:rid('m'),name:mn.slice(0,12)});});
       if(canWrite())S.draft.memberName='';break;
     }
     case 'member-del':
