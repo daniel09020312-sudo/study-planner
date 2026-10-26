@@ -118,7 +118,18 @@ function firebaseNet(base,room){
         if(v===null||v===undefined){delete L[k];delete X[k];return;}
         L[k]=v;syncAt=Date.now();diff([k]);
       }
-      document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible'&&es&&es.readyState===2)open();});
+      // 앱이 가려진 지 2분이 지나면 실시간 연결을 끊는다(무료 Firebase는 동시 연결이 100개까지라서, 학급 전체가 켜 둔 채 두면 모자란다).
+      // 돌아오면 다시 연결하고, 그동안 바뀐 자리는 표(x)를 비교해 받아 온다.
+      var hideT=null;
+      document.addEventListener('visibilitychange',function(){
+        if(document.visibilityState==='hidden'){
+          clearTimeout(hideT);
+          hideT=setTimeout(function(){hideT=null;if(document.visibilityState==='hidden'&&es){try{es.close();}catch(e){}live=false;}},window.__SSE_HIDE_MS||120000);
+        }else{
+          clearTimeout(hideT);hideT=null;
+          if(es&&es.readyState===2)open();
+        }
+      });
       setInterval(function(){if(document.visibilityState==='visible'&&!fullBusy&&full&&Date.now()-full>fullEvery())doFull();},30*60000);
       open();
       function open(){

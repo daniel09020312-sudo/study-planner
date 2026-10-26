@@ -1,0 +1,22 @@
+/* ===== v44 ===== */
+.notice.nt{display:flex;align-items:flex-start;gap:4px 10px;flex-wrap:wrap;padding:10px 20px;background:var(--accent-soft);color:var(--ink);font-size:14px;box-shadow:inset 4px 0 0 var(--accent)}
+.notice.nt .ntl{font-size:12px;font-weight:800;color:var(--accent-ink);letter-spacing:.04em}
+.notice.nt .ntt{flex:1 1 200px;min-width:0;white-space:pre-wrap;word-break:keep-all;overflow-wrap:anywhere}
+.notice.nt small{font-size:12px;color:var(--ink-2)}
+.notice.nt button,.notice.old button{background:none;border:0;color:inherit;font:inherit;font-weight:700;text-decoration:underline;text-underline-offset:3px;padding:2px 4px;cursor:pointer}
+.notice.old{display:flex;align-items:center;gap:10px;justify-content:space-between}
+.qadd{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;margin:2px 0 10px}
+.qadd input{min-width:0}
+.gsearch{width:100%;margin-bottom:10px}
+.bulk{margin-top:10px}
+.bulk textarea{margin-top:8px;width:100%}
+.helplist{display:grid;gap:14px}
+.helplist h3{margin:0 0 3px;font-size:14.5px}
+.helplist p{margin:0;font-size:14px;line-height:1.6;color:var(--ink-2)}
+.errcard p{margin:0}
+/* 오래된 브라우저(color-mix 없음)에서도 검게 칠해지지 않게 */
+.ans{fill:var(--accent-soft)}
+.anb{fill:var(--fill)}
+.analog.rest .ans{fill:var(--fill)}
+.pbar i{background:var(--sc)}
+.pdist i{background:var(--sc)}

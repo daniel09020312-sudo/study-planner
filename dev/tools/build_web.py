@@ -197,6 +197,8 @@ exec(open(BASE + '/tools/web_sync_part.py', encoding='utf-8').read())
 exec(open(BASE + '/tools/web_wallet_part.py', encoding='utf-8').read())
 # 다른 방에서 내 것 가져오기
 exec(open(BASE + '/tools/web_carry_part.py', encoding='utf-8').read())
+# 검색 제외
+exec(open(BASE + '/tools/web_v44_part.py', encoding='utf-8').read())
 OUT = BASE + ('/web-light' if LIGHT else '/web')
 os.makedirs(OUT, exist_ok=True)
 open(OUT + '/index.html', 'w', encoding='utf-8').write(s)
