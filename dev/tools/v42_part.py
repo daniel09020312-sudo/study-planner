@@ -8,10 +8,10 @@ assert s.count("참여 인원은 '+ROSTER_MAX+'명까지") == 2
 sub("var GMAX=12;", "var GMAX=12,ROSTER_MAX=" + str(ROSTER_MAX) + ";")
 
 # 사람마다 한 칸씩인 진도 표: 사람이 많으면 옆으로 밀어 보고, 과목 이름 칸은 왼쪽에 붙여 둔다
-assert s.count("+(n>6?';--cw:46px':'')+'\"") == 2
+assert s.count("+(n>6?';--cw:46px':'')+'\"") >= 1
 s = s.replace("<section class=\"card tbl\" id=\"c-tbl\" style=\"--k:0;--n:'+n+(n>6?';--cw:46px':'')+'\"",
               "<section class=\"card tbl'+(n>8?' many':'')+'\" id=\"c-tbl\" style=\"--k:0;--n:'+n+(n>6?';--cw:46px':'')+'\"")
-assert s.count("tbl'+(n>8?' many':'')+'") == 2
+assert s.count("tbl'+(n>8?' many':'')+'") >= 1
 
 # 2) 벌칙 없애기: 벌칙 후보, 꼴찌 벌칙, 벌칙 룰렛(주간, 최종)
 cut("function penList(V){", "function duelRow(V,d){", "")

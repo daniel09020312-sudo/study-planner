@@ -1,6 +1,14 @@
 /* ---------- 배지(등급과 점수), 주간 우승 점수, 최종 결과, 1·2·3등 상품 ---------- */
 var TIERS={b:['동',10],s:['은',30],g:['금',60],l:['전설',100]};
 var WEEK_BONUS=[100,60,30];
+var BADGE_ICONS={
+  att:'<rect x="4.5" y="5.5" width="15" height="14" rx="3"/><path d="M4.5 10h15M9 3.5v4M15 3.5v4M9.2 14.6l2 2 3.8-3.9"/>',
+  time:'<circle cx="12" cy="13" r="7.5"/><path d="M12 9v4.2l2.6 1.6M9.5 3h5"/>',
+  plan:'<path d="M5 7l1.8 1.8L10 5.5M5 16l1.8 1.8 3.2-3.3M13 7.5h6.5M13 16.5h6.5"/>',
+  rank:'<path d="M4.5 18.5h15M6 18.5l-1.5-10 4.5 3.5L12 5l3 7 4.5-3.5-1.5 10"/>',
+  board:'<path d="M5 6.5h14a1.5 1.5 0 011.5 1.5v8a1.5 1.5 0 01-1.5 1.5h-7l-4 3v-3H5A1.5 1.5 0 013.5 16V8A1.5 1.5 0 015 6.5z"/>',
+  play:'<rect x="4" y="4" width="16" height="16" rx="3"/><path d="M9.3 4v16M14.7 4v16M4 9.3h16M4 14.7h16"/>'
+};
 var BADGE_CATS=[['att','출석'],['time','공부 시간'],['plan','할 일과 인증'],['rank','순위'],['board','게시판'],['play','빙고와 대결']];
 function fmtN(n){n=Math.round(+n||0);return String(n).replace(/\B(?=(\d{3})+(?!\d))/g,',');}
 function finalOpen(){return today()>END;}
@@ -82,8 +90,9 @@ function badgeView(V){
     h+='<h3 class="bcat">'+c[1]+'<small>'+list.filter(function(b){return b.on;}).length+' / '+list.length+'</small></h3><div class="bdgs">';
     list.forEach(function(b){
       var n=own[b.id]||0,pct=Math.min(100,Math.round(Math.min(b.v,b.max)/b.max*100));
-      if(b.on)h+='<button class="bdg on t-'+b.tier+'" data-act="badge-title" data-id="'+b.id+'" aria-pressed="'+(mt===b.id?'true':'false')+'"><span class="tier">'+b.tname+'</span><b>'+esc(b.name)+'</b><small>칭호: '+esc(b.title)+'</small><small class="own">+'+b.pts+'점'+(n>1?', '+n+'명 보유':', 나만 보유')+'</small></button>';
-      else h+='<div class="bdg t-'+b.tier+'"><span class="tier">'+b.tname+'</span><b>'+esc(b.name)+'</b>'+(b.desc!==b.name?'<small>'+esc(b.desc)+'</small>':'')+'<div class="bpb" aria-hidden="true"><i style="width:'+pct+'%"></i></div><small>'+prog(b,b.v)+(n?', '+n+'명 보유':'')+'</small></div>';
+      var md='<span class="bmd" aria-hidden="true"><svg viewBox="0 0 24 24">'+(BADGE_ICONS[b.cat]||'')+'</svg></span>';
+      if(b.on)h+='<button class="bdg on t-'+b.tier+'" data-act="badge-title" data-id="'+b.id+'" aria-pressed="'+(mt===b.id?'true':'false')+'">'+md+'<span class="bbody"><span class="tier">'+b.tname+(mt===b.id?' · 칭호 사용 중':'')+'</span><b>'+esc(b.name)+'</b><small>칭호 '+esc(b.title)+'</small><small class="own">+'+b.pts+'점 · '+(n>1?n+'명 보유':'나만 보유')+'</small></span></button>';
+      else h+='<div class="bdg t-'+b.tier+'">'+md+'<span class="bbody"><span class="tier">'+b.tname+'</span><b>'+esc(b.name)+'</b>'+(b.desc!==b.name?'<small>'+esc(b.desc)+'</small>':'')+'<span class="bpb" aria-hidden="true"><i style="width:'+pct+'%"></i></span><small class="bpg">'+prog(b,b.v)+(n?' · '+n+'명 보유':'')+'</small></span></div>';
     });
     h+='</div>';
   });

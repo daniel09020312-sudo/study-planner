@@ -24,9 +24,9 @@ click(p,'#us-s2 [data-act="unit-del"][data-u="%s"]'%u[0]['id'],200);click(p,'#us
 print('after del    :',[x['n'] for x in store(p,'progress/m1')['units']['s2']],'| checks',sorted(k for k in store(p,'progress/m1')['checks'] if k.count('__')==2))
 p.screenshot(path=SH+'v21_mine.png',full_page=True)
 click(p,'[data-act="prog-mode"][data-id="all"]',700)
-print('all cells    :',st(p,"[...document.querySelectorAll('#os-s2 .ocell')].map(e=>e.innerText).join(',')"))
-click(p,'#os-s2',500)
-print('all units    :',st(p,"(document.getElementById('ou-s2')||{}).innerText"))
+print('all row      :',st(p,"(document.querySelector('#pr-s2 .pnums')||{}).innerText"))  # v43: 과목 한 줄
+click(p,'#pr-s2 .phead',500)
+print('all people   :',st(p,"(document.getElementById('pp-s2')||{}).innerText"))
 p.screenshot(path=SH+'v21_all.png',full_page=True)
 click(p,'[data-act="prog-edit"]',600)
 print('edit view    :',st(p,"(document.querySelector('#view-prog h1')||{}).textContent"))

@@ -70,7 +70,7 @@ B.wait_for_timeout(2000)
 print('view          :', ev(B, "__gbb.unitsOf(__gbb.view(),'m1','s1').map(u=>u.n).join(',')"), '| mins', ev(B, "JSON.stringify(__gbb.dayOf(__gbb.view(),'m1',__gbb.today()).mins)"))
 
 # ---- 3) 단원 추가·삭제·순서 바꾸기(화면으로)가 그대로 되는지
-click(B, '[data-act="tab"][data-tab="prog"]', 900)
+B.evaluate("()=>document.querySelector('[data-act=\"tab\"][data-tab=\"prog\"]').click()"); B.wait_for_timeout(900)  # v43: 휴대폰에서는 더보기 안에 있음
 print('jdiff         :', ev(B, "JSON.stringify(__gbb.jdiff({a:{x:1,y:[1,2]},b:{c:1},e:{}},{a:{x:2,y:[1,2]},d:{z:{}},e:null,f:[3]}))"))
 print('opsMerge      :', ev(B, "JSON.stringify(__gbb.opsMerge({'units/s1':[1],'checks':{a:true}},{'units':{s2:[2]},'checks/b':true}))"))
 print('errors', [e for e in errors if 'REQFAIL' not in e])

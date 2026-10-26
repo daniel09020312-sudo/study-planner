@@ -4,7 +4,7 @@ function rulesData(){
   var T=typeof TIERS!=='undefined'?TIERS:null,WB=typeof WEEK_BONUS!=='undefined'?WEEK_BONUS:null;
   var g=[
     {t:'매일',items:[
-      ['출석','5~10점',['연속 출석할수록 하루 1점씩 올라감','7일째마다 10점 더']],
+      ['출석','3~5점',['연속 출석할수록 하루 1점씩 올라감','7일째마다 5점 더']],
       ['할 일 모두 끝내고 인증',RULE.allCert+'점',['할 일 3개 이상 세우고 전부 끝내기','마감 뒤 인증은 '+RULE.allLate+'점']],
       ['인증',RULE.certOn+'점',['마감 뒤 인증은 '+RULE.certLate+'점']],
       ['공부 시간','30분 '+RULE.per30+'점',['하루 '+RULE.timeMax+'점까지','직접 입력한 시간은 하루 1시간까지']],
@@ -13,7 +13,7 @@ function rulesData(){
       ['하루 순위',RULE.rank.join(' · ')+'점',['그날 점수 1 · 2 · 3등']]
     ]},
     {t:'매주',items:[
-      ['스터디 빙고','1줄 10점',['한 줄 채울 때마다']]
+      ['스터디 빙고','1줄 '+bingoLine(today())+'점',['한 줄 채울 때마다']]
     ]}
   ];
   if(WB)g[1].items.push(['주간 순위',WB.join(' · ')+'점',['한 주 점수 1 · 2 · 3등','최종 점수에 더함']]);

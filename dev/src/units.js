@@ -35,27 +35,46 @@ function viewProgMine(V){
   if(off.length)h+='<section class="card" id="c-uoff" style="--k:6"><div class="ct"><h2>뺀 과목</h2></div><div class="chips">'+off.map(function(s){return '<button class="chip" data-act="skip" data-id="'+esc(s.id)+'">'+esc(s.name)+' 다시 넣기</button>';}).join('')+'</div></section>';
   return h;
 }
+/* 모두 보기: 과목마다 한 줄. 반 평균 막대 위에 내 위치, 사람 분포. 누르면 사람별 막대와 단원 */
+var PSORTS=[['order','과목 순'],['mine','내 진도 낮은 순'],['avg','반 평균 낮은 순']];
+function progRows(V){
+  return V.subs.map(function(s){
+    var per=[],skipN=0;
+    V.roster.forEach(function(m){
+      if(obj(obj(V.progress[m.id]).skip)[s.id]){skipN++;return;}
+      var u=unitStat(V,m.id,s),us=u.us,full=0,ck=obj(obj(V.progress[m.id]).checks);
+      us.forEach(function(x){if(s.items.length&&s.items.every(function(it){return ck[s.id+'__'+x.id+'__'+it.id];}))full++;});
+      per.push({m:m,pct:u.pct,us:us.length,full:full});
+    });
+    var avg=per.length?Math.round(per.reduce(function(a,x){return a+x.pct;},0)/per.length):0,mine=per.filter(function(x){return x.m.id===V.me;})[0];
+    return {s:s,per:per,avg:avg,mine:mine,skipN:skipN};
+  });
+}
 function viewProgAll(V){
-  var R=V.roster,n=R.length||1;
-  var h='<section class="card tbl" id="c-tbl" style="--k:0;--n:'+n+(n>6?';--cw:46px':'')+'"><div class="orow ohead"><span class="olabel">과목</span>';
-  R.forEach(function(m){h+='<span class="ocell'+(m.id===V.me?' me':'')+'">'+esc(shortName(V.byId[m.id].name))+'</span>';});
-  h+='</div>';
-  V.subs.forEach(function(s){
-    var open=!!S.open[s.id];
-    h+='<button class="orow osum" id="os-'+esc(s.id)+'" data-act="prog-toggle" data-id="'+esc(s.id)+'" aria-expanded="'+(open?'true':'false')+'"><span class="olabel"><b>'+esc(s.name)+'</b><span class="chev">'+(open?'접기':'단원 보기')+'</span></span>';
-    R.forEach(function(m){
-      var skip=obj(obj(V.progress[m.id]).skip)[s.id],u=unitStat(V,m.id,s);
-      h+='<span class="ocell'+(m.id===V.me?' me':'')+'">'+(skip?'<span class="skip">제외</span>':'<span class="frac">'+u.pct+'%</span><span class="obar" aria-hidden="true"><i style="width:'+u.pct+'%"></i></span>')+'</span>';
-    });
-    h+='</button>';
-    if(!open)return;
-    h+='<div class="ounits" id="ou-'+esc(s.id)+'">';
-    R.forEach(function(m){
-      var skip=obj(obj(V.progress[m.id]).skip)[s.id];if(skip)return;
-      var ck=obj(obj(V.progress[m.id]).checks),us=unitsOf(V,m.id,s.id);
-      h+='<div class="oup"><b>'+esc(V.byId[m.id].name)+'</b><span>'+(us.length?us.map(function(u){var d=s.items.filter(function(it){return ck[s.id+'__'+u.id+'__'+it.id];}).length;return '<em class="ut'+(d===s.items.length&&d?' full':'')+'">'+esc(cut(u.n,14))+' '+d+'/'+s.items.length+'</em>';}).join(''):'<em class="ut">단원을 정하지 않음</em>')+'</span></div>';
-    });
+  var so=PSORTS.some(function(x){return x[0]===S.progSort;})?S.progSort:'order',rows=progRows(V);
+  if(so==='mine')rows.sort(function(a,b){return (a.mine?a.mine.pct:101)-(b.mine?b.mine.pct:101);});
+  else if(so==='avg')rows.sort(function(a,b){return a.avg-b.avg;});
+  var h='<section class="card pall" id="c-pall" style="--k:0"><div class="ct"><h2>모두의 진도<small>과목 '+rows.length+'개, '+V.roster.length+'명</small></h2></div>';
+  h+='<div class="seg mini psort" style="grid-template-columns:repeat(3,minmax(0,1fr))" role="group" aria-label="정렬">'+PSORTS.map(function(x){return '<button data-act="prog-sort" data-id="'+x[0]+'" aria-pressed="'+(so===x[0]?'true':'false')+'">'+x[1]+'</button>';}).join('')+'</div>';
+  if(!rows.length)h+='<p class="empty">아직 과목이 없습니다.</p>';
+  h+='<div class="prows">';
+  rows.forEach(function(r){
+    var s=r.s,open=!!S.open[s.id],col=subCol(V,s.id),bins=[0,0,0,0,0];
+    r.per.forEach(function(x){bins[Math.min(4,Math.floor(x.pct/20))]++;});
+    var bm=Math.max.apply(null,bins.concat([1]));
+    h+='<div class="prow'+(open?' open':'')+'" id="pr-'+esc(s.id)+'" style="--sc:'+col+'"><button class="phead" data-act="prog-toggle" data-id="'+esc(s.id)+'" aria-expanded="'+(open?'true':'false')+'">';
+    h+='<span class="pnm"><i class="sdot"></i><b>'+esc(s.name)+'</b><small>'+r.per.length+'명'+(r.skipN?', 제외 '+r.skipN+'명':'')+'</small></span>';
+    h+='<span class="pmid"><span class="pbar" aria-hidden="true"><i style="width:'+r.avg+'%"></i>'+(r.mine?'<u style="left:'+r.mine.pct+'%"></u>':'')+'</span><span class="pnums"><em>반 평균 <b>'+r.avg+'%</b></em>'+(r.mine?'<em class="me">나 <b>'+r.mine.pct+'%</b></em>':'<em class="me">나 제외</em>')+'</span></span>';
+    h+='<span class="pdist" aria-label="진도 분포">'+bins.map(function(n,i){return '<i style="--h:'+Math.round(n/bm*100)+'%" title="'+(i*20)+'~'+(i*20+19)+'%: '+n+'명"></i>';}).join('')+'</span><i class="pchev" aria-hidden="true"></i></button>';
+    if(open){
+      h+='<div class="pppl" id="pp-'+esc(s.id)+'">';
+      r.per.slice().sort(function(a,b){return b.pct-a.pct;}).forEach(function(x,i){
+        var me=x.m.id===V.me;
+        h+='<div class="pp'+(me?' me':'')+'"><span class="ppr">'+(i+1)+'</span><span class="ppn">'+esc(V.byId[x.m.id].name)+'</span><span class="pbar sm" aria-hidden="true"><i style="width:'+x.pct+'%"></i></span><b>'+x.pct+'%</b><small>'+(x.us?'단원 '+x.full+'/'+x.us:'단원 없음')+'</small></div>';
+      });
+      h+='</div>';
+    }
     h+='</div>';
   });
-  return h+'</section>';
+  return h+'</div></section>';
 }

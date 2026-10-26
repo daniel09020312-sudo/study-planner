@@ -29,7 +29,7 @@ print('bought        :', (store('progress/m1') or {}).get('shop'), '| concept', 
 print('wallet after  :', txt('.wl b'))
 click(p,'[data-act="shop-cat"][data-v="color"]',500)
 print('colors        :', ev("document.querySelectorAll('#shg-color .shi').length"), '| owned', ev("document.querySelectorAll('#shg-color .shi.own').length"))
-click(p,'[data-act="shop-buy"][data-id="a:green"]',300);click(p,'[data-act="shop-buy"][data-id="a:green"]',700)
+click(p,'[data-act="shop-use"][data-id="a:green"]',700)  # v43: 색은 무료
 print('accent        :', ev("getComputedStyle(document.documentElement).getPropertyValue('--accent').trim()"))
 click(p,'[data-act="shop-cat"][data-v="timer"]',500)
 clean();p.screenshot(path=SH+'v34_shop_timer.png')
