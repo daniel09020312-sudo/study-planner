@@ -18,3 +18,8 @@ sub("    case 'notice-x':", r"""    case 'period-save':{
 
 V45_CSS = open(BASE + '/src/v45.css', encoding='utf-8').read()
 sub("</style>", V45_CSS + "</style>")
+
+# ---- 다른 사람이 쓴 메시지에도 안 읽은 사람 수 (모두에게 보낸 메시지만. 내가 보낸 사람은 뺌)
+sub("if(x.from!==V.me||+x.at<READS_SINCE||Date.now()-(+x.at)>3*86400000)return 0;", "if(+x.at<READS_SINCE||Date.now()-(+x.at)>3*86400000)return 0;if(x.from!==V.me&&c!=='all')return 0;")
+sub("if(m.id!==V.me&&(+obj(V.reads[m.id]).all||0)<+x.at)n++;", "if(m.id!==V.me&&m.id!==x.from&&(+obj(V.reads[m.id]).all||0)<+x.at)n++;")
+sub(":'<small>'+esc(meta)+'</small>';", ":'<span class=\"mfoot o\"><small>'+esc(meta)+'</small>'+unreadTag(V,c,x)+'</span>';")

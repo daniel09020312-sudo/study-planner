@@ -1874,6 +1874,16 @@ img.sa{background-repeat:no-repeat;background-position:0 0;aspect-ratio:1/1}
   .rail{overflow-x:auto;overflow-y:hidden;scrollbar-width:none;touch-action:pan-x}
   .rail::-webkit-scrollbar{display:none}
 }
+.mfoot.o{justify-content:flex-start}
+.mfoot.o small{margin:0}
+.mfoot.o .urd{padding:0 0 0 4px}
+
+/* 더보기는 휴대폰에서만: 터치로 쓰는 패드(짧은 변 600 이상)는 좁게 열어도 모든 메뉴를 아래 줄에 */
+@media (max-width:699px){
+  html.pad .navs button:is([data-tab="prog"],[data-tab="rank"],[data-tab="report"],[data-tab="play"],[data-tab="board"]){display:grid}
+  html.pad .navs .navmore,html.pad #moreMenu{display:none}
+  html.pad .navs button{min-width:56px}
+}
 #c-setup .row input{min-width:0}
 #c-setup .lb{margin-top:0}
 .serr{color:var(--red);margin-top:8px}
@@ -4245,7 +4255,7 @@ document.addEventListener('change',function(e){
 
 /* ---------- 처음 화면 ---------- */
 // 앱이 준비되면 알린다. 그림이 아직이면 다 그린 뒤에 열리고, 그림이 먼저 끝났으면 바로 열린다
-var APP_BUILD='1793057370';
+var APP_BUILD='1793057504';
 function splashDone(){
   var sp=document.getElementById('splash'),st=window.__sp;if(!sp||sp.getAttribute('data-out'))return;
   sp.setAttribute('data-out','1');
@@ -4768,9 +4778,9 @@ function readsMark(V,c,at){
   var d=clone(cur);d[c]=at;savePatch('reads/'+V.me,cur,d);
 }
 function unreadN(V,c,x){
-  if(x.from!==V.me||+x.at<READS_SINCE||Date.now()-(+x.at)>3*86400000)return 0;
+  if(+x.at<READS_SINCE||Date.now()-(+x.at)>3*86400000)return 0;if(x.from!==V.me&&c!=='all')return 0;
   if(c!=='all'){var o=V.byId[c]?obj(V.reads[c]):null;return o&&(+o[V.me]||0)<+x.at?1:0;}
-  var n=0;V.roster.forEach(function(m){if(m.id!==V.me&&(+obj(V.reads[m.id]).all||0)<+x.at)n++;});
+  var n=0;V.roster.forEach(function(m){if(m.id!==V.me&&m.id!==x.from&&(+obj(V.reads[m.id]).all||0)<+x.at)n++;});
   return n;
 }
 function unreadTag(V,c,x){var n=unreadN(V,c,x);return n?'<b class="urd" aria-label="안 읽은 사람 '+n+'명">'+n+'</b>':'';}
@@ -4991,6 +5001,9 @@ function periodSec(V){
   var p=periodOf(V.cfg),custom=!!obj(V.cfg.period).s;
   return '<div class="sec"><h3>점수 집계 기간<small>방장만 바꿀 수 있습니다</small></h3><div class="row"><label for="perS">시작일</label><input type="date" id="perS" data-draft="periodS" value="'+(S.draft.periodS||p[0])+'" min="2026-01-01" max="2028-12-31"><label for="perE">종료일</label><input type="date" id="perE" data-draft="periodE" value="'+(S.draft.periodE||p[1])+'" min="2026-01-01" max="2028-12-31"></div><div class="row" style="margin-top:8px"><button class="btn small primary" data-act="period-save">저장</button>'+(custom?'<button class="btn small" data-act="period-reset">처음 값으로</button>':'')+'</div><p class="hint">지금 '+esc(shortDate(p[0])+' ~ '+shortDate(p[1]))+'. 점수, 순위, 주간 우승, 최종 결과(종료일 다음 날 공개)가 이 기간으로 계산됩니다. 최대 '+PERIOD_MAX_DAYS+'일. 시작일은 월요일로 하면 주간 집계가 깔끔합니다.</p></div>';
 }
+
+/* 패드(터치 기기이고 짧은 변이 600 이상)면 html.pad */
+(function(){try{if(Math.min(screen.width,screen.height)>=600&&matchMedia('(pointer:coarse)').matches)document.documentElement.classList.add('pad');}catch(e){}})();
 
 /* ---------- 방: 참여 코드, 새 방, 방 바꾸기 (웹 판) ---------- */
 // 참여 링크: 사이트주소#join=<저장소 이름>  -> 참여 코드 6자리 -> 이름 고르기
@@ -6019,7 +6032,7 @@ function viewChat(V){
     else if(x.pic)body='<div class="bb pic"'+pick+'>'+shot(x.id)+(x.text?'<div class="cap">'+esc(x.text)+'</div>':'')+'</div>';
     else body='<div class="bb"'+pick+'>'+esc(x.text)+'</div>';
     h+='<div class="mrowx'+(mine?' mine':'')+(sel?' sel':'')+'" id="m-'+esc(x.id)+'">'+(!mine&&!dm?'<small>'+esc(nm)+'</small>':'')+body;
-    h+=mine?'<span class="mfoot">'+unreadTag(V,c,x)+'<button class="mt" data-act="msg-pick" data-id="'+esc(x.id)+'" aria-expanded="'+(sel?'true':'false')+'" aria-label="'+esc(meta)+', 이 메시지 고치거나 지우기">'+esc(meta)+'</button></span>':'<small>'+esc(meta)+'</small>';
+    h+=mine?'<span class="mfoot">'+unreadTag(V,c,x)+'<button class="mt" data-act="msg-pick" data-id="'+esc(x.id)+'" aria-expanded="'+(sel?'true':'false')+'" aria-label="'+esc(meta)+', 이 메시지 고치거나 지우기">'+esc(meta)+'</button></span>':'<span class="mfoot o"><small>'+esc(meta)+'</small>'+unreadTag(V,c,x)+'</span>';
     if(sel)h+='<div class="mact">'+(x.stk||x.gift?'':'<button class="btn small" data-act="msg-edit" data-id="'+esc(x.id)+'">'+(x.pic&&!x.text?'설명 달기':'수정')+'</button>')+'<button class="btn small" data-act="msg-del" data-id="'+esc(x.id)+'">'+(S.confirm==='msg:'+x.id?'한 번 더 누르면 삭제':'삭제')+'</button></div>';
     h+='</div>';
   });
@@ -6470,7 +6483,7 @@ function modalSettings(V){
   [[22,'밤 10시'],[23,'밤 11시'],[24,'자정'],[25,'다음 날 새벽 1시'],[26,'다음 날 새벽 2시'],[27,'다음 날 새벽 3시'],[28,'다음 날 새벽 4시'],[29,'다음 날 새벽 5시']].forEach(function(o){b+='<option value="'+o[0]+'"'+(V.certHour===o[0]?' selected':'')+'>'+o[1]+'</option>';});
   b+='</select>';
   b+='</div>'+noticeSec(V)+periodSec(V)+'<div class="sec"><h3>사용법</h3><div class="row"><button class="btn small" data-act="open" data-modal="help">사용법 보기</button></div></div><div class="sec"><h3>키보드 단축키<small>키보드를 연결했을 때</small></h3><ul class="kbd">'+[['1 ~ 8','달력부터 메시지까지 화면 이동'],['N','할 일 추가'],['D','마감 있는 할 일 추가'],['L','달력, 할 일, 시간표 차례로 바꿔 보기'],['T','타이머 켜기, 끄기'],['F','타이머 크게 보기'],['Esc','창 닫기']].map(function(x){return '<li><kbd>'+x[0]+'</kbd><span>'+x[1]+'</span></li>';}).join('')+'</ul></div><div class="sec"><h3>저장 위치</h3><p class="hint">'+esc(S.net?({claude:'Claude 공유 저장소에 연결되어 있습니다. Claude에 로그인한 참여 인원끼리 실시간으로 같이 봅니다.',firebase:'공유 저장소에 연결되어 있습니다. 참여 코드로 들어온 사람 모두가 실시간으로 같이 봅니다.',local:'지금은 이 기기에만 저장됩니다. 다른 사람과 같이 보려면 공유 저장소 연결이 필요합니다.'}[S.net.mode]):'연결 중입니다.')+'</p>'+(S.net&&S.net.mode==='firebase'&&S.remote?'<div class="row" style="margin-top:10px"><button class="btn small" data-act="import-pick">기록 가져오기</button><button class="btn small" data-act="export-data">기록 파일로 저장</button><button class="del" data-act="setup-reset">'+(S.confirm==='disc'?'한 번 더 누르면 이 방에서 나갑니다':'이 기기에서 이 방 나가기')+'</button></div><p class="hint" style="margin-top:8px">'+esc(S.importMsg||'친구와 내 다른 기기는 위의 친구 초대하기로 들어옵니다. 기록 가져오기는 처음 연결한 뒤 한 번만 하면 됩니다.')+'</p>':'')+'</div>';
-  b+='<p class="hint appver">앱 버전 10월 27일 08:29</p>';
+  b+='<p class="hint appver">앱 버전 10월 27일 08:31</p>';
   return dlg('wide',{id:'settings',t:'설정'},b);
 }
 function modalCheck(V){

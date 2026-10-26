@@ -12,3 +12,13 @@
   .rail{overflow-x:auto;overflow-y:hidden;scrollbar-width:none;touch-action:pan-x}
   .rail::-webkit-scrollbar{display:none}
 }
+.mfoot.o{justify-content:flex-start}
+.mfoot.o small{margin:0}
+.mfoot.o .urd{padding:0 0 0 4px}
+
+/* 더보기는 휴대폰에서만: 터치로 쓰는 패드(짧은 변 600 이상)는 좁게 열어도 모든 메뉴를 아래 줄에 */
+@media (max-width:699px){
+  html.pad .navs button:is([data-tab="prog"],[data-tab="rank"],[data-tab="report"],[data-tab="play"],[data-tab="board"]){display:grid}
+  html.pad .navs .navmore,html.pad #moreMenu{display:none}
+  html.pad .navs button{min-width:56px}
+}
