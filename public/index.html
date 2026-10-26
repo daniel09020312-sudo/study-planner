@@ -2291,6 +2291,7 @@ function merged(name){
 }
 function view(){
   var cfg=obj(Object.prototype.hasOwnProperty.call(O,'meta/config')?O['meta/config']:S.config);
+  periodApply(cfg);
   var roster=arr(cfg.roster).filter(function(m){return m&&m.id;});
   var V={cfg:cfg,roster:roster,certHour:typeof cfg.certHour==='number'?cfg.certHour:29,checkMin:Math.max(5,Math.min(60,Math.round(+cfg.checkMin||15))),penalty:String(cfg.penalty||''),penaltyFinal:String(cfg.penaltyFinal||''),
     locks:merged('locks'),flags:merged('flags'),msgs:merged('msgs'),songs:merged('songs'),duels:merged('duels'),spins:merged('spins'),subjects:merged('subjects'),progress:merged('progress'),days:merged('days'),quiz:merged('quiz'),events:merged('events'),live:merged('live'),replies:merged('replies'),plans:merged('plans'),gifts:merged('gifts'),inbox:merged('inbox'),reads:merged('reads'),byId:{},subById:{},subName:{}};
@@ -4230,7 +4231,7 @@ document.addEventListener('change',function(e){
 
 /* ---------- 처음 화면 ---------- */
 // 앱이 준비되면 알린다. 그림이 아직이면 다 그린 뒤에 열리고, 그림이 먼저 끝났으면 바로 열린다
-var APP_BUILD='1793044399';
+var APP_BUILD='1793056508';
 function splashDone(){
   var sp=document.getElementById('splash'),st=window.__sp;if(!sp||sp.getAttribute('data-out'))return;
   sp.setAttribute('data-out','1');
@@ -4961,6 +4962,21 @@ function modalHelp(V){
 /* 더보기 메뉴: Esc로 닫기, 화면이 넓어지면(패드, 가로) 닫기 */
 document.addEventListener('keydown',function(e){if(e.key==='Escape'&&S.moreOpen&&!S.modal){S.moreOpen=false;render();}});
 window.addEventListener('resize',function(){if(S.moreOpen&&window.innerWidth>=700){S.moreOpen=false;render();}});
+
+/* ---------- v45: 점수 집계 기간(시작일, 종료일)을 방장이 정함 ---------- */
+var PERIOD_DEF=['2026-10-12','2026-12-08'],PERIOD_MAX_DAYS=400;
+function isoOk(x){return typeof x==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(x)&&diffDays('2000-01-01',x)>=0&&addDays(x,0)===x;}
+function periodOf(cfg){
+  var p=obj(cfg&&cfg.period);
+  if(isoOk(p.s)&&isoOk(p.e)&&p.s<=p.e&&diffDays(p.s,p.e)<PERIOD_MAX_DAYS)return [p.s,p.e];
+  return PERIOD_DEF;
+}
+function periodApply(cfg){var p=periodOf(cfg);START=p[0];END=p[1];}
+function periodSec(V){
+  if(!V.me||adminId(V)!==V.me)return '';
+  var p=periodOf(V.cfg),custom=!!obj(V.cfg.period).s;
+  return '<div class="sec"><h3>점수 집계 기간<small>방장만 바꿀 수 있습니다</small></h3><div class="row"><label for="perS">시작일</label><input type="date" id="perS" data-draft="periodS" value="'+(S.draft.periodS||p[0])+'" min="2026-01-01" max="2028-12-31"><label for="perE">종료일</label><input type="date" id="perE" data-draft="periodE" value="'+(S.draft.periodE||p[1])+'" min="2026-01-01" max="2028-12-31"></div><div class="row" style="margin-top:8px"><button class="btn small primary" data-act="period-save">저장</button>'+(custom?'<button class="btn small" data-act="period-reset">처음 값으로</button>':'')+'</div><p class="hint">지금 '+esc(shortDate(p[0])+' ~ '+shortDate(p[1]))+'. 점수, 순위, 주간 우승, 최종 결과(종료일 다음 날 공개)가 이 기간으로 계산됩니다. 최대 '+PERIOD_MAX_DAYS+'일. 시작일은 월요일로 하면 주간 집계가 깔끔합니다.</p></div>';
+}
 
 /* ---------- 방: 참여 코드, 새 방, 방 바꾸기 (웹 판) ---------- */
 // 참여 링크: 사이트주소#join=<저장소 이름>  -> 참여 코드 6자리 -> 이름 고르기
@@ -6439,8 +6455,8 @@ function modalSettings(V){
   b+='<div class="sec"><h3>규칙</h3><label for="certHour">인증 마감 시각</label><select id="certHour" data-chg="certHour"'+dis+'>';
   [[22,'밤 10시'],[23,'밤 11시'],[24,'자정'],[25,'다음 날 새벽 1시'],[26,'다음 날 새벽 2시'],[27,'다음 날 새벽 3시'],[28,'다음 날 새벽 4시'],[29,'다음 날 새벽 5시']].forEach(function(o){b+='<option value="'+o[0]+'"'+(V.certHour===o[0]?' selected':'')+'>'+o[1]+'</option>';});
   b+='</select>';
-  b+='</div>'+noticeSec(V)+'<div class="sec"><h3>사용법</h3><div class="row"><button class="btn small" data-act="open" data-modal="help">사용법 보기</button></div></div><div class="sec"><h3>키보드 단축키<small>키보드를 연결했을 때</small></h3><ul class="kbd">'+[['1 ~ 8','달력부터 메시지까지 화면 이동'],['N','할 일 추가'],['D','마감 있는 할 일 추가'],['L','달력, 할 일, 시간표 차례로 바꿔 보기'],['T','타이머 켜기, 끄기'],['F','타이머 크게 보기'],['Esc','창 닫기']].map(function(x){return '<li><kbd>'+x[0]+'</kbd><span>'+x[1]+'</span></li>';}).join('')+'</ul></div><div class="sec"><h3>저장 위치</h3><p class="hint">'+esc(S.net?({claude:'Claude 공유 저장소에 연결되어 있습니다. Claude에 로그인한 참여 인원끼리 실시간으로 같이 봅니다.',firebase:'공유 저장소에 연결되어 있습니다. 참여 코드로 들어온 사람 모두가 실시간으로 같이 봅니다.',local:'지금은 이 기기에만 저장됩니다. 다른 사람과 같이 보려면 공유 저장소 연결이 필요합니다.'}[S.net.mode]):'연결 중입니다.')+'</p>'+(S.net&&S.net.mode==='firebase'&&S.remote?'<div class="row" style="margin-top:10px"><button class="btn small" data-act="import-pick">기록 가져오기</button><button class="btn small" data-act="export-data">기록 파일로 저장</button><button class="del" data-act="setup-reset">'+(S.confirm==='disc'?'한 번 더 누르면 이 방에서 나갑니다':'이 기기에서 이 방 나가기')+'</button></div><p class="hint" style="margin-top:8px">'+esc(S.importMsg||'친구와 내 다른 기기는 위의 친구 초대하기로 들어옵니다. 기록 가져오기는 처음 연결한 뒤 한 번만 하면 됩니다.')+'</p>':'')+'</div>';
-  b+='<p class="hint appver">앱 버전 10월 27일 04:53</p>';
+  b+='</div>'+noticeSec(V)+periodSec(V)+'<div class="sec"><h3>사용법</h3><div class="row"><button class="btn small" data-act="open" data-modal="help">사용법 보기</button></div></div><div class="sec"><h3>키보드 단축키<small>키보드를 연결했을 때</small></h3><ul class="kbd">'+[['1 ~ 8','달력부터 메시지까지 화면 이동'],['N','할 일 추가'],['D','마감 있는 할 일 추가'],['L','달력, 할 일, 시간표 차례로 바꿔 보기'],['T','타이머 켜기, 끄기'],['F','타이머 크게 보기'],['Esc','창 닫기']].map(function(x){return '<li><kbd>'+x[0]+'</kbd><span>'+x[1]+'</span></li>';}).join('')+'</ul></div><div class="sec"><h3>저장 위치</h3><p class="hint">'+esc(S.net?({claude:'Claude 공유 저장소에 연결되어 있습니다. Claude에 로그인한 참여 인원끼리 실시간으로 같이 봅니다.',firebase:'공유 저장소에 연결되어 있습니다. 참여 코드로 들어온 사람 모두가 실시간으로 같이 봅니다.',local:'지금은 이 기기에만 저장됩니다. 다른 사람과 같이 보려면 공유 저장소 연결이 필요합니다.'}[S.net.mode]):'연결 중입니다.')+'</p>'+(S.net&&S.net.mode==='firebase'&&S.remote?'<div class="row" style="margin-top:10px"><button class="btn small" data-act="import-pick">기록 가져오기</button><button class="btn small" data-act="export-data">기록 파일로 저장</button><button class="del" data-act="setup-reset">'+(S.confirm==='disc'?'한 번 더 누르면 이 방에서 나갑니다':'이 기기에서 이 방 나가기')+'</button></div><p class="hint" style="margin-top:8px">'+esc(S.importMsg||'친구와 내 다른 기기는 위의 친구 초대하기로 들어옵니다. 기록 가져오기는 처음 연결한 뒤 한 번만 하면 됩니다.')+'</p>':'')+'</div>';
+  b+='<p class="hint appver">앱 버전 10월 27일 08:15</p>';
   return dlg('wide',{id:'settings',t:'설정'},b);
 }
 function modalCheck(V){
@@ -7297,6 +7313,17 @@ function act(name,el){
     }
     case 'reload':location.reload();return;
     case 'old-x':lsSet('gbb_old','1');break;
+    case 'period-save':{
+      var Vps=view(),ps=S.draft.periodS||periodOf(Vps.cfg)[0],pe=S.draft.periodE||periodOf(Vps.cfg)[1];
+      if(!Vps.me||adminId(Vps)!==Vps.me||!need())break;
+      if(!isoOk(ps)||!isoOk(pe)){flash('날짜를 골라 주세요.');break;}
+      if(ps>pe){flash('시작일이 종료일보다 늦을 수 없습니다.');break;}
+      if(diffDays(ps,pe)>=PERIOD_MAX_DAYS){flash('기간은 '+PERIOD_MAX_DAYS+'일까지입니다.');break;}
+      editCfg(function(c){c.period={s:ps,e:pe};});
+      if(canWrite()){S.draft.periodS='';S.draft.periodE='';S.sync=true;flash('집계 기간을 '+shortDate(ps)+' ~ '+shortDate(pe)+'로 정했습니다.');}
+      break;
+    }
+    case 'period-reset':{var Vpr=view();if(!Vpr.me||adminId(Vpr)!==Vpr.me||!need())break;editCfg(function(c){delete c.period;});S.draft.periodS='';S.draft.periodE='';if(canWrite())flash('처음 기간으로 되돌렸습니다.');break;}
     case 'notice-x':{var Vnx=view(),nnx=noticeOf(Vnx);if(nnx)lsSet('gbb_notice',String(nnx.at));break;}
     case 'notice-save':{
       var nst=String(S.draft.noticeText||'').trim().slice(0,200),Vns=view();

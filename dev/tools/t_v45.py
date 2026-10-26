@@ -1,0 +1,35 @@
+# v45: 점수 집계 기간(시작일, 종료일)
+import sys,json,datetime
+sys.path.insert(0,'/home/claude/planner/tools')
+from rig import *
+def st(p,e):return p.evaluate('()=>'+e)
+def store(p,k):return json.loads(st(p,"JSON.stringify(window.__store[%s]||null)"%json.dumps(k)))
+ok=True
+def check(name,cond,extra=''):
+    global ok
+    print(('OK  ' if cond else 'FAIL')+' '+name+(' | '+str(extra) if extra else ''))
+    if not cond: ok=False
+NOW=datetime.datetime(2026,12,10,15,0,0)
+R=Rig()
+p=R.open(1180,820,ls={'gbb_note':'9999999999999'},now=NOW)
+p.evaluate("()=>{const S=window.__store;['2026-11-02','2026-12-09'].forEach(d=>{S['days/m2_'+d]={in:d+'T00:10:00.000Z',mins:{s2:300},goals:[]};});window.__fire();}");p.wait_for_timeout(500);close_dlg(p)
+click(p,'[data-act="tab"][data-tab="rank"]',700);click(p,'[data-act="range"][data-id="all"]',700)
+check('default END passed -> final open',st(p,"!!document.querySelector('#c-fin')"))
+click(p,'#meBtn',600)
+check('period section',st(p,"!!document.querySelector('[data-act=\"period-save\"]')"))
+p.fill('#perS','2026-12-20');p.fill('#perE','2026-12-01');click(p,'[data-act="period-save"]',500)
+check('start>end rejected',not (store(p,'meta/config') or {}).get('period'),st(p,"(document.querySelector('.flash')||{}).textContent"))
+p.fill('#perS','2026-12-01');p.fill('#perE','2027-01-31');click(p,'[data-act="period-save"]',600)
+per=(store(p,'meta/config') or {}).get('period')
+check('period saved',per=={'s':'2026-12-01','e':'2027-01-31'},per)
+close_dlg(p)
+click(p,'[data-act="tab"][data-tab="rank"]',800)
+click(p,'[data-act="range"][data-id="all"]',800)
+txt=st(p,"document.body.innerText")
+check('final hidden after END moved',not st(p,"!!document.querySelector('#c-fin')"))
+click(p,'#meBtn',600)
+click(p,'[data-act="period-reset"]',500)
+check('reset',not (store(p,'meta/config') or {}).get('period'))
+print('errors',R.errors);check('no page errors',not R.errors,R.errors)
+R.close()
+print('ALL OK' if ok else 'SOME FAILED')
