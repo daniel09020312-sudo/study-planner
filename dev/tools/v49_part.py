@@ -1,0 +1,9 @@
+# ---------------------------------------------------------------- v49: 점수는 처음부터 보이고, 집계(주간 우승, 배지, 최종 결과)는 집계 시작일(TALLY, 기본 11/2)부터
+sub("for(var w=START;w<=END&&w<=t;w=addDays(w,7)){", "for(var w=TALLY;w<=END&&w<=t;w=addDays(w,7)){")
+sub("standings(V,START,END)", "standings(V,TALLY,END)")
+sub("else if(S.range==='all'){from=START;to=END;label='최종';}", "else if(S.range==='all'){from=TALLY;to=END;label='최종';}")
+sub("for(var d=START;d<=last;d=addDays(d,1)){\n    var x=dayOf(V,mid,d)", "var cs0=0;for(var d=TALLY;d<=last;d=addDays(d,1)){\n    var x=dayOf(V,mid,d)")
+sub("for(var w=START;w<=last;w=addDays(w,7)){\n    s.lines", "for(var w=TALLY;w<=last;w=addDays(w,7)){\n    s.lines")
+sub("if(r){if(r.streak>s.maxStreak)s.maxStreak=r.streak;if(r.place===1)s.dayWins++;}", "cs0=x.in?cs0+1:0;if(cs0>s.maxStreak)s.maxStreak=cs0;if(r&&r.place===1)s.dayWins++;")
+sub("shortDate(START)+' ~ '+shortDate(END)", "shortDate(TALLY)+' ~ '+shortDate(END)")
+sub("<p>매일 한 만큼 점수가 쌓이고, 주마다 그리고 시험이 끝났을 때 순위를 매깁니다.</p>", "<p>매일 한 만큼 점수가 쌓이고, 주마다 그리고 시험이 끝났을 때 순위를 매깁니다.'+(TALLY>START?' 집계는 '+shortDate(TALLY)+'부터이고, 그 전 점수는 보이기만 합니다.':'')+'</p>")

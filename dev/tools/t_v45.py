@@ -21,7 +21,7 @@ p.fill('#perS','2026-12-20');p.fill('#perE','2026-12-01');click(p,'[data-act="pe
 check('start>end rejected',not (store(p,'meta/config') or {}).get('period'),st(p,"(document.querySelector('.flash')||{}).textContent"))
 p.fill('#perS','2026-12-01');p.fill('#perE','2027-01-31');click(p,'[data-act="period-save"]',600)
 per=(store(p,'meta/config') or {}).get('period')
-check('period saved',per=={'s':'2026-12-01','e':'2027-01-31'},per)
+check('period saved',per=={'s':'2026-12-01','e':'2027-01-31','a':'2026-12-01'},per)
 close_dlg(p)
 click(p,'[data-act="tab"][data-tab="rank"]',800)
 click(p,'[data-act="range"][data-id="all"]',800)
