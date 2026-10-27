@@ -12,9 +12,11 @@
   .rail{overflow-x:auto;overflow-y:hidden;scrollbar-width:none;touch-action:pan-x}
   .rail::-webkit-scrollbar{display:none}
 }
+.mfoot{align-items:baseline}
+.mfoot .urd{font-size:11px;line-height:normal;padding:0 2px}
 .mfoot.o{justify-content:flex-start}
-.mfoot.o small{margin:0}
-.mfoot.o .urd{padding:0 0 0 4px}
+.mfoot.o small{margin:2px 0 0 6px}
+.mfoot.o .urd{padding:0 0 0 2px}
 
 /* 더보기는 휴대폰에서만: 터치로 쓰는 패드(짧은 변 600 이상)는 좁게 열어도 모든 메뉴를 아래 줄에 */
 @media (max-width:699px){

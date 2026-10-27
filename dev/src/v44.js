@@ -79,7 +79,7 @@ function quickParse(V,text){
 }
 function canAddTo(V,d){return modeOf(d)!=='view'&&!dayLocked(V,d);}
 function quickAddRow(V,date){
-  return '<div class="qadd"><input type="text" id="qadd-'+date+'" data-draft="qadd:'+date+'" data-enter="g-quick" data-date="'+date+'" maxlength="90" placeholder="할 일을 바로 적고 Enter (예: 미적 3단원 20문제)" aria-label="할 일 바로 적기"><button class="btn small" data-act="g-quick" data-date="'+date+'">넣기</button></div>';
+  return '<div class="qadd"><input type="text" id="qadd-'+date+'" data-draft="qadd:'+date+'" data-enter="g-quick" data-date="'+date+'" maxlength="90" placeholder="할 일 바로 적기 (예: 미적 3단원 20문제)" aria-label="할 일 바로 적기"><button class="btn small" data-act="g-quick" data-date="'+date+'">넣기</button></div>';
 }
 
 /* 오래된 메시지는 지운다(보관 14일). 한 사람이 자기 것만, 한 번에 40개까지. 앱을 열고 한 번, 메시지를 보낼 때마다 */
@@ -120,7 +120,7 @@ function oldBrowserHtml(){
 function modalHelp(V){
   var items=[
     ['하루 시작','공부방에서 타이머를 켜면 모두에게 공부 중으로 보입니다. 오늘 출석을 누르면 출석 점수를 받고, 하루가 끝나면 인증하세요.'],
-    ['할 일 적기','달력에서 날짜를 고르면 할 일 칸 위에 입력칸이 있습니다. 적고 Enter를 누르면 바로 들어가고, 과목 이름이나 줄임말로 시작하면 그 과목으로 들어갑니다. 요일을 아직 못 정한 일은 할 일 모음에 적어 두고 요일을 눌러 나눠 넣으세요.'],
+    ['할 일 적기','달력에서 날짜를 고르면 할 일 칸 위에 입력칸이 있습니다. 적고 넣기를 누르면 바로 들어가고, 과목 이름이나 줄임말로 시작하면 그 과목으로 들어갑니다. 요일을 아직 못 정한 일은 할 일 모음에 적어 두고 요일을 눌러 나눠 넣으세요.'],
     ['마감 있는 할 일','시험이나 수행평가처럼 며칠까지 끝낼 일은 마감 있는 할 일로 정하면 날짜별로 나눠서 그날 할 일에 넣어 줍니다.'],
     ['지난 날','인증 마감(다음 날 새벽 5시)이 지나도 지난 날의 할 일은 완료 표시하고 인증할 수 있습니다. 늦은 인증 점수가 적용되고, 새 할 일을 더하거나 고칠 수는 없습니다.'],
     ['점수','출석, 공부 시간, 모두 끝내고 인증, 문제 내기와 풀이, 하루 순위, 빙고로 점수가 쌓입니다. 자세한 점수표는 아래 단추에서 볼 수 있습니다.'],
