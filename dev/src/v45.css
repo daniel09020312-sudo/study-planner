@@ -18,9 +18,9 @@
 .mfoot.o small{margin:2px 0 0 6px}
 .mfoot.o .urd{padding:0 0 0 2px}
 
-/* 더보기는 휴대폰에서만: 터치로 쓰는 패드(짧은 변 600 이상)는 좁게 열어도 모든 메뉴를 아래 줄에 */
-@media (max-width:699px){
-  html.pad .navs button:is([data-tab="prog"],[data-tab="rank"],[data-tab="report"],[data-tab="play"],[data-tab="board"]){display:grid}
-  html.pad .navs .navmore,html.pad #moreMenu{display:none}
-  html.pad .navs button{min-width:56px}
+/* 더보기는 하단에 다 들어가지 않는 휴대폰에서만. 폭이 520px 이상이면(패드, 접은 폰 펼침) 모든 메뉴를 아래 줄에 그대로 둔다 */
+@media (min-width:520px) and (max-width:699px){
+  .navs button:is([data-tab="prog"],[data-tab="rank"],[data-tab="report"],[data-tab="play"],[data-tab="board"]){display:grid}
+  .navs .navmore,#moreMenu{display:none}
+  .navs button{min-width:56px}
 }
