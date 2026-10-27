@@ -1,0 +1,19 @@
+/* v48: 럭키 세븐 */
+.dialog.egg{max-width:360px;text-align:center;padding:26px 22px 22px;overflow:hidden;position:relative;background:linear-gradient(180deg,#1b1630,#0f0c1c);color:#f4e9c8;border:1px solid #d8b46a}
+.eggbg{position:absolute;inset:0;background:radial-gradient(60% 45% at 50% 30%,rgba(216,180,106,.28),transparent 70%);pointer-events:none}
+.eggh{position:relative;font-size:12px;letter-spacing:.3em;color:#d8b46a;margin-bottom:12px}
+.eggreels{position:relative;display:flex;justify-content:center;gap:10px;margin:6px 0 14px}
+.eggr{width:64px;height:88px;border-radius:12px;background:#0b0816;border:1px solid #d8b46a;overflow:hidden;box-shadow:inset 0 0 14px rgba(0,0,0,.7)}
+.eggs{display:flex;flex-direction:column;transform:translateY(-352px);animation:eggSpin 1.4s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i) * .35s)}
+.eggs b{height:88px;line-height:88px;font-size:56px;font-weight:800;color:#f2d98a;text-shadow:0 0 14px rgba(242,217,138,.55);font-variant-numeric:tabular-nums}
+@keyframes eggSpin{from{transform:translateY(0)}to{transform:translateY(-352px)}}
+.eggt{position:relative;margin:4px 0 6px;font-size:24px;color:#f2d98a;animation:eggPop .6s 1.6s both}
+.eggp{position:relative;margin:0 0 16px;font-size:14px;line-height:1.6;color:#e9dfc4;animation:eggPop .6s 1.8s both}
+.dialog.egg .btn{position:relative;animation:eggPop .5s 2s both}
+@keyframes eggPop{from{opacity:0;transform:translateY(8px) scale(.96)}to{opacity:1;transform:none}}
+.eggs7{position:absolute;inset:0;pointer-events:none}
+.eggs7 i{position:absolute;top:-10px;width:6px;height:6px;border-radius:50%;background:#f2d98a;opacity:0;animation:eggFall 2.4s 1.5s ease-in both}
+.eggs7 i:nth-child(1){left:10%}.eggs7 i:nth-child(2){left:24%;animation-delay:1.7s}.eggs7 i:nth-child(3){left:38%;animation-delay:1.55s}.eggs7 i:nth-child(4){left:52%;animation-delay:1.9s}.eggs7 i:nth-child(5){left:66%;animation-delay:1.6s}.eggs7 i:nth-child(6){left:80%;animation-delay:1.8s}.eggs7 i:nth-child(7){left:92%;animation-delay:1.65s}
+@keyframes eggFall{0%{opacity:0;transform:translateY(0)}15%{opacity:1}100%{opacity:0;transform:translateY(420px) rotate(240deg)}}
+@media (prefers-reduced-motion:reduce){.eggs{animation:none;transform:translateY(-352px)}.eggs7{display:none}.eggt,.eggp,.dialog.egg .btn{animation:none}}
+@media (min-width:700px){.navs .navmore,#moreMenu{display:none !important}}

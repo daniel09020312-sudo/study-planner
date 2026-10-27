@@ -1,0 +1,8 @@
+# ---------------------------------------------------------------- v48: 이스터에그 럭키 세븐, 큰 화면에서 더보기 숨김 (JS는 src/v48.js, CSS는 src/v48.css)
+V48_JS = open(BASE + '/src/v48.js', encoding='utf-8').read()
+V48_CSS = open(BASE + '/src/v48.css', encoding='utf-8').read()
+sub("/* ---------- 공부방 ---------- */", V48_JS + "\n/* ---------- 공부방 ---------- */")
+sub("</style>", V48_CSS + "</style>")
+sub("  if(t==='help')return modalHelp(V);", "  if(t==='help')return modalHelp(V);\n  if(t==='egg7')return modalEgg(V);")
+sub("  try{paintMore();pruneOnce(V);}catch(e){}", "  try{paintMore();pruneOnce(V);eggTick(V);}catch(e){}")
+sub("    case 'notice-x':", "    case 'egg-x':eggClose();break;\n    case 'notice-x':")
