@@ -2429,7 +2429,7 @@ function faceHtml(st,mid,o,f){
   if(st==='bar')return '<div class="tf bar'+cls+'">'+lab+txt+'<div class="bbar" aria-hidden="true"><i'+pa+' data-k="bar" style="width:'+(show*100).toFixed(2)+'%"></i></div>'+sub+'</div>';
   return '<div class="tf '+(st==='flip'?'flipf':'digits')+cls+'">'+lab+txt+sub+'</div>';
 }
-function timerActs(o){return '<div class="tacts">'+(o.rest?'<button class="btn xl soft" data-act="pomo-skip">쉬는 시간 건너뛰기</button>':'')+'<button class="btn xl" data-act="timer-stop">끝내고 기록하기</button></div>';}
+function timerActs(o){return '<div class="tacts">'+(o.rest?'<button class="btn xl soft" data-act="pomo-skip">쉬는 시간 건너뛰기</button>':'')+'<button class="btn xl" data-act="timer-stop">끝내고 기록하기</button><button class="btn soft" data-act="open" data-modal="trim" data-stop="1" style="margin-top:8px">끄는 걸 깜빡했어요: 시간 빼고 끝내기</button></div>';}
 function timerBody(V,L,sel,subs){
   var now=Date.now(),o=L?lv(L,now):null,m=o?o.mode:S.tmode,p=S.pomo,g=S.goal,h='';
   if(!L)h+='<div class="seg tseg" role="group" aria-label="타이머 종류">'+TMODES.map(function(x){return '<button data-act="tmode" data-v="'+x[0]+'" aria-pressed="'+(m===x[0]?'true':'false')+'">'+x[1]+'</button>';}).join('')+'</div>';
@@ -2453,7 +2453,7 @@ function timerBody(V,L,sel,subs){
     h+=timerActs(o);
   }else{
     h+=faceHtml(tstyle(),'',{mode:m,rest:false,frac:0,e:0},faceIdle(m,p,g));
-    h+='<button class="btn xl primary" data-act="timer-start">'+esc(subLabel(V,sel))+' 공부 시작</button>';
+    h+='<button class="btn xl primary" data-act="timer-start">'+esc(subLabel(V,sel))+' 공부 시작</button><div class="row" style="justify-content:center;margin-top:6px"><button class="linkbtn" data-act="open" data-modal="trim">공부 시간 빼기</button></div>';
   }
   h+='<p class="hint" style="margin-top:12px">'+(m==='pomo'?'집중한 시간만 기록되고 쉬는 시간은 기록되지 않습니다. 끝내기를 누를 때까지 반복하고, 5시간이 넘으면 자동으로 끝납니다.':m==='goal'?'목표 시간이 되면 자동으로 끝나고 기록됩니다. 먼저 끝내도 그때까지 한 만큼 기록됩니다.':'끝내기를 누르면 기록됩니다. 한 번에 5시간까지 기록되고, 5시간이 넘으면 자동으로 끝납니다.')+'</p>';
   if(m!=='sw')h+='<div class="tsnd"><span class="hint">'+(m==='pomo'?'집중과 쉬는 시간이 바뀔 때':'목표 시간이 끝날 때')+' 소리 알림: '+(S.sound?'켜짐':'꺼짐')+'</span><button class="del" data-act="sound">'+(S.sound?'끄기':'켜기')+'</button></div>';
@@ -4257,7 +4257,7 @@ document.addEventListener('change',function(e){
 
 /* ---------- 처음 화면 ---------- */
 // 앱이 준비되면 알린다. 그림이 아직이면 다 그린 뒤에 열리고, 그림이 먼저 끝났으면 바로 열린다
-var APP_BUILD='1793063271';
+var APP_BUILD='1793063459';
 function splashDone(){
   var sp=document.getElementById('splash'),st=window.__sp;if(!sp||sp.getAttribute('data-out'))return;
   sp.setAttribute('data-out','1');
@@ -5059,6 +5059,51 @@ function chatData(V){
   if(same)for(var i=0;i<k.length;i++)if(CDK[i]!==k[i]){same=false;break;}
   if(same)return CDV;
   CDV=chatData0(V);CDK=k;return CDV;
+}
+
+/* ---------- v47: 끄는 걸 깜빡하고 공부 안 한 시간이 기록됐을 때, 그만큼 빼기 ---------- */
+var TRIM_CH=[10,20,30,60,90];
+function trimInit(el){
+  var V=view(),L=V.me&&liveOf(V,V.me),stop=!!L&&!!el&&el.getAttribute('data-stop')==='1';
+  S.trim={stop:stop,date:today(),sid:stop?L.sid:'',n:30};S.draft.trimN='';
+}
+function trimPend(V,L){return L?Math.max(0,Math.floor(lv(L,Date.now()).focus/60000)-credited(L)):0;}
+function trimRows(V,date){
+  var d=dayOf(V,V.me,date),L=date===today()&&S.trim&&S.trim.stop?liveOf(V,V.me):null,pend=trimPend(V,L),rows=[],seen={};
+  Object.keys(d.mins).forEach(function(k){var m=(+d.mins[k]||0)+(L&&L.sid===k?pend:0);if(m>0){rows.push({sid:k,mins:m});seen[k]=1;}});
+  if(L&&!seen[L.sid]&&pend>0)rows.push({sid:L.sid,mins:pend});
+  return rows;
+}
+function trimSel(V){
+  var T=S.trim,rows=trimRows(V,T.date),r=rows.filter(function(x){return x.sid===T.sid;})[0]||rows[0]||null;
+  var typed=Math.round(+S.draft.trimN),n=typed>0?typed:Math.round(+T.n)||0;
+  return {rows:rows,row:r,n:n,ok:!!r&&n>=1&&n<=r.mins};
+}
+function modalTrim(V){
+  var T=S.trim,sel=trimSel(V),yd=addDays(today(),-1),b='<p class="hint">타이머를 끄는 걸 깜빡해서, 공부하지 않은 시간까지 기록됐다면 그만큼 빼 주세요. 실제로 공부한 시간만 남고 점수도 그에 맞게 다시 계산됩니다.</p>';
+  if(!T.stop){
+    b+='<div class="fld"><h3>날짜</h3><div class="chips">'+chipBtn('trim-set','date',today(),'오늘',T.date===today());
+    if(!dayLocked(V,yd))b+=chipBtn('trim-set','date',yd,'어제',T.date===yd);
+    b+='</div></div>';
+  }
+  b+='<div class="fld"><h3>과목</h3>';
+  if(!sel.rows.length)b+='<p class="empty">이 날 기록된 공부 시간이 없습니다.</p>';
+  else{b+='<div class="chips">';sel.rows.forEach(function(r){b+=chipBtn('trim-set','sid',r.sid,subLabel(V,r.sid)+' '+fmtMins(r.mins),sel.row&&sel.row.sid===r.sid);});b+='</div>';}
+  b+='</div><div class="fld"><h3>뺄 시간</h3><div class="chips">';
+  TRIM_CH.forEach(function(n){b+=chipBtn('trim-set','n',String(n),n>=60?(n/60)+'시간'+(n%60?' '+n%60+'분':''):n+'분',!(+S.draft.trimN>0)&&+T.n===n);});
+  b+='</div><input type="number" inputmode="numeric" min="1" max="1200" data-draft="trimN" data-live="1" placeholder="직접 입력 (분)" aria-label="뺄 시간 직접 입력(분)" style="margin-top:8px"></div>';
+  if(sel.row)b+='<p class="hint">'+(sel.ok?esc(subLabel(V,sel.row.sid))+' '+fmtMins(sel.row.mins)+' → <b>'+fmtMins(sel.row.mins-sel.n)+'</b>':'뺄 시간은 1분 이상, 기록된 '+fmtMins(sel.row.mins)+' 이하로 넣어 주세요.')+'</p>';
+  return dlg('wide',{id:'trim',t:T.stop?'시간 빼고 끝내기':'공부 시간 빼기'},b,'<span class="hint">'+(T.stop?'타이머를 끝내고 빼는 만큼을 뺍니다.':'오늘과 어제 기록만 고칠 수 있습니다.')+'</span><div class="df"><button class="btn primary" data-act="trim-go"'+(sel.ok?'':' disabled')+'>'+(T.stop?'빼고 끝내기':'빼기')+'</button></div>');
+}
+function trimGo(){
+  var V=view(),T=S.trim;if(!T||!V.me||!need())return;
+  var sel=trimSel(V);if(!sel.ok)return;
+  var sid=sel.row.sid,n=sel.n,date=T.date,stop=T.stop;
+  if(date!==today()&&dayLocked(V,date)){flash('이 날은 마감이 지나 고칠 수 없습니다.');return;}
+  if(stop)stopTimer();
+  editDay(date,function(d){var m=Math.max(0,(+d.mins[sid]||0)-n);if(m)d.mins[sid]=m;else delete d.mins[sid];});
+  if(S.modal&&S.modal.type==='trim')closeModal();
+  flash(subLabel(V,sid)+'에서 '+fmtMins(n)+'을 뺐습니다.');
 }
 
 /* ---------- 방: 참여 코드, 새 방, 방 바꾸기 (웹 판) ---------- */
@@ -6545,7 +6590,7 @@ function modalSettings(V){
   [[22,'밤 10시'],[23,'밤 11시'],[24,'자정'],[25,'다음 날 새벽 1시'],[26,'다음 날 새벽 2시'],[27,'다음 날 새벽 3시'],[28,'다음 날 새벽 4시'],[29,'다음 날 새벽 5시']].forEach(function(o){b+='<option value="'+o[0]+'"'+(V.certHour===o[0]?' selected':'')+'>'+o[1]+'</option>';});
   b+='</select>';
   b+='</div>'+pokeSec()+noticeSec(V)+periodSec(V)+'<div class="sec"><h3>사용법</h3><div class="row"><button class="btn small" data-act="open" data-modal="help">사용법 보기</button></div></div><div class="sec"><h3>키보드 단축키<small>키보드를 연결했을 때</small></h3><ul class="kbd">'+[['1 ~ 8','달력부터 메시지까지 화면 이동'],['N','할 일 추가'],['D','마감 있는 할 일 추가'],['L','달력, 할 일, 시간표 차례로 바꿔 보기'],['T','타이머 켜기, 끄기'],['F','타이머 크게 보기'],['Esc','창 닫기']].map(function(x){return '<li><kbd>'+x[0]+'</kbd><span>'+x[1]+'</span></li>';}).join('')+'</ul></div><div class="sec"><h3>저장 위치</h3><p class="hint">'+esc(S.net?({claude:'Claude 공유 저장소에 연결되어 있습니다. Claude에 로그인한 참여 인원끼리 실시간으로 같이 봅니다.',firebase:'공유 저장소에 연결되어 있습니다. 참여 코드로 들어온 사람 모두가 실시간으로 같이 봅니다.',local:'지금은 이 기기에만 저장됩니다. 다른 사람과 같이 보려면 공유 저장소 연결이 필요합니다.'}[S.net.mode]):'연결 중입니다.')+'</p>'+(S.net&&S.net.mode==='firebase'&&S.remote?'<div class="row" style="margin-top:10px"><button class="btn small" data-act="import-pick">기록 가져오기</button><button class="btn small" data-act="export-data">기록 파일로 저장</button><button class="del" data-act="setup-reset">'+(S.confirm==='disc'?'한 번 더 누르면 이 방에서 나갑니다':'이 기기에서 이 방 나가기')+'</button></div><p class="hint" style="margin-top:8px">'+esc(S.importMsg||'친구와 내 다른 기기는 위의 친구 초대하기로 들어옵니다. 기록 가져오기는 처음 연결한 뒤 한 번만 하면 됩니다.')+'</p>':'')+'</div>';
-  b+='<p class="hint appver">앱 버전 10월 27일 10:07</p>';
+  b+='<p class="hint appver">앱 버전 10월 27일 10:10</p>';
   return dlg('wide',{id:'settings',t:'설정'},b);
 }
 function modalCheck(V){
@@ -6582,6 +6627,7 @@ function modalHtml(V){
   if(t==='invite')return modalInvite(V);
   if(t==='a2hs')return modalA2HS(V);
   if(t==='help')return modalHelp(V);
+  if(t==='trim'&&S.trim)return modalTrim(V);
   if(t==='shop')return modalShop(V);
   if(t==='inbox'&&S.ib)return modalInbox(V);
   if(t==='pic'){var p=S.pics[S.modal.id];return '<div class="scrim" data-act="modal-close"></div><div class="dialog pic" id="dlg-pic" role="dialog" aria-modal="true" aria-label="사진 크게 보기" tabindex="-1">'+(typeof p==='string'&&p.indexOf('data:image/')===0?'<img src="'+esc(p)+'" alt="첨부한 사진">':'')+'<div class="df" style="justify-content:center;margin-top:12px"><button class="btn" data-act="modal-close">닫기</button></div></div>';}
@@ -6730,6 +6776,7 @@ function openModal(type,el){
   if(type==='compose'&&S.cmpPre){S.cmp=S.cmpPre.c;S.draft.cmpNote=S.cmpPre.note;S.cmpPre=null;}
   if(type==='event'){S.evd={date:S.date,kind:'수행평가',sid:'',shared:false};S.draft.evNote='';}
   if(type==='post'){S.post={kind:(el&&el.getAttribute('data-kind'))==='ask'?'ask':'quiz',sid:''};}
+  if(type==='trim')trimInit(el);
   if(type==='duel'){S.duelF={b:(el&&el.getAttribute('data-b'))||'',kind:(el&&el.getAttribute('data-kind'))||'score',len:+(el&&el.getAttribute('data-len'))||DUEL_DAYS,stake:'roul'};S.draft.duelStake='';}
   if(type==='wheel'){S.wheel={ids:dayOf(V,V.me,today()).goals.filter(function(g){return !g.done;}).map(function(g){return g.id;}),rot:0,spinning:false,pick:null,spins:0};}
   S.modal={type:type,id:el&&el.getAttribute('data-id')};S.closing=false;S.confirm=null;
@@ -7423,6 +7470,12 @@ function act(name,el){
       });}catch(e){flash('알림을 켜지 못했습니다.');}
       break;
     }
+    case 'trim-set':{
+      var tk=el.getAttribute('data-k'),tv=el.getAttribute('data-v');if(!S.trim)break;
+      if(tk==='date'){S.trim.date=tv;S.trim.sid='';}else if(tk==='sid')S.trim.sid=tv;else if(tk==='n'){S.trim.n=+tv||30;S.draft.trimN='';}
+      break;
+    }
+    case 'trim-go':trimGo();break;
     case 'notice-x':{var Vnx=view(),nnx=noticeOf(Vnx);if(nnx)lsSet('gbb_notice',String(nnx.at));break;}
     case 'notice-save':{
       var nst=String(S.draft.noticeText||'').trim().slice(0,200),Vns=view();
