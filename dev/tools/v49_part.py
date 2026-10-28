@@ -7,3 +7,5 @@ sub("for(var w=START;w<=last;w=addDays(w,7)){\n    s.lines", "for(var w=TALLY;w<
 sub("if(r){if(r.streak>s.maxStreak)s.maxStreak=r.streak;if(r.place===1)s.dayWins++;}", "cs0=x.in?cs0+1:0;if(cs0>s.maxStreak)s.maxStreak=cs0;if(r&&r.place===1)s.dayWins++;")
 sub("shortDate(START)+' ~ '+shortDate(END)", "shortDate(TALLY)+' ~ '+shortDate(END)")
 sub("<p>매일 한 만큼 점수가 쌓이고, 주마다 그리고 시험이 끝났을 때 순위를 매깁니다.</p>", "<p>매일 한 만큼 점수가 쌓이고, 주마다 그리고 시험이 끝났을 때 순위를 매깁니다.'+(TALLY>START?' 집계는 '+shortDate(TALLY)+'부터이고, 그 전 점수는 보이기만 합니다.':'')+'</p>")
+# 집계 전에는 최종 결과 점수가 0으로 보이는 이유를 알려 준다
+sub("if(me)L+='<div class=\"finme\"><small>지금까지 내 최종 점수</small>'+finBreak(me)+'</div>';", "if(me)L+='<div class=\"finme\"><small>지금까지 내 최종 점수</small>'+finBreak(me)+(today()<TALLY?'<p class=\"hint\" style=\"margin-top:6px\">집계는 '+esc(longDate(TALLY))+'부터 시작해서 지금은 0점입니다. 매일 얻은 점수는 오늘 화면과 순위의 이번 주에서 그대로 보입니다.</p>':'')+'</div>';")
