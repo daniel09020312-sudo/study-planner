@@ -15,7 +15,7 @@ p.evaluate("()=>{const S=window.__store;Object.keys(S).filter(k=>k.startsWith('d
 click(p,'#navMore',300);click(p,'.mitem[data-tab="play"]',700)
 click(p,'[data-act="play-tab"][data-id="duel"]',600)
 click(p,'[data-act="open"][data-modal="duel"]',600)
-check('kind chips',st(p,"document.querySelectorAll('.dialog [data-k=\"kind\"]').length")==5)
+check('kind chips',st(p,"document.querySelectorAll('.dialog [data-k=\"kind\"]').length")==7)
 check('len chips',st(p,"document.querySelectorAll('.dialog [data-k=\"len\"]').length")==3)
 click(p,'.dialog [data-k="b"] >> nth=0',200) if False else None
 p.locator('.dialog [data-k="b"]').last.click();p.wait_for_timeout(200)

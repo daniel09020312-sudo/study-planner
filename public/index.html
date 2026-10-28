@@ -1920,6 +1920,24 @@ img.sa{background-repeat:no-repeat;background-position:0 0;aspect-ratio:1/1}
 .hbands div{background:var(--fill);border-radius:12px;padding:8px 6px;text-align:center;display:grid;gap:2px}
 .hbands small{font-size:11px;color:var(--ink-3)}.hbands b{font-size:14px}.hbands span{font-size:11px;color:var(--ink-3)}
 .rband em{font-style:normal;color:var(--ink-3);font-size:12px}
+/* v51: 더보기 단추와 1:1 대결 */
+.moreb{display:flex;justify-content:center;margin:10px 0 2px}
+.duel .dnote{margin:2px 0 6px;text-align:center;font-style:italic;color:var(--ink-2);font-size:13px}
+.duel .dcoach{margin:8px 0 0;text-align:center;font-size:13px;color:var(--ink-2)}
+.rdchips{display:flex;justify-content:center;flex-wrap:wrap;gap:6px;margin:10px 0 0}
+.rdc{display:grid;place-items:center;width:40px;height:44px;border-radius:12px;background:var(--fill);color:var(--ink-3);font-size:11px;gap:0;align-content:center}
+.rdc b{font-size:14px;color:var(--ink)}
+.rdc.wa{background:var(--accent-soft)}.rdc.wa b{color:var(--accent-ink,var(--accent))}
+.rdc.wb{background:color-mix(in srgb,var(--warm,#E0A458) 28%,var(--surface))}
+.rdc.t b{color:var(--ink-3)}
+.rdc.live{outline:2px solid var(--accent);outline-offset:1px}
+.cheer,.taunts{display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin-top:10px;font-size:12px;color:var(--ink-3)}
+.cheer>b{font-size:12px;color:var(--ink-2)}
+.dwin{margin-top:10px;text-align:center;padding:10px;border-radius:14px;background:var(--fill);display:grid;gap:2px}
+.dwin b{font-size:16px}.dwin small{color:var(--ink-3);font-size:12px}
+.dwin.me{background:linear-gradient(135deg,color-mix(in srgb,#F2D98A 55%,var(--surface)),var(--surface));animation:dwinPop .7s both}
+@keyframes dwinPop{from{transform:scale(.96);opacity:.5}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){.dwin.me{animation:none}}
 #c-setup .row input{min-width:0}
 #c-setup .lb{margin-top:0}
 .serr{color:var(--red);margin-top:8px}
@@ -4293,7 +4311,7 @@ document.addEventListener('change',function(e){
 
 /* ---------- 처음 화면 ---------- */
 // 앱이 준비되면 알린다. 그림이 아직이면 다 그린 뒤에 열리고, 그림이 먼저 끝났으면 바로 열린다
-var APP_BUILD='1793198584';
+var APP_BUILD='1793199322';
 function splashDone(){
   var sp=document.getElementById('splash'),st=window.__sp;if(!sp||sp.getAttribute('data-out'))return;
   sp.setAttribute('data-out','1');
@@ -4953,8 +4971,8 @@ function dmOrder(V){
 
 /* 참여 인원 카드: 많으면 앞의 12명과 나만 보이고 나머지는 펼치기 */
 function frShown(V,list){
-  if(S.frAll||list.length<=14)return list;
-  var top=list.slice(0,12),me=list.filter(function(x){return x.p.me;})[0];
+  if(S.frAll||list.length<=10)return list;
+  var top=list.slice(0,10),me=list.filter(function(x){return x.p.me;})[0];
   if(me&&top.indexOf(me)<0)top.push(me);
   return top;
 }
@@ -5245,6 +5263,148 @@ function reportTimes(V,Wk,me){
     if(pct<90)h+='<p class="hint">시간대가 기록된 시간은 이 주 공부 시간의 '+Math.min(100,pct)+'%입니다. 직접 입력한 시간과 예전 기록은 시간대를 알 수 없어 빠집니다.</p>';
   }
   return h+'</section>';
+}
+
+/* ---------- v51: 사람 목록은 10명까지만 보이고 '더보기'로 펼침, 1:1 대결을 더 재미있게(라운드제, 응원, 한마디, 도전장, 연승) ---------- */
+function moreCut(key,list,n){n=n||10;return (S.more&&S.more[key])||list.length<=n?list:list.slice(0,n);}
+function moreBtn(key,total,n,unit){
+  n=n||10;if(total<=n)return '';
+  var open=!!(S.more&&S.more[key]);
+  return '<div class="moreb"><button class="btn small soft" data-act="more-list" data-k="'+key+'" aria-expanded="'+(open?'true':'false')+'">'+(open?'접기':'더보기 · 나머지 '+(total-n)+(unit||'명'))+'</button></div>';
+}
+
+/* 대결 종류 더하기: 할 일 달성률(하루 평균), 아침 출석(하루씩 누가 더 일찍 출석했나) */
+DUEL_KINDS.push(
+  {id:'rate',name:'할 일 달성률',unit:'%',desc:'하루 할 일 달성률의 평균(할 일이 있는 날만)',f:function(r){return r&&r.n?Math.round(r.done/r.n*100):0;},avg:true},
+  {id:'early',name:'아침 출석',unit:'일',desc:'매일 누가 더 일찍 출석하나(이긴 날 수로 승부)',f:function(){return 0;},rounds:true}
+);
+function duelMode(d){return duelKindOf(d).rounds?'rounds':(d&&d.mode==='rounds'?'rounds':'sum');}
+function duelDesc(d){return duelKindOf(d).name+' · '+duelLen(d)+'일 · '+(duelMode(d)==='rounds'?'하루씩 승부':'합계');}
+/* 하루 값: 없으면 null(그날은 세지 않음) */
+function duelDay(V,d,mid,date,r){
+  var k=duelKindOf(d);
+  if(k.id==='early'){var x=dayOf(V,mid,date);if(!x.in)return 0;var a=new Date(x.in);return Math.max(1,1700-(a.getHours()*60+a.getMinutes()));}
+  if(k.id==='rate')return r&&r.n?Math.round(r.done/r.n*100):null;
+  return duelVal(d,r);
+}
+function duelFinish(d){
+  var k=duelKindOf(d);
+  if(k.avg){d.pa=d.ca?Math.round(d.pa/d.ca):0;d.pb=d.cb?Math.round(d.pb/d.cb):0;}
+  d.wa=0;d.wb=0;
+  (d.rd||[]).forEach(function(x){if(x.a>x.b)d.wa++;else if(x.b>x.a)d.wb++;});
+}
+function duelSides(d){return duelMode(d)==='rounds'?[d.wa||0,d.wb||0]:[d.pa,d.pb];}
+function duelWinner(d){
+  var s=duelSides(d);
+  if(s[0]===s[1]&&duelMode(d)==='rounds'&&duelKindOf(d).id!=='early')s=[d.pa,d.pb];
+  return s[0]>s[1]?d.a:s[1]>s[0]?d.b:null;
+}
+function duelNum(d,n){var k=duelKindOf(d);return k.id==='time'?fmtMins(n):n+k.unit;}
+/* 지금 상황 한 줄 */
+function duelCoach(V,d){
+  var me=V.me===d.a?'a':V.me===d.b?'b':'';if(!me)return '';
+  var mine=me==='a'?d.pa:d.pb,opp=me==='a'?d.pb:d.pa,gap=mine-opp,k=duelKindOf(d);
+  if(duelMode(d)==='rounds'){var s=duelSides(d),m=me==='a'?s[0]:s[1],o=me==='a'?s[1]:s[0];return m>o?'지금 라운드 '+(m-o)+'개 앞서고 있습니다.':m<o?'라운드가 '+(o-m)+'개 뒤져 있습니다. 오늘 이기면 따라잡습니다.':'라운드 동점입니다. 오늘이 승부처입니다.';}
+  if(!gap)return '동점입니다. 조금만 더 하면 앞서갑니다.';
+  var gtxt=k.id==='time'?fmtMins(Math.abs(gap)):Math.abs(gap)+k.unit;
+  return gap>0?'지금 '+gtxt+' 앞서고 있습니다. 방심은 금물입니다.':'역전까지 '+(k.id==='time'?fmtMins(Math.abs(gap)+1):(Math.abs(gap)+1)+k.unit)+' 남았습니다.';
+}
+var TAUNTS=['한 판 붙자!','오늘은 내가 이긴다','끝까지 가 보자, 응원할게'];
+function duelStreak(V,me){
+  var l=duelList(V).filter(function(d){return d.state==='done'&&(d.a===me||d.b===me);}).sort(function(a,b){return a.end<b.end?1:-1;}),n=0;
+  for(var i=0;i<l.length;i++){if(l[i].win===me)n++;else break;}
+  return n;
+}
+function duelVs(V,me){
+  var o={};
+  duelList(V).forEach(function(d){
+    if(d.state!=='done'||(d.a!==me&&d.b!==me))return;
+    var id=d.a===me?d.b:d.a,r=o[id]=o[id]||{id:id,w:0,l:0,e:0};
+    if(!d.win)r.e++;else if(d.win===me)r.w++;else r.l++;
+  });
+  return Object.keys(o).map(function(k){return o[k];}).sort(function(a,b){return (b.w+b.l+b.e)-(a.w+a.l+a.e);});
+}
+function duelRounds(V,d){
+  var h='<div class="rdchips" aria-label="하루씩 결과">',t=today(),map={};
+  (d.rd||[]).forEach(function(x){map[x.d]=x;});
+  for(var i=0;i<duelLen(d);i++){
+    var dt=addDays(d.start,i),x=map[dt],cl='p',tx='';
+    if(x){if(x.a>x.b){cl='wa';tx=V.byId[d.a].name.slice(0,1);}else if(x.b>x.a){cl='wb';tx=V.byId[d.b].name.slice(0,1);}else{cl='t';tx='=';}if(x.d===t&&t<=d.end&&d.state==='on')cl+=' live';}
+    h+='<span class="rdc '+cl+'" title="'+esc(shortDate(dt))+'"><small>'+DOW[pd(dt).getDay()]+'</small><b>'+esc(tx)+'</b></span>';
+  }
+  return h+'</div>';
+}
+function duelRow(V,d){
+  var A=V.byId[d.a],B=V.byId[d.b],h='<div class="duel'+(d.state==='done'?' fin':'')+'" id="du-'+esc(d.id)+'">',part=d.a===V.me||d.b===V.me;
+  if(d.state==='pending'){
+    h+='<div class="pl"><span><b>'+esc(A.name)+'</b> 님이 <b>'+esc(B.name)+'</b> 님에게 도전장 <small>'+esc(duelDesc(d))+'</small></span><span class="tag">수락 대기</span></div>';
+    if(d.note)h+='<p class="dnote">“'+esc(d.note)+'”</p>';
+    if(d.b===V.me)h+='<div class="row" style="margin-top:8px"><button class="btn small primary" data-act="duel-ok" data-id="'+esc(d.id)+'">수락</button><button class="btn small" data-act="duel-no" data-id="'+esc(d.id)+'">거절</button></div>';
+    else if(d.a===V.me)h+='<div class="row" style="margin-top:8px"><button class="btn small" data-act="duel-no" data-id="'+esc(d.id)+'">신청 취소</button></div>';
+    return h+'</div>';
+  }
+  var s=duelSides(d),rounds=duelMode(d)==='rounds',tot=s[0]+s[1],k=duelKindOf(d),lab=d.state==='ready'?'내일 시작':d.state==='on'?(diffDays(today(),d.end)+1)+'일 남음':'종료';
+  h+='<div class="vs"><span><b>'+esc(A.name)+'</b></span><em>'+esc(shortDate(d.start)+' ~ '+shortDate(d.end))+', '+lab+'</em><span class="r"><b>'+esc(B.name)+'</b></span></div><p class="duk">'+esc(duelDesc(d))+'</p>';
+  if(d.note)h+='<p class="dnote">“'+esc(d.note)+'”</p>';
+  h+='<div class="vs"><span class="p">'+(rounds?s[0]:esc(duelNum(d,d.pa)))+'</span><em>'+(rounds?'라운드':esc(k.name))+'</em><span class="p r">'+(rounds?s[1]:esc(duelNum(d,d.pb)))+'</span></div>';
+  if(rounds&&k.id!=='early')h+='<p class="duk">합계 '+esc(duelNum(d,d.pa))+' : '+esc(duelNum(d,d.pb))+'</p>';
+  h+='<div class="vbar" aria-hidden="true"><i class="'+(d.a===V.me?'me':'')+'" style="flex-grow:'+(tot?s[0]:1)+'"></i><i class="'+(d.b===V.me?'me':'')+'" style="flex-grow:'+(tot?s[1]:1)+'"></i></div>';
+  if(d.state!=='ready')h+=duelRounds(V,d);
+  if(d.state!=='done'){var cc=duelCoach(V,d);if(cc)h+='<p class="dcoach">'+esc(cc)+'</p>';}
+  /* 응원 */
+  var ch=obj(d.cheer),na=0,nb=0,my=ch[V.me]||'';Object.keys(ch).forEach(function(m){if(ch[m]==='a')na++;else if(ch[m]==='b')nb++;});
+  if(d.state!=='done'||na||nb){
+    h+='<div class="cheer"><span>응원</span>';
+    if(!part&&d.state!=='done'&&V.me){
+      h+='<button class="btn small'+(my==='a'?' primary':'')+'" data-act="duel-cheer" data-id="'+esc(d.id)+'" data-side="a" aria-pressed="'+(my==='a'?'true':'false')+'">'+esc(A.name)+' '+na+'</button><button class="btn small'+(my==='b'?' primary':'')+'" data-act="duel-cheer" data-id="'+esc(d.id)+'" data-side="b" aria-pressed="'+(my==='b'?'true':'false')+'">'+esc(B.name)+' '+nb+'</button>';
+    }else h+='<b>'+esc(A.name)+' '+na+'</b><b>'+esc(B.name)+' '+nb+'</b>';
+    h+='</div>';
+  }
+  /* 한마디 */
+  if(part&&d.state!=='done'){
+    h+='<div class="taunts"><span>한마디 보내기</span>';
+    TAUNTS.forEach(function(t,i){h+='<button class="btn small" data-act="duel-taunt" data-id="'+esc(d.id)+'" data-i="'+i+'">'+esc(t)+'</button>';});
+    h+='</div>';
+  }
+  if(d.state==='done'){
+    var w=d.win,best=null;(d.rd||[]).forEach(function(x){var df=Math.abs(x.a-x.b);if(!best||df>best.df)best={x:x,df:df};});
+    h+='<div class="dwin'+(w===V.me?' me':'')+'"><b>'+(w?esc(V.byId[w].name)+' 님 승리':'무승부')+'</b>'+(best&&best.df&&k.id!=='early'?'<small>가장 크게 갈린 날 '+esc(shortDate(best.x.d))+'</small>':'')+'</div>';
+    h+='<div class="row" style="margin-top:8px">';
+    if(part)h+='<button class="btn small" data-act="open" data-modal="duel" data-b="'+esc(d.a===V.me?d.b:d.a)+'" data-kind="'+esc(k.id)+'" data-len="'+duelLen(d)+'" data-mode="'+duelMode(d)+'">다시 붙기</button>';
+    if(w&&w===V.me&&!d.brag)h+='<button class="btn small primary" data-act="duel-brag" data-id="'+esc(d.id)+'">결과 자랑하기</button>';
+    h+='</div>';
+  }
+  return h+'</div>';
+}
+function modalDuel(V){
+  var f=S.duelF,fk=duelKindOf({kind:f.kind}),rounds=fk.rounds||f.mode==='rounds',others=V.roster.filter(function(m){return m.id!==V.me;});
+  var b='<p class="hint">상대가 수락한 다음 날부터 '+duelLen({days:f.len})+'일 동안, '+esc(fk.desc)+(rounds&&!fk.rounds?'를 하루씩 겨뤄 더 많이 이긴 쪽이 승리합니다':'로 겨룹니다')+'.</p><div class="fld"><h3>상대</h3><div class="chips">';
+  var show=moreCut('duelopp',others);if(f.b&&show.indexOf(V.byId[f.b])<0&&show.filter(function(m){return m.id===f.b;}).length===0)show=show.concat(others.filter(function(m){return m.id===f.b;}));
+  show.forEach(function(m){b+=chipBtn('duel-set','b',m.id,V.byId[m.id].name,f.b===m.id);});
+  b+='</div>'+moreBtn('duelopp',others.length)+'</div><div class="fld"><h3>종류</h3><div class="chips">';
+  DUEL_KINDS.forEach(function(k){b+=chipBtn('duel-set','kind',k.id,k.name,f.kind===k.id);});
+  b+='</div></div><div class="fld"><h3>방식</h3><div class="chips">'+chipBtn('duel-set','mode','sum','합계로 겨루기',!rounds)+chipBtn('duel-set','mode','rounds','하루씩 승부(라운드제)',rounds)+'</div>'+(fk.rounds?'<p class="hint">이 종류는 항상 하루씩 승부합니다.</p>':'')+'</div><div class="fld"><h3>기간</h3><div class="chips">';
+  DUEL_LENS.forEach(function(n){b+=chipBtn('duel-set','len',String(n),n===1?'하루':n+'일',+f.len===n);});
+  b+='</div></div><div class="fld"><h3>도전장 한마디<small> 선택</small></h3><input type="text" data-draft="duelNote" maxlength="40" placeholder="예: 이번엔 내가 이긴다" aria-label="도전장 한마디"></div>';
+  return dlg('wide',{id:'duel',t:'1:1 대결 신청'},b,'<span class="hint">신청하면 상대에게 알림이 갑니다.</span><div class="df"><button class="btn primary" data-act="duel-add"'+(f.b?'':' disabled')+'>도전장 보내기</button></div>');
+}
+function duelTab(V,t){
+  var h='<section class="card" id="c-duels" style="--k:0"><div class="ct"><h2>1:1 대결</h2><button class="btn small primary" data-act="open" data-modal="duel"'+(V.roster.length<2?' disabled':'')+'>대결 신청</button></div>';
+  var all=duelList(V),live=all.filter(function(d){return d.state!=='done';}),done=all.filter(function(d){return d.state==='done'&&diffDays(d.end,t)<=14;}),list=live.concat(done);
+  if(!list.length)h+='<p class="empty">아직 대결이 없습니다. 한 명을 골라 점수, 공부 시간, 할 일 달성률 같은 걸로 겨뤄 보세요. 하루씩 승부하는 라운드제도 있고, 구경하는 사람은 응원할 수 있습니다.</p>';
+  moreCut('duels',list).forEach(function(d){h+=duelRow(V,d);});
+  h+=moreBtn('duels',list.length,10,'개');
+  var wins={};all.forEach(function(d){if(d.state==='done'&&d.win)wins[d.win]=(wins[d.win]||0)+1;});
+  var rc=duelRecord(V,V.me),st=V.me?duelStreak(V,V.me):0,vs=V.me?duelVs(V,V.me):[];
+  h+='<div class="sec"><h3>내 전적'+(V.me?'<small>'+rc.w+'승 '+rc.e+'무 '+rc.l+'패'+(st>1?' · '+st+'연승 중':'')+'</small>':'')+'</h3>';
+  if(!vs.length)h+='<p class="hint">끝난 대결이 쌓이면 상대별 전적이 여기 나옵니다.</p>';
+  moreCut('duelvs',vs,5).forEach(function(r){var p=V.byId[r.id];if(!p)return;h+='<div class="brow">'+av(p,'s')+'<span>'+esc(p.name)+'</span><span></span><small>'+r.w+'승 '+r.e+'무 '+r.l+'패</small></div>';});
+  h+=moreBtn('duelvs',vs.length,5,'명');
+  h+='</div><div class="sec"><h3>대결 승수 순위</h3>';
+  var rk=V.roster.slice().sort(function(a,b){return (wins[b.id]||0)-(wins[a.id]||0);});
+  moreCut('duelrec',rk).forEach(function(m){h+='<div class="brow">'+av(V.byId[m.id],'s')+'<span>'+esc(V.byId[m.id].name)+'</span><span></span><small>'+(wins[m.id]||0)+'승</small></div>';});
+  h+=moreBtn('duelrec',rk.length)+'</div></section>';
+  return h;
 }
 
 /* ---------- 방: 참여 코드, 새 방, 방 바꾸기 (웹 판) ---------- */
@@ -6085,17 +6245,17 @@ function viewRank(V){
   var st=standings(V,from,to),max=st.length?st[0].total:0,any=st.some(function(x){return x.total>0;});
   h+='<section class="card" id="c-rank-'+S.range+'" style="--k:0"><div class="ct"><h2>'+label+' 순위<small>'+esc(shortDate(from)+' ~ '+shortDate(to))+'</small></h2>'+(V.me&&st.length>8&&any?'<button class="btn small soft" data-act="rank-me">내 순위로</button>':'')+'</div>';
   if(!any)h+='<p class="empty">이 기간에는 아직 점수가 없습니다.</p>';
-  st.forEach(function(x,i){
+  moreCut('rank'+S.range,st).forEach(function(x){var i=st.indexOf(x);
     var last=i===st.length-1&&st.length>1&&any,done=S.range==='last'||(S.range==='all'&&t>END);
     h+='<div class="rk'+(x.p.me?' me':'')+'" id="rk-'+esc(x.p.id)+'"><div class="n">'+(i+1)+'</div>'+av(x.p)+'<div><div class="line"><b>'+esc(x.p.name)+'</b>'+(x.p.me?'<span class="tag a">나</span>':'')+titleTag(V,x.p.id)+(S.range==='last'&&i<3&&x.total>0&&st.length>1?'<span class="tag wb">주간 '+(i+1)+'등'+(from>=TALLY?' +'+WEEK_BONUS[i]:' (집계 전)')+'</span>':'')+'</div>';
     h+='<div class="bar"><i style="width:'+(max?Math.round(x.total/max*100):0)+'%"></i></div><div class="sub">할 일 '+x.done+'개, '+fmtMins(x.mins)+', 인증 '+x.cert+'일, 출석 '+x.att+'일'+(x.bingo?', 빙고 '+x.bingo+'점':'')+'</div></div><div class="t"><b>'+x.total+'</b><small>점</small></div></div>';
   });
-  h+='</section>';
+  h+=moreBtn('rank'+S.range,st.length)+'</section>';
   if(S.range!=='all'&&st.length){
     h+='<section class="card" id="c-week-'+S.range+'" style="--k:1"><div class="ct"><h2>하루별 점수<small>파란 칸은 그날 1등</small></h2></div><div class="wtwrap"><table class="wt"><thead><tr><th></th>';
     for(var i=0;i<7;i++){var d=addDays(from,i);h+='<th>'+DOW[pd(d).getDay()]+' '+pd(d).getDate()+'</th>';}
     h+='<th>합계</th></tr></thead><tbody>';
-    st.forEach(function(x){
+    moreCut('rank'+S.range,st).forEach(function(x){
       h+='<tr><th class="nm">'+esc(shortName(x.p.name))+'</th>';
       for(var i=0;i<7;i++){var r=x.by[addDays(from,i)];h+='<td class="'+(!r||!r.total?'z':r.place===1?'w':'')+'">'+(r?r.total:'')+'</td>';}
       h+='<td class="sum">'+x.total+'</td></tr>';
@@ -6203,10 +6363,10 @@ function viewReport(V){
   subj.forEach(function(x){h+='<div class="hb"><span>'+esc(subLabel(V,x.k))+'</span><span class="tr"><i style="width:'+Math.round(x.m/smax*100)+'%"></i></span><small>'+fmtMins(x.m)+' ('+Math.round(x.m/me.mins*100)+'%)</small></div>';});
   h+='</section><section class="card" id="c-rcmp-'+S.repWeek+'" style="--k:3"><div class="ct"><h2>참여 인원 비교</h2></div>';
   var byT=order.slice().sort(function(a,b){return b.mins-a.mins;}),tmax=byT.length?byT[0].mins:0;
-  byT.forEach(function(o){h+='<div class="hb'+(o.p.me?'':' o')+'"><span>'+esc(o.p.name)+'</span><span class="tr"><i style="width:'+(tmax?Math.round(o.mins/tmax*100):0)+'%"></i></span><small>'+fmtMins(o.mins)+'</small></div>';});
+  moreCut('rcmp',byT).forEach(function(o){h+='<div class="hb'+(o.p.me?'':' o')+'"><span>'+esc(o.p.name)+'</span><span class="tr"><i style="width:'+(tmax?Math.round(o.mins/tmax*100):0)+'%"></i></span><small>'+fmtMins(o.mins)+'</small></div>';});
   h+='<div class="wtwrap" style="margin-top:12px"><table class="tb"><thead><tr><th>이름</th><th>공부 시간</th><th>할 일</th><th>점수</th><th>출석</th></tr></thead><tbody>';
-  order.forEach(function(o){h+='<tr'+(o.p.me?' class="me"':'')+'><td>'+esc(o.p.name)+'</td><td>'+fmtMins(o.mins)+'</td><td>'+o.done+'/'+o.n+'</td><td>'+o.pts+'</td><td>'+o.att+'일</td></tr>';});
-  return h+'</tbody></table></div></section></div></div>'+reportMore(V,from,Wk,Pv)+'</div>';
+  moreCut('rcmp',order).forEach(function(o){h+='<tr'+(o.p.me?' class="me"':'')+'><td>'+esc(o.p.name)+'</td><td>'+fmtMins(o.mins)+'</td><td>'+o.done+'/'+o.n+'</td><td>'+o.pts+'</td><td>'+o.att+'일</td></tr>';});
+  return h+'</tbody></table></div>'+moreBtn('rcmp',order.length)+'</section></div></div>'+reportMore(V,from,Wk,Pv)+'</div>';
 }
 
 /* ---------- 메시지와 찌르기 ---------- */
@@ -6468,9 +6628,10 @@ function duelList(V){
     if(d.status==='pending')d.state='pending';
     else if(d.status==='on'&&d.start){
       d.end=addDays(d.start,duelLen(d)-1);
-      for(var x=d.start;x<=d.end&&x<=t;x=addDays(x,1)){var ra=V.sc[d.a]&&V.sc[d.a][x],rb=V.sc[d.b]&&V.sc[d.b][x];d.pa+=duelVal(d,ra);d.pb+=duelVal(d,rb);}
+      for(var x=d.start;x<=d.end&&x<=t;x=addDays(x,1)){var ra=V.sc[d.a]&&V.sc[d.a][x],rb=V.sc[d.b]&&V.sc[d.b][x],va=duelDay(V,d,d.a,x,ra),vb=duelDay(V,d,d.b,x,rb);(d.rd=d.rd||[]).push({d:x,a:va||0,b:vb||0});if(va!=null){d.pa+=va;d.ca=(d.ca||0)+1;}if(vb!=null){d.pb+=vb;d.cb=(d.cb||0)+1;}}
       d.state=t>d.end?'done':t<d.start?'ready':'on';
-      if(d.state==='done'){d.win=d.pa>d.pb?d.a:d.pb>d.pa?d.b:null;d.lose=d.win?(d.win===d.a?d.b:d.a):null;}
+      duelFinish(d);
+      if(d.state==='done'){d.win=duelWinner(d);d.lose=d.win?(d.win===d.a?d.b:d.a):null;}
     }
     return d;
   }).filter(function(d){return d&&d.state!=='off';}).sort(function(a,b){return (+b.at||0)-(+a.at||0);});
@@ -6514,26 +6675,11 @@ function titleOf(V,mid){
   var b=badgeList(V,mid).filter(function(x){return x.id===id&&x.on;})[0];return b?b.title:'';
 }
 function titleTag(V,mid){var id=obj(V.progress[mid]).title;if(!id)return '';var b=badgeList(V,mid).filter(function(x){return x.id===id&&x.on;})[0];return b?'<em class="tag tt-'+b.tier+'">'+esc(b.title)+'</em>':'';}
-function duelRow(V,d){
-  var A=V.byId[d.a],B=V.byId[d.b],h='<div class="duel" id="du-'+esc(d.id)+'">';
-  if(d.state==='pending'){
-    h+='<div class="pl"><span><b>'+esc(A.name)+'</b> 님이 <b>'+esc(B.name)+'</b> 님에게 신청 <small>'+esc(duelDesc(d))+'</small></span><span class="tag">수락 대기</span></div>';
-    if(d.b===V.me)h+='<div class="row" style="margin-top:8px"><button class="btn small primary" data-act="duel-ok" data-id="'+esc(d.id)+'">수락</button><button class="btn small" data-act="duel-no" data-id="'+esc(d.id)+'">거절</button></div>';
-    else if(d.a===V.me)h+='<div class="row" style="margin-top:8px"><button class="btn small" data-act="duel-no" data-id="'+esc(d.id)+'">신청 취소</button></div>';
-    return h+'</div>';
-  }
-  var tot=d.pa+d.pb,lab=d.state==='ready'?'내일 시작':d.state==='on'?(diffDays(today(),d.end)+1)+'일 남음':'종료';
-  h+='<div class="vs"><span><b>'+esc(A.name)+'</b></span><em>'+esc(shortDate(d.start)+' ~ '+shortDate(d.end))+', '+lab+'</em><span class="r"><b>'+esc(B.name)+'</b></span></div><p class="duk">'+esc(duelDesc(d))+'</p>';
-  h+='<div class="vs"><span class="p">'+esc(duelNum(d,d.pa))+'</span><em>'+esc(duelKindOf(d).name)+'</em><span class="p r">'+esc(duelNum(d,d.pb))+'</span></div>';
-  h+='<div class="vbar" aria-hidden="true"><i class="'+(d.a===V.me?'me':'')+'" style="flex-grow:'+(tot?d.pa:1)+'"></i><i class="'+(d.b===V.me?'me':'')+'" style="flex-grow:'+(tot?d.pb:1)+'"></i></div>';
-  if(d.state==='done'){h+='<p style="margin-top:8px"><b>'+(d.win?esc(V.byId[d.win].name)+' 님 승리':'무승부')+'</b></p>';if(d.a===V.me||d.b===V.me)h+='<div class="row" style="margin-top:8px"><button class="btn small" data-act="open" data-modal="duel" data-b="'+esc(d.a===V.me?d.b:d.a)+'" data-kind="'+esc(duelKindOf(d).id)+'" data-len="'+duelLen(d)+'">다시 붙기</button></div>';}
-  return h+'</div>';
-}
 var PLAYTABS=[['bingo','스터디 빙고'],['duel','1:1 대결'],['badge','배지와 칭호']];
 function viewPlay(V){
   var t=today(),mon=mondayOf(t)<START?START:mondayOf(t),pt=PLAYTABS.some(function(x){return x[0]===S.playTab;})?S.playTab:'bingo';
   var pend=duelList(V).filter(function(d){return d.state==='pending'&&d.b===V.me;}).length;
-  var h='<div class="view" id="view-play"><header class="vhead"><div><h1>도전</h1><p>'+({bingo:'매주 월요일에 바뀌는 빙고 판입니다. 기록으로 자동 계산됩니다.',duel:'한 명을 골라 2일 동안 얻은 점수로 겨룹니다.',badge:'기록이 쌓이면 배지를 받습니다. 등급이 높을수록 어렵고, 받은 배지는 최종 점수에 더해집니다.'}[pt])+'</p></div>';
+  var h='<div class="view" id="view-play"><header class="vhead"><div><h1>도전</h1><p>'+({bingo:'매주 월요일에 바뀌는 빙고 판입니다. 기록으로 자동 계산됩니다.',duel:'한 명을 골라 점수, 공부 시간 같은 걸로 겨룹니다. 하루씩 승부하는 라운드제, 구경하는 사람의 응원, 도전장 한마디도 있습니다.',badge:'기록이 쌓이면 배지를 받습니다. 등급이 높을수록 어렵고, 받은 배지는 최종 점수에 더해집니다.'}[pt])+'</p></div>';
   h+='<div class="seg" role="group" aria-label="도전 종류">'+PLAYTABS.map(function(x){return '<button data-act="play-tab" data-id="'+x[0]+'" aria-pressed="'+(pt===x[0]?'true':'false')+'">'+x[1]+(x[0]==='duel'&&pend?'<b class="sbadge">'+pend+'</b>':'')+'</button>';}).join('')+'</div></header><div class="pwrap" id="pw-'+pt+'">';
   if(pt==='bingo'){
     var B=bingo(V,mon),me=B.per[V.me];
@@ -6545,29 +6691,11 @@ function viewPlay(V){
     });
     h+='</div></section>';
   }else if(pt==='duel'){
-    h+='<section class="card" id="c-duels" style="--k:0"><div class="ct"><h2>1:1 대결</h2><button class="btn small primary" data-act="open" data-modal="duel"'+(V.roster.length<2?' disabled':'')+'>대결 신청</button></div>';
-    var dl=duelList(V).filter(function(d){return d.state!=='done'||diffDays(d.end,t)<=14;}).slice(0,8);
-    if(!dl.length)h+='<p class="empty">아직 대결이 없습니다. 한 명을 골라 점수, 공부 시간, 끝낸 할 일 중 하나로 겨뤄보세요.</p>';
-    dl.forEach(function(d){h+=duelRow(V,d);});
-    var wins={};duelList(V).forEach(function(d){if(d.state==='done'&&d.win)wins[d.win]=(wins[d.win]||0)+1;});
-    var rc=duelRecord(V,V.me);
-    h+='<div class="sec"><h3>대결 전적'+(V.me?'<small>나 '+rc.w+'승 '+rc.e+'무 '+rc.l+'패</small>':'')+'</h3>';
-    V.roster.slice().sort(function(a,b){return (wins[b.id]||0)-(wins[a.id]||0);}).slice(0,12).forEach(function(m){h+='<div class="brow">'+av(V.byId[m.id],'s')+'<span>'+esc(V.byId[m.id].name)+'</span><span></span><small>'+(wins[m.id]||0)+'승</small></div>';});
-    h+='</div></section>';
+    h+=duelTab(V,t);
   }else{
     h+=badgeView(V);
   }
   return h+'</div></div>';
-}
-function modalDuel(V){
-  var f=S.duelF,fk=duelKindOf({kind:f.kind}),b='<p class="hint">상대가 수락한 다음 날부터 '+duelLen({days:f.len})+'일 동안, '+esc(fk.desc)+'로 겨룹니다.</p><div class="fld"><h3>상대</h3><div class="chips">';
-  V.roster.forEach(function(m){if(m.id!==V.me)b+=chipBtn('duel-set','b',m.id,V.byId[m.id].name,f.b===m.id);});
-  b+='</div></div><div class="fld"><h3>종류</h3><div class="chips">';
-  DUEL_KINDS.forEach(function(k){b+=chipBtn('duel-set','kind',k.id,k.name,f.kind===k.id);});
-  b+='</div></div><div class="fld"><h3>기간</h3><div class="chips">';
-  DUEL_LENS.forEach(function(n){b+=chipBtn('duel-set','len',String(n),n===1?'하루':n+'일',+f.len===n);});
-  b+='</div></div>';
-  return dlg('wide',{id:'duel',t:'1:1 대결 신청'},b,'<span class="hint">신청하면 상대에게 알림이 갑니다.</span><div class="df"><button class="btn primary" data-act="duel-add"'+(f.b?'':' disabled')+'>신청하기</button></div>');
 }
 function afterPlay(V){
   var t=today();if(t<START||t>END)return;
@@ -6737,7 +6865,7 @@ function modalSettings(V){
   [[22,'밤 10시'],[23,'밤 11시'],[24,'자정'],[25,'다음 날 새벽 1시'],[26,'다음 날 새벽 2시'],[27,'다음 날 새벽 3시'],[28,'다음 날 새벽 4시'],[29,'다음 날 새벽 5시']].forEach(function(o){b+='<option value="'+o[0]+'"'+(V.certHour===o[0]?' selected':'')+'>'+o[1]+'</option>';});
   b+='</select>';
   b+='</div>'+pokeSec()+noticeSec(V)+periodSec(V)+'<div class="sec"><h3>사용법</h3><div class="row"><button class="btn small" data-act="open" data-modal="help">사용법 보기</button></div></div><div class="sec"><h3>키보드 단축키<small>키보드를 연결했을 때</small></h3><ul class="kbd">'+[['1 ~ 8','달력부터 메시지까지 화면 이동'],['N','할 일 추가'],['D','마감 있는 할 일 추가'],['L','달력, 할 일, 시간표 차례로 바꿔 보기'],['T','타이머 켜기, 끄기'],['F','타이머 크게 보기'],['Esc','창 닫기']].map(function(x){return '<li><kbd>'+x[0]+'</kbd><span>'+x[1]+'</span></li>';}).join('')+'</ul></div><div class="sec"><h3>저장 위치</h3><p class="hint">'+esc(S.net?({claude:'Claude 공유 저장소에 연결되어 있습니다. Claude에 로그인한 참여 인원끼리 실시간으로 같이 봅니다.',firebase:'공유 저장소에 연결되어 있습니다. 참여 코드로 들어온 사람 모두가 실시간으로 같이 봅니다.',local:'지금은 이 기기에만 저장됩니다. 다른 사람과 같이 보려면 공유 저장소 연결이 필요합니다.'}[S.net.mode]):'연결 중입니다.')+'</p>'+(S.net&&S.net.mode==='firebase'&&S.remote?'<div class="row" style="margin-top:10px"><button class="btn small" data-act="import-pick">기록 가져오기</button><button class="btn small" data-act="export-data">기록 파일로 저장</button><button class="del" data-act="setup-reset">'+(S.confirm==='disc'?'한 번 더 누르면 이 방에서 나갑니다':'이 기기에서 이 방 나가기')+'</button></div><p class="hint" style="margin-top:8px">'+esc(S.importMsg||'친구와 내 다른 기기는 위의 친구 초대하기로 들어옵니다. 기록 가져오기는 처음 연결한 뒤 한 번만 하면 됩니다.')+'</p>':'')+'</div>';
-  b+='<p class="hint appver">앱 버전 10월 28일 23:43</p>';
+  b+='<p class="hint appver">앱 버전 10월 28일 23:55</p>';
   return dlg('wide',{id:'settings',t:'설정'},b);
 }
 function modalCheck(V){
@@ -6925,7 +7053,7 @@ function openModal(type,el){
   if(type==='event'){S.evd={date:S.date,kind:'수행평가',sid:'',shared:false};S.draft.evNote='';}
   if(type==='post'){S.post={kind:(el&&el.getAttribute('data-kind'))==='ask'?'ask':'quiz',sid:''};}
   if(type==='trim')trimInit(el);
-  if(type==='duel'){S.duelF={b:(el&&el.getAttribute('data-b'))||'',kind:(el&&el.getAttribute('data-kind'))||'score',len:+(el&&el.getAttribute('data-len'))||DUEL_DAYS,stake:'roul'};S.draft.duelStake='';}
+  if(type==='duel'){S.duelF={b:(el&&el.getAttribute('data-b'))||'',kind:(el&&el.getAttribute('data-kind'))||'score',len:+(el&&el.getAttribute('data-len'))||DUEL_DAYS,mode:(el&&el.getAttribute('data-mode'))||'sum',stake:'roul'};S.draft.duelStake='';S.draft.duelNote='';}
   if(type==='wheel'){S.wheel={ids:dayOf(V,V.me,today()).goals.filter(function(g){return !g.done;}).map(function(g){return g.id;}),rot:0,spinning:false,pick:null,spins:0};}
   S.modal={type:type,id:el&&el.getAttribute('data-id')};S.closing=false;S.confirm=null;
   render();
@@ -7246,7 +7374,7 @@ function act(name,el){
     case 'badge-title':editProg(function(p){p.title=p.title===id?'':id;});break;
     case 'duel-set':{
       var dk2=el.getAttribute('data-k'),dv2=el.getAttribute('data-v');if(!S.duelF)break;
-      if(dk2==='b')S.duelF.b=S.duelF.b===dv2?'':dv2;else if(dk2==='kind'){if(DUEL_KINDS.some(function(k){return k.id===dv2;}))S.duelF.kind=dv2;}else if(dk2==='len'){if(DUEL_LENS.indexOf(+dv2)>=0)S.duelF.len=+dv2;}else S.duelF.stake=dv2==='text'?'text':'roul';
+      if(dk2==='b')S.duelF.b=S.duelF.b===dv2?'':dv2;else if(dk2==='kind'){if(DUEL_KINDS.some(function(k){return k.id===dv2;}))S.duelF.kind=dv2;}else if(dk2==='len'){if(DUEL_LENS.indexOf(+dv2)>=0)S.duelF.len=+dv2;}else if(dk2==='mode'){S.duelF.mode=dv2==='rounds'?'rounds':'sum';}else S.duelF.stake=dv2==='text'?'text':'roul';
       break;
     }
     case 'duel-add':{
@@ -7255,14 +7383,15 @@ function act(name,el){
       if(duelList(Vd).some(function(d){return d.state!=='done'&&((d.a===Vd.me&&d.b===F.b)||(d.a===F.b&&d.b===Vd.me));})){flash('이 상대와는 이미 진행 중이거나 대기 중인 대결이 있습니다.');break;}
       if(!need())break;
       var did=rid('d');
-      save('duels/'+did,{a:Vd.me,b:F.b,stake:stx,kind:F.kind||'score',days:duelLen({days:F.len}),status:'pending',at:Date.now()});
-      save('msgs/'+rid('x'),{from:Vd.me,to:F.b,text:'1:1 대결을 신청했습니다('+duelDesc({kind:F.kind,days:F.len})+'). 도전 화면에서 수락해 주세요.',go:'play',duel:did,at:Date.now()});
+      var dnote=String(S.draft.duelNote||'').trim().slice(0,40),dmode=(duelKindOf({kind:F.kind}).rounds||F.mode==='rounds')?'rounds':'sum',dobj={a:Vd.me,b:F.b,stake:stx,kind:F.kind||'score',days:duelLen({days:F.len}),mode:dmode,status:'pending',at:Date.now()};if(dnote)dobj.note=dnote;
+      save('duels/'+did,dobj);S.draft.duelNote='';
+      save('msgs/'+rid('x'),{from:Vd.me,to:F.b,text:'1:1 대결을 신청했습니다('+duelDesc({kind:F.kind,days:F.len,mode:dmode})+')'+(dnote?' “'+dnote+'”':'')+'. 도전 화면에서 수락해 주세요.',go:'play',duel:did,at:Date.now()});
       S.draft.duelStake='';closeModal();return;
     }
     case 'duel-ok':{
       var Vk=view(),dd0=Vk.duels[id];if(!dd0||dd0.b!==Vk.me||dd0.status!=='pending'||!need())break;
       var dn0=clone(dd0);dn0.status='on';dn0.start=addDays(today(),1);save('duels/'+id,dn0);
-      save('msgs/'+rid('x'),{from:Vk.me,to:dd0.a,text:'1:1 대결을 수락했습니다. 내일부터 '+duelLen(dd0)+'일 동안 '+duelKindOf(dd0).name+' 기준으로 겨룹니다.',go:'play',duel:id,at:Date.now()});break;
+      save('msgs/'+rid('x'),{from:Vk.me,to:dd0.a,text:'1:1 대결을 수락했습니다. 내일부터 '+duelDesc(dd0)+' 기준으로 겨룹니다.',go:'play',duel:id,at:Date.now()});break;
     }
     case 'duel-no':{
       var Vx=view(),dx=Vx.duels[id];
@@ -7626,6 +7755,30 @@ function act(name,el){
     }
     case 'trim-go':trimGo();break;
     case 'egg-x':eggClose();break;
+    case 'more-list':{var mk=el.getAttribute('data-k');S.more=S.more||{};S.more[mk]=!S.more[mk];break;}
+    case 'duel-cheer':{
+      var Vc=view(),dc=Vc.duels[id],side=el.getAttribute('data-side');
+      if(!dc||!Vc.me||dc.status==='pending'||dc.a===Vc.me||dc.b===Vc.me||(side!=='a'&&side!=='b')||!need())break;
+      var dcn=clone(dc);dcn.cheer=obj(dcn.cheer);if(dcn.cheer[Vc.me]===side)delete dcn.cheer[Vc.me];else dcn.cheer[Vc.me]=side;
+      if(!Object.keys(dcn.cheer).length)delete dcn.cheer;
+      save('duels/'+id,dcn);break;
+    }
+    case 'duel-taunt':{
+      var Vt=view(),dt=Vt.duels[id],ti=+el.getAttribute('data-i');
+      if(!dt||!Vt.me||(dt.a!==Vt.me&&dt.b!==Vt.me)||!TAUNTS[ti]||!need())break;
+      S.tauntAt=S.tauntAt||{};if(Date.now()-(S.tauntAt[id]||0)<30000){flash('조금 뒤에 다시 보낼 수 있습니다.');break;}
+      S.tauntAt[id]=Date.now();
+      save('msgs/'+rid('x'),{from:Vt.me,to:dt.a===Vt.me?dt.b:dt.a,text:TAUNTS[ti],go:'play',duel:id,at:Date.now()});
+      flash('상대에게 보냈습니다.');break;
+    }
+    case 'duel-brag':{
+      var Vb=view(),db=duelList(Vb).filter(function(x){return x.id===id;})[0];
+      if(!db||db.state!=='done'||db.win!==Vb.me||db.brag||!need())break;
+      var dbn=clone(Vb.duels[id]);dbn.brag=true;save('duels/'+id,dbn);
+      var sb=duelSides(db),lo=Vb.byId[db.win===db.a?db.b:db.a];
+      save('msgs/'+rid('x'),{from:Vb.me,to:'all',text:'1:1 대결에서 '+(lo?lo.name+' 님을 ':'')+'이겼습니다! ('+duelDesc(db)+', '+(duelMode(db)==='rounds'?sb[0]+' : '+sb[1]+' 라운드':duelNum(db,db.pa)+' : '+duelNum(db,db.pb))+')',go:'play',duel:id,at:Date.now()});
+      flash('대화방에 자랑했습니다.');break;
+    }
     case 'notice-x':{var Vnx=view(),nnx=noticeOf(Vnx);if(nnx)lsSet('gbb_notice',String(nnx.at));break;}
     case 'notice-save':{
       var nst=String(S.draft.noticeText||'').trim().slice(0,200),Vns=view();
@@ -7646,7 +7799,7 @@ function act(name,el){
       if(canWrite())flash(Vag.byId[id].name+' 님에게 방장을 넘겼습니다.');
       break;
     }
-    case 'rank-me':{var Vrm=view();if(Vrm.me)S.scrollTo={id:'rk-'+Vrm.me,block:'center'};break;}
+    case 'rank-me':{S.more=S.more||{};S.more['rank'+S.range]=true;var Vrm=view();if(Vrm.me)S.scrollTo={id:'rk-'+Vrm.me,block:'center'};break;}
     case 'fr-all':S.frAll=!S.frAll;break;
     case 'g-quick':{
       var Vgq=view(),qkey='qadd:'+date,qp=quickParse(Vgq,S.draft[qkey]);

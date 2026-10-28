@@ -1,0 +1,18 @@
+/* v51: 더보기 단추와 1:1 대결 */
+.moreb{display:flex;justify-content:center;margin:10px 0 2px}
+.duel .dnote{margin:2px 0 6px;text-align:center;font-style:italic;color:var(--ink-2);font-size:13px}
+.duel .dcoach{margin:8px 0 0;text-align:center;font-size:13px;color:var(--ink-2)}
+.rdchips{display:flex;justify-content:center;flex-wrap:wrap;gap:6px;margin:10px 0 0}
+.rdc{display:grid;place-items:center;width:40px;height:44px;border-radius:12px;background:var(--fill);color:var(--ink-3);font-size:11px;gap:0;align-content:center}
+.rdc b{font-size:14px;color:var(--ink)}
+.rdc.wa{background:var(--accent-soft)}.rdc.wa b{color:var(--accent-ink,var(--accent))}
+.rdc.wb{background:color-mix(in srgb,var(--warm,#E0A458) 28%,var(--surface))}
+.rdc.t b{color:var(--ink-3)}
+.rdc.live{outline:2px solid var(--accent);outline-offset:1px}
+.cheer,.taunts{display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin-top:10px;font-size:12px;color:var(--ink-3)}
+.cheer>b{font-size:12px;color:var(--ink-2)}
+.dwin{margin-top:10px;text-align:center;padding:10px;border-radius:14px;background:var(--fill);display:grid;gap:2px}
+.dwin b{font-size:16px}.dwin small{color:var(--ink-3);font-size:12px}
+.dwin.me{background:linear-gradient(135deg,color-mix(in srgb,#F2D98A 55%,var(--surface)),var(--surface));animation:dwinPop .7s both}
+@keyframes dwinPop{from{transform:scale(.96);opacity:.5}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){.dwin.me{animation:none}}
