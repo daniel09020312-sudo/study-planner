@@ -4,7 +4,11 @@ function isoOk(x){return typeof x==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(x)&&dif
 function periodOf(cfg){
   var p=obj(cfg&&cfg.period);
   var d=PERIOD_DEF,a;
-  if(isoOk(p.s)&&isoOk(p.e)&&p.s<=p.e&&diffDays(p.s,p.e)<PERIOD_MAX_DAYS)d=[p.s,p.e];
+  if(isoOk(p.s)&&isoOk(p.e)&&p.s<=p.e&&diffDays(p.s,p.e)<PERIOD_MAX_DAYS){
+    d=[p.s,p.e];
+    /* 집계 시작일 칸이 생기기 전에 방장이 정한 시작일은 집계 시작일이었다: 점수는 처음(10/12)부터 보이게 한다 */
+    if(!isoOk(p.a)&&p.s>PERIOD_DEF[0]&&diffDays(PERIOD_DEF[0],p.e)<PERIOD_MAX_DAYS){p={s:PERIOD_DEF[0],e:p.e,a:p.s};d=[p.s,p.e];}
+  }
   a=isoOk(p.a)&&p.a>=d[0]&&p.a<=d[1]?p.a:(TALLY_DEF<d[0]?d[0]:TALLY_DEF>d[1]?d[1]:TALLY_DEF);
   return [d[0],d[1],a];
 }
