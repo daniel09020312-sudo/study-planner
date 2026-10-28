@@ -4054,10 +4054,10 @@ function finalOpen(){return today()>END;}
 function weekResults(V){
   if(V._wr)return V._wr;
   var t=today(),out=[];
-  for(var w=TALLY;w<=END&&w<=t;w=addDays(w,7)){
+  for(var w=START;w<=END&&w<=t;w=addDays(w,7)){
     var e=addDays(w,6);if(e>END)e=END;
     var done=t>e,st=standings(V,w,e),rows=[],place=0,prev=null;
-    st.forEach(function(x,i){if(x.total!==prev){place=i+1;prev=x.total;}if(place<=3&&x.total>0&&st.length>1)rows.push({p:x.p,place:place,total:x.total,bonus:done?WEEK_BONUS[place-1]:0});});
+    st.forEach(function(x,i){if(x.total!==prev){place=i+1;prev=x.total;}if(place<=3&&x.total>0&&st.length>1)rows.push({p:x.p,place:place,total:x.total,bonus:done&&w>=TALLY?WEEK_BONUS[place-1]:0});});
     out.push({w:w,e:e,done:done,rows:rows,no:weekNo(w)});
   }
   return V._wr=out;
@@ -4276,7 +4276,7 @@ document.addEventListener('change',function(e){
 
 /* ---------- 처음 화면 ---------- */
 // 앱이 준비되면 알린다. 그림이 아직이면 다 그린 뒤에 열리고, 그림이 먼저 끝났으면 바로 열린다
-var APP_BUILD='1793168962';
+var APP_BUILD='1793170213';
 function splashDone(){
   var sp=document.getElementById('splash'),st=window.__sp;if(!sp||sp.getAttribute('data-out'))return;
   sp.setAttribute('data-out','1');
@@ -5990,7 +5990,7 @@ function viewRank(V){
   if(!any)h+='<p class="empty">이 기간에는 아직 점수가 없습니다.</p>';
   st.forEach(function(x,i){
     var last=i===st.length-1&&st.length>1&&any,done=S.range==='last'||(S.range==='all'&&t>END);
-    h+='<div class="rk'+(x.p.me?' me':'')+'" id="rk-'+esc(x.p.id)+'"><div class="n">'+(i+1)+'</div>'+av(x.p)+'<div><div class="line"><b>'+esc(x.p.name)+'</b>'+(x.p.me?'<span class="tag a">나</span>':'')+titleTag(V,x.p.id)+(S.range==='last'&&i<3&&x.total>0&&st.length>1?'<span class="tag wb">주간 '+(i+1)+'등 +'+WEEK_BONUS[i]+'</span>':'')+'</div>';
+    h+='<div class="rk'+(x.p.me?' me':'')+'" id="rk-'+esc(x.p.id)+'"><div class="n">'+(i+1)+'</div>'+av(x.p)+'<div><div class="line"><b>'+esc(x.p.name)+'</b>'+(x.p.me?'<span class="tag a">나</span>':'')+titleTag(V,x.p.id)+(S.range==='last'&&i<3&&x.total>0&&st.length>1?'<span class="tag wb">주간 '+(i+1)+'등'+(from>=TALLY?' +'+WEEK_BONUS[i]:' (집계 전)')+'</span>':'')+'</div>';
     h+='<div class="bar"><i style="width:'+(max?Math.round(x.total/max*100):0)+'%"></i></div><div class="sub">할 일 '+x.done+'개, '+fmtMins(x.mins)+', 인증 '+x.cert+'일, 출석 '+x.att+'일'+(x.bingo?', 빙고 '+x.bingo+'점':'')+'</div></div><div class="t"><b>'+x.total+'</b><small>점</small></div></div>';
   });
   h+='</section>';
@@ -6640,7 +6640,7 @@ function modalSettings(V){
   [[22,'밤 10시'],[23,'밤 11시'],[24,'자정'],[25,'다음 날 새벽 1시'],[26,'다음 날 새벽 2시'],[27,'다음 날 새벽 3시'],[28,'다음 날 새벽 4시'],[29,'다음 날 새벽 5시']].forEach(function(o){b+='<option value="'+o[0]+'"'+(V.certHour===o[0]?' selected':'')+'>'+o[1]+'</option>';});
   b+='</select>';
   b+='</div>'+pokeSec()+noticeSec(V)+periodSec(V)+'<div class="sec"><h3>사용법</h3><div class="row"><button class="btn small" data-act="open" data-modal="help">사용법 보기</button></div></div><div class="sec"><h3>키보드 단축키<small>키보드를 연결했을 때</small></h3><ul class="kbd">'+[['1 ~ 8','달력부터 메시지까지 화면 이동'],['N','할 일 추가'],['D','마감 있는 할 일 추가'],['L','달력, 할 일, 시간표 차례로 바꿔 보기'],['T','타이머 켜기, 끄기'],['F','타이머 크게 보기'],['Esc','창 닫기']].map(function(x){return '<li><kbd>'+x[0]+'</kbd><span>'+x[1]+'</span></li>';}).join('')+'</ul></div><div class="sec"><h3>저장 위치</h3><p class="hint">'+esc(S.net?({claude:'Claude 공유 저장소에 연결되어 있습니다. Claude에 로그인한 참여 인원끼리 실시간으로 같이 봅니다.',firebase:'공유 저장소에 연결되어 있습니다. 참여 코드로 들어온 사람 모두가 실시간으로 같이 봅니다.',local:'지금은 이 기기에만 저장됩니다. 다른 사람과 같이 보려면 공유 저장소 연결이 필요합니다.'}[S.net.mode]):'연결 중입니다.')+'</p>'+(S.net&&S.net.mode==='firebase'&&S.remote?'<div class="row" style="margin-top:10px"><button class="btn small" data-act="import-pick">기록 가져오기</button><button class="btn small" data-act="export-data">기록 파일로 저장</button><button class="del" data-act="setup-reset">'+(S.confirm==='disc'?'한 번 더 누르면 이 방에서 나갑니다':'이 기기에서 이 방 나가기')+'</button></div><p class="hint" style="margin-top:8px">'+esc(S.importMsg||'친구와 내 다른 기기는 위의 친구 초대하기로 들어옵니다. 기록 가져오기는 처음 연결한 뒤 한 번만 하면 됩니다.')+'</p>':'')+'</div>';
-  b+='<p class="hint appver">앱 버전 10월 28일 15:29</p>';
+  b+='<p class="hint appver">앱 버전 10월 28일 15:50</p>';
   return dlg('wide',{id:'settings',t:'설정'},b);
 }
 function modalCheck(V){
