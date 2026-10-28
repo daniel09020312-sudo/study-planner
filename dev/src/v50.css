@@ -1,0 +1,15 @@
+/* v50: 리포트 과목별 요일 표, 시간대 막대 */
+.rgrid th,.rgrid td{text-align:center;padding:7px 4px;font-size:13px}
+.rgrid th:first-child,.rgrid td:first-child{text-align:left;white-space:nowrap}
+.rgrid .rgc{font-variant-numeric:tabular-nums;color:var(--ink-2);background:color-mix(in srgb,var(--c,transparent) calc(var(--a,0) * 100%),transparent);border-radius:6px}
+.rgd{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;vertical-align:baseline}
+.hrchart{display:flex;align-items:flex-end;gap:3px;height:116px;padding-top:6px}
+.hc{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:flex-end;align-items:stretch;height:100%}
+.hcs{display:flex;flex-direction:column-reverse;border-radius:4px 4px 0 0;overflow:hidden;gap:1px}
+.hcs i{display:block;width:100%}
+.hc small{height:14px;line-height:14px;font-size:10px;color:var(--ink-3);text-align:center}
+.hc.pk small{color:var(--ink);font-weight:700}
+.hbands{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:4px 0 12px}
+.hbands div{background:var(--fill);border-radius:12px;padding:8px 6px;text-align:center;display:grid;gap:2px}
+.hbands small{font-size:11px;color:var(--ink-3)}.hbands b{font-size:14px}.hbands span{font-size:11px;color:var(--ink-3)}
+.rband em{font-style:normal;color:var(--ink-3);font-size:12px}

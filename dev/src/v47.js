@@ -38,7 +38,7 @@ function trimGo(){
   var sid=sel.row.sid,n=sel.n,date=T.date,stop=T.stop;
   if(date!==today()&&dayLocked(V,date)){flash('이 날은 마감이 지나 고칠 수 없습니다.');return;}
   if(stop)stopTimer();
-  editDay(date,function(d){var m=Math.max(0,(+d.mins[sid]||0)-n);if(m)d.mins[sid]=m;else delete d.mins[sid];});
+  editDay(date,function(d){var m=Math.max(0,(+d.mins[sid]||0)-n);if(m)d.mins[sid]=m;else delete d.mins[sid];hhSub(d,sid,n);});
   if(S.modal&&S.modal.type==='trim')closeModal();
   flash(subLabel(V,sid)+'에서 '+fmtMins(n)+'을 뺐습니다.');
 }
