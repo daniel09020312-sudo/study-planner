@@ -11,6 +11,7 @@ DUEL_KINDS.push(
   {id:'rate',name:'할 일 달성률',unit:'%',desc:'하루 할 일 달성률의 평균(할 일이 있는 날만)',f:function(r){return r&&r.n?Math.round(r.done/r.n*100):0;},avg:true},
   {id:'early',name:'아침 출석',unit:'일',desc:'매일 누가 더 일찍 출석하나(이긴 날 수로 승부)',f:function(){return 0;},rounds:true}
 );
+['clear','cert','rate','early'].forEach(function(id){DUEL_KINDS.forEach(function(k){if(k.id===id)k.hide=true;});});
 function duelMode(d){return duelKindOf(d).rounds?'rounds':(d&&d.mode==='rounds'?'rounds':'sum');}
 function duelDesc(d){return duelKindOf(d).name+' · '+duelLen(d)+'일 · '+(duelMode(d)==='rounds'?'하루씩 승부':'합계');}
 /* 하루 값: 없으면 null(그날은 세지 않음) */
@@ -121,7 +122,7 @@ function modalDuel(V){
   b+='</div></div><div class="fld"><h3>도전장 한마디<small> 선택</small></h3><input type="text" data-draft="duelNote" maxlength="40" placeholder="예: 이번엔 내가 이긴다" aria-label="도전장 한마디"></div>';
   return dlg('wide',{id:'duel',t:'1:1 대결 신청'},b,'<span class="hint">신청하면 상대에게 알림이 갑니다.</span><div class="df"><button class="btn primary" data-act="duel-add"'+(f.b?'':' disabled')+'>도전장 보내기</button></div>');
 }
-function duelTab(V,t){
+function duelMain(V,t){
   var h='<section class="card" id="c-duels" style="--k:0"><div class="ct"><h2>1:1 대결</h2><button class="btn small primary" data-act="open" data-modal="duel"'+(V.roster.length<2?' disabled':'')+'>대결 신청</button></div>';
   var all=duelList(V),live=all.filter(function(d){return d.state!=='done';}),done=all.filter(function(d){return d.state==='done'&&diffDays(d.end,t)<=14;}),list=live.concat(done);
   if(!list.length)h+='<p class="empty">아직 대결이 없습니다. 한 명을 골라 점수, 공부 시간, 할 일 달성률 같은 걸로 겨뤄 보세요. 하루씩 승부하는 라운드제도 있고, 구경하는 사람은 응원할 수 있습니다.</p>';
@@ -138,4 +139,51 @@ function duelTab(V,t){
   moreCut('duelrec',rk).forEach(function(m){h+='<div class="brow">'+av(V.byId[m.id],'s')+'<span>'+esc(V.byId[m.id].name)+'</span><span></span><small>'+(wins[m.id]||0)+'승</small></div>';});
   h+=moreBtn('duelrec',rk.length)+'</div></section>';
   return h;
+}
+
+/* ---------- v53: 대결 화면 오른쪽 칸: 비슷한 라이벌, 지금 가장 팽팽한 대결, 명예의 전당 ---------- */
+function duelRivals(V,t){
+  if(!V.me)return '';
+  var mon=mondayOf(t),st=standings(V,mon,addDays(mon,6)),mine=0,busy={};
+  st.forEach(function(x){if(x.p.id===V.me)mine=x.total;});
+  duelList(V).forEach(function(d){if(d.state!=='done'&&(d.a===V.me||d.b===V.me))busy[d.a===V.me?d.b:d.a]=1;});
+  var c=st.filter(function(x){return x.p.id!==V.me&&!busy[x.p.id];}).map(function(x){return {x:x,df:Math.abs(x.total-mine)};}).sort(function(a,b){return a.df-b.df||b.x.total-a.x.total;}).slice(0,4);
+  var h='<section class="card" id="c-duelriv" style="--k:1"><div class="ct"><h2>비슷한 라이벌<small>이번 주 점수 기준</small></h2></div>';
+  if(!c.length)h+='<p class="empty">지금 붙을 수 있는 상대가 없습니다. 이미 모두와 대결 중이거나 방에 다른 사람이 없습니다.</p>';
+  c.forEach(function(r){
+    var d=r.x.total-mine;
+    h+='<div class="brow rival">'+av(r.x.p,'s')+'<span>'+esc(r.x.p.name)+'<small class="rvs">이번 주 '+r.x.total+'점 · 나보다 '+(d>0?'+'+d:d<0?String(d):'같음')+'</small></span><span></span><button class="btn small" data-act="open" data-modal="duel" data-b="'+esc(r.x.p.id)+'">도전</button></div>';
+  });
+  return h+'<p class="hint" style="margin-top:8px">점수가 가까운 사람이 붙으면 끝까지 알 수 없습니다.</p></section>';
+}
+function duelBig(V){
+  var live=duelList(V).filter(function(d){return d.state==='on';}).map(function(d){var s=duelSides(d),mx=Math.max(1,s[0],s[1]);return {d:d,s:s,r:Math.abs(s[0]-s[1])/mx};}).sort(function(a,b){return a.r-b.r;}).slice(0,3);
+  var h='<section class="card" id="c-duelbig" style="--k:2"><div class="ct"><h2>지금 가장 팽팽한 대결</h2></div>';
+  if(!live.length)h+='<p class="empty">진행 중인 대결이 없습니다. 하나 시작해 보세요.</p>';
+  live.forEach(function(x){
+    var d=x.d,A=V.byId[d.a],B=V.byId[d.b],rounds=duelMode(d)==='rounds',ch=obj(d.cheer),na=0,nb=0;
+    Object.keys(ch).forEach(function(m){if(ch[m]==='a')na++;else if(ch[m]==='b')nb++;});
+    h+='<div class="bigm"><div class="vs"><span><b>'+esc(A.name)+'</b></span><em>'+esc(duelDesc(d))+'</em><span class="r"><b>'+esc(B.name)+'</b></span></div>';
+    h+='<div class="vs"><span class="p">'+(rounds?x.s[0]:esc(duelNum(d,d.pa)))+'</span><em>'+(rounds?'라운드':esc(duelKindOf(d).name))+'</em><span class="p r">'+(rounds?x.s[1]:esc(duelNum(d,d.pb)))+'</span></div>';
+    h+='<div class="vbar" aria-hidden="true"><i style="flex-grow:'+(x.s[0]+x.s[1]?x.s[0]:1)+'"></i><i style="flex-grow:'+(x.s[0]+x.s[1]?x.s[1]:1)+'"></i></div>';
+    h+='<p class="duk">응원 '+esc(A.name)+' '+na+' : '+nb+' '+esc(B.name)+'</p></div>';
+  });
+  return h+'</section>';
+}
+function duelHall(V){
+  var done=duelList(V).filter(function(d){return d.state==='done';}),wins={},run={},best={},bigw=null;
+  done.slice().sort(function(a,b){return a.end<b.end?-1:1;}).forEach(function(d){
+    [d.a,d.b].forEach(function(m){if(d.win===m){run[m]=(run[m]||0)+1;if(run[m]>(best[m]||0))best[m]=run[m];}else run[m]=0;});
+    if(d.win){wins[d.win]=(wins[d.win]||0)+1;var s=duelSides(d),mx=Math.max(1,s[0],s[1]),r=Math.abs(s[0]-s[1])/mx;if(s[0]!==s[1]&&(!bigw||r>bigw.r))bigw={d:d,r:r};}
+  });
+  var top=function(o){return Object.keys(o).filter(function(k){return o[k]>0&&V.byId[k];}).sort(function(a,b){return o[b]-o[a];}).slice(0,3);};
+  var h='<section class="card" id="c-duelhall" style="--k:3"><div class="ct"><h2>명예의 전당</h2></div>';
+  if(!done.length)return h+'<p class="empty">끝난 대결이 쌓이면 최다 승, 최장 연승, 가장 크게 이긴 대결이 여기 올라갑니다.</p></section>';
+  var row=function(lab,ids,o,u){var r='<div class="sec"><h3>'+lab+'</h3>';ids.forEach(function(k,i){r+='<div class="brow"><span class="n">'+(i+1)+'</span>'+av(V.byId[k],'s')+'<span>'+esc(V.byId[k].name)+'</span><span></span><small>'+o[k]+u+'</small></div>';});return r+'</div>';};
+  h+=row('최다 승',top(wins),wins,'승')+row('최장 연승',top(best),best,'연승');
+  if(bigw){var d=bigw.d,s=duelSides(d),w=V.byId[d.win],l=V.byId[d.win===d.a?d.b:d.a];h+='<div class="sec"><h3>가장 크게 이긴 대결</h3><p class="hint"><b>'+esc(w.name)+'</b> 님이 <b>'+esc(l.name)+'</b> 님을 '+esc(duelDesc(d))+'에서 '+(duelMode(d)==='rounds'?s[0]+' : '+s[1]+' 라운드':esc(duelNum(d,d.pa))+' : '+esc(duelNum(d,d.pb)))+'로 이겼습니다.</p></div>';}
+  return h+'</section>';
+}
+function duelTab(V,t){
+  return '<div class="cols duelcols"><div class="stack">'+duelMain(V,t)+'</div><div class="stack">'+duelRivals(V,t)+duelBig(V)+duelHall(V)+'</div></div>';
 }

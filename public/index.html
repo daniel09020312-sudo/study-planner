@@ -1938,6 +1938,10 @@ img.sa{background-repeat:no-repeat;background-position:0 0;aspect-ratio:1/1}
 .dwin.me{background:linear-gradient(135deg,color-mix(in srgb,#F2D98A 55%,var(--surface)),var(--surface));animation:dwinPop .7s both}
 @keyframes dwinPop{from{transform:scale(.96);opacity:.5}to{transform:none;opacity:1}}
 @media (prefers-reduced-motion:reduce){.dwin.me{animation:none}}
+
+.rival small.rvs{display:block;font-size:12px;color:var(--ink-3)}
+.bigm{padding:10px 0;border-top:1px solid var(--line)}.bigm:first-of-type{border-top:0}
+.duelcols .stack>.card + .card{margin-top:0}
 #c-setup .row input{min-width:0}
 #c-setup .lb{margin-top:0}
 .serr{color:var(--red);margin-top:8px}
@@ -2533,7 +2537,7 @@ function buildScores0(V){
   V.roster.forEach(function(m){
     var streak=0,rs=obj(obj(V.progress[m.id]).reset),rd=String(rs.date||''),off=Math.max(0,+rs.off||0);sc[m.id]={};
     for(var d=START;d<=last;d=addDays(d,1)){
-      var x=obj(V.days[m.id+'_'+d]),g=arr(x.goals),done=g.filter(isDone).length,tm=sumMins(x.mins),mm=sumMins(x.manual),hk=Object.keys(helps[m.id+'_'+d]||{}).length;
+      var x=obj(V.days[m.id+'_'+d]),g=arr(x.goals).filter(function(q){return !(q&&q.mv);}),done=g.filter(isDone).length,tm=sumMins(x.mins),mm=sumMins(x.manual),hk=Object.keys(helps[m.id+'_'+d]||{}).length;
       streak=x.in?streak+1:0;
       var r={streak:streak,att:x.in?attReward(streak,d):0,goal:d<NEWRULE?RULE.goal*Math.min(RULE.goalMax,done):0,clear:d<NEWRULE?((g.length>=3&&done===g.length)?RULE.clear:0):((g.length>=3&&done===g.length&&x.certAt)?(isLate(V,d,x.certAt)?RULE.allLate:RULE.allCert):0),
         time:Math.min(RULE.timeMax,Math.floor((tm+Math.min(mm,RULE.manualMax))/30)*RULE.per30),cert:x.certAt?(isLate(V,d,x.certAt)?RULE.certLate:RULE.certOn):0,
@@ -4311,7 +4315,7 @@ document.addEventListener('change',function(e){
 
 /* ---------- 처음 화면 ---------- */
 // 앱이 준비되면 알린다. 그림이 아직이면 다 그린 뒤에 열리고, 그림이 먼저 끝났으면 바로 열린다
-var APP_BUILD='1793226123';
+var APP_BUILD='1793226650';
 function splashDone(){
   var sp=document.getElementById('splash'),st=window.__sp;if(!sp||sp.getAttribute('data-out'))return;
   sp.setAttribute('data-out','1');
@@ -5278,6 +5282,7 @@ DUEL_KINDS.push(
   {id:'rate',name:'할 일 달성률',unit:'%',desc:'하루 할 일 달성률의 평균(할 일이 있는 날만)',f:function(r){return r&&r.n?Math.round(r.done/r.n*100):0;},avg:true},
   {id:'early',name:'아침 출석',unit:'일',desc:'매일 누가 더 일찍 출석하나(이긴 날 수로 승부)',f:function(){return 0;},rounds:true}
 );
+['clear','cert','rate','early'].forEach(function(id){DUEL_KINDS.forEach(function(k){if(k.id===id)k.hide=true;});});
 function duelMode(d){return duelKindOf(d).rounds?'rounds':(d&&d.mode==='rounds'?'rounds':'sum');}
 function duelDesc(d){return duelKindOf(d).name+' · '+duelLen(d)+'일 · '+(duelMode(d)==='rounds'?'하루씩 승부':'합계');}
 /* 하루 값: 없으면 null(그날은 세지 않음) */
@@ -5382,16 +5387,16 @@ function modalDuel(V){
   var show=moreCut('duelopp',others);if(f.b&&show.indexOf(V.byId[f.b])<0&&show.filter(function(m){return m.id===f.b;}).length===0)show=show.concat(others.filter(function(m){return m.id===f.b;}));
   show.forEach(function(m){b+=chipBtn('duel-set','b',m.id,V.byId[m.id].name,f.b===m.id);});
   b+='</div>'+moreBtn('duelopp',others.length)+'</div><div class="fld"><h3>종류</h3><div class="chips">';
-  DUEL_KINDS.forEach(function(k){b+=chipBtn('duel-set','kind',k.id,k.name,f.kind===k.id);});
+  DUEL_KINDS.filter(function(k){return !k.hide;}).forEach(function(k){b+=chipBtn('duel-set','kind',k.id,k.name,f.kind===k.id);});
   b+='</div></div><div class="fld"><h3>방식</h3><div class="chips">'+chipBtn('duel-set','mode','sum','합계로 겨루기',!rounds)+chipBtn('duel-set','mode','rounds','하루씩 승부(라운드제)',rounds)+'</div>'+(fk.rounds?'<p class="hint">이 종류는 항상 하루씩 승부합니다.</p>':'')+'</div><div class="fld"><h3>기간</h3><div class="chips">';
   DUEL_LENS.forEach(function(n){b+=chipBtn('duel-set','len',String(n),n===1?'하루':n+'일',+f.len===n);});
   b+='</div></div><div class="fld"><h3>도전장 한마디<small> 선택</small></h3><input type="text" data-draft="duelNote" maxlength="40" placeholder="예: 이번엔 내가 이긴다" aria-label="도전장 한마디"></div>';
   return dlg('wide',{id:'duel',t:'1:1 대결 신청'},b,'<span class="hint">신청하면 상대에게 알림이 갑니다.</span><div class="df"><button class="btn primary" data-act="duel-add"'+(f.b?'':' disabled')+'>도전장 보내기</button></div>');
 }
-function duelTab(V,t){
+function duelMain(V,t){
   var h='<section class="card" id="c-duels" style="--k:0"><div class="ct"><h2>1:1 대결</h2><button class="btn small primary" data-act="open" data-modal="duel"'+(V.roster.length<2?' disabled':'')+'>대결 신청</button></div>';
   var all=duelList(V),live=all.filter(function(d){return d.state!=='done';}),done=all.filter(function(d){return d.state==='done'&&diffDays(d.end,t)<=14;}),list=live.concat(done);
-  if(!list.length)h+='<p class="empty">아직 대결이 없습니다. 한 명을 골라 점수, 공부 시간, 할 일 달성률 같은 걸로 겨뤄 보세요. 하루씩 승부하는 라운드제도 있고, 구경하는 사람은 응원할 수 있습니다.</p>';
+  if(!list.length)h+='<p class="empty">아직 대결이 없습니다. 한 명을 골라 점수, 공부 시간, 끝낸 할 일 중 하나로 겨뤄 보세요. 하루씩 승부하는 라운드제도 있고, 구경하는 사람은 응원할 수 있습니다.</p>';
   moreCut('duels',list).forEach(function(d){h+=duelRow(V,d);});
   h+=moreBtn('duels',list.length,10,'개');
   var wins={};all.forEach(function(d){if(d.state==='done'&&d.win)wins[d.win]=(wins[d.win]||0)+1;});
@@ -5405,6 +5410,53 @@ function duelTab(V,t){
   moreCut('duelrec',rk).forEach(function(m){h+='<div class="brow">'+av(V.byId[m.id],'s')+'<span>'+esc(V.byId[m.id].name)+'</span><span></span><small>'+(wins[m.id]||0)+'승</small></div>';});
   h+=moreBtn('duelrec',rk.length)+'</div></section>';
   return h;
+}
+
+/* ---------- v53: 대결 화면 오른쪽 칸: 비슷한 라이벌, 지금 가장 팽팽한 대결, 명예의 전당 ---------- */
+function duelRivals(V,t){
+  if(!V.me)return '';
+  var mon=mondayOf(t),st=standings(V,mon,addDays(mon,6)),mine=0,busy={};
+  st.forEach(function(x){if(x.p.id===V.me)mine=x.total;});
+  duelList(V).forEach(function(d){if(d.state!=='done'&&(d.a===V.me||d.b===V.me))busy[d.a===V.me?d.b:d.a]=1;});
+  var c=st.filter(function(x){return x.p.id!==V.me&&!busy[x.p.id];}).map(function(x){return {x:x,df:Math.abs(x.total-mine)};}).sort(function(a,b){return a.df-b.df||b.x.total-a.x.total;}).slice(0,4);
+  var h='<section class="card" id="c-duelriv" style="--k:1"><div class="ct"><h2>비슷한 라이벌<small>이번 주 점수 기준</small></h2></div>';
+  if(!c.length)h+='<p class="empty">지금 붙을 수 있는 상대가 없습니다. 이미 모두와 대결 중이거나 방에 다른 사람이 없습니다.</p>';
+  c.forEach(function(r){
+    var d=r.x.total-mine;
+    h+='<div class="brow rival">'+av(r.x.p,'s')+'<span>'+esc(r.x.p.name)+'<small class="rvs">이번 주 '+r.x.total+'점 · 나보다 '+(d>0?'+'+d:d<0?String(d):'같음')+'</small></span><span></span><button class="btn small" data-act="open" data-modal="duel" data-b="'+esc(r.x.p.id)+'">도전</button></div>';
+  });
+  return h+'<p class="hint" style="margin-top:8px">점수가 가까운 사람이 붙으면 끝까지 알 수 없습니다.</p></section>';
+}
+function duelBig(V){
+  var live=duelList(V).filter(function(d){return d.state==='on';}).map(function(d){var s=duelSides(d),mx=Math.max(1,s[0],s[1]);return {d:d,s:s,r:Math.abs(s[0]-s[1])/mx};}).sort(function(a,b){return a.r-b.r;}).slice(0,3);
+  var h='<section class="card" id="c-duelbig" style="--k:2"><div class="ct"><h2>지금 가장 팽팽한 대결</h2></div>';
+  if(!live.length)h+='<p class="empty">진행 중인 대결이 없습니다. 하나 시작해 보세요.</p>';
+  live.forEach(function(x){
+    var d=x.d,A=V.byId[d.a],B=V.byId[d.b],rounds=duelMode(d)==='rounds',ch=obj(d.cheer),na=0,nb=0;
+    Object.keys(ch).forEach(function(m){if(ch[m]==='a')na++;else if(ch[m]==='b')nb++;});
+    h+='<div class="bigm"><div class="vs"><span><b>'+esc(A.name)+'</b></span><em>'+esc(duelDesc(d))+'</em><span class="r"><b>'+esc(B.name)+'</b></span></div>';
+    h+='<div class="vs"><span class="p">'+(rounds?x.s[0]:esc(duelNum(d,d.pa)))+'</span><em>'+(rounds?'라운드':esc(duelKindOf(d).name))+'</em><span class="p r">'+(rounds?x.s[1]:esc(duelNum(d,d.pb)))+'</span></div>';
+    h+='<div class="vbar" aria-hidden="true"><i style="flex-grow:'+(x.s[0]+x.s[1]?x.s[0]:1)+'"></i><i style="flex-grow:'+(x.s[0]+x.s[1]?x.s[1]:1)+'"></i></div>';
+    h+='<p class="duk">응원 '+esc(A.name)+' '+na+' : '+nb+' '+esc(B.name)+'</p></div>';
+  });
+  return h+'</section>';
+}
+function duelHall(V){
+  var done=duelList(V).filter(function(d){return d.state==='done';}),wins={},run={},best={},bigw=null;
+  done.slice().sort(function(a,b){return a.end<b.end?-1:1;}).forEach(function(d){
+    [d.a,d.b].forEach(function(m){if(d.win===m){run[m]=(run[m]||0)+1;if(run[m]>(best[m]||0))best[m]=run[m];}else run[m]=0;});
+    if(d.win){wins[d.win]=(wins[d.win]||0)+1;var s=duelSides(d),mx=Math.max(1,s[0],s[1]),r=Math.abs(s[0]-s[1])/mx;if(s[0]!==s[1]&&(!bigw||r>bigw.r))bigw={d:d,r:r};}
+  });
+  var top=function(o){return Object.keys(o).filter(function(k){return o[k]>0&&V.byId[k];}).sort(function(a,b){return o[b]-o[a];}).slice(0,3);};
+  var h='<section class="card" id="c-duelhall" style="--k:3"><div class="ct"><h2>명예의 전당</h2></div>';
+  if(!done.length)return h+'<p class="empty">끝난 대결이 쌓이면 최다 승, 최장 연승, 가장 크게 이긴 대결이 여기 올라갑니다.</p></section>';
+  var row=function(lab,ids,o,u){var r='<div class="sec"><h3>'+lab+'</h3>';ids.forEach(function(k,i){r+='<div class="brow"><span class="n">'+(i+1)+'</span>'+av(V.byId[k],'s')+'<span>'+esc(V.byId[k].name)+'</span><span></span><small>'+o[k]+u+'</small></div>';});return r+'</div>';};
+  h+=row('최다 승',top(wins),wins,'승')+row('최장 연승',top(best),best,'연승');
+  if(bigw){var d=bigw.d,s=duelSides(d),w=V.byId[d.win],l=V.byId[d.win===d.a?d.b:d.a];h+='<div class="sec"><h3>가장 크게 이긴 대결</h3><p class="hint"><b>'+esc(w.name)+'</b> 님이 <b>'+esc(l.name)+'</b> 님을 '+esc(duelDesc(d))+'에서 '+(duelMode(d)==='rounds'?s[0]+' : '+s[1]+' 라운드':esc(duelNum(d,d.pa))+' : '+esc(duelNum(d,d.pb)))+'로 이겼습니다.</p></div>';}
+  return h+'</section>';
+}
+function duelTab(V,t){
+  return '<div class="cols duelcols"><div class="stack">'+duelMain(V,t)+'</div><div class="stack">'+duelRivals(V,t)+duelBig(V)+duelHall(V)+'</div></div>';
 }
 
 /* ---------- 방: 참여 코드, 새 방, 방 바꾸기 (웹 판) ---------- */
@@ -6328,7 +6380,7 @@ function weekStats(V,from){
   V.roster.forEach(function(m){
     var o={p:V.byId[m.id],mins:0,daily:[],subj:{},done:0,n:0,pts:0,att:0,cert:0,dpts:[],ddone:[],dn:[],dcert:[]};
     days.forEach(function(d){
-      var x=dayOf(V,m.id,d),tm=0,k,g=x.goals,dn=g.filter(isDone).length,r=V.sc[m.id]&&V.sc[m.id][d];
+      var x=dayOf(V,m.id,d),tm=0,k,g=x.goals.filter(function(q){return !(q&&q.mv);}),dn=g.filter(isDone).length,r=V.sc[m.id]&&V.sc[m.id][d];
       for(k in x.mins){var a=+x.mins[k]||0;tm+=a;if(a)o.subj[k]=(o.subj[k]||0)+a;}
       for(k in x.manual){var b=+x.manual[k]||0;tm+=b;if(b)o.subj[k]=(o.subj[k]||0)+b;}
       o.daily.push(tm);o.mins+=tm;o.done+=dn;o.n+=g.length;o.ddone.push(dn);o.dn.push(g.length);
@@ -6653,7 +6705,7 @@ function memberStats(V,mid){
   var t=today(),last=t<END?t:END,rows=V.sc[mid]||{},skip=obj(obj(V.progress[mid]).skip),subj={},k;
   var s={maxStreak:0,mins:0,clear:0,clrCert:0,dayWins:0,weekWins:0,posts:0,helps:0,lines:0,duelWins:0,early:0,win:0,d6:0,d8:0,d10:0,d12:0,perfect:0,lapses:0,balMin:0};
   var cs0=0;for(var d=TALLY;d<=last;d=addDays(d,1)){
-    var x=dayOf(V,mid,d),r=rows[d],g=x.goals,dm=sumMins(x.mins)+sumMins(x.manual),all=g.length>=3&&g.filter(isDone).length===g.length;
+    var x=dayOf(V,mid,d),r=rows[d],g=x.goals.filter(function(q){return !(q&&q.mv);}),dm=sumMins(x.mins)+sumMins(x.manual),all=g.length>=3&&g.filter(isDone).length===g.length;
     s.mins+=dm;for(k in x.mins)subj[k]=(subj[k]||0)+(+x.mins[k]||0);for(k in x.manual)subj[k]=(subj[k]||0)+(+x.manual[k]||0);
     if(all)s.clear++;if(all&&x.certAt)s.clrCert++;
     if(dm>=360)s.d6++;if(dm>=480)s.d8++;if(dm>=600)s.d10++;if(dm>=720)s.d12++;
@@ -6666,7 +6718,7 @@ function memberStats(V,mid){
     var we=addDays(w,6);
     if(we<t){
       var st=standings(V,w,we);if(st.length>1&&st[0].total>0&&st[0].p.id===mid)s.weekWins++;
-      if(we<=END){var ok=true;for(var dd=w;dd<=we;dd=addDays(dd,1)){var y=dayOf(V,mid,dd),gg=y.goals;if(!(y.in&&y.certAt&&!isLate(V,dd,y.certAt)&&gg.length>=3&&gg.filter(isDone).length===gg.length)){ok=false;break;}}if(ok)s.perfect++;}
+      if(we<=END){var ok=true;for(var dd=w;dd<=we;dd=addDays(dd,1)){var y=dayOf(V,mid,dd),gg=y.goals.filter(function(q){return !(q&&q.mv);});if(!(y.in&&y.certAt&&!isLate(V,dd,y.certAt)&&gg.length>=3&&gg.filter(isDone).length===gg.length)){ok=false;break;}}if(ok)s.perfect++;}
     }
   }
   s.posts=V.posts.filter(function(q){return q.mid===mid&&q.kind!=='ask'&&q.kind!=='lapse';}).length;
@@ -6691,7 +6743,7 @@ var PLAYTABS=[['bingo','스터디 빙고'],['duel','1:1 대결'],['badge','배�
 function viewPlay(V){
   var t=today(),mon=mondayOf(t)<START?START:mondayOf(t),pt=PLAYTABS.some(function(x){return x[0]===S.playTab;})?S.playTab:'bingo';
   var pend=duelList(V).filter(function(d){return d.state==='pending'&&d.b===V.me;}).length;
-  var h='<div class="view" id="view-play"><header class="vhead"><div><h1>도전</h1><p>'+({bingo:'매주 월요일에 바뀌는 빙고 판입니다. 기록으로 자동 계산됩니다.',duel:'한 명을 골라 점수, 공부 시간 같은 걸로 겨룹니다. 하루씩 승부하는 라운드제, 구경하는 사람의 응원, 도전장 한마디도 있습니다.',badge:'기록이 쌓이면 배지를 받습니다. 등급이 높을수록 어렵고, 받은 배지는 최종 점수에 더해집니다.'}[pt])+'</p></div>';
+  var h='<div class="view" id="view-play"><header class="vhead"><div><h1>도전</h1><p>'+({bingo:'매주 월요일에 바뀌는 빙고 판입니다. 기록으로 자동 계산됩니다.',duel:'한 명을 골라 점수, 공부 시간, 끝낸 할 일로 겨룹니다. 하루씩 승부하는 라운드제, 구경하는 사람의 응원, 도전장 한마디도 있습니다.',badge:'기록이 쌓이면 배지를 받습니다. 등급이 높을수록 어렵고, 받은 배지는 최종 점수에 더해집니다.'}[pt])+'</p></div>';
   h+='<div class="seg" role="group" aria-label="도전 종류">'+PLAYTABS.map(function(x){return '<button data-act="play-tab" data-id="'+x[0]+'" aria-pressed="'+(pt===x[0]?'true':'false')+'">'+x[1]+(x[0]==='duel'&&pend?'<b class="sbadge">'+pend+'</b>':'')+'</button>';}).join('')+'</div></header><div class="pwrap" id="pw-'+pt+'">';
   if(pt==='bingo'){
     var B=bingo(V,mon),me=B.per[V.me];
@@ -6877,7 +6929,7 @@ function modalSettings(V){
   [[22,'밤 10시'],[23,'밤 11시'],[24,'자정'],[25,'다음 날 새벽 1시'],[26,'다음 날 새벽 2시'],[27,'다음 날 새벽 3시'],[28,'다음 날 새벽 4시'],[29,'다음 날 새벽 5시']].forEach(function(o){b+='<option value="'+o[0]+'"'+(V.certHour===o[0]?' selected':'')+'>'+o[1]+'</option>';});
   b+='</select>';
   b+='</div>'+pokeSec()+noticeSec(V)+periodSec(V)+'<div class="sec"><h3>사용법</h3><div class="row"><button class="btn small" data-act="open" data-modal="help">사용법 보기</button></div></div><div class="sec"><h3>키보드 단축키<small>키보드를 연결했을 때</small></h3><ul class="kbd">'+[['1 ~ 8','달력부터 메시지까지 화면 이동'],['N','할 일 추가'],['D','마감 있는 할 일 추가'],['L','달력, 할 일, 시간표 차례로 바꿔 보기'],['T','타이머 켜기, 끄기'],['F','타이머 크게 보기'],['Esc','창 닫기']].map(function(x){return '<li><kbd>'+x[0]+'</kbd><span>'+x[1]+'</span></li>';}).join('')+'</ul></div><div class="sec"><h3>저장 위치</h3><p class="hint">'+esc(S.net?({claude:'Claude 공유 저장소에 연결되어 있습니다. Claude에 로그인한 참여 인원끼리 실시간으로 같이 봅니다.',firebase:'공유 저장소에 연결되어 있습니다. 참여 코드로 들어온 사람 모두가 실시간으로 같이 봅니다.',local:'지금은 이 기기에만 저장됩니다. 다른 사람과 같이 보려면 공유 저장소 연결이 필요합니다.'}[S.net.mode]):'연결 중입니다.')+'</p>'+(S.net&&S.net.mode==='firebase'&&S.remote?'<div class="row" style="margin-top:10px"><button class="btn small" data-act="import-pick">기록 가져오기</button><button class="btn small" data-act="export-data">기록 파일로 저장</button><button class="del" data-act="setup-reset">'+(S.confirm==='disc'?'한 번 더 누르면 이 방에서 나갑니다':'이 기기에서 이 방 나가기')+'</button></div><p class="hint" style="margin-top:8px">'+esc(S.importMsg||'친구와 내 다른 기기는 위의 친구 초대하기로 들어옵니다. 기록 가져오기는 처음 연결한 뒤 한 번만 하면 됩니다.')+'</p>':'')+'</div>';
-  b+='<p class="hint appver">앱 버전 10월 29일 07:22</p>';
+  b+='<p class="hint appver">앱 버전 10월 29일 07:30</p>';
   return dlg('wide',{id:'settings',t:'설정'},b);
 }
 function modalCheck(V){

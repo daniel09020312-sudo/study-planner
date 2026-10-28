@@ -16,3 +16,7 @@
 .dwin.me{background:linear-gradient(135deg,color-mix(in srgb,#F2D98A 55%,var(--surface)),var(--surface));animation:dwinPop .7s both}
 @keyframes dwinPop{from{transform:scale(.96);opacity:.5}to{transform:none;opacity:1}}
 @media (prefers-reduced-motion:reduce){.dwin.me{animation:none}}
+
+.rival small.rvs{display:block;font-size:12px;color:var(--ink-3)}
+.bigm{padding:10px 0;border-top:1px solid var(--line)}.bigm:first-of-type{border-top:0}
+.duelcols .stack>.card + .card{margin-top:0}
