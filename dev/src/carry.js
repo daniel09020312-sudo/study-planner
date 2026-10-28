@@ -14,7 +14,9 @@ function crRooms(){var cur=S.remote;return roomsList().filter(function(x){return
 function crObj(x){if(Array.isArray(x)){var o={};x.forEach(function(v,i){if(v!=null)o[i]=v;});return o;}return obj(x);}
 function crLoad(e){
   var me=crMeOf(e.room);
-  S.cr={step:'load',src:e,me:me,err:'',opt:S.cr&&S.cr.opt||{ev:true,goal:true,tt:true,prog:true,sub:true,rec:false}};render();
+  S.cr={step:'load',src:e,me:me,err:'',opt:S.cr&&S.cr.opt||{ev:true,goal:true,tt:true,prog:true,sub:true,rec:false}};
+  if(S.cr.opt.sch===undefined){var vv=view();S.cr.opt.sch=!schOf(vv,vv.me).has;}
+  render();
   var base=e.room+'/d/',t=today();
   function get(p){return fbRaw(e.url,base+p).catch(function(){return null;});}
   var k0=me+'_',k1=me+'_9999';
@@ -31,7 +33,7 @@ function crLoad(e){
 }
 /* 무엇을 어떻게 쓸지 정한다(미리 보기 숫자와 실제 쓰기가 같은 계산) */
 function crPlan(V,D,opt){
-  var me=V.me,t=today(),W={},n={ev:0,evDup:0,goal:0,goalDup:0,plan:0,blk:0,sch:false,schHad:false,unit:0,chk:0,misc:0,newSubs:[],recDays:0,recMins:0,recGoal:0};
+  var me=V.me,t=today(),W={},n={ev:0,evDup:0,goal:0,goalDup:0,plan:0,blk:0,sch:false,schHad:false,schSrc:false,blkSrc:0,unit:0,chk:0,misc:0,newSubs:[],recDays:0,recMins:0,recGoal:0};
   var srcSkip=obj(D.prog.skip),byName={},maxOrd=0;
   V.subs.forEach(function(s){byName[s.name.trim()]=s;maxOrd=Math.max(maxOrd,s.order);});
   // 과목 맞추기: 이름이 같은 과목, 없으면(내가 듣던 과목이면) 새로 만든다
@@ -82,9 +84,12 @@ function crPlan(V,D,opt){
   }
   // 내 설정(progress): 시간표, 과목 설정
   var P0=obj(V.progress[me]),P=clone(P0),sp=D.prog,pch=false;
-  if(opt.tt&&sp.tt){
+  if(sp.tt){
+    var st=obj(sp.tt);n.schSrc=!!st.sch;n.blkSrc=arr(st.b).filter(function(b){return b&&b.id;}).length;
+  }
+  if((opt.tt||opt.sch)&&sp.tt){
     var st=obj(sp.tt),tt=P.tt=obj(clone(P.tt||{})),bl=arr(tt.b).slice(),bmap={};
-    arr(st.b).forEach(function(b){
+    if(opt.tt)arr(st.b).forEach(function(b){
       if(!b||!b.id)return;
       var ss=fxSids(b).map(ms).filter(Boolean),y=clone(b);y.sid=ss[0]||'';if(ss.length>1)y.sids=ss.join(',');else delete y.sids;
       var dup=bl.filter(function(x){return x&&x.k===y.k&&String(x.t||'')===String(y.t||'')&&x.d===y.d&&+x.s===+y.s&&+x.e===+y.e;})[0];
@@ -92,16 +97,16 @@ function crPlan(V,D,opt){
       y.id=rid('b');bmap[b.id]=y.id;bl.push(y);n.blk++;pch=true;
     });
     tt.b=bl;
-    var ov=obj(tt.ov),sov=obj(st.ov);
+    var ov=obj(tt.ov),sov=opt.tt?obj(st.ov):{};
     Object.keys(sov).forEach(function(date){if(date<t)return;var o=obj(ov[date]),so=obj(sov[date]),ch=false;Object.keys(so).forEach(function(bid){var nb=bmap[bid];if(nb&&!o[nb]){o[nb]=clone(so[bid]);ch=true;}});if(ch){ov[date]=o;pch=true;}});
     tt.ov=ov;
-    var tx=obj(tt.x),sx=obj(st.x);
+    var tx=obj(tt.x),sx=opt.tt?obj(st.x):{};
     Object.keys(sx).forEach(function(date){if(date<t)return;var a=arr(tx[date]).slice(),ch=false;arr(sx[date]).forEach(function(b){if(!b)return;if(a.some(function(x){return x&&String(x.t||'')===String(b.t||'')&&+x.s===+b.s&&+x.e===+b.e;}))return;var y=clone(b);y.id=rid('x');a.push(y);ch=true;n.blk++;});if(ch){tx[date]=a;pch=true;}});
     tt.x=tx;
-    if(st.win&&!tt.win){tt.win=clone(st.win);pch=true;n.misc++;}
-    if(st.sch){
+    if(opt.tt&&st.win&&!tt.win){tt.win=clone(st.win);pch=true;n.misc++;}
+    if(st.sch&&opt.sch){
       if(schOf(V,me).has)n.schHad=true;
-      else{
+      {
         var sc=clone(st.sch),w=schW(sc.w),nw={};
         Object.keys(w).forEach(function(dw){var row=obj(w[dw]),nr={};Object.keys(row).forEach(function(pk){var c=obj(row[pk]);if(c.s){var m=ms(c.s);c=clone(c);if(m)c.s=m;else{var snm=String(obj(D.subjects[c.s]).name||'').trim();delete c.s;if(!snm)return;c.t=snm.slice(0,12);}}nr[pk]=c;});nw[dw]=nr;});
         sc.w=nw;tt.sch=sc;n.sch=true;pch=true;
@@ -175,11 +180,12 @@ function modalCarry(V){
     b='<p class="hint serr" role="status">'+esc(c.err)+'</p>';f='<div class="df"><button class="btn" data-act="cr-back">다른 방 고르기</button></div>';
   }else{
     var D=c.D,o=c.opt,pl=crPlan(V,D,o),n=pl.n,one=function(k,lab,sub){return '<button class="nrchk crchk" data-act="cr-opt" data-k="'+k+'" aria-pressed="'+(o[k]?'true':'false')+'"><i aria-hidden="true"></i><span><b>'+lab+'</b>'+(sub?'<small>'+sub+'</small>':'')+'</span></button>';};
-    var adm=adminId(V)===V.me,pr=crPlan(V,D,{ev:true,goal:true,tt:true,prog:true,sub:o.sub,rec:adm}).n;
+    var adm=adminId(V)===V.me,pr=crPlan(V,D,{ev:true,goal:true,tt:true,sch:true,prog:true,sub:o.sub,rec:adm}).n;
     b+='<p class="hint" style="margin:0 0 6px"><b>'+esc(D.room)+'</b>의 <b>'+esc(D.name)+'</b> 님 것을 지금 방의 <b>'+esc(V.byId[V.me].name)+'</b> 님에게 복사합니다.</p>';
     b+=one('ev','수행평가와 일정','새로 '+pr.ev+'개'+(pr.evDup?', 이미 있는 '+pr.evDup+'개는 건너뜀':''));
     b+=one('goal','오늘부터의 할 일','할 일 '+pr.goal+'개, 마감 계획 '+pr.plan+'개'+(pr.goalDup?', 겹치는 '+pr.goalDup+'개는 건너뜀':''));
-    b+=one('tt','시간표','고정 일정 '+pr.blk+'개'+(pr.sch?', 학교 시간표':pr.schHad?', 학교 시간표는 이미 있어 그대로':''));
+    b+=one('tt','고정 일정(학원 등)',pr.blkSrc?'새로 '+pr.blk+'개'+(pr.blkSrc>pr.blk?', 이미 있는 '+(pr.blkSrc-pr.blk)+'개는 건너뜀':''):'가져올 고정 일정이 없습니다');
+    b+=one('sch','학교 시간표',pr.schSrc?(pr.schHad?'지금 내 학교 시간표를 이 방 것으로 바꿉니다':'가져옵니다'):'가져올 학교 시간표가 없습니다');
     b+=one('prog','과목 설정','단원 '+pr.unit+'개, 진도 체크 '+pr.chk+'개, 줄임말·색·안 듣는 과목·하루 목표');
     b+=one('sub','이 방에 없는 내 과목 만들기',pr.newSubs.length?esc(pr.newSubs.join(', '))+' (방 사람 모두에게 보이고, 안 듣는 사람은 진도에서 뺄 수 있습니다)':'모두 이미 있습니다');
     if(adm){
