@@ -1,0 +1,22 @@
+/* v56: 잉크 뿌리기 */
+.bb.gift.lot{display:grid;gap:6px}
+.bb.gift.lot .row{display:flex;flex-wrap:wrap;gap:6px}
+.lwheel{position:relative;width:240px;height:240px;margin:8px auto 12px}
+.lwh{width:240px;height:240px;transform-origin:50% 50%;animation:lotSpin 4s cubic-bezier(.15,.85,.2,1) forwards}
+.lwh text{font-size:12px;font-weight:700;fill:var(--ink)}
+.lhub{fill:var(--surface);stroke:var(--line)}
+.lptr{position:absolute;left:50%;top:-6px;width:0;height:0;margin-left:-10px;border-left:10px solid transparent;border-right:10px solid transparent;border-top:20px solid var(--ink);z-index:1}
+@keyframes lotSpin{from{transform:rotate(0)}to{transform:rotate(var(--end))}}
+.lladder{overflow-x:auto;margin:6px 0 10px}
+.lladder svg{width:100%;height:auto;display:block;margin:auto}
+.lv,.lr{stroke:var(--line);stroke-width:3;stroke-linecap:round}
+.lnm{font-size:12px;font-weight:700;fill:var(--ink)}
+.lpz{font-size:12px;fill:var(--ink-3)}.lpz.on{fill:var(--accent);font-weight:800}
+.lp{fill:none;stroke:color-mix(in srgb,var(--ink-3) 55%,transparent);stroke-width:3;stroke-dasharray:1;stroke-dashoffset:1;animation:lotDraw 1.4s ease forwards}
+.lp.win{stroke:var(--accent);stroke-width:4}
+@keyframes lotDraw{to{stroke-dashoffset:0}}
+.lres{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;animation:ggPop .5s 3.4s both}
+.lres span{padding:6px 10px;border-radius:999px;background:var(--fill)}.lres span.me{background:var(--accent-soft)}
+@media (prefers-reduced-motion:reduce){.lwh{animation:none;transform:rotate(var(--end))}.lp{animation:none;stroke-dashoffset:0}.lres{animation:none}}
+.cinrow:has(#msgLot){grid-template-columns:auto auto auto minmax(0,1fr) auto}
+@media (max-width:699px){.cinrow:has(#msgLot){grid-template-columns:auto auto auto minmax(0,1fr)}}
