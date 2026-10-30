@@ -2469,9 +2469,9 @@ function view(){
   V.subs=Object.keys(V.subjects).map(function(id){
     var s=obj(V.subjects[id]);
     return {id:id,name:String(s.name||'과목'),order:+s.order||0,
-      items:arr(s.items).filter(function(it){return it&&it.id;}).map(function(it){return {id:String(it.id),label:String(it.label||'')};})};
+      items:arr(s.items).filter(function(it){return it&&it.id;}).map(function(it){var o={id:String(it.id),label:String(it.label||'')};if(it.by)o.by=String(it.by);return o;})};
   }).sort(function(a,b){return a.order-b.order||a.name.localeCompare(b.name);});
-  V.subs.forEach(function(s){V.subById[s.id]=s;V.subName[s.id]=s.name;});
+  V.subs.forEach(function(s){V.subById[s.id]=s;V.subName[s.id]=s.name;s.all=s.items;s.items=itemsFor(V,V.me,s);});
   V.evByDate={};
   Object.keys(V.events).forEach(function(id){
     var e=obj(V.events[id]);if(!e.date||!e.title)return;
@@ -4309,7 +4309,17 @@ function badgeView(V){
 var UNIT_MAX=20;
 function unitsOf(V,mid,sid){return arr(obj(obj(V.progress[mid]).units)[sid]).filter(function(u){return u&&u.id&&u.n;});}
 function shortItem(l){l=String(l||'');var w=l.split(/\s+/)[0].replace(/(와|과)$/,'');return w.length>5?w.slice(0,5):w;}
+/* 그 사람이 보는 항목: 다른 사람이 만든 항목(by)은 빼고, 내가 뺀 항목(ihide)도 빼고, 같은 이름은 하나만(내가 체크한 것을 먼저) */
+function itemsFor(V,mid,s){
+  var all=s.all||s.items,p=obj(V.progress[mid]),hd=obj(p.ihide),ck=obj(p.checks),seen={},out=[];
+  var mine=function(it){var t='__'+it.id;for(var k in ck){if(ck[k]&&k.indexOf(s.id+'__')===0&&k.slice(-t.length)===t)return true;}return false;};
+  var vis=all.filter(function(it){return !(it.by&&it.by!==mid)&&!hd[s.id+'__'+it.id];});
+  vis.filter(mine).concat(vis).forEach(function(it){var l=it.label.replace(/\s+/g,'');if(seen[l])return;seen[l]=1;out.push(it);});
+  return all.filter(function(it){return out.indexOf(it)>=0;});
+}
+function subFor(V,mid,s){if(mid===V.me||!s.all)return s;return Object.assign({},s,{items:itemsFor(V,mid,s)});}
 function unitStat(V,mid,s){
+  s=subFor(V,mid,s);
   var ck=obj(obj(V.progress[mid]).checks),us=unitsOf(V,mid,s.id),n=s.items.length,d=0,t;
   if(!n)return {d:0,t:0,pct:0,us:us};
   if(!us.length){d=s.items.filter(function(it){return ck[s.id+'__'+it.id];}).length;t=n;}
@@ -4348,7 +4358,7 @@ function progRows(V){
     V.roster.forEach(function(m){
       if(skipOf(V,m.id)[s.id]){skipN++;return;}
       var u=unitStat(V,m.id,s),us=u.us,full=0,ck=obj(obj(V.progress[m.id]).checks);
-      us.forEach(function(x){if(s.items.length&&s.items.every(function(it){return ck[s.id+'__'+x.id+'__'+it.id];}))full++;});
+      var sit=subFor(V,m.id,s).items;us.forEach(function(x){if(sit.length&&sit.every(function(it){return ck[s.id+'__'+x.id+'__'+it.id];}))full++;});
       per.push({m:m,pct:u.pct,us:us.length,full:full});
     });
     var avg=per.length?Math.round(per.reduce(function(a,x){return a+x.pct;},0)/per.length):0,mine=per.filter(function(x){return x.m.id===V.me;})[0];
@@ -4438,7 +4448,7 @@ document.addEventListener('change',function(e){
 
 /* ---------- 처음 화면 ---------- */
 // 앱이 준비되면 알린다. 그림이 아직이면 다 그린 뒤에 열리고, 그림이 먼저 끝났으면 바로 열린다
-var APP_BUILD='1793369259';
+var APP_BUILD='1793369931';
 function splashDone(){
   var sp=document.getElementById('splash'),st=window.__sp;if(!sp||sp.getAttribute('data-out'))return;
   sp.setAttribute('data-out','1');
@@ -6850,7 +6860,7 @@ function viewProg(V){
 function viewProgEdit(V){
   var R=V.roster,n=R.length||1;
   var allOpen=mySubs(V).length>0&&mySubs(V).every(function(s){return S.open[s.id];});
-  var h='<div class="view" id="view-prog"><header class="vhead"><div><h1>과목과 항목 편집</h1><p>과목은 각자 정합니다. 같은 이름 과목은 같이 쓰고, 그 과목의 항목은 함께 바뀝니다. 다른 사람 과목은 내 진도의 아래에서 넣을 수 있습니다.</p></div><div class="vacts"><button class="btn small" data-act="prog-all">'+(allOpen?'모두 접기':'모두 펼치기')+'</button><button class="btn small'+(S.edit?' primary':'')+'" data-act="prog-edit" aria-pressed="'+(S.edit?'true':'false')+'">'+(S.edit?'편집 끝내기':'과목과 항목 편집')+'</button></div></header>';
+  var h='<div class="view" id="view-prog"><header class="vhead"><div><h1>과목과 항목 편집</h1><p>과목은 각자 정합니다. 같은 이름 과목은 같이 쓰고, 공부 항목은 각자 정합니다(예전 항목은 빼면 나에게서만 빠집니다). 다른 사람 과목은 내 진도의 아래에서 넣을 수 있습니다.</p></div><div class="vacts"><button class="btn small" data-act="prog-all">'+(allOpen?'모두 접기':'모두 펼치기')+'</button><button class="btn small'+(S.edit?' primary':'')+'" data-act="prog-edit" aria-pressed="'+(S.edit?'true':'false')+'">'+(S.edit?'편집 끝내기':'과목과 항목 편집')+'</button></div></header>';
   h+='<section class="card tbl'+(n>8?' many':'')+'" id="c-tbl" style="--k:0;--n:'+n+(n>6?';--cw:46px':'')+'"><div class="orow ohead"><span class="olabel">과목</span>';
   R.forEach(function(m){h+='<span class="ocell'+(m.id===V.me?' me':'')+'">'+esc(shortName(V.byId[m.id].name))+'</span>';});
   h+='</div>';
@@ -6859,8 +6869,8 @@ function viewProgEdit(V){
     var open=!!S.open[s.id],mySkip=!!skipOf(V,V.me)[s.id];
     h+='<button class="orow osum" id="os-'+esc(s.id)+'" data-act="prog-toggle" data-id="'+esc(s.id)+'" aria-expanded="'+(open?'true':'false')+'"><span class="olabel"><b>'+esc(s.name)+'</b><span class="chev">'+(open?'접기':'펼치기')+'</span></span>';
     R.forEach(function(m){
-      var p=obj(V.progress[m.id]),ck=obj(p.checks),skip=skipOf(V,m.id)[s.id],c=s.items.filter(function(it){return ck[s.id+'__'+it.id];}).length;
-      h+='<span class="ocell'+(m.id===V.me?' me':'')+'">'+(skip?'<span class="skip">제외</span>':'<span class="frac">'+c+'/'+s.items.length+'</span>')+'</span>';
+      var p=obj(V.progress[m.id]),ck=obj(p.checks),skip=skipOf(V,m.id)[s.id],sim=subFor(V,m.id,s).items,c=sim.filter(function(it){return ck[s.id+'__'+it.id];}).length;
+      h+='<span class="ocell'+(m.id===V.me?' me':'')+'">'+(skip?'<span class="skip">제외</span>':'<span class="frac">'+c+'/'+sim.length+'</span>')+'</span>';
     });
     h+='</button>';
     if(!open)return;
@@ -7521,7 +7531,7 @@ function modalSettings(V){
   [[22,'밤 10시'],[23,'밤 11시'],[24,'자정'],[25,'다음 날 새벽 1시'],[26,'다음 날 새벽 2시'],[27,'다음 날 새벽 3시'],[28,'다음 날 새벽 4시'],[29,'다음 날 새벽 5시']].forEach(function(o){b+='<option value="'+o[0]+'"'+(V.certHour===o[0]?' selected':'')+'>'+o[1]+'</option>';});
   b+='</select>';
   b+='</div>'+spSec()+pokeSec()+noticeSec(V)+periodSec(V)+'<div class="sec"><h3>사용법</h3><div class="row"><button class="btn small" data-act="open" data-modal="help">사용법 보기</button></div></div><div class="sec"><h3>키보드 단축키<small>키보드를 연결했을 때</small></h3><ul class="kbd">'+[['1 ~ 8','달력부터 메시지까지 화면 이동'],['N','할 일 추가'],['D','마감 있는 할 일 추가'],['L','달력, 할 일, 시간표 차례로 바꿔 보기'],['T','타이머 켜기, 끄기'],['F','타이머 크게 보기'],['Esc','창 닫기']].map(function(x){return '<li><kbd>'+x[0]+'</kbd><span>'+x[1]+'</span></li>';}).join('')+'</ul></div><div class="sec"><h3>저장 위치</h3><p class="hint">'+esc(S.net?({claude:'Claude 공유 저장소에 연결되어 있습니다. Claude에 로그인한 참여 인원끼리 실시간으로 같이 봅니다.',firebase:'공유 저장소에 연결되어 있습니다. 참여 코드로 들어온 사람 모두가 실시간으로 같이 봅니다.',local:'지금은 이 기기에만 저장됩니다. 다른 사람과 같이 보려면 공유 저장소 연결이 필요합니다.'}[S.net.mode]):'연결 중입니다.')+'</p>'+(S.net&&S.net.mode==='firebase'&&S.remote?'<div class="row" style="margin-top:10px"><button class="btn small" data-act="import-pick">기록 가져오기</button><button class="btn small" data-act="export-data">기록 파일로 저장</button><button class="del" data-act="setup-reset">'+(S.confirm==='disc'?'한 번 더 누르면 이 방에서 나갑니다':'이 기기에서 이 방 나가기')+'</button></div><p class="hint" style="margin-top:8px">'+esc(S.importMsg||'친구와 내 다른 기기는 위의 친구 초대하기로 들어옵니다. 기록 가져오기는 처음 연결한 뒤 한 번만 하면 됩니다.')+'</p>':'')+'</div>';
-  b+='<p class="hint appver">앱 버전 10월 30일 23:07</p>';
+  b+='<p class="hint appver">앱 버전 10월 30일 23:18</p>';
   return dlg('wide',{id:'settings',t:'설정'},b);
 }
 function modalCheck(V){
@@ -8828,10 +8838,16 @@ function act(name,el){
     case 'skip':{var Vk=view(),kon=!!skipOf(Vk,Vk.me)[id];editProg(function(p){p.suse=obj(p.suse);if(kon){delete p.skip[id];p.suse[id]=true;}else{p.skip[id]=true;delete p.suse[id];}});break;}
     case 'item-add':{
       var dk='item:'+id,label=String(S.draft[dk]||'').trim();if(!label)break;
-      editSub(id,function(s){if(s.items.length<12)s.items.push({id:rid('i'),label:label.slice(0,30)});else flash('항목은 과목당 12개까지입니다.');});
+      var Vit=view(),sit0=Vit.subById[id],lk=label.slice(0,30).replace(/\s+/g,'');
+      var have=sit0?sit0.items.filter(function(it){return it.label.replace(/\s+/g,'')===lk;})[0]:null;
+      var hid=sit0?(sit0.all||[]).filter(function(it){return it.label.replace(/\s+/g,'')===lk&&!(it.by&&it.by!==Vit.me);})[0]:null;
+      if(have){flash('이미 있는 항목입니다.');}
+      else if(hid&&Vit.me){editProg(function(p){p.ihide=obj(p.ihide);delete p.ihide[id+'__'+hid.id];});}
+      else if(sit0&&sit0.items.length>=12){flash('항목은 과목당 12개까지입니다.');}
+      else editSub(id,function(s){if(s.items.length<60){var ni={id:rid('i'),label:label.slice(0,30)};if(Vit.me)ni.by=Vit.me;s.items.push(ni);}});
       if(canWrite())S.draft[dk]='';break;
     }
-    case 'item-del':{var iid=el.getAttribute('data-item');editSub(id,function(s){s.items=s.items.filter(function(it){return it&&it.id!==iid;});});break;}
+    case 'item-del':{var iid=el.getAttribute('data-item'),Vid=view(),sid0=Vid.subById[id],it0=sid0&&(sid0.all||[]).filter(function(it){return it.id===iid;})[0];if(it0&&it0.by&&it0.by===Vid.me)editSub(id,function(s){s.items=s.items.filter(function(it){return it&&it.id!==iid;});});else if(Vid.me)editProg(function(p){p.ihide=obj(p.ihide);p.ihide[id+'__'+iid]=true;});break;}
     case 'sub-add':{
       var sn=String(S.draft.subName||'').trim();if(!sn||!need())break;
       var V2=view(),ord=V2.subs.reduce(function(a,s){return Math.max(a,s.order);},0)+1,sid=rid('s'),snk=sn.slice(0,24).replace(/\s+/g,'').toLowerCase();
