@@ -41,3 +41,4 @@
 .brow small.rvs,.rvs{display:block;font-size:12px;color:var(--ink-3)}
 .linkbtn{background:none;border:0;padding:6px 4px;color:var(--accent);font:inherit;font-size:13px;font-weight:600;cursor:pointer}
 .linkbtn:hover{text-decoration:underline}
+#dlg-trim input[data-draft="trimN"],.flfix input[data-draft="flagN"]{display:block;width:100%;max-width:220px;min-height:44px;padding:0 12px;border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--ink);font:inherit}

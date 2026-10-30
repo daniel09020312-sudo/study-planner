@@ -27,7 +27,7 @@ function modalTrim(V){
   if(!sel.rows.length)b+='<p class="empty">이 날 기록된 공부 시간이 없습니다.</p>';
   else{b+='<div class="chips">';sel.rows.forEach(function(r){b+=chipBtn('trim-set','sid',r.sid,subLabel(V,r.sid)+' '+fmtMins(r.mins),sel.row&&sel.row.sid===r.sid);});b+='</div>';}
   b+='</div><div class="fld"><h3>뺄 시간</h3><div class="chips">';
-  TRIM_CH.forEach(function(n){b+=chipBtn('trim-set','n',String(n),n>=60?(n/60)+'시간'+(n%60?' '+n%60+'분':''):n+'분',!(+S.draft.trimN>0)&&+T.n===n);});
+  TRIM_CH.forEach(function(n){b+=chipBtn('trim-set','n',String(n),n>=60?Math.floor(n/60)+'시간'+(n%60?' '+n%60+'분':''):n+'분',!(+S.draft.trimN>0)&&+T.n===n);});
   b+='</div><input type="number" inputmode="numeric" min="1" max="1200" data-draft="trimN" data-live="1" placeholder="직접 입력 (분)" aria-label="뺄 시간 직접 입력(분)" style="margin-top:8px"></div>';
   if(sel.row)b+='<p class="hint">'+(sel.ok?esc(subLabel(V,sel.row.sid))+' '+fmtMins(sel.row.mins)+' → <b>'+fmtMins(sel.row.mins-sel.n)+'</b>':'뺄 시간은 1분 이상, 기록된 '+fmtMins(sel.row.mins)+' 이하로 넣어 주세요.')+'</p>';
   return dlg('wide',{id:'trim',t:T.stop?'시간 빼고 끝내기':'공부 시간 빼기'},b,'<span class="hint">'+(T.stop?'타이머를 끝내고 빼는 만큼을 뺍니다.':'오늘과 어제 기록만 고칠 수 있습니다.')+'</span><div class="df"><button class="btn primary" data-act="trim-go"'+(sel.ok?'':' disabled')+'>'+(T.stop?'빼고 끝내기':'빼기')+'</button></div>');
