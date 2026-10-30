@@ -1,5 +1,5 @@
 /* 공부방 플래너: 인터넷이 없어도 앱 화면이 열리게 (화면은 새 버전 먼저, 안 되면 저장해 둔 것) */
-var C='gbb-shell-v3';
+var C='gbb-shell-v4';
 self.addEventListener('install',function(e){
   e.waitUntil(caches.open(C).then(function(c){return c.addAll(['./','manifest.webmanifest','icon-180.png','icon-192.png','icon-512.png']);}).catch(function(){}));
   self.skipWaiting();
@@ -26,4 +26,9 @@ self.addEventListener('notificationclick',function(e){
     for(var i=0;i<cs.length;i++){if('focus' in cs[i])return cs[i].focus();}
     if(self.clients.openWindow)return self.clients.openWindow('./');
   }));
+});
+/* 웹 푸시: 앱이 닫혀 있어도 찌르기 알림 */
+self.addEventListener('push',function(e){
+  var d={};try{d=e.data?e.data.json():{};}catch(x){d={t:e.data?e.data.text():''};}
+  e.waitUntil(self.registration.showNotification(d.t||'공부방 플래너',{body:d.b||'',tag:d.tag||'gbb',renotify:true,icon:'icon-192.png',badge:'icon-192.png',lang:'ko'}));
 });

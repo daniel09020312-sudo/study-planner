@@ -199,6 +199,8 @@ exec(open(BASE + '/tools/web_wallet_part.py', encoding='utf-8').read())
 exec(open(BASE + '/tools/web_carry_part.py', encoding='utf-8').read())
 # 검색 제외
 exec(open(BASE + '/tools/web_v44_part.py', encoding='utf-8').read())
+# 찌르기 웹 푸시
+exec(open(BASE + '/tools/web_push_part.py', encoding='utf-8').read())
 OUT = BASE + ('/web-light' if LIGHT else '/web')
 os.makedirs(OUT, exist_ok=True)
 open(OUT + '/index.html', 'w', encoding='utf-8').write(s)

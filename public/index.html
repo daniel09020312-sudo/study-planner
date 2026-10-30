@@ -4401,7 +4401,7 @@ document.addEventListener('change',function(e){
 
 /* ---------- 처음 화면 ---------- */
 // 앱이 준비되면 알린다. 그림이 아직이면 다 그린 뒤에 열리고, 그림이 먼저 끝났으면 바로 열린다
-var APP_BUILD='1793345707';
+var APP_BUILD='1793346794';
 function splashDone(){
   var sp=document.getElementById('splash'),st=window.__sp;if(!sp||sp.getAttribute('data-out'))return;
   sp.setAttribute('data-out','1');
@@ -5191,7 +5191,7 @@ function sysNotify(title,body,tag){
 }
 function pokeSec(){
   var sup=typeof Notification!=='undefined',on=pnOn(),den=sup&&Notification.permission==='denied';
-  return '<div class="sec"><h3>찌르기 알림<small>이 기기</small></h3><div class="row"><button class="btn small'+(on?'':' primary')+'" data-act="pn-toggle" aria-pressed="'+(on?'true':'false')+'">'+(on?'알림 끄기':'알림 켜기')+'</button></div><p class="hint">'+(!sup?'이 브라우저는 알림을 지원하지 않습니다. 아이폰은 홈 화면에 추가한 앱(iOS 16.4 이상)에서만 됩니다.':den?'브라우저 설정에서 이 사이트의 알림을 허용해 주세요.':'앱이 가려져 있어도 찌르기를 알려 줍니다. 앱을 완전히 닫으면 받지 못합니다.')+'</p></div>';
+  return '<div class="sec"><h3>찌르기 알림<small>이 기기</small></h3><div class="row"><button class="btn small'+(on?'':' primary')+'" data-act="pn-toggle" aria-pressed="'+(on?'true':'false')+'">'+(on?'알림 끄기':'알림 켜기')+'</button></div><p class="hint">'+(!sup?'이 브라우저는 알림을 지원하지 않습니다. 아이폰은 홈 화면에 추가한 앱(iOS 16.4 이상)에서만 됩니다.':den?'브라우저 설정에서 이 사이트의 알림을 허용해 주세요.':'앱을 닫아도 찌르기를 휴대폰 알림으로 받습니다. 아이폰은 홈 화면에 추가한 앱(iOS 16.4 이상)에서만 됩니다.')+'</p></div>';
 }
 pnApply();
 
@@ -6568,6 +6568,97 @@ function crGo(){
   S.cr=null;closeModal();flash(jos(parts.join(', ')||'설정','을','를')+' 가져왔습니다.',sn);
 }
 
+/* 웹 푸시 보내기용 암호화(RFC 8291 aes128gcm)와 VAPID 서명(RFC 8292). 브라우저와 Node 시험에서 같이 쓴다 */
+var WP=(function(){
+  var C=typeof crypto!=='undefined'&&crypto.subtle?crypto:(typeof require==='function'?require('crypto').webcrypto:null),E=new TextEncoder();
+  function b64u(b){b=new Uint8Array(b);var s='';for(var i=0;i<b.length;i++)s+=String.fromCharCode(b[i]);return btoa(s).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');}
+  function ub64(s){s=String(s).replace(/-/g,'+').replace(/_/g,'/');while(s.length%4)s+='=';var r=atob(s),o=new Uint8Array(r.length);for(var i=0;i<r.length;i++)o[i]=r.charCodeAt(i);return o;}
+  function cat(){var n=0,i,a=[].slice.call(arguments);a.forEach(function(x){n+=x.length;});var o=new Uint8Array(n),p=0;a.forEach(function(x){o.set(x,p);p+=x.length;});return o;}
+  async function hmac(key,data){var k=await C.subtle.importKey('raw',key,{name:'HMAC',hash:'SHA-256'},false,['sign']);return new Uint8Array(await C.subtle.sign('HMAC',k,data));}
+  async function genVapid(){
+    var kp=await C.subtle.generateKey({name:'ECDSA',namedCurve:'P-256'},true,['sign','verify']);
+    return {pub:b64u(await C.subtle.exportKey('raw',kp.publicKey)),jwk:await C.subtle.exportKey('jwk',kp.privateKey)};
+  }
+  async function jwt(aud,sub,jwk){
+    var data=b64u(E.encode(JSON.stringify({typ:'JWT',alg:'ES256'})))+'.'+b64u(E.encode(JSON.stringify({aud:aud,exp:Math.floor(Date.now()/1000)+12*3600,sub:sub})));
+    var key=await C.subtle.importKey('jwk',{kty:jwk.kty,crv:jwk.crv,x:jwk.x,y:jwk.y,d:jwk.d},{name:'ECDSA',namedCurve:'P-256'},false,['sign']);
+    return data+'.'+b64u(await C.subtle.sign({name:'ECDSA',hash:'SHA-256'},key,E.encode(data)));
+  }
+  async function encrypt(uaPub,auth,text,salt,asKp){
+    asKp=asKp||await C.subtle.generateKey({name:'ECDH',namedCurve:'P-256'},true,['deriveBits']);
+    var asPub=new Uint8Array(await C.subtle.exportKey('raw',asKp.publicKey));
+    var uaKey=await C.subtle.importKey('raw',uaPub,{name:'ECDH',namedCurve:'P-256'},false,[]);
+    var secret=new Uint8Array(await C.subtle.deriveBits({name:'ECDH',public:uaKey},asKp.privateKey,256));
+    var prkKey=await hmac(auth,secret);
+    var ikm=await hmac(prkKey,cat(E.encode('WebPush: info\0'),uaPub,asPub,new Uint8Array([1])));
+    salt=salt||C.getRandomValues(new Uint8Array(16));
+    var prk=await hmac(salt,ikm);
+    var cek=(await hmac(prk,cat(E.encode('Content-Encoding: aes128gcm\0'),new Uint8Array([1])))).slice(0,16);
+    var nonce=(await hmac(prk,cat(E.encode('Content-Encoding: nonce\0'),new Uint8Array([1])))).slice(0,12);
+    var key=await C.subtle.importKey('raw',cek,{name:'AES-GCM'},false,['encrypt']);
+    var ct=new Uint8Array(await C.subtle.encrypt({name:'AES-GCM',iv:nonce},key,cat(E.encode(text),new Uint8Array([2]))));
+    var rs=new Uint8Array([0,0,16,0]);
+    return cat(salt,rs,new Uint8Array([asPub.length]),asPub,ct);
+  }
+  async function build(sub,text,vapid,subject){
+    var aud=new URL(sub.endpoint).origin,t=await jwt(aud,subject,vapid.jwk);
+    var body=await encrypt(ub64(sub.p256dh),ub64(sub.auth),text);
+    return {endpoint:sub.endpoint,headers:{Authorization:'vapid t='+t+', k='+vapid.pub,'Content-Encoding':'aes128gcm',TTL:'86400',Urgency:'high'},body:b64u(body)};
+  }
+  return {b64u:b64u,ub64:ub64,genVapid:genVapid,jwt:jwt,encrypt:encrypt,build:build,hmac:hmac,cat:cat};
+})();
+
+
+/* ---------- 웹 판: 찌르기를 앱 밖 알림(웹 푸시)으로 ----------
+   열쇠(VAPID)는 저장소 rooms/webpush-vapid={pub, jwk}에 하나(처음 켠 기기가 만든다). 내 구독은 progress.<나>.ps={e,p,a,at}.
+   찌를 때 상대 구독으로 암호화한 알림을 만들어 이 사이트의 api/push(Cloudflare Pages 함수)가 푸시 서버로 넘긴다 */
+var PUSH={v:null,busy:false,tried:false};
+function pushOk(){try{return 'serviceWorker' in navigator&&'PushManager' in window&&typeof Notification!=='undefined'&&!!(window.crypto&&crypto.subtle)&&!!S.remote;}catch(e){return false;}}
+function pushVapid(){
+  if(PUSH.v)return Promise.resolve(PUSH.v);
+  var url=S.remote.url;
+  return fbRaw(url,'webpush-vapid').then(function(v){
+    if(v&&v.pub&&v.jwk&&v.jwk.d)return v;
+    return WP.genVapid().then(function(nv){return fbRaw(url,'webpush-vapid','PUT',nv).then(function(){return fbRaw(url,'webpush-vapid');});});
+  }).then(function(v){PUSH.v=v;return v;});
+}
+function pushSame(a,b){a=new Uint8Array(a||[]);if(a.length!==b.length)return false;for(var i=0;i<a.length;i++)if(a[i]!==b[i])return false;return true;}
+function pushSubscribe(){
+  if(!pushOk()||PUSH.busy)return Promise.resolve(false);
+  PUSH.busy=true;
+  return pushVapid().then(function(v){
+    var key=WP.ub64(v.pub);
+    return navigator.serviceWorker.ready.then(function(reg){
+      return reg.pushManager.getSubscription().then(function(old){
+        if(old&&old.options&&old.options.applicationServerKey&&!pushSame(old.options.applicationServerKey,key))return old.unsubscribe().then(function(){return null;});
+        return old;
+      }).then(function(sub){return sub||reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:key});});
+    });
+  }).then(function(sub){
+    var j=sub.toJSON(),k=obj(j.keys);
+    editProg(function(p){p.ps={e:j.endpoint,p:k.p256dh,a:k.auth,at:Date.now()};});
+    PUSH.busy=false;return true;
+  }).catch(function(){PUSH.busy=false;return false;});
+}
+function pushUnsub(){
+  try{navigator.serviceWorker.ready.then(function(reg){return reg.pushManager.getSubscription();}).then(function(s){if(s)s.unsubscribe();}).catch(function(){});}catch(e){}
+  editProg(function(p){delete p.ps;});
+}
+function pushSend(V,mid,msg){
+  try{
+    var ps=obj(obj(V.progress[mid]).ps);if(!ps.e||!ps.p||!ps.a||!(window.crypto&&crypto.subtle)||!S.remote)return;
+    pushVapid().then(function(v){return WP.build({endpoint:ps.e,p256dh:ps.p,auth:ps.a},JSON.stringify(msg),v,location.origin);})
+      .then(function(req){return fetch('api/push',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(req)});})
+      .catch(function(){});
+  }catch(e){}
+}
+/* 알림을 켜 둔 기기인데 이 방에 구독이 없으면 한 번 맞춘다 */
+function pushEnsure(V){
+  if(PUSH.tried||!V||!V.me||!S.ready||!pnOn()||!pushOk()||!netFresh())return;
+  PUSH.tried=true;
+  if(!obj(obj(V.progress[V.me]).ps).e)pushSubscribe();
+}
+
 /* ---------- 공부방 ---------- */
 function peopleCard(V,date,k){
   var now=Date.now(),list=V.roster.map(function(m){return {p:V.byId[m.id],day:dayOf(V,m.id,date),r:(V.sc[m.id]||{})[date],L:liveOf(V,m.id)};});
@@ -7331,7 +7422,7 @@ function modalSettings(V){
   [[22,'밤 10시'],[23,'밤 11시'],[24,'자정'],[25,'다음 날 새벽 1시'],[26,'다음 날 새벽 2시'],[27,'다음 날 새벽 3시'],[28,'다음 날 새벽 4시'],[29,'다음 날 새벽 5시']].forEach(function(o){b+='<option value="'+o[0]+'"'+(V.certHour===o[0]?' selected':'')+'>'+o[1]+'</option>';});
   b+='</select>';
   b+='</div>'+pokeSec()+noticeSec(V)+periodSec(V)+'<div class="sec"><h3>사용법</h3><div class="row"><button class="btn small" data-act="open" data-modal="help">사용법 보기</button></div></div><div class="sec"><h3>키보드 단축키<small>키보드를 연결했을 때</small></h3><ul class="kbd">'+[['1 ~ 8','달력부터 메시지까지 화면 이동'],['N','할 일 추가'],['D','마감 있는 할 일 추가'],['L','달력, 할 일, 시간표 차례로 바꿔 보기'],['T','타이머 켜기, 끄기'],['F','타이머 크게 보기'],['Esc','창 닫기']].map(function(x){return '<li><kbd>'+x[0]+'</kbd><span>'+x[1]+'</span></li>';}).join('')+'</ul></div><div class="sec"><h3>저장 위치</h3><p class="hint">'+esc(S.net?({claude:'Claude 공유 저장소에 연결되어 있습니다. Claude에 로그인한 참여 인원끼리 실시간으로 같이 봅니다.',firebase:'공유 저장소에 연결되어 있습니다. 참여 코드로 들어온 사람 모두가 실시간으로 같이 봅니다.',local:'지금은 이 기기에만 저장됩니다. 다른 사람과 같이 보려면 공유 저장소 연결이 필요합니다.'}[S.net.mode]):'연결 중입니다.')+'</p>'+(S.net&&S.net.mode==='firebase'&&S.remote?'<div class="row" style="margin-top:10px"><button class="btn small" data-act="import-pick">기록 가져오기</button><button class="btn small" data-act="export-data">기록 파일로 저장</button><button class="del" data-act="setup-reset">'+(S.confirm==='disc'?'한 번 더 누르면 이 방에서 나갑니다':'이 기기에서 이 방 나가기')+'</button></div><p class="hint" style="margin-top:8px">'+esc(S.importMsg||'친구와 내 다른 기기는 위의 친구 초대하기로 들어옵니다. 기록 가져오기는 처음 연결한 뒤 한 번만 하면 됩니다.')+'</p>':'')+'</div>';
-  b+='<p class="hint appver">앱 버전 10월 30일 16:35</p>';
+  b+='<p class="hint appver">앱 버전 10월 30일 16:53</p>';
   return dlg('wide',{id:'settings',t:'설정'},b);
 }
 function modalCheck(V){
@@ -7467,7 +7558,7 @@ function afterChat(V){
 }
 function after(V){
   afterChat(V);
-  try{paintMore();pruneOnce(V);eggTick(V);cgTick(V);meetTick(V);}catch(e){}
+  try{paintMore();pruneOnce(V);eggTick(V);cgTick(V);meetTick(V);pushEnsure(V);}catch(e){}
   if(S.scrollTo&&(S.ready||!S.scrollTo.quiet)){var sa=S.scrollTo;S.scrollTo=null;setTimeout(function(){var se=document.getElementById(sa.id);if(!se||!se.scrollIntoView)return;if(sa.inline){var sc=se.closest('.wkscroll');if(sc&&sc.scrollWidth>sc.clientWidth+2)sc.scrollTo({left:se.offsetLeft-sc.firstElementChild.offsetLeft,behavior:sa.quiet||reduced?'auto':'smooth'});return;}se.scrollIntoView({block:sa.block||'start',behavior:reduced?'auto':'smooth'});},30);}
   if(S.ttScrollY!=null){var tsc=document.getElementById('ttScroll');if(tsc){var tv=S.ttScrollY;S.ttScrollY=null;tsc.scrollTop=tv==='auto'?(+tsc.getAttribute('data-auto')||0):tv;}}
   if(S.ready||S.setup||S.join)splashDone();
@@ -7836,6 +7927,7 @@ function act(name,el){
       var lastP=0;(Vp.chat[id]||[]).forEach(function(x){if(x.poke&&x.from===Vp.me&&+x.at>lastP)lastP=+x.at;});
       if(Date.now()-lastP<300000){flash('조금 전에 찔렀습니다. 같은 사람은 5분에 한 번 찌를 수 있습니다.');break;}
       save('msgs/'+rid('x'),{from:Vp.me,to:id,poke:true,text:'',at:Date.now()});
+      pushSend(Vp,id,{t:Vp.byId[Vp.me].name+' 님이 찔렀습니다',b:'눌러서 답장하기',tag:'poke-'+Vp.me});
       flash(Vp.byId[id].name+' 님을 찔렀습니다.');break;
     }
     case 'rep-week':S.repWeek=id;break;
@@ -8227,10 +8319,10 @@ function act(name,el){
     }
     case 'period-reset':{var Vpr=view();if(!Vpr.me||adminId(Vpr)!==Vpr.me||!need())break;editCfg(function(c){delete c.period;});S.draft.periodS='';S.draft.periodE='';if(canWrite())flash('처음 기간으로 되돌렸습니다.');break;}
     case 'pn-toggle':{
-      if(pnOn()){lsSet('gbb_pokenote',null);pnApply();flash('찌르기 알림을 껐습니다.');break;}
+      if(pnOn()){lsSet('gbb_pokenote',null);pnApply();pushUnsub();flash('찌르기 알림을 껐습니다.');break;}
       if(typeof Notification==='undefined'){flash('이 브라우저는 알림을 지원하지 않습니다. 아이폰은 홈 화면에 추가한 앱에서만 됩니다.');break;}
       try{Notification.requestPermission().then(function(pm){
-        if(pm==='granted'){lsSet('gbb_pokenote','1');pnApply();flash('찌르기 알림을 켰습니다.');try{new Notification('알림을 켰습니다',{body:'찌르기가 오면 이렇게 알려 드립니다.',icon:'icon-192.png',lang:'ko'});}catch(e){}}
+        if(pm==='granted'){lsSet('gbb_pokenote','1');pnApply();pushSubscribe();flash('찌르기 알림을 켰습니다.');try{new Notification('알림을 켰습니다',{body:'찌르기가 오면 이렇게 알려 드립니다.',icon:'icon-192.png',lang:'ko'});}catch(e){}}
         else flash('알림이 허용되지 않았습니다. 브라우저 설정에서 허용해 주세요.');
         S.sync=true;render();
       });}catch(e){flash('알림을 켜지 못했습니다.');}
@@ -9053,7 +9145,7 @@ async function init(){
   }
   try{S.net.start();}catch(e){S.setup=true;S.ready=true;S.setupErr='연결하지 못했습니다. 주소를 다시 확인하세요.';render();}
 }
-try{if(localStorage.getItem('gbb_test')==='1')window.__gbb={S:S,view:view,editProg:editProg,editDay:editDay,jdiff:jdiff,opsMerge:opsMerge,unitsOf:unitsOf,dayOf:dayOf,today:today,netFresh:netFresh};}catch(e){}
+try{if(localStorage.getItem('gbb_test')==='1')window.__gbb={S:S,view:view,editProg:editProg,editDay:editDay,jdiff:jdiff,opsMerge:opsMerge,unitsOf:unitsOf,dayOf:dayOf,today:today,netFresh:netFresh,push:function(){return {ok:pushOk(),on:pnOn(),st:PUSH};}};}catch(e){}
 init();
 (function(){
   // 새 판은 바로 다시 읽지 않고, 다른 앱에 갔다가 돌아올 때 다시 읽는다(배포 때마다 모두가 한꺼번에 받지 않게).
