@@ -31,7 +31,7 @@ function walSign(id,d){
 }
 /* 받아 온 지갑을 화면에 반영 (관리자 서명은 확인한 뒤에) */
 function walSet(id,w,key){
-  WAL.on=true;WAL.id=id;WAL.key=key;WAL.own=obj(w.own);WAL.rm=obj(w.rm);WAL.rk=obj(w.rk);WAL.uh=obj(w.uh);WAL.name=String(w.name||'');
+  WAL.on=true;WAL.id=id;WAL.key=key;WAL.own=obj(w.own);WAL.rm=obj(w.rm);WAL.rk=obj(w.rk);WAL.uh=obj(w.uh);WAL.adj=+w.adj||0;WAL.name=String(w.name||'');
   var sig=String(w.unl||'');
   if(!sig){WAL.unl=false;}
   else if(WALS.unlChk[id+'|'+sig]!==undefined){WAL.unl=WALS.unlChk[id+'|'+sig];}
@@ -162,3 +162,9 @@ function walUnlMark(on){
   else{if(!ks.length){uh['0']=t;b['uh/0']=t;}ks.forEach(function(k){if(!+uh[k]){uh[k]=t;b['uh/'+k]=t;}});}
   if(Object.keys(b).length)walPatch(WAL.id,b).catch(function(){});
 }
+/* 관리자: 내 지갑에 잉크를 더하거나 뺀다(adj, 모든 방 합계에 더함). 예전 기록을 무제한 기간으로 한꺼번에 치지 않게 uh가 없으면 빈 표시를 둔다 */
+WALH.addInk=function(n){
+  n=Math.round(+n||0);if(!WAL.on||!WAL.id||!n)return;
+  var v=Math.floor(+WAL.adj||0)+n,b={adj:v};if(!Object.keys(obj(WAL.uh)).length){WAL.uh={'0':1};b['uh/0']=1;}
+  walPatch(WAL.id,b).then(function(){WAL.adj=v;flash('내 잉크에 '+(n>0?n+'방울을 더했습니다.':(-n)+'방울을 뺐습니다.'));render();}).catch(function(){flash('적용하지 못했습니다. 인터넷 연결을 확인해 주세요.');});
+};

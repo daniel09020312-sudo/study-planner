@@ -1,0 +1,2 @@
+# ---------------------------------------------------------------- v66: 관리자: 내 잉크 더하기/빼기(지갑 adj)
+sub("    case 'adm-go':", "    case 'adm-ink':{var aiEl=document.getElementById('admInk'),ain=Math.round(+((aiEl&&aiEl.value)||S.draft.admInk||0));if(!ain||Math.abs(ain)>100000){flash('더할 잉크를 적어 주세요.');break;}if(prev!=='admink'){S.confirm='admink';S.draft.admInk=String(ain);break;}if(WALH.addInk)WALH.addInk(ain);S.draft.admInk='';break;}\n    case 'adm-go':")

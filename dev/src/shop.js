@@ -51,7 +51,7 @@ function inkOf(V){
   var L=inkLocal(V),m=L.e,gi=L.gi,go=L.go,own=Object.assign({},shopOwnLive(V),walOwn()),spent=0,n=1;
   if(WAL.on)Object.keys(obj(WAL.rm)).forEach(function(k){if(k===WAL.key)return;var r=obj(WAL.rm[k]);m+=Math.max(0,+r.e||0);gi+=Math.max(0,+r.gi||0);go+=Math.max(0,+r.go||0);n++;});
   Object.keys(own).forEach(function(k){spent+=Math.max(0,+own[k]||0);});
-  var got=Math.floor(m/INK_MIN)+gi;spent+=go;
+  var got=Math.floor(m/INK_MIN)+gi+(WAL.on?Math.floor(+WAL.adj||0):0);spent+=go;
   return V._ink={got:got,spent:spent,bal:WAL.unl?Infinity:Math.max(0,got-spent),today:Math.floor(inkMins(V,V.me,today())/INK_MIN),gi:gi,unl:!!WAL.unl,rooms:n};
 }
 function roJ(w){w=String(w||'');var c=w.charCodeAt(w.length-1);if(!(c>=0xAC00&&c<=0xD7A3))return w+'로';var f=(c-0xAC00)%28;return w+(f&&f!==8?'으로':'로');}
@@ -126,6 +126,7 @@ function modalShop(V){
   if(WAL.on&&WALH.unlOff&&ink.unl)b+='<div class="admrow"><button class="btn small soft" data-act="adm-off">'+(S.confirm==='admoff'?'한 번 더 누르면 무제한을 끕니다':'잉크 무제한 끄기')+'</button></div>';
   else if(WAL.on&&WALH.adm&&!ink.unl&&admHave)b+='<div class="admrow"><button class="btn small soft" data-act="adm-on">잉크 무제한 다시 켜기</button></div>';
   else if(WAL.on&&WALH.adm&&!ink.unl)b+=S.admOpen?'<div class="admrow"><input type="text" class="admin-secret" id="admCode" data-draft="admCode" data-enter="adm-go" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="관리자 코드" aria-label="관리자 코드"><button class="btn small" data-act="adm-go">확인</button></div>':'<button class="linkbtn admlink" data-act="adm-open">관리자 코드</button>';
+  if(WAL.on&&WALH.addInk&&(ink.unl||admHave))b+='<div class="admrow"><input type="number" inputmode="numeric" id="admInk" data-draft="admInk" value="'+esc(String(S.draft.admInk||''))+'" placeholder="더할 잉크(빼려면 -)" aria-label="내 잉크에 더할 방울"><button class="btn small" data-act="adm-ink">'+(S.confirm==='admink'?'한 번 더 누르면 적용':'관리자: 내 잉크 더하기')+'</button></div>'+(+WAL.adj?'<p class="hint">관리자가 더한 잉크 '+Math.floor(+WAL.adj)+'방울</p>':'');
   if(ink.unl||admHave){var rva=shopItems().filter(function(x){return !x.free&&shopOwns(V,x.id);});
     if(rva.length){b+='<button class="linkbtn admlink" data-act="adm-rvlist" aria-expanded="'+(S.admRv?'true':'false')+'">관리자: 산 물건 되돌리기 ('+rva.length+'개)</button>';
       if(S.admRv)b+='<div class="chips admrv">'+rva.map(function(x){var cf=S.confirm==='rv1:'+x.id;return '<button class="chip" data-act="adm-rv1" data-id="'+esc(x.id)+'">'+(cf?'한 번 더 누르면 되돌림':esc(x.name)+' 되돌리기')+'</button>';}).join('')+'</div>';}}
