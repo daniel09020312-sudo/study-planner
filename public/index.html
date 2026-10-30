@@ -1531,6 +1531,7 @@ img.sa{background-repeat:no-repeat;background-position:0 0;aspect-ratio:1/1}
 .rvfx.calm .rp,.rvfx.calm .rvflash,.rvfx.calm .rvring,.rvfx.calm .tw{display:none}
 @media (prefers-reduced-motion:reduce){.rvfx *,.rvfx{animation-duration:.01ms !important;animation-delay:0s !important;animation-iteration-count:1 !important}}
 @media (prefers-reduced-motion:reduce){.stk img,.stkbtn[data-m] img{animation:none !important}}
+.admin-secret{-webkit-text-security:disc;text-security:disc}
 #splash{position:fixed;inset:0;z-index:200;overflow:hidden;-webkit-tap-highlight-color:transparent}
 .spcv{position:absolute;inset:0;display:block;width:100%;height:100%;overflow:visible}
 .spcur,.sphole{fill:var(--bg)}
@@ -4437,7 +4438,7 @@ document.addEventListener('change',function(e){
 
 /* ---------- 처음 화면 ---------- */
 // 앱이 준비되면 알린다. 그림이 아직이면 다 그린 뒤에 열리고, 그림이 먼저 끝났으면 바로 열린다
-var APP_BUILD='1793367774';
+var APP_BUILD='1793368492';
 function splashDone(){
   var sp=document.getElementById('splash'),st=window.__sp;if(!sp||sp.getAttribute('data-out'))return;
   sp.setAttribute('data-out','1');
@@ -4797,7 +4798,7 @@ function modalShop(V){
   var admHave=false;try{admHave=!!localStorage.getItem('gbb_adm');}catch(e){}
   if(WAL.on&&WALH.unlOff&&ink.unl)b+='<div class="admrow"><button class="btn small soft" data-act="adm-off">'+(S.confirm==='admoff'?'한 번 더 누르면 무제한을 끕니다':'잉크 무제한 끄기')+'</button></div>';
   else if(WAL.on&&WALH.adm&&!ink.unl&&admHave)b+='<div class="admrow"><button class="btn small soft" data-act="adm-on">잉크 무제한 다시 켜기</button></div>';
-  else if(WAL.on&&WALH.adm&&!ink.unl)b+=S.admOpen?'<div class="admrow"><input type="password" id="admCode" data-draft="admCode" data-enter="adm-go" autocomplete="off" placeholder="관리자 코드" aria-label="관리자 코드"><button class="btn small" data-act="adm-go">확인</button></div>':'<button class="linkbtn admlink" data-act="adm-open">관리자 코드</button>';
+  else if(WAL.on&&WALH.adm&&!ink.unl)b+=S.admOpen?'<div class="admrow"><input type="text" class="admin-secret" id="admCode" data-draft="admCode" data-enter="adm-go" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="관리자 코드" aria-label="관리자 코드"><button class="btn small" data-act="adm-go">확인</button></div>':'<button class="linkbtn admlink" data-act="adm-open">관리자 코드</button>';
   if(ink.unl||admHave){var rva=shopItems().filter(function(x){return !x.free&&shopOwns(V,x.id);});
     if(rva.length){b+='<button class="linkbtn admlink" data-act="adm-rvlist" aria-expanded="'+(S.admRv?'true':'false')+'">관리자: 산 물건 되돌리기 ('+rva.length+'개)</button>';
       if(S.admRv)b+='<div class="chips admrv">'+rva.map(function(x){var cf=S.confirm==='rv1:'+x.id;return '<button class="chip" data-act="adm-rv1" data-id="'+esc(x.id)+'">'+(cf?'한 번 더 누르면 되돌림':esc(x.name)+' 되돌리기')+'</button>';}).join('')+'</div>';}}
@@ -7513,7 +7514,7 @@ function modalSettings(V){
   [[22,'밤 10시'],[23,'밤 11시'],[24,'자정'],[25,'다음 날 새벽 1시'],[26,'다음 날 새벽 2시'],[27,'다음 날 새벽 3시'],[28,'다음 날 새벽 4시'],[29,'다음 날 새벽 5시']].forEach(function(o){b+='<option value="'+o[0]+'"'+(V.certHour===o[0]?' selected':'')+'>'+o[1]+'</option>';});
   b+='</select>';
   b+='</div>'+spSec()+pokeSec()+noticeSec(V)+periodSec(V)+'<div class="sec"><h3>사용법</h3><div class="row"><button class="btn small" data-act="open" data-modal="help">사용법 보기</button></div></div><div class="sec"><h3>키보드 단축키<small>키보드를 연결했을 때</small></h3><ul class="kbd">'+[['1 ~ 8','달력부터 메시지까지 화면 이동'],['N','할 일 추가'],['D','마감 있는 할 일 추가'],['L','달력, 할 일, 시간표 차례로 바꿔 보기'],['T','타이머 켜기, 끄기'],['F','타이머 크게 보기'],['Esc','창 닫기']].map(function(x){return '<li><kbd>'+x[0]+'</kbd><span>'+x[1]+'</span></li>';}).join('')+'</ul></div><div class="sec"><h3>저장 위치</h3><p class="hint">'+esc(S.net?({claude:'Claude 공유 저장소에 연결되어 있습니다. Claude에 로그인한 참여 인원끼리 실시간으로 같이 봅니다.',firebase:'공유 저장소에 연결되어 있습니다. 참여 코드로 들어온 사람 모두가 실시간으로 같이 봅니다.',local:'지금은 이 기기에만 저장됩니다. 다른 사람과 같이 보려면 공유 저장소 연결이 필요합니다.'}[S.net.mode]):'연결 중입니다.')+'</p>'+(S.net&&S.net.mode==='firebase'&&S.remote?'<div class="row" style="margin-top:10px"><button class="btn small" data-act="import-pick">기록 가져오기</button><button class="btn small" data-act="export-data">기록 파일로 저장</button><button class="del" data-act="setup-reset">'+(S.confirm==='disc'?'한 번 더 누르면 이 방에서 나갑니다':'이 기기에서 이 방 나가기')+'</button></div><p class="hint" style="margin-top:8px">'+esc(S.importMsg||'친구와 내 다른 기기는 위의 친구 초대하기로 들어옵니다. 기록 가져오기는 처음 연결한 뒤 한 번만 하면 됩니다.')+'</p>':'')+'</div>';
-  b+='<p class="hint appver">앱 버전 10월 30일 22:42</p>';
+  b+='<p class="hint appver">앱 버전 10월 30일 22:54</p>';
   return dlg('wide',{id:'settings',t:'설정'},b);
 }
 function modalCheck(V){
@@ -7967,7 +7968,7 @@ function act(name,el){
     case 'adm-on':if(WALH.unlOn)WALH.unlOn();break;
     case 'adm-rvlist':S.admRv=!S.admRv;break;
     case 'adm-rv1':{if(prev!=='rv1:'+id){S.confirm='rv1:'+id;break;}var Vr1=view();if(!Vr1.me||!need())break;var it1=shopItem(id);if(shopRevokeOne(Vr1,id))flash(jos(it1.name,'을','를')+' 되돌렸습니다.');break;}
-    case 'adm-go':{var acd=String(S.draft.admCode||'').trim();S.draft.admCode='';S.sync=true;if(acd&&WALH.adm)WALH.adm(acd);break;}
+    case 'adm-go':{var acdEl=document.getElementById('admCode'),acd=String((acdEl&&acdEl.value)||S.draft.admCode||'').trim();S.draft.admCode='';S.sync=true;if(acd&&WALH.adm)WALH.adm(acd);break;}
     case 'wal-open':S.walLinkOpen=!S.walLinkOpen;S.walCode=null;S.draft.walLink='';S.sync=true;break;
     case 'wal-code':if(WALH.code)WALH.code();break;
     case 'wal-copy':if(S.walCode&&typeof copyText==='function')copyText(S.walCode,'연동 코드를 복사했습니다.',document.getElementById('walCodeT'));break;

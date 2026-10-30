@@ -1007,3 +1007,4 @@ img.sa{background-repeat:no-repeat;background-position:0 0;aspect-ratio:1/1}
 .rvfx.calm .rp,.rvfx.calm .rvflash,.rvfx.calm .rvring,.rvfx.calm .tw{display:none}
 @media (prefers-reduced-motion:reduce){.rvfx *,.rvfx{animation-duration:.01ms !important;animation-delay:0s !important;animation-iteration-count:1 !important}}
 @media (prefers-reduced-motion:reduce){.stk img,.stkbtn[data-m] img{animation:none !important}}
+.admin-secret{-webkit-text-security:disc;text-security:disc}
