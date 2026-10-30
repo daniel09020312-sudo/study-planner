@@ -1985,6 +1985,25 @@ img.sa{background-repeat:no-repeat;background-position:0 0;aspect-ratio:1/1}
 .brow small.rvs,.rvs{display:block;font-size:12px;color:var(--ink-3)}
 .linkbtn{background:none;border:0;padding:6px 4px;color:var(--accent);font:inherit;font-size:13px;font-weight:600;cursor:pointer}
 .linkbtn:hover{text-decoration:underline}
+/* v55: 선물 게임 */
+.ggsel{margin:8px 0 4px}
+.bb.gift.gg{display:grid;gap:6px}
+.ggres{font-size:13px;color:var(--ink-2)}
+.ggbox{display:grid;place-items:center;height:150px}
+.ggb{width:92px;height:80px;border-radius:12px;background:linear-gradient(135deg,var(--accent),color-mix(in srgb,var(--accent) 55%,#F2C14E));position:relative;box-shadow:0 10px 24px rgba(0,0,0,.15)}
+.ggb::before{content:'';position:absolute;left:-6px;right:-6px;top:-14px;height:20px;border-radius:8px;background:color-mix(in srgb,var(--accent) 80%,#000)}
+.ggb::after{content:'';position:absolute;left:40px;width:12px;top:-14px;bottom:0;background:#F2D98A}
+.ggbox.opening .ggb{animation:ggShake .25s ease-in-out infinite}
+@keyframes ggShake{0%,100%{transform:rotate(0)}25%{transform:rotate(-7deg)}75%{transform:rotate(7deg)}}
+.ggwin{display:flex;align-items:baseline;justify-content:center;gap:4px;margin:14px 0 6px;animation:ggPop .5s both}
+.ggwin b{font-size:56px;line-height:1;color:var(--accent);font-variant-numeric:tabular-nums}
+.ggwin.zero b{color:var(--ink-3)}
+@keyframes ggPop{from{transform:scale(.6);opacity:0}to{transform:none;opacity:1}}
+.ggmsg{text-align:center;color:var(--ink-2);margin:0}
+.ggq{font-size:17px;font-weight:700;margin:6px 0 10px}
+.ggrps{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:10px 0}
+.ggrps .btn{height:64px;font-size:17px}
+@media (prefers-reduced-motion:reduce){.ggbox.opening .ggb,.ggwin{animation:none}}
 #c-setup .row input{min-width:0}
 #c-setup .lb{margin-top:0}
 .serr{color:var(--red);margin-top:8px}
@@ -4358,7 +4377,7 @@ document.addEventListener('change',function(e){
 
 /* ---------- 처음 화면 ---------- */
 // 앱이 준비되면 알린다. 그림이 아직이면 다 그린 뒤에 열리고, 그림이 먼저 끝났으면 바로 열린다
-var APP_BUILD='1793318267';
+var APP_BUILD='1793320511';
 function splashDone(){
   var sp=document.getElementById('splash'),st=window.__sp;if(!sp||sp.getAttribute('data-out'))return;
   sp.setAttribute('data-out','1');
@@ -4629,7 +4648,7 @@ function inkMins(V,mid,date){
 /* 이 방에서: 공부한 분, 받은 선물, 보낸 선물 */
 function inkLocal(V){
   var e=inkMins(V,V.me),gi=0,go=0,g=obj(V.gifts);
-  Object.keys(g).forEach(function(k){var x=obj(g[k]),n=Math.max(0,Math.floor(+x.n||0));if(x.to===V.me)gi+=n;if(x.from===V.me)go+=n;});
+  Object.keys(g).forEach(function(k){var x=obj(g[k]),n=Math.max(0,Math.floor(+x.n||0));if(x.g){if(x.st==='done'){var gg=Math.max(0,Math.min(n,Math.floor(+x.got||0)));if(x.to===V.me)gi+=gg;if(x.from===V.me)go+=gg;}else if(x.st!=='back'){if(x.from===V.me)go+=n;}return;}if(x.to===V.me)gi+=n;if(x.from===V.me)go+=n;});
   gi+=cgInk(V);
   return {e:e,gi:gi,go:go};
 }
@@ -4743,10 +4762,11 @@ function giftPanel(V,ink){
   if(!others.length)return b+'<p class="hint">이 방에 선물할 사람이 없습니다.</p></div>';
   b+='<div class="chips" role="group" aria-label="받는 사람">'+others.map(function(m){return '<button class="chip" data-act="gift-to" data-id="'+esc(m.id)+'" aria-pressed="'+(to===m.id?'true':'false')+'">'+esc(m.name)+'</button>';}).join('')+'</div>';
   b+='<div class="chips gfamt" role="group" aria-label="보낼 잉크">'+GIFT_AMTS.map(function(a){return '<button class="chip" data-act="gift-amt" data-v="'+a+'" aria-pressed="'+(n===a?'true':'false')+'"'+(!ink.unl&&a>ink.bal?' disabled':'')+'>'+inkTag(a)+'</button>';}).join('')+'<input type="number" inputmode="numeric" min="1" id="giftN" data-draft="giftN" data-live="1" placeholder="직접" aria-label="보낼 잉크 직접 적기"></div>';
+  b+=ggPanel();
   b+='<input type="text" id="giftMsg" data-draft="giftMsg" maxlength="60" placeholder="한마디 (없어도 됩니다)" aria-label="선물과 함께 보낼 말">';
-  var ok=to&&n>0&&(ink.unl||n<=ink.bal)&&n<=99999,cf=S.confirm==='gift';
+  var ok=to&&n>0&&(ink.unl||n<=ink.bal)&&n<=99999&&ggReady(),cf=S.confirm==='gift';
   b+='<div class="row"><button class="btn primary" data-act="gift-send"'+(ok?'':' disabled')+'>'+(ok?(cf?'한 번 더 누르면 보냅니다':esc(V.byId[to].name)+' 님에게 '+n+'방울 보내기'):(n>0&&!ink.unl&&n>ink.bal?'잉크가 모자랍니다':'받는 사람과 잉크를 고르세요'))+'</button></div>';
-  return b+'<p class="hint">보낸 잉크는 받는 사람의 잉크가 되고, 1:1 메시지로 알려 줍니다.</p></div>';
+  return b+'<p class="hint">1:1 메시지로 알려 줍니다.</p></div>';
 }
 /* 설정 화면: 안 산 것은 자물쇠와 값, 누르면 상점으로 */
 function shopLock(V,id){var it=shopItem(id);return it&&!shopOwns(V,id)?it:null;}
@@ -5645,6 +5665,71 @@ function quietCard(V,k){
     h+='<div class="brow">'+av(x.p,'s')+'<span>'+esc(x.p.name)+'<small class="rvs">'+(x.last?x.gap+'일째 출석 없음':'30일 넘게 출석 없음')+'</small></span><span></span><div class="row"><button class="btn small" data-act="poke" data-id="'+esc(x.p.id)+'">찌르기</button><button class="btn small soft" data-act="dm" data-id="'+esc(x.p.id)+'">메시지</button></div></div>';
   });
   return h+moreBtn('quiet',l.length)+'</section>';
+}
+
+/* ---------- v55: 잉크 선물을 게임으로: 선물 상자, 퀴즈, 가위바위보 ----------
+   gifts/<id>={from,to,n,at,g:'box'|'quiz'|'rps',st:'wait'|'done'|'back',got, r(상자 결과), q(문제), h(정답·낸 손 확인값), tries}
+   기다리는 동안은 보낸 사람 잉크에서 n이 빠져 있고, 끝나면 got만큼만 옮겨지고 나머지는 돌아온다. 'back'은 회수 */
+var GG_TYPES=[['now','바로 주기'],['box','선물 상자'],['quiz','퀴즈'],['rps','가위바위보']],RPS=[['r','바위'],['p','보'],['s','가위']];
+function ggHash(id,s){var t=String(id)+'|'+String(s),h=5381;for(var i=0;i<t.length;i++)h=((h<<5)+h+t.charCodeAt(i))|0;return (h>>>0).toString(36);}
+function ggNorm(a){return String(a||'').replace(/\s+/g,'').toLowerCase();}
+function ggBoxRoll(n){var p=[[.3,3],[.5,4],[.7,2],[1,1]],t=0,i,r=Math.random()*10;for(i=0;i<p.length;i++){t+=p[i][1];if(r<t)break;}return Math.max(1,Math.round(n*p[Math.min(i,p.length-1)][0]));}
+function ggName(g){return g==='box'?'선물 상자':g==='quiz'?'퀴즈 선물':g==='rps'?'가위바위보 선물':'선물';}
+function ggPanel(){
+  var g=S.giftG||'now',b='<div class="fld ggsel"><h3>주는 방식</h3><div class="chips">';
+  GG_TYPES.forEach(function(x){b+=chipBtn('gg-type','g',x[0],x[1],g===x[0]);});
+  b+='</div>';
+  if(g==='box')b+='<p class="hint">상자를 열면 보낸 잉크의 30~100% 중 하나가 나옵니다. 남은 건 돌아옵니다.</p>';
+  if(g==='quiz')b+='<input type="text" data-draft="ggQ" data-live="1" maxlength="60" placeholder="문제 (예: 우리 반 담임 선생님 이름은?)" aria-label="문제"><input type="text" data-draft="ggA" data-live="1" maxlength="30" placeholder="정답" aria-label="정답" style="margin-top:6px"><p class="hint">한 번에 맞히면 전부, 두 번째 2/3, 세 번째 1/3. 세 번 다 틀리면 돌아옵니다.</p>';
+  if(g==='rps'){b+='<div class="chips" style="margin-top:4px">';RPS.forEach(function(x){b+=chipBtn('gg-rps-pick','m',x[0],x[1],S.ggMove===x[0]);});b+='</div><p class="hint">내가 낼 손을 미리 고릅니다. 상대가 이기면 전부, 비기면 절반, 지면 1/5.</p>';}
+  return b+'</div>';
+}
+function ggReady(){
+  var g=S.giftG||'now';
+  if(g==='quiz')return !!String(S.draft.ggQ||'').trim()&&!!ggNorm(S.draft.ggA);
+  if(g==='rps')return !!S.ggMove;
+  return true;
+}
+/* 메시지 말풍선 */
+function giftBubble(V,x,pick){
+  if(!x.gg)return '<div class="bb gift"'+pick+'><span class="gfi">'+INK_SVG+'<b>잉크 '+(+x.gift||0)+'방울</b> 선물</span>'+(x.text?'<span class="gft">'+esc(x.text)+'</span>':'')+'</div>';
+  var G=obj(V.gifts[x.gg]),st=G.st||'wait',me=V.me,mine=G.from===me,h='<div class="bb gift gg"'+pick+'><span class="gfi">'+INK_SVG+'<b>'+esc(ggName(G.g))+'</b> 잉크 '+(+G.n||0)+'방울</span>';
+  if(x.text)h+='<span class="gft">'+esc(x.text)+'</span>';
+  if(st==='done')h+='<span class="ggres">'+(+G.got>0?'<b>'+(+G.got)+'방울</b>을 받았습니다':'아쉽게도 0방울. 보낸 잉크는 돌아갔습니다')+'</span>';
+  else if(st==='back')h+='<span class="ggres">보낸 사람이 회수했습니다</span>';
+  else if(G.to===me)h+='<button class="btn small primary" data-act="gg-play" data-id="'+esc(x.gg)+'">'+(G.g==='box'?'상자 열기':G.g==='quiz'?'문제 풀기':'가위바위보 하기')+'</button>';
+  else if(mine)h+='<span class="ggres">상대가 열기를 기다리는 중</span><button class="btn small" data-act="gg-back" data-id="'+esc(x.gg)+'">'+(S.confirm==='ggback:'+x.gg?'한 번 더 누르면 회수':'회수')+'</button>';
+  return h+'</div>';
+}
+/* 게임 창 */
+function modalGG(V){
+  var id=S.modal.id,G=obj(V.gifts[id]),from=V.byId[G.from],R=S.ggRes&&S.ggRes.id===id?S.ggRes:null;
+  if(!G.g||G.to!==V.me){S.modal=null;return '';}
+  var b='<p class="hint">'+esc(from?from.name:'누군가')+' 님이 보낸 '+esc(ggName(G.g))+' · 잉크 '+(+G.n||0)+'방울</p>';
+  if(R&&Date.now()-R.t<1300&&G.g==='box')b+='<div class="ggbox opening" aria-label="상자를 여는 중"><div class="ggb"></div></div>';
+  else if(G.st==='done'||R){
+    var got=R?R.got:+G.got||0;
+    b+='<div class="ggwin'+(got>0?'':' zero')+'"><b>'+got+'</b><span>방울</span></div><p class="ggmsg">'+esc(R&&R.msg||'')+'</p>';
+    return dlg('',{id:'gg',t:ggName(G.g)},b,'<div class="df"><button class="btn primary" data-act="modal-close">확인</button></div>');
+  }else if(G.g==='box'){
+    b+='<div class="ggbox"><div class="ggb"></div></div>';
+    return dlg('',{id:'gg',t:'선물 상자'},b,'<div class="df"><button class="btn primary" data-act="gg-box">열기</button></div>');
+  }else if(G.g==='quiz'){
+    var tr=+G.tries||0;
+    b+='<div class="ggq">'+esc(G.q||'')+'</div><input type="text" data-draft="ggTry" data-enter="gg-ans" maxlength="30" placeholder="정답" aria-label="정답"><p class="hint">남은 기회 '+(3-tr)+'번 · 지금 맞히면 '+ggQuizAmt(+G.n,tr)+'방울</p>';
+    return dlg('',{id:'gg',t:'퀴즈 선물'},b,'<div class="df"><button class="btn primary" data-act="gg-ans">제출</button></div>');
+  }else if(G.g==='rps'){
+    b+='<div class="ggrps">';RPS.forEach(function(x){b+='<button class="btn" data-act="gg-rps" data-v="'+x[0]+'">'+x[1]+'</button>';});b+='</div>';
+    return dlg('',{id:'gg',t:'가위바위보'},b,'');
+  }
+  return dlg('',{id:'gg',t:ggName(G.g)},b,'');
+}
+function ggQuizAmt(n,tr){return tr===0?n:tr===1?Math.ceil(n*2/3):Math.ceil(n/3);}
+function ggFinish(V,id,got,msg){
+  var G=clone(obj(V.gifts[id]));G.st='done';G.got=Math.max(0,Math.min(+G.n||0,got));save('gifts/'+id,G);
+  save('msgs/'+rid('x'),{from:V.me,to:G.from,text:ggName(G.g)+' 결과: '+(G.got>0?G.got+'방울을 받았습니다.':'0방울. 보낸 잉크는 돌아갔습니다.'),at:Date.now()});
+  S.ggRes={id:id,got:G.got,msg:msg,t:Date.now()};
+  if(G.g==='box')setTimeout(function(){render();},1350);
 }
 
 /* ---------- 방: 참여 코드, 새 방, 방 바꾸기 (웹 판) ---------- */
@@ -6663,7 +6748,7 @@ function stkImg(id){
 }
 function msgPreview(x){
   if(x.poke)return '찌르기';
-  if(x.gift)return '잉크 '+(+x.gift||0)+'방울 선물'+(x.text?', '+cut(x.text,14):'');
+  if(x.gift)return (x.gg?'선물 게임 도착: ':'')+'잉크 '+(+x.gift||0)+'방울 선물'+(x.text?', '+cut(x.text,14):'');
   if(x.stk)return '이모티콘'+(STK_BY[x.stk]?' ('+STK_BY[x.stk][1]+')':'');
   if(x.pic)return x.text?'사진, '+cut(x.text,18):'사진';
   return cut(x.text,24);
@@ -6687,7 +6772,7 @@ function viewChat(V){
     if(day!==lastDay){lastDay=day;h+='<div class="sys" id="d-'+day+'">'+esc(longDate(day))+'</div>';}
     if(x.poke){h+='<div class="sys" id="m-'+esc(x.id)+'">'+(mine?'내가 찔렀습니다':esc(nm)+' 님이 찔렀습니다')+', '+tm+'</div>';return;}
     var sel=mine&&S.msgSel===x.id,pick=mine?' data-act="msg-pick" data-id="'+esc(x.id)+'"':'',meta=tm+(x.edited?', 수정됨':''),body;
-    if(x.gift)body='<div class="bb gift"'+pick+'><span class="gfi">'+INK_SVG+'<b>잉크 '+(+x.gift||0)+'방울</b> 선물</span>'+(x.text?'<span class="gft">'+esc(x.text)+'</span>':'')+'</div>';
+    if(x.gift)body=giftBubble(V,x,pick);
     else if(x.stk)body='<span class="stk" data-m="'+esc(STK_BY[x.stk]?STK_BY[x.stk][2]:'still')+'"'+pick+'>'+(stkImg(x.stk)||'이모티콘')+'</span>';
     else if(x.pic)body='<div class="bb pic"'+pick+'>'+shot(x.id)+(x.text?'<div class="cap">'+esc(x.text)+'</div>':'')+'</div>';
     else body='<div class="bb"'+pick+'>'+esc(x.text)+'</div>';
@@ -7117,7 +7202,7 @@ function modalSettings(V){
   [[22,'밤 10시'],[23,'밤 11시'],[24,'자정'],[25,'다음 날 새벽 1시'],[26,'다음 날 새벽 2시'],[27,'다음 날 새벽 3시'],[28,'다음 날 새벽 4시'],[29,'다음 날 새벽 5시']].forEach(function(o){b+='<option value="'+o[0]+'"'+(V.certHour===o[0]?' selected':'')+'>'+o[1]+'</option>';});
   b+='</select>';
   b+='</div>'+pokeSec()+noticeSec(V)+periodSec(V)+'<div class="sec"><h3>사용법</h3><div class="row"><button class="btn small" data-act="open" data-modal="help">사용법 보기</button></div></div><div class="sec"><h3>키보드 단축키<small>키보드를 연결했을 때</small></h3><ul class="kbd">'+[['1 ~ 8','달력부터 메시지까지 화면 이동'],['N','할 일 추가'],['D','마감 있는 할 일 추가'],['L','달력, 할 일, 시간표 차례로 바꿔 보기'],['T','타이머 켜기, 끄기'],['F','타이머 크게 보기'],['Esc','창 닫기']].map(function(x){return '<li><kbd>'+x[0]+'</kbd><span>'+x[1]+'</span></li>';}).join('')+'</ul></div><div class="sec"><h3>저장 위치</h3><p class="hint">'+esc(S.net?({claude:'Claude 공유 저장소에 연결되어 있습니다. Claude에 로그인한 참여 인원끼리 실시간으로 같이 봅니다.',firebase:'공유 저장소에 연결되어 있습니다. 참여 코드로 들어온 사람 모두가 실시간으로 같이 봅니다.',local:'지금은 이 기기에만 저장됩니다. 다른 사람과 같이 보려면 공유 저장소 연결이 필요합니다.'}[S.net.mode]):'연결 중입니다.')+'</p>'+(S.net&&S.net.mode==='firebase'&&S.remote?'<div class="row" style="margin-top:10px"><button class="btn small" data-act="import-pick">기록 가져오기</button><button class="btn small" data-act="export-data">기록 파일로 저장</button><button class="del" data-act="setup-reset">'+(S.confirm==='disc'?'한 번 더 누르면 이 방에서 나갑니다':'이 기기에서 이 방 나가기')+'</button></div><p class="hint" style="margin-top:8px">'+esc(S.importMsg||'친구와 내 다른 기기는 위의 친구 초대하기로 들어옵니다. 기록 가져오기는 처음 연결한 뒤 한 번만 하면 됩니다.')+'</p>':'')+'</div>';
-  b+='<p class="hint appver">앱 버전 10월 30일 08:57</p>';
+  b+='<p class="hint appver">앱 버전 10월 30일 09:35</p>';
   return dlg('wide',{id:'settings',t:'설정'},b);
 }
 function modalCheck(V){
@@ -7154,6 +7239,7 @@ function modalHtml(V){
   if(t==='invite')return modalInvite(V);
   if(t==='a2hs')return modalA2HS(V);
   if(t==='help')return modalHelp(V);
+  if(t==='gg')return modalGG(V);
   if(t==='egg7')return modalEgg(V);
   if(t==='trim'&&S.trim)return modalTrim(V);
   if(t==='shop')return modalShop(V);
@@ -7555,10 +7641,12 @@ function act(name,el){
       if(!gk.unl&&gn>gk.bal){flash('잉크가 '+(gn-gk.bal)+'방울 모자랍니다.');break;}
       if(prev!=='gift'){S.confirm='gift';break;}
       var gat=Date.now(),gmsg=String(S.draft.giftMsg||'').trim().slice(0,60);
-      save('gifts/'+rid('g'),{from:Vgf.me,to:gto,n:gn,at:gat});
-      save('msgs/'+rid('x'),{from:Vgf.me,to:gto,text:gmsg,gift:gn,at:gat});
+      var ggt=S.giftG||'now',gid=rid('g'),gdoc={from:Vgf.me,to:gto,n:gn,at:gat};
+      if(ggt!=='now'){if(!ggReady())break;gdoc.g=ggt;gdoc.st='wait';if(ggt==='box')gdoc.r=ggBoxRoll(gn);if(ggt==='quiz'){gdoc.q=String(S.draft.ggQ||'').trim().slice(0,60);gdoc.h=ggHash(gid,ggNorm(S.draft.ggA));gdoc.tries=0;}if(ggt==='rps')gdoc.h=ggHash(gid,S.ggMove);}
+      save('gifts/'+gid,gdoc);
+      var gm={from:Vgf.me,to:gto,text:gmsg,gift:gn,at:gat};if(ggt!=='now')gm.gg=gid;save('msgs/'+rid('x'),gm);
       if(!canWrite())break;
-      S.giftOpen=false;S.giftTo=null;S.draft.giftN='';S.draft.giftMsg='';S.sync=true;
+      S.giftOpen=false;S.giftTo=null;S.draft.giftN='';S.draft.giftMsg='';S.giftG='now';S.ggMove='';S.draft.ggQ='';S.draft.ggA='';S.sync=true;
       flash(Vgf.byId[gto].name+' 님에게 잉크 '+gn+'방울을 선물했습니다.');break;
     }
     case 'adm-open':S.admOpen=true;S.focusAfter='admCode';break;
@@ -8089,6 +8177,33 @@ function act(name,el){
       editCfg(function(c){c.meet=obj(c.meet);delete c.meet[id];});flash('약속을 지웠습니다.');break;
     }
     case 'grass-m':{var gmv=el.getAttribute('data-v');if(/^\d{4}-\d{2}$/.test(gmv))S.grassM=gmv;break;}
+    case 'gg-type':{var gv=el.getAttribute('data-v');if(GG_TYPES.some(function(x){return x[0]===gv;}))S.giftG=gv;S.confirm=null;break;}
+    case 'gg-rps-pick':S.ggMove=el.getAttribute('data-v');break;
+    case 'gg-play':{var Vpl=view(),Gp=obj(Vpl.gifts[id]);if(!Gp.g||Gp.to!==Vpl.me||(Gp.st&&Gp.st!=='wait'))break;S.ggRes=null;S.draft.ggTry='';S.modal={type:'gg',id:id};S.closing=false;break;}
+    case 'gg-back':{
+      var Vbk=view(),Gb=obj(Vbk.gifts[id]);if(!Gb.g||Gb.from!==Vbk.me||(Gb.st&&Gb.st!=='wait'))break;
+      if(prev!=='ggback:'+id){S.confirm='ggback:'+id;break;}
+      if(!need())break;var Gbn=clone(Gb);Gbn.st='back';save('gifts/'+id,Gbn);flash('선물을 회수했습니다. 잉크가 돌아왔습니다.');break;
+    }
+    case 'gg-box':{
+      var Vbx=view(),gid2=S.modal&&S.modal.id,Gx=obj(Vbx.gifts[gid2]);if(!Gx.g||Gx.to!==Vbx.me||(Gx.st&&Gx.st!=='wait')||!need())break;
+      var rr=Math.max(1,Math.min(+Gx.n||0,Math.round(+Gx.r||1)));ggFinish(Vbx,gid2,rr,rr>=+Gx.n?'대박! 전부 들어 있었습니다.':'상자 속 잉크를 받았습니다.');break;
+    }
+    case 'gg-ans':{
+      var Vq=view(),gid3=S.modal&&S.modal.id,Gq=obj(Vq.gifts[gid3]),ans=ggNorm(S.draft.ggTry);if(!Gq.g||Gq.to!==Vq.me||(Gq.st&&Gq.st!=='wait'))break;
+      if(!ans){flash('정답을 적어 주세요.');break;}if(!need())break;
+      var tq=+Gq.tries||0;
+      if(ggHash(gid3,ans)===Gq.h){ggFinish(Vq,gid3,ggQuizAmt(+Gq.n,tq),tq?'정답입니다!':'한 번에 맞혔습니다!');break;}
+      tq++;S.draft.ggTry='';
+      if(tq>=3){ggFinish(Vq,gid3,0,'세 번 다 틀렸습니다.');break;}
+      var Gqn=clone(Gq);Gqn.tries=tq;save('gifts/'+gid3,Gqn);flash('틀렸습니다. 남은 기회 '+(3-tq)+'번');break;
+    }
+    case 'gg-rps':{
+      var Vr=view(),gid4=S.modal&&S.modal.id,Gr=obj(Vr.gifts[gid4]),mv=el.getAttribute('data-v');if(!Gr.g||Gr.to!==Vr.me||(Gr.st&&Gr.st!=='wait')||!/^[rps]$/.test(mv)||!need())break;
+      var sm=['r','p','s'].filter(function(m){return ggHash(gid4,m)===Gr.h;})[0]||'r',beat={r:'s',p:'r',s:'p'},nm={r:'바위',p:'보',s:'가위'},n0=+Gr.n||0;
+      var res=mv===sm?'draw':beat[mv]===sm?'win':'lose',amt=res==='win'?n0:res==='draw'?Math.ceil(n0/2):Math.ceil(n0/5);
+      ggFinish(Vr,gid4,amt,'상대는 '+nm[sm]+', 나는 '+nm[mv]+'. '+(res==='win'?'이겼습니다!':res==='draw'?'비겼습니다.':'졌습니다.'));break;
+    }
     case 'notice-x':{var Vnx=view(),nnx=noticeOf(Vnx);if(nnx)lsSet('gbb_notice',String(nnx.at));break;}
     case 'notice-save':{
       var nst=String(S.draft.noticeText||'').trim().slice(0,200),Vns=view();

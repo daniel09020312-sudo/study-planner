@@ -1,0 +1,19 @@
+/* v55: 선물 게임 */
+.ggsel{margin:8px 0 4px}
+.bb.gift.gg{display:grid;gap:6px}
+.ggres{font-size:13px;color:var(--ink-2)}
+.ggbox{display:grid;place-items:center;height:150px}
+.ggb{width:92px;height:80px;border-radius:12px;background:linear-gradient(135deg,var(--accent),color-mix(in srgb,var(--accent) 55%,#F2C14E));position:relative;box-shadow:0 10px 24px rgba(0,0,0,.15)}
+.ggb::before{content:'';position:absolute;left:-6px;right:-6px;top:-14px;height:20px;border-radius:8px;background:color-mix(in srgb,var(--accent) 80%,#000)}
+.ggb::after{content:'';position:absolute;left:40px;width:12px;top:-14px;bottom:0;background:#F2D98A}
+.ggbox.opening .ggb{animation:ggShake .25s ease-in-out infinite}
+@keyframes ggShake{0%,100%{transform:rotate(0)}25%{transform:rotate(-7deg)}75%{transform:rotate(7deg)}}
+.ggwin{display:flex;align-items:baseline;justify-content:center;gap:4px;margin:14px 0 6px;animation:ggPop .5s both}
+.ggwin b{font-size:56px;line-height:1;color:var(--accent);font-variant-numeric:tabular-nums}
+.ggwin.zero b{color:var(--ink-3)}
+@keyframes ggPop{from{transform:scale(.6);opacity:0}to{transform:none;opacity:1}}
+.ggmsg{text-align:center;color:var(--ink-2);margin:0}
+.ggq{font-size:17px;font-weight:700;margin:6px 0 10px}
+.ggrps{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:10px 0}
+.ggrps .btn{height:64px;font-size:17px}
+@media (prefers-reduced-motion:reduce){.ggbox.opening .ggb,.ggwin{animation:none}}
