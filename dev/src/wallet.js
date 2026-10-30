@@ -142,3 +142,10 @@ WALH.adm=function(code){
     });
   });}).catch(function(){flash('관리자 코드가 맞지 않습니다.');});
 };
+/* 관리자: 무제한 끄기(지갑 서명을 지우고, 이 기기가 다시 저절로 서명하지 않게 목록에서 뺀다). 관리자 코드는 이 기기에 남겨 '다시 켜기'로 바로 켬 */
+WALH.unlOff=function(){
+  if(!WAL.on||!WAL.id)return;var id=WAL.id;
+  try{localStorage.setItem('gbb_adm_w',JSON.stringify(walAdmList().filter(function(x){return x!==id;})));}catch(e){}
+  walPatch(id,{unl:null}).then(function(){WAL.unl=false;WALS.unlFor=id;flash('잉크 무제한을 껐습니다. 이제 모은 잉크만큼 씁니다.');render();}).catch(function(){flash('끄지 못했습니다. 인터넷 연결을 확인해 주세요.');});
+};
+WALH.unlOn=function(){var d=null;try{d=localStorage.getItem('gbb_adm');}catch(e){}if(d)WALH.adm(d);else{S.admOpen=true;render();}};

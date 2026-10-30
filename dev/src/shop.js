@@ -122,7 +122,10 @@ function modalShop(V){
     b+='</div>';
   });
   b+='</div><p class="hint" style="margin-top:14px">'+(WAL.on?'잉크와 산 것은 내가 들어간 모든 방에서 같이 씁니다. ':'산 것은 이 방에서 계속 쓸 수 있습니다. ')+'모양만 바뀌고 기능과 점수는 그대로입니다. 고른 모양은 이 기기에 저장됩니다.</p>';
-  if(WAL.on&&WALH.adm&&!ink.unl)b+=S.admOpen?'<div class="admrow"><input type="password" id="admCode" data-draft="admCode" data-enter="adm-go" autocomplete="off" placeholder="관리자 코드" aria-label="관리자 코드"><button class="btn small" data-act="adm-go">확인</button></div>':'<button class="linkbtn admlink" data-act="adm-open">관리자 코드</button>';
+  var admHave=false;try{admHave=!!localStorage.getItem('gbb_adm');}catch(e){}
+  if(WAL.on&&WALH.unlOff&&ink.unl)b+='<div class="admrow"><button class="btn small soft" data-act="adm-off">'+(S.confirm==='admoff'?'한 번 더 누르면 무제한을 끕니다':'잉크 무제한 끄기')+'</button></div>';
+  else if(WAL.on&&WALH.adm&&!ink.unl&&admHave)b+='<div class="admrow"><button class="btn small soft" data-act="adm-on">잉크 무제한 다시 켜기</button></div>';
+  else if(WAL.on&&WALH.adm&&!ink.unl)b+=S.admOpen?'<div class="admrow"><input type="password" id="admCode" data-draft="admCode" data-enter="adm-go" autocomplete="off" placeholder="관리자 코드" aria-label="관리자 코드"><button class="btn small" data-act="adm-go">확인</button></div>':'<button class="linkbtn admlink" data-act="adm-open">관리자 코드</button>';
   if(ink.unl){var rvn=shopRevokeList(V).length;if(rvn)b+='<button class="linkbtn admlink" data-act="adm-revoke">'+(S.confirm==='admrv'?'한 번 더 누르면 산 이모티콘 팩 '+rvn+'개를 되돌립니다':'관리자: 산 이모티콘 팩 되돌리기')+'</button>';}
   return dlg('wide',{id:'shop',t:'상점'},b);
 }
