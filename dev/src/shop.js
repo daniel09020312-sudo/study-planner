@@ -51,8 +51,8 @@ function inkOf(V){
   var L=inkLocal(V),m=L.e,gi=L.gi,go=L.go,own=Object.assign({},shopOwnLive(V),walOwn()),spent=0,n=1;
   if(WAL.on)Object.keys(obj(WAL.rm)).forEach(function(k){if(k===WAL.key)return;var r=obj(WAL.rm[k]);m+=Math.max(0,+r.e||0);gi+=Math.max(0,+r.gi||0);go+=Math.max(0,+r.go||0);n++;});
   Object.keys(own).forEach(function(k){spent+=Math.max(0,+own[k]||0);});
-  var got=Math.floor(m/INK_MIN)+gi+(WAL.on?Math.floor(+WAL.adj||0):0);spent+=go;
-  return V._ink={got:got,spent:spent,bal:WAL.unl?Infinity:Math.max(0,got-spent),today:Math.floor(inkMins(V,V.me,today())/INK_MIN),gi:gi,unl:!!WAL.unl,rooms:n};
+  var got=Math.floor(m/INK_MIN)+gi;spent+=go-(WAL.on?Math.floor(+WAL.adj||0):0);
+  return V._ink={got:got,spent:Math.max(0,spent),bal:WAL.unl?Infinity:Math.max(0,got-spent),today:Math.floor(inkMins(V,V.me,today())/INK_MIN),gi:gi,unl:!!WAL.unl,rooms:n};
 }
 function roJ(w){w=String(w||'');var c=w.charCodeAt(w.length-1);if(!(c>=0xAC00&&c<=0xD7A3))return w+'로';var f=(c-0xAC00)%28;return w+(f&&f!==8?'으로':'로');}
 function inkTag(n){return '<span class="inkt">'+INK_SVG+'<b>'+n+'</b></span>';}
@@ -101,7 +101,7 @@ function shopBtn(V,it,ink){
 function modalShop(V){
   var ink=inkOf(V),cat=S.shopCat||'look',items=shopItems().filter(function(x){return x.cat===cat;});
   var b='<div class="wallet'+(ink.unl?' unl':'')+'"><div class="wl">'+INK_SVG+'<div><small>내 잉크'+(ink.rooms>1?' · 방 '+ink.rooms+'개 합계':'')+'</small><b>'+(ink.unl?'무제한':ink.bal+'<em>방울</em>')+'</b></div></div>';
-  b+='<p class="wr">공부 10분마다 잉크 한 방울'+(ink.today?'<span class="wtd">오늘 +'+ink.today+'</span>':'')+'<small>'+(ink.unl?'관리자는 잉크를 쓰지 않고 사고 선물합니다':'모은 잉크 '+ink.got+(ink.gi?' (받은 선물 '+ink.gi+')':'')+' · 쓴 잉크 '+ink.spent)+'</small><span class="wbtns">'+(WAL.on&&WALH.link?'<button class="btn small gfbtn" data-act="wal-open" aria-expanded="'+(S.walLinkOpen?'true':'false')+'">다른 방과 같이 쓰기</button>':'')+'<button class="btn small gfbtn" data-act="gift-open" aria-expanded="'+(S.giftOpen?'true':'false')+'">'+(S.giftOpen?'선물 닫기':'잉크 선물하기')+'</button></span></p></div>';
+  b+='<p class="wr">공부 10분마다 잉크 한 방울'+(ink.today?'<span class="wtd">오늘 +'+ink.today+'</span>':'')+'<small>'+(ink.unl?'관리자는 잉크를 쓰지 않고 사고 선물합니다':'모은 잉크 '+ink.got+(ink.gi?' (받은 선물 '+ink.gi+')':'')+' · 쓴 잉크 '+ink.spent+(WAL.on&&Math.floor(+WAL.adj||0)?' · 더한 잉크 '+Math.floor(+WAL.adj):''))+'</small><span class="wbtns">'+(WAL.on&&WALH.link?'<button class="btn small gfbtn" data-act="wal-open" aria-expanded="'+(S.walLinkOpen?'true':'false')+'">다른 방과 같이 쓰기</button>':'')+'<button class="btn small gfbtn" data-act="gift-open" aria-expanded="'+(S.giftOpen?'true':'false')+'">'+(S.giftOpen?'선물 닫기':'잉크 선물하기')+'</button></span></p></div>';
   if(S.walLinkOpen&&WAL.on)b+=walPanel(V,ink);
   if(S.giftOpen)b+=giftPanel(V,ink);
   b+='<div class="seg mini shcats" style="--i:'+SHOP_CATS.map(function(x){return x[0];}).indexOf(cat)+';--n:'+SHOP_CATS.length+'" role="group" aria-label="상품 종류">'+SHOP_CATS.map(function(x){return '<button data-act="shop-cat" data-v="'+x[0]+'" aria-pressed="'+(cat===x[0]?'true':'false')+'">'+x[1]+'</button>';}).join('')+'</div>';

@@ -38,7 +38,7 @@ check('revoked and refunded', '150방울' in t3 and 'c:line' not in json.dumps(p
 # 관리자 잉크 더하기 80
 shop(D); D.fill('#admInk', '80'); D.wait_for_timeout(200); click(D, '[data-act="adm-ink"]', 400); click(D, '[data-act="adm-ink"]', 1500); close(D)
 t4 = wallet_text(D)
-check('admin added 80', '230방울' in t4 and (W().get(w1) or {}).get('adj') == 80, t4)
+check('admin added 80 (not in collected)', '230방울' in t4 and '모은 잉크 150' in t4 and (W().get(w1) or {}).get('adj') == 80, t4)
 go(D, RA); D.wait_for_timeout(8000)
 check('added ink kept after reload', '230방울' in wallet_text(D))
 check('not re-signed after reload', not (W().get(w1) or {}).get('unl'))
