@@ -2626,7 +2626,7 @@ function buildScores0(V){
     for(var d=START;d<=last;d=addDays(d,1)){
       var x=obj(V.days[m.id+'_'+d]),g=arr(x.goals).filter(function(q){return !(q&&q.mv);}),done=g.filter(isDone).length,tm=sumMins(x.mins),mm=sumMins(x.manual),hk=Object.keys(helps[m.id+'_'+d]||{}).length;
       streak=x.in?streak+1:0;
-      var r={streak:streak,att:x.in?attReward(streak,d):0,goal:d<NEWRULE?RULE.goal*Math.min(RULE.goalMax,done):0,clear:d<NEWRULE?((g.length>=3&&done===g.length)?RULE.clear:0):((g.length>=3&&done===g.length&&x.certAt)?(isLate(V,d,x.certAt)?RULE.allLate:RULE.allCert):0),
+      var r={streak:streak,att:x.in?attReward(streak,d):0,goal:d<NEWRULE?RULE.goal*Math.min(RULE.goalMax,done):0,clear:d<NEWRULE?((g.length>=3&&done===g.length)?RULE.clear:0):((arr(x.goals).filter(Boolean).length>=3&&done===g.length&&x.certAt)?(isLate(V,d,x.certAt)?RULE.allLate:RULE.allCert):0),
         time:Math.min(RULE.timeMax,Math.floor((tm+Math.min(mm,RULE.manualMax))/30)*RULE.per30),cert:x.certAt?(isLate(V,d,x.certAt)?RULE.certLate:RULE.certOn):0,
         quiz:(posts[m.id+'_'+d]?(d<RULE3?10:RULE.quiz):0)+(d<RULE3?3:RULE.help)*Math.min(RULE.helpMax,hk),bonus:0,place:0,done:done,n:g.length,mins:tm+mm,certed:!!x.certAt};
       r.base=r.att+r.goal+r.clear+r.time+r.cert+r.quiz;r.cut=!!(rd&&d<rd);r.off=(rd&&d===rd)?Math.min(off,r.base):0;r.base-=r.off;r.total=r.base;sc[m.id][d]=r;
@@ -4402,7 +4402,7 @@ document.addEventListener('change',function(e){
 
 /* ---------- 처음 화면 ---------- */
 // 앱이 준비되면 알린다. 그림이 아직이면 다 그린 뒤에 열리고, 그림이 먼저 끝났으면 바로 열린다
-var APP_BUILD='1793360992';
+var APP_BUILD='1793362781';
 function splashDone(){
   var sp=document.getElementById('splash'),st=window.__sp;if(!sp||sp.getAttribute('data-out'))return;
   sp.setAttribute('data-out','1');
@@ -4419,7 +4419,7 @@ function rulesData(){
   var g=[
     {t:'매일',items:[
       ['출석','3~5점',['연속 출석할수록 하루 1점씩 올라감','7일째마다 5점 더']],
-      ['할 일 모두 끝내고 인증',RULE.allCert+'점',['할 일 3개 이상 세우고 전부 끝내기','마감 뒤 인증은 '+RULE.allLate+'점']],
+      ['할 일 모두 끝내고 인증',RULE.allCert+'점',['할 일 3개 이상 세우고 전부 끝내기(다른 날로 옮긴 할 일은 끝낸 것으로 침)','마감 뒤 인증은 '+RULE.allLate+'점']],
       ['인증',RULE.certOn+'점',['마감 뒤 인증은 '+RULE.certLate+'점']],
       ['공부 시간','30분 '+RULE.per30+'점',['하루 '+RULE.timeMax+'점까지','직접 입력한 시간은 하루 1시간까지']],
       ['문제 내기',RULE.quiz+'점',['문제를 올린 날']],
@@ -7214,7 +7214,7 @@ function memberStats(V,mid){
   var t=today(),last=t<END?t:END,rows=V.sc[mid]||{},skip=obj(obj(V.progress[mid]).skip),subj={},k;
   var s={maxStreak:0,mins:0,clear:0,clrCert:0,dayWins:0,weekWins:0,posts:0,helps:0,lines:0,duelWins:0,early:0,win:0,d6:0,d8:0,d10:0,d12:0,perfect:0,lapses:0,balMin:0};
   var cs0=0;for(var d=TALLY;d<=last;d=addDays(d,1)){
-    var x=dayOf(V,mid,d),r=rows[d],g=x.goals.filter(function(q){return !(q&&q.mv);}),dm=sumMins(x.mins)+sumMins(x.manual),all=g.length>=3&&g.filter(isDone).length===g.length;
+    var x=dayOf(V,mid,d),r=rows[d],g=x.goals.filter(function(q){return !(q&&q.mv);}),dm=sumMins(x.mins)+sumMins(x.manual),all=x.goals.filter(Boolean).length>=3&&g.filter(isDone).length===g.length;
     s.mins+=dm;for(k in x.mins)subj[k]=(subj[k]||0)+(+x.mins[k]||0);for(k in x.manual)subj[k]=(subj[k]||0)+(+x.manual[k]||0);
     if(all)s.clear++;if(all&&x.certAt)s.clrCert++;
     if(dm>=360)s.d6++;if(dm>=480)s.d8++;if(dm>=600)s.d10++;if(dm>=720)s.d12++;
@@ -7227,7 +7227,7 @@ function memberStats(V,mid){
     var we=addDays(w,6);
     if(we<t){
       var st=standings(V,w,we);if(st.length>1&&st[0].total>0&&st[0].p.id===mid)s.weekWins++;
-      if(we<=END){var ok=true;for(var dd=w;dd<=we;dd=addDays(dd,1)){var y=dayOf(V,mid,dd),gg=y.goals.filter(function(q){return !(q&&q.mv);});if(!(y.in&&y.certAt&&!isLate(V,dd,y.certAt)&&gg.length>=3&&gg.filter(isDone).length===gg.length)){ok=false;break;}}if(ok)s.perfect++;}
+      if(we<=END){var ok=true;for(var dd=w;dd<=we;dd=addDays(dd,1)){var y=dayOf(V,mid,dd),gg=y.goals.filter(function(q){return !(q&&q.mv);});if(!(y.in&&y.certAt&&!isLate(V,dd,y.certAt)&&y.goals.filter(Boolean).length>=3&&gg.filter(isDone).length===gg.length)){ok=false;break;}}if(ok)s.perfect++;}
     }
   }
   s.posts=V.posts.filter(function(q){return q.mid===mid&&q.kind!=='ask'&&q.kind!=='lapse';}).length;
@@ -7438,7 +7438,7 @@ function modalSettings(V){
   [[22,'밤 10시'],[23,'밤 11시'],[24,'자정'],[25,'다음 날 새벽 1시'],[26,'다음 날 새벽 2시'],[27,'다음 날 새벽 3시'],[28,'다음 날 새벽 4시'],[29,'다음 날 새벽 5시']].forEach(function(o){b+='<option value="'+o[0]+'"'+(V.certHour===o[0]?' selected':'')+'>'+o[1]+'</option>';});
   b+='</select>';
   b+='</div>'+spSec()+pokeSec()+noticeSec(V)+periodSec(V)+'<div class="sec"><h3>사용법</h3><div class="row"><button class="btn small" data-act="open" data-modal="help">사용법 보기</button></div></div><div class="sec"><h3>키보드 단축키<small>키보드를 연결했을 때</small></h3><ul class="kbd">'+[['1 ~ 8','달력부터 메시지까지 화면 이동'],['N','할 일 추가'],['D','마감 있는 할 일 추가'],['L','달력, 할 일, 시간표 차례로 바꿔 보기'],['T','타이머 켜기, 끄기'],['F','타이머 크게 보기'],['Esc','창 닫기']].map(function(x){return '<li><kbd>'+x[0]+'</kbd><span>'+x[1]+'</span></li>';}).join('')+'</ul></div><div class="sec"><h3>저장 위치</h3><p class="hint">'+esc(S.net?({claude:'Claude 공유 저장소에 연결되어 있습니다. Claude에 로그인한 참여 인원끼리 실시간으로 같이 봅니다.',firebase:'공유 저장소에 연결되어 있습니다. 참여 코드로 들어온 사람 모두가 실시간으로 같이 봅니다.',local:'지금은 이 기기에만 저장됩니다. 다른 사람과 같이 보려면 공유 저장소 연결이 필요합니다.'}[S.net.mode]):'연결 중입니다.')+'</p>'+(S.net&&S.net.mode==='firebase'&&S.remote?'<div class="row" style="margin-top:10px"><button class="btn small" data-act="import-pick">기록 가져오기</button><button class="btn small" data-act="export-data">기록 파일로 저장</button><button class="del" data-act="setup-reset">'+(S.confirm==='disc'?'한 번 더 누르면 이 방에서 나갑니다':'이 기기에서 이 방 나가기')+'</button></div><p class="hint" style="margin-top:8px">'+esc(S.importMsg||'친구와 내 다른 기기는 위의 친구 초대하기로 들어옵니다. 기록 가져오기는 처음 연결한 뒤 한 번만 하면 됩니다.')+'</p>':'')+'</div>';
-  b+='<p class="hint appver">앱 버전 10월 30일 20:49</p>';
+  b+='<p class="hint appver">앱 버전 10월 30일 21:19</p>';
   return dlg('wide',{id:'settings',t:'설정'},b);
 }
 function modalCheck(V){
