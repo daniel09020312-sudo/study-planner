@@ -20,3 +20,4 @@
 @media (prefers-reduced-motion:reduce){.lwh{animation:none;transform:rotate(var(--end))}.lp{animation:none;stroke-dashoffset:0}.lres{animation:none}}
 .cinrow:has(#msgLot){grid-template-columns:auto auto auto minmax(0,1fr) auto}
 @media (max-width:699px){.cinrow:has(#msgLot){grid-template-columns:auto auto auto minmax(0,1fr)}}
+.lwh.sm text{font-size:9px}.lwh.xs text{font-size:7px}
