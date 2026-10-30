@@ -40,5 +40,13 @@ else: check('item input found',False)
 mid=[i for i in store(p,'subjects/s2')['items'] if i['label']=='마플'][0]['id']
 p.evaluate("(m)=>{const b=document.createElement('button');b.dataset.act='item-del';b.dataset.id='s2';b.dataset.item=m;document.body.appendChild(b);b.click();b.remove();}",mid);p.wait_for_timeout(600)
 check('own item deleted',not any(i['label']=='마플' for i in store(p,'subjects/s2')['items']))
+# 기본 항목으로
+p.evaluate("()=>{const b=document.createElement('button');b.dataset.act='item-reset';b.dataset.id='s2';document.body.appendChild(b);b.click();b.click();b.remove();}");p.wait_for_timeout(800)
+click(p,'[data-act="prog-edit"]',600)
+click(p,'[data-act="prog-mode"][data-id="me"]',600)
+L2=labels()
+hd=(store(p,'progress/m1') or {}).get('ihide',{})
+check('reset to default items',len(L2)==5 and all(hd.get('s2__'+k) for k in 'abcde'),(L2,hd))
+check('friends items untouched',sum(1 for i in store(p,'subjects/s2')['items'] if i['label']=='고쟁이')==3 and any(i['label']=='블랙라벨' for i in store(p,'subjects/s2')['items']))
 print('errors',R.errors);check('no errors',not R.errors,R.errors)
 R.close();print('ALL OK' if ok else 'SOME FAILED')

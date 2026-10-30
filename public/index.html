@@ -4448,7 +4448,7 @@ document.addEventListener('change',function(e){
 
 /* ---------- 처음 화면 ---------- */
 // 앱이 준비되면 알린다. 그림이 아직이면 다 그린 뒤에 열리고, 그림이 먼저 끝났으면 바로 열린다
-var APP_BUILD='1793369931';
+var APP_BUILD='1793371153';
 function splashDone(){
   var sp=document.getElementById('splash'),st=window.__sp;if(!sp||sp.getAttribute('data-out'))return;
   sp.setAttribute('data-out','1');
@@ -6890,7 +6890,7 @@ function viewProgEdit(V){
       var k='item:'+s.id;
       h+='<div class="row"><input type="text" data-draft="'+esc(k)+'" data-enter="item-add" data-id="'+esc(s.id)+'" maxlength="30" placeholder="예: 학습지 3회 풀이" aria-label="추가할 항목"><button class="btn" data-act="item-add" data-id="'+esc(s.id)+'">항목 추가</button><button class="btn" data-act="sub-del" data-id="'+esc(s.id)+'">'+(S.confirm==='sub:'+s.id?'한 번 더 누르면 삭제':'과목 삭제')+'</button></div>';
     }
-    h+='<div class="row"><button class="btn small" data-act="skip" data-id="'+esc(s.id)+'">'+(mySkip?'내 과목에 다시 넣기':'내가 안 듣는 과목이면 빼기')+'</button></div></div>';
+    h+='<div class="row"><button class="btn small soft" data-act="item-reset" data-id="'+esc(s.id)+'">'+(S.confirm==='ireset:'+s.id?'한 번 더 누르면 기본 항목만 남깁니다':'기본 항목으로')+'</button><button class="btn small" data-act="skip" data-id="'+esc(s.id)+'">'+(mySkip?'내 과목에 다시 넣기':'내가 안 듣는 과목이면 빼기')+'</button></div></div>';
   });
   h+='</section>';
   if(S.edit)h+='<section class="card" id="c-subadd" style="--k:1;margin-top:16px"><div class="ct"><h2>과목 추가</h2></div><div class="row"><input type="text" data-draft="subName" data-enter="sub-add" maxlength="24" placeholder="과목 이름" aria-label="추가할 과목 이름"><button class="btn primary" data-act="sub-add">과목 추가</button></div><p class="hint" style="margin-top:8px">과목과 항목은 참여 인원 모두에게 똑같이 보입니다.</p></section>';
@@ -7531,7 +7531,7 @@ function modalSettings(V){
   [[22,'밤 10시'],[23,'밤 11시'],[24,'자정'],[25,'다음 날 새벽 1시'],[26,'다음 날 새벽 2시'],[27,'다음 날 새벽 3시'],[28,'다음 날 새벽 4시'],[29,'다음 날 새벽 5시']].forEach(function(o){b+='<option value="'+o[0]+'"'+(V.certHour===o[0]?' selected':'')+'>'+o[1]+'</option>';});
   b+='</select>';
   b+='</div>'+spSec()+pokeSec()+noticeSec(V)+periodSec(V)+'<div class="sec"><h3>사용법</h3><div class="row"><button class="btn small" data-act="open" data-modal="help">사용법 보기</button></div></div><div class="sec"><h3>키보드 단축키<small>키보드를 연결했을 때</small></h3><ul class="kbd">'+[['1 ~ 8','달력부터 메시지까지 화면 이동'],['N','할 일 추가'],['D','마감 있는 할 일 추가'],['L','달력, 할 일, 시간표 차례로 바꿔 보기'],['T','타이머 켜기, 끄기'],['F','타이머 크게 보기'],['Esc','창 닫기']].map(function(x){return '<li><kbd>'+x[0]+'</kbd><span>'+x[1]+'</span></li>';}).join('')+'</ul></div><div class="sec"><h3>저장 위치</h3><p class="hint">'+esc(S.net?({claude:'Claude 공유 저장소에 연결되어 있습니다. Claude에 로그인한 참여 인원끼리 실시간으로 같이 봅니다.',firebase:'공유 저장소에 연결되어 있습니다. 참여 코드로 들어온 사람 모두가 실시간으로 같이 봅니다.',local:'지금은 이 기기에만 저장됩니다. 다른 사람과 같이 보려면 공유 저장소 연결이 필요합니다.'}[S.net.mode]):'연결 중입니다.')+'</p>'+(S.net&&S.net.mode==='firebase'&&S.remote?'<div class="row" style="margin-top:10px"><button class="btn small" data-act="import-pick">기록 가져오기</button><button class="btn small" data-act="export-data">기록 파일로 저장</button><button class="del" data-act="setup-reset">'+(S.confirm==='disc'?'한 번 더 누르면 이 방에서 나갑니다':'이 기기에서 이 방 나가기')+'</button></div><p class="hint" style="margin-top:8px">'+esc(S.importMsg||'친구와 내 다른 기기는 위의 친구 초대하기로 들어옵니다. 기록 가져오기는 처음 연결한 뒤 한 번만 하면 됩니다.')+'</p>':'')+'</div>';
-  b+='<p class="hint appver">앱 버전 10월 30일 23:18</p>';
+  b+='<p class="hint appver">앱 버전 10월 30일 23:39</p>';
   return dlg('wide',{id:'settings',t:'설정'},b);
 }
 function modalCheck(V){
@@ -8846,6 +8846,17 @@ function act(name,el){
       else if(sit0&&sit0.items.length>=12){flash('항목은 과목당 12개까지입니다.');}
       else editSub(id,function(s){if(s.items.length<60){var ni={id:rid('i'),label:label.slice(0,30)};if(Vit.me)ni.by=Vit.me;s.items.push(ni);}});
       if(canWrite())S.draft[dk]='';break;
+    }
+    case 'item-reset':{
+      if(prev!=='ireset:'+id){S.confirm='ireset:'+id;break;}
+      var Vir=view(),sir=Vir.subById[id];if(!sir||!Vir.me||!need())break;
+      var norm=function(x){return String(x||'').replace(/\s+/g,'');},defs=DEFAULT_ITEMS.map(norm),all=sir.all||sir.items,add=[],del={};
+      editProg(function(p){p.ihide=obj(p.ihide);
+        all.forEach(function(it){var k=id+'__'+it.id;if(it.by&&it.by!==Vir.me)return;if(defs.indexOf(norm(it.label))>=0)delete p.ihide[k];else if(it.by===Vir.me)del[it.id]=1;else p.ihide[k]=true;});
+      });
+      DEFAULT_ITEMS.forEach(function(l){if(!all.some(function(it){return norm(it.label)===norm(l)&&!(it.by&&it.by!==Vir.me);}))add.push({id:rid('i'),label:l,by:Vir.me});});
+      if(add.length||Object.keys(del).length)editSub(id,function(s){s.items=s.items.filter(function(it){return it&&!del[it.id];}).concat(add);});
+      flash(jos(sir.name,'은','는')+' 기본 항목만 남겼습니다. 친구들 항목은 그대로입니다.');break;
     }
     case 'item-del':{var iid=el.getAttribute('data-item'),Vid=view(),sid0=Vid.subById[id],it0=sid0&&(sid0.all||[]).filter(function(it){return it.id===iid;})[0];if(it0&&it0.by&&it0.by===Vid.me)editSub(id,function(s){s.items=s.items.filter(function(it){return it&&it.id!==iid;});});else if(Vid.me)editProg(function(p){p.ihide=obj(p.ihide);p.ihide[id+'__'+iid]=true;});break;}
     case 'sub-add':{
