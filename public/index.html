@@ -1942,6 +1942,49 @@ img.sa{background-repeat:no-repeat;background-position:0 0;aspect-ratio:1/1}
 .rival small.rvs{display:block;font-size:12px;color:var(--ink-3)}
 .bigm{padding:10px 0;border-top:1px solid var(--line)}.bigm:first-of-type{border-top:0}
 .duelcols .stack>.card + .card{margin-top:0}
+/* v54: 반 전체 목표, 같이 공부하기, 공부 잔디 */
+.cgnum{display:flex;align-items:baseline;gap:6px;margin:2px 0 8px}
+.cgnum b{font-size:34px;line-height:1;font-variant-numeric:tabular-nums}
+.cgnum span{color:var(--ink-3);font-size:14px}
+.cgnum em{margin-left:auto;font-style:normal;font-weight:700;color:var(--accent)}
+.cgbar{height:12px;border-radius:999px;background:var(--fill);overflow:hidden}
+.cgbar i{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,var(--accent),color-mix(in srgb,var(--accent) 60%,#F2C14E));transition:width .6s var(--ease)}
+.cg.hit .cgbar i{background:linear-gradient(90deg,#E0A800,#F2D98A)}
+.cgsub{margin:8px 0 6px;font-size:13px;color:var(--ink-2)}
+.cgtop{display:flex;flex-wrap:wrap;gap:6px 12px;font-size:12px;color:var(--ink-3);margin-bottom:4px}
+.cgtop b{color:var(--ink-2);font-weight:600}
+.cgadm{margin-top:6px}
+.tglive{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin-bottom:6px}
+.tgp{display:flex;align-items:center;gap:8px;padding:8px;border-radius:12px;background:var(--fill)}
+.tgp.me{background:var(--accent-soft)}
+.tgp span{min-width:0;display:grid}.tgp b{font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.tgp small{font-size:11px;color:var(--ink-3)}
+.tgm{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px 0;border-top:1px solid var(--line);flex-wrap:wrap}
+.tgm:first-of-type{border-top:0}
+.tgm.on{background:var(--accent-soft);border-radius:12px;padding:10px;border-top:0}
+.tgm small{color:var(--ink-3)}.tgt{margin-left:6px;font-size:13px}.tgw{display:block;margin-top:2px;font-size:12px}
+.tgm em.tag{margin-left:6px}
+.tgform{margin-top:8px;padding:10px;border-radius:12px;background:var(--fill)}
+.tgform input{min-width:0;flex:1}
+.mnav.sm{display:flex;align-items:center;gap:6px}.mnav.sm b{font-size:13px}
+.grass{display:flex;gap:6px;margin:4px 0 8px}
+.gdow{display:grid;grid-template-rows:repeat(7,1fr);font-size:10px;color:var(--ink-3)}
+.gdow span{height:18px;line-height:18px}
+.ggrid{display:grid;grid-auto-flow:column;grid-auto-columns:18px;gap:4px}
+.ggrid i,.glegend i{display:block;width:18px;height:18px;border-radius:5px;background:var(--fill)}
+.ggrid i.gx{background:transparent}
+.ggrid i.gt{outline:2px solid var(--ink-3);outline-offset:1px}
+.g1{background:color-mix(in srgb,var(--accent) 25%,var(--fill))!important}
+.g2{background:color-mix(in srgb,var(--accent) 50%,var(--fill))!important}
+.g3{background:color-mix(in srgb,var(--accent) 75%,var(--fill))!important}
+.g4{background:var(--accent)!important}
+.glegend{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--ink-3);margin-bottom:10px}
+.glegend i{width:12px;height:12px;border-radius:3px}
+.gstat{margin:0}
+.ggrid{grid-template-rows:repeat(7,18px)}
+.gdow{grid-template-rows:repeat(7,18px);gap:4px}
+.brow small.rvs,.rvs{display:block;font-size:12px;color:var(--ink-3)}
+.linkbtn{background:none;border:0;padding:6px 4px;color:var(--accent);font:inherit;font-size:13px;font-weight:600;cursor:pointer}
+.linkbtn:hover{text-decoration:underline}
 #c-setup .row input{min-width:0}
 #c-setup .lb{margin-top:0}
 .serr{color:var(--red);margin-top:8px}
@@ -2513,7 +2556,7 @@ function timerBody(V,L,sel,subs){
     h+=faceHtml(tstyle(),'',{mode:m,rest:false,frac:0,e:0},faceIdle(m,p,g));
     h+='<button class="btn xl primary" data-act="timer-start">'+esc(subLabel(V,sel))+' 공부 시작</button><div class="row" style="justify-content:center;margin-top:6px"><button class="linkbtn" data-act="open" data-modal="trim">공부 시간 빼기</button></div>';
   }
-  h+='<p class="hint" style="margin-top:12px">'+(m==='pomo'?'집중한 시간만 기록되고 쉬는 시간은 기록되지 않습니다. 끝내기를 누를 때까지 반복하고, 5시간이 넘으면 자동으로 끝납니다.':m==='goal'?'목표 시간이 되면 자동으로 끝나고 기록됩니다. 먼저 끝내도 그때까지 한 만큼 기록됩니다.':'끝내기를 누르면 기록됩니다. 한 번에 5시간까지 기록되고, 5시간이 넘으면 자동으로 끝납니다.')+'</p>';
+  h+='<p class="hint" style="margin-top:12px">'+(m==='pomo'?'집중한 시간만 기록됩니다. 5시간이 넘으면 자동으로 끝납니다.':m==='goal'?'목표 시간이 되면 끝나고, 먼저 끝내도 한 만큼 기록됩니다.':'끝내기를 누르면 기록됩니다. 5시간이 넘으면 자동으로 끝납니다.')+'</p>';
   if(m!=='sw')h+='<div class="tsnd"><span class="hint">'+(m==='pomo'?'집중과 쉬는 시간이 바뀔 때':'목표 시간이 끝날 때')+' 소리 알림: '+(S.sound?'켜짐':'꺼짐')+'</span><button class="del" data-act="sound">'+(S.sound?'끄기':'켜기')+'</button></div>';
   return h;
 }
@@ -2835,13 +2878,13 @@ function goalsCard(V,date,k){
     h+='<p class="empty">이날은 할 일을 적지 않았습니다.</p>';
   }else{
     var yu=carryList(V,date).length;
-    h+='<p class="empty">'+(isT?'오늘 끝낼 일을 정해보세요. 과목과 할 일을 눌러서 고르면 됩니다.':'이날 할 일을 미리 적어둘 수 있습니다.')+'</p>';
+    h+='<p class="empty">'+(isT?'오늘 끝낼 일을 골라 보세요.':'이날 할 일을 미리 적어둘 수 있습니다.')+'</p>';
     if(yu)h+='<div class="row" style="margin-top:8px"><button class="btn small soft" data-act="carry" data-date="'+date+'">전날 남은 '+yu+'개 가져오기</button></div>';
   }
   if(mode==='full'||(mode==='view'&&date>=START&&day.goals.length)){
     var hour=certLabel(V.certHour),past=Date.now()>certEnd(V,date).getTime(),yd=addDays(date,-1);
     if(isT&&!dayOf(V,V.me,yd).certAt&&Date.now()<=certEnd(V,yd).getTime())h+='<div class="cert"><div class="what"><b>어제 공부 인증</b><span class="hint">'+esc(certLabel(V.certHour).replace('다음 날 ','오늘 '))+'까지 인증하면 어제 점수에 10점이 더해집니다.</span></div><button class="btn small soft" data-act="cert" data-date="'+yd+'">어제 인증하기</button></div>';
-    else if(isT&&yd>=START&&!dayOf(V,V.me,yd).certAt&&dayOf(V,V.me,yd).goals.filter(function(g){return g&&!g.mv;}).length)h+='<div class="cert late"><div class="what"><b>어제 공부 인증 (마감 지남)</b><span class="hint">어제 할 일은 지금도 완료 표시를 할 수 있습니다(더 지난 날은 달력에서 그 날을 눌러서). 지금 인증하면 '+RULE.certLate+'점이고, 어제 할 일을 다 끝냈으면 '+RULE.allLate+'점이 더해집니다.</span></div><div class="row"><button class="btn small" data-act="pick-date" data-d="'+yd+'">어제 할 일 보기</button><button class="btn small soft" data-act="cert" data-date="'+yd+'">어제 인증하기</button></div></div>';
+    else if(isT&&yd>=START&&!dayOf(V,V.me,yd).certAt&&dayOf(V,V.me,yd).goals.filter(function(g){return g&&!g.mv;}).length)h+='<div class="cert late"><div class="what"><b>어제 공부 인증 (마감 지남)</b><span class="hint">지금 인증하면 '+RULE.certLate+'점, 다 끝냈으면 '+RULE.allLate+'점이 더해집니다.</span></div><div class="row"><button class="btn small" data-act="pick-date" data-d="'+yd+'">어제 할 일 보기</button><button class="btn small soft" data-act="cert" data-date="'+yd+'">어제 인증하기</button></div></div>';
     h+='<div class="cert">';
     if(day.certAt){var late=isLate(V,date,day.certAt);h+='<div class="what"><b>'+esc(fmtClock(day.certAt))+' 인증 완료</b><span class="hint">'+(late?'마감 뒤 인증이라 3점입니다.':'마감 전 인증으로 10점을 받았습니다.')+clearHint(V,date,day,late,true)+'</span></div><button class="btn small" data-act="uncert" data-date="'+date+'">취소</button>';}
     else h+='<div class="what"><b>하루 공부 인증</b><span class="hint">'+(past?'마감이 지나 지금 인증하면 3점입니다.':esc(hour)+'까지 인증하면 10점입니다.')+clearHint(V,date,day,past,false)+'</span></div><button class="btn small soft" data-act="cert" data-date="'+date+'">인증하기</button>';
@@ -3192,7 +3235,7 @@ function viewAgenda(V){
   days.forEach(function(d){h+=wkCell(V,d,t);});
   h+='</div></div>';
   if(!tot)h+='<p class="hint wkhint">이 주에는 적은 할 일이 없습니다. 날짜 칸의 추가를 눌러 적어 보세요.</p>';
-  else h+='<p class="hint wkhint">할 일을 꾹 눌러 끌면 다른 날로 옮기거나 순서를 바꿀 수 있습니다. 끄는 채로 달력 오른쪽 끝에 잠깐 대고 있으면 다음 주로 넘어갑니다.</p>';
+  else h+='<p class="hint wkhint">꾹 눌러 끌면 다른 날로 옮기거나 순서를 바꿉니다.</p>';
   return h+'</section></div></div>';
 }
 
@@ -3326,7 +3369,7 @@ function viewTT(V){
     h+='</div>';
   });
   h+='</div></div>';
-  h+='<p class="hint tthint">'+(ttLocked()?'시간표가 잠겨 있어 끌거나 눌러도 바뀌지 않습니다. 블록을 누르면 내용만 보입니다. 고치려면 위의 잠김을 눌러 푸세요.':'빈 곳을 누르면 그 시간에 넣을 할 일을 고를 수 있습니다. 블록을 꾹 눌러 끌면 옮겨지고, 아래 끝을 끌면 길이가 바뀝니다.')+'</p>';
+  h+='<p class="hint tthint">'+(ttLocked()?'잠겨 있어 바뀌지 않습니다. 고치려면 위의 잠김을 푸세요.':'빈 곳 누르기: 할 일 넣기 · 꾹 눌러 끌기: 옮기기 · 아래 끝 끌기: 길이')+'</p>';
   return h+'</section></div></div>';
 }
 
@@ -3446,7 +3489,7 @@ function modalTTSet(V){
       b+='<div class="fld"><h3>과목<small>선택, 여러 개 고를 수 있습니다</small></h3><div class="chips">'+mySubs(V).map(function(s){return '<button class="chip" data-act="tt-ed-set" data-k="sid" data-v="'+esc(s.id)+'" aria-pressed="'+((E.ss||[]).indexOf(s.id)>=0?'true':'false')+'">'+esc(s.name)+'</button>';}).join('')+'</div></div>';
       f='<div class="df">'+(E.id?'<button class="btn" data-act="tt-ed-del">'+(S.confirm==='ttdel:'+E.id?'한 번 더 누르면 삭제':'삭제')+'</button>':'')+'<button class="btn" data-act="tt-ed-x">취소</button><button class="btn primary" data-act="tt-ed-save">저장</button></div>';
     }else{
-      if(!T.b.length)b+='<p class="hint" style="margin-top:14px">학교와 학원처럼 매주 같은 시간에 있는 일정을 넣어 두면 시간표에 고정으로 깔립니다. 시간표에서 끌어 옮기면 그 날만 바뀝니다.</p>';
+      if(!T.b.length)b+='<p class="hint" style="margin-top:14px">매주 같은 시간의 일정은 시간표에 고정으로 깔립니다.</p>';
       else{
         b+='<div class="ttrows">';
         T.b.slice().sort(function(a,c){return a.s-c.s;}).forEach(function(x){
@@ -3458,7 +3501,7 @@ function modalTTSet(V){
       b+='<div class="row" style="margin-top:14px">'+[['school','학교 넣기'],['academy','학원 넣기'],['etc','기타 넣기']].map(function(x){return '<button class="btn small'+(x[0]==='school'&&!T.b.length?' primary':'')+'" data-act="tt-new" data-v="'+x[0]+'">'+x[1]+'</button>';}).join('')+'</div>';
     }
   }else if(tab==='color'){
-    b+='<p class="hint" style="margin:14px 0 6px">시간표, 할 일, 달력에 쓰는 내 과목 색과 줄임말입니다. 줄임말은 달력 칸에 보이는 짧은 이름이고 3글자까지 쓸 수 있습니다. 둘 다 나에게만 적용됩니다.</p>';
+    b+='<p class="hint" style="margin:14px 0 6px">내 과목 색과 줄임말(3글자까지)입니다. 나에게만 적용됩니다.</p>';
     b+='<div class="row" style="margin-bottom:4px"><button class="btn small'+(S.confirm==='scolreset'?' warn':'')+'" data-act="scol-reset">'+(S.confirm==='scolreset'?'한 번 더 누르면 모든 과목 색을 무지개 순서로 바꿉니다':'무지개 순서로 다시 맞추기')+'</button></div><div class="scols">';
     V.subs.forEach(function(s){
       var cur=subCol(V,s.id),open=S.scolOpen===s.id,ab=String(obj(obj(V.progress[V.me]).abbr)[s.id]||''),abd=subShort(s.name);
@@ -3474,7 +3517,7 @@ function modalTTSet(V){
     b+='</div>';
   }else{
     var w=ttWin(V);
-    b+='<p class="hint" style="margin:14px 0 4px">빈 시간에 채우기를 누르면 이 범위 안에서 고정 일정이 없는 시간에 할 일을 1시간씩, 사이에 10분씩 쉬며 차례로 넣습니다.</p><div class="fld"><h3>공부하는 시간</h3>'+ttTimeRow('tt-win',w.s,w.e)+'</div>';
+    b+='<p class="hint" style="margin:14px 0 4px">빈 시간에 할 일을 1시간씩, 10분 쉬며 차례로 넣습니다.</p><div class="fld"><h3>공부하는 시간</h3>'+ttTimeRow('tt-win',w.s,w.e)+'</div>';
   }
   return dlg('wide',{id:'ttset',t:'시간표 설정'},b,f);
 }
@@ -3706,10 +3749,10 @@ function modalSchool(V){
       b+='<div class="schmeta"><div><label class="lb" for="schTc-'+kk+'">선생님<small>선택</small></label><input type="text" class="schf" id="schTc-'+kk+'" data-draft="schTc:'+kk+'" data-enter="sch-next" maxlength="10" placeholder="선생님 이름"></div>';
       b+='<div><label class="lb" for="schR-'+kk+'">장소<small>선택</small></label><input type="text" class="schf" id="schR-'+kk+'" data-draft="schR:'+kk+'" data-enter="sch-next" maxlength="16" placeholder="예: 2-2 수학과실"></div></div>';
       if(cbs.length)b+='<div class="schcombo"><small>이 과목에서 쓴 것</small><div class="chips">'+cbs.slice(0,4).map(function(x){return '<button class="chip" data-act="sch-combo" data-tc="'+esc(x.tc)+'" data-r="'+esc(x.r)+'">'+esc([x.tc,x.r].filter(Boolean).join(' · '))+'</button>';}).join('')+'</div></div>';
-      b+='<p class="hint" style="margin-top:8px">같은 과목을 선생님 두 분이 나눠 하면 칸마다 선생님을 적어 두세요. 시간표와 수업 알림에 선생님 이름이 같이 나옵니다.</p>';
+      b+='<p class="hint" style="margin-top:8px">선생님이 둘인 과목은 칸마다 선생님을 적어 두세요.</p>';
     }
     b+='<div class="row" style="margin-top:10px"><button class="btn small primary" data-act="sch-next">'+(sel.i+1<sch.p.length?'다음 칸':'끝')+'</button>'+(cur?'<button class="btn small" data-act="sch-clear">비우기</button>':'')+'</div></div>';
-  }else if(mine)b+='<p class="hint" style="margin-top:12px">칸을 누르고 과목을 고른 뒤 선생님과 장소를 적으세요(선택). 수업 시작 전 정각부터 시작하고 10분 뒤까지 화면 위에 과목과 장소가 나옵니다. 같은 수업이 연달아 있으면 이어 붙여 보이고 알림은 한 번만 나옵니다.</p>';
+  }else if(mine)b+='<p class="hint" style="margin-top:12px">칸을 누르고 과목을 고르세요. 선생님과 장소는 선택입니다.</p>';
   if(!mine&&sch.has)b+='<div class="row" style="margin-top:12px"><button class="btn small primary" data-act="sch-copy" data-id="'+esc(who)+'">'+(S.confirm==='schcopy:'+who?'한 번 더 누르면 내 시간표를 바꿉니다':'이 시간표를 내 걸로 가져오기')+'</button></div>';
   if(mine){
     b+='<div class="sec schsec"><div class="row"><button class="btn small" data-act="sch-times" aria-expanded="'+(S.schTimes?'true':'false')+'">'+(S.schTimes?'교시 시간 접기':'교시 시간 고치기')+'</button><button class="btn small" data-act="sch-fit">고정 시간표의 학교 시간 맞추기</button></div>';
@@ -4133,7 +4176,7 @@ function finalBody(V){
     var open=addDays(END,1);
     L+='<section class="card fin" id="c-fin-wait" style="--k:0"><div class="ct"><h2>최종 결과<small>'+esc(longDate(open))+' 공개</small></h2></div>';
     L+='<div class="fincd"><b>D-'+Math.max(0,diffDays(t,open))+'</b><span>2차 시험이 끝난 다음 날 모두에게 공개됩니다. 그 전까지는 내 점수만 보입니다.</span></div>';
-    if(me)L+='<div class="finme"><small>지금까지 내 최종 점수</small>'+finBreak(me)+(today()<TALLY?'<p class="hint" style="margin-top:6px">집계는 '+esc(longDate(TALLY))+'부터 시작해서 지금은 0점입니다. 매일 얻은 점수는 오늘 화면과 순위의 이번 주에서 그대로 보입니다.</p>':'')+'</div>';
+    if(me)L+='<div class="finme"><small>지금까지 내 최종 점수</small>'+finBreak(me)+(today()<TALLY?'<p class="hint" style="margin-top:6px">집계는 '+esc(longDate(TALLY))+'부터라 지금은 0점입니다.</p>':'')+'</div>';
     L+='<p class="hint" style="margin-top:10px">최종 점수는 매일 쌓인 점수에 주간 순위 점수와 배지 점수를 더한 값입니다.</p></section>';
   }else{
     L+='<section class="card fin" id="c-fin" style="--k:0"><div class="ct"><h2>최종 결과<small>'+esc(shortDate(TALLY)+' ~ '+shortDate(END))+'</small></h2></div>';
@@ -4161,7 +4204,7 @@ function badgeView(V){
   var bl=badgeList(V,V.me),mt=obj(V.progress[V.me]).title,got=bl.filter(function(b){return b.on;}),pts=got.reduce(function(s,b){return s+b.pts;},0),own={};
   V.roster.forEach(function(m){badgeList(V,m.id).forEach(function(b){if(b.on)own[b.id]=(own[b.id]||0)+1;});});
   var h='<section class="card" id="c-badges" style="--k:0"><div class="ct"><h2>배지와 칭호<small>'+got.length+' / '+bl.length+'</small></h2><span class="tag a">배지 점수 '+pts+'점</span></div>';
-  h+='<p class="hint">등급마다 동 '+TIERS.b[1]+'점, 은 '+TIERS.s[1]+'점, 금 '+TIERS.g[1]+'점, 전설 '+TIERS.l[1]+'점이 최종 점수에 더해집니다. 받은 배지를 누르면 그 칭호가 이름 옆에 붙습니다.</p>';
+  h+='<p class="hint">동 '+TIERS.b[1]+' · 은 '+TIERS.s[1]+' · 금 '+TIERS.g[1]+' · 전설 '+TIERS.l[1]+'점이 최종 점수에 더해집니다. 누르면 칭호로 붙습니다.</p>';
   BADGE_CATS.forEach(function(c){
     var list=bl.filter(function(b){return b.cat===c[0];});if(!list.length)return;
     h+='<h3 class="bcat">'+c[1]+'<small>'+list.filter(function(b){return b.on;}).length+' / '+list.length+'</small></h3><div class="bdgs">';
@@ -4315,7 +4358,7 @@ document.addEventListener('change',function(e){
 
 /* ---------- 처음 화면 ---------- */
 // 앱이 준비되면 알린다. 그림이 아직이면 다 그린 뒤에 열리고, 그림이 먼저 끝났으면 바로 열린다
-var APP_BUILD='1793226650';
+var APP_BUILD='1793318267';
 function splashDone(){
   var sp=document.getElementById('splash'),st=window.__sp;if(!sp||sp.getAttribute('data-out'))return;
   sp.setAttribute('data-out','1');
@@ -4587,6 +4630,7 @@ function inkMins(V,mid,date){
 function inkLocal(V){
   var e=inkMins(V,V.me),gi=0,go=0,g=obj(V.gifts);
   Object.keys(g).forEach(function(k){var x=obj(g[k]),n=Math.max(0,Math.floor(+x.n||0));if(x.to===V.me)gi+=n;if(x.from===V.me)go+=n;});
+  gi+=cgInk(V);
   return {e:e,gi:gi,go:go};
 }
 /* 남은 잉크 = (공부한 분/10 + 받은 선물) - (산 값 + 보낸 선물). 지갑이 있으면 다른 방 것도 더한다 */
@@ -4666,7 +4710,7 @@ function modalShop(V){
     }
     b+='</div>';
   });
-  b+='</div><p class="hint" style="margin-top:14px">'+(WAL.on?'잉크와 산 것은 내가 들어간 모든 방에서 같이 씁니다. ':'산 것은 이 방에서 계속 쓸 수 있습니다. ')+'모양만 바뀌고 기능과 점수는 그대로입니다. 고른 모양은 이 기기에 저장됩니다.</p>';
+  b+='</div><p class="hint" style="margin-top:14px">'+(WAL.on?'잉크와 산 것은 내가 들어간 모든 방에서 같이 씁니다. ':'산 것은 이 방에서 계속 쓸 수 있습니다. ')+'모양만 바뀌고 점수는 그대로입니다.</p>';
   if(WAL.on&&WALH.adm&&!ink.unl)b+=S.admOpen?'<div class="admrow"><input type="password" id="admCode" data-draft="admCode" data-enter="adm-go" autocomplete="off" placeholder="관리자 코드" aria-label="관리자 코드"><button class="btn small" data-act="adm-go">확인</button></div>':'<button class="linkbtn admlink" data-act="adm-open">관리자 코드</button>';
   if(ink.unl){var rvn=shopRevokeList(V).length;if(rvn)b+='<button class="linkbtn admlink" data-act="adm-revoke">'+(S.confirm==='admrv'?'한 번 더 누르면 산 이모티콘 팩 '+rvn+'개를 되돌립니다':'관리자: 산 이모티콘 팩 되돌리기')+'</button>';}
   return dlg('wide',{id:'shop',t:'상점'},b);
@@ -4781,7 +4825,7 @@ function modalInbox(V){
   var I=S.ib,list=ibItems(V),t=today(),ws=I.week,nsel=list.filter(function(x){return I.sel[x.id];}).length,b='';
   b+='<div class="ibadd"><div class="chips scroll">'+mySubs(V).map(function(s){return chipBtn('ib-sid','sid',s.id,s.name,I.sid===s.id);}).join('')+'</div>';
   b+='<div class="row"><input type="text" id="ibText" data-draft="ibText" data-enter="ib-add" maxlength="90" placeholder="예: 쎈 3단원 50문제" aria-label="모아 둘 할 일"><button class="btn primary" data-act="ib-add">적기</button></div></div>';
-  if(!list.length)b+='<p class="empty ibempty">아직 모아 둔 할 일이 없습니다. 이번 주에 할 일을 생각나는 대로 적어 두고, 아래에서 요일을 골라 나눠 넣으세요.</p>';
+  if(!list.length)b+='<p class="empty ibempty">생각나는 할 일을 적어 두고, 요일을 골라 나눠 넣으세요.</p>';
   else{
     b+='<div class="ibhead"><span>'+list.length+'개'+(nsel?', '+nsel+'개 고름':'')+'</span><button class="linkbtn" data-act="ib-all">'+(nsel===list.length?'모두 풀기':'모두 고르기')+'</button></div><ul class="iblist">';
     list.forEach(function(x){
@@ -4816,7 +4860,7 @@ function pastList(V){
 function pastCard(V,k){
   var L=pastList(V);if(!L.length)return '';
   var open=!!S.pastOpen,show=open?L:L.slice(0,2);
-  var h='<section class="card" id="c-past" style="--k:'+k+'"><div class="ct"><h2>지난 날 할 일<small>'+L.length+'일</small></h2></div><p class="hint">지난 날 할 일도 지금 완료 표시하고 인증할 수 있습니다. 마감이 지난 인증은 '+RULE.certLate+'점, 할 일을 다 끝냈으면 '+RULE.allLate+'점이 더해집니다.</p>';
+  var h='<section class="card" id="c-past" style="--k:'+k+'"><div class="ct"><h2>지난 날 할 일<small>'+L.length+'일</small></h2></div><p class="hint">마감 뒤 인증 '+RULE.certLate+'점, 다 끝냈으면 '+RULE.allLate+'점.</p>';
   show.forEach(function(x){
     var dn=x.g.length-x.un.length;
     h+='<div class="pday2" id="pd-'+x.d+'"><div class="pdh"><button class="pdl" data-act="pick-date" data-d="'+x.d+'"><b>'+esc(shortDate(x.d))+' '+DOW[pd(x.d).getDay()]+'</b><small>'+dlabel(x.d)+'</small></button><span class="pdn">'+dn+'/'+x.g.length+'</span>'+(x.cert?'<em class="tag">인증함</em>':'<button class="btn small soft" data-act="cert" data-date="'+x.d+'">인증하기</button>')+'</div><ul>';
@@ -5066,7 +5110,7 @@ function periodSec(V){
   if(!V.me||adminId(V)!==V.me)return '';
   var p=periodOf(V.cfg),custom=!!obj(V.cfg.period).s;
   if(!S.draft.periodS)S.draft.periodS=p[0];if(!S.draft.periodE)S.draft.periodE=p[1];if(!S.draft.periodA)S.draft.periodA=p[2];
-  return '<div class="sec"><h3>점수 집계 기간<small>방장만 바꿀 수 있습니다</small></h3><div class="row"><label for="perS">시작일</label><input type="date" id="perS" data-draft="periodS" value="'+(S.draft.periodS||p[0])+'" min="2026-01-01" max="2028-12-31"><label for="perE">종료일</label><input type="date" id="perE" data-draft="periodE" value="'+(S.draft.periodE||p[1])+'" min="2026-01-01" max="2028-12-31"></div><div class="row" style="margin-top:8px"><label for="perA">집계 시작일</label><input type="date" id="perA" data-draft="periodA" value="'+(S.draft.periodA||p[2])+'" min="2026-01-01" max="2028-12-31"></div><div class="row" style="margin-top:8px"><button class="btn small primary" data-act="period-save">저장</button>'+(custom?'<button class="btn small" data-act="period-reset">처음 값으로</button>':'')+'</div><p class="hint">지금 '+esc(shortDate(p[0])+' ~ '+shortDate(p[1]))+'. 점수는 시작일부터 보이고, 집계 시작일(지금 '+esc(shortDate(p[2]))+')부터 주간 우승, 배지, 최종 결과에 들어갑니다. 최종 결과는 종료일 다음 날 공개됩니다. 최대 '+PERIOD_MAX_DAYS+'일. 시작일은 월요일로 하면 주간 집계가 깔끔합니다.</p></div>';
+  return '<div class="sec"><h3>점수 집계 기간<small>방장만 바꿀 수 있습니다</small></h3><div class="row"><label for="perS">시작일</label><input type="date" id="perS" data-draft="periodS" value="'+(S.draft.periodS||p[0])+'" min="2026-01-01" max="2028-12-31"><label for="perE">종료일</label><input type="date" id="perE" data-draft="periodE" value="'+(S.draft.periodE||p[1])+'" min="2026-01-01" max="2028-12-31"></div><div class="row" style="margin-top:8px"><label for="perA">집계 시작일</label><input type="date" id="perA" data-draft="periodA" value="'+(S.draft.periodA||p[2])+'" min="2026-01-01" max="2028-12-31"></div><div class="row" style="margin-top:8px"><button class="btn small primary" data-act="period-save">저장</button>'+(custom?'<button class="btn small" data-act="period-reset">처음 값으로</button>':'')+'</div><p class="hint">지금 '+esc(shortDate(p[0])+' ~ '+shortDate(p[1]))+'. 주간 순위·배지·최종 결과는 '+esc(shortDate(p[2]))+'부터 집계합니다. 월요일로 맞추면 깔끔합니다.</p></div>';
 }
 
 
@@ -5103,7 +5147,7 @@ function sysNotify(title,body,tag){
 }
 function pokeSec(){
   var sup=typeof Notification!=='undefined',on=pnOn(),den=sup&&Notification.permission==='denied';
-  return '<div class="sec"><h3>찌르기 알림<small>이 기기</small></h3><div class="row"><button class="btn small'+(on?'':' primary')+'" data-act="pn-toggle" aria-pressed="'+(on?'true':'false')+'">'+(on?'알림 끄기':'알림 켜기')+'</button></div><p class="hint">'+(!sup?'이 브라우저는 알림을 지원하지 않습니다. 아이폰은 홈 화면에 추가한 앱(iOS 16.4 이상)에서만 됩니다.':den?'브라우저 설정에서 이 사이트의 알림을 허용해 주세요.':'누가 나를 찌르면 앱이 가려져 있어도 알림으로 알려 줍니다. 앱을 완전히 닫았거나 기기가 앱을 멈춘 뒤에는 받지 못합니다.')+'</p></div>';
+  return '<div class="sec"><h3>찌르기 알림<small>이 기기</small></h3><div class="row"><button class="btn small'+(on?'':' primary')+'" data-act="pn-toggle" aria-pressed="'+(on?'true':'false')+'">'+(on?'알림 끄기':'알림 켜기')+'</button></div><p class="hint">'+(!sup?'이 브라우저는 알림을 지원하지 않습니다. 아이폰은 홈 화면에 추가한 앱(iOS 16.4 이상)에서만 됩니다.':den?'브라우저 설정에서 이 사이트의 알림을 허용해 주세요.':'앱이 가려져 있어도 찌르기를 알려 줍니다. 앱을 완전히 닫으면 받지 못합니다.')+'</p></div>';
 }
 pnApply();
 
@@ -5145,7 +5189,7 @@ function trimSel(V){
   return {rows:rows,row:r,n:n,ok:!!r&&n>=1&&n<=r.mins};
 }
 function modalTrim(V){
-  var T=S.trim,sel=trimSel(V),yd=addDays(today(),-1),b='<p class="hint">타이머를 끄는 걸 깜빡해서, 공부하지 않은 시간까지 기록됐다면 그만큼 빼 주세요. 실제로 공부한 시간만 남고 점수도 그에 맞게 다시 계산됩니다.</p>';
+  var T=S.trim,sel=trimSel(V),yd=addDays(today(),-1),b='<p class="hint">공부하지 않은 시간만큼 빼면 점수도 다시 계산됩니다.</p>';
   if(!T.stop){
     b+='<div class="fld"><h3>날짜</h3><div class="chips">'+chipBtn('trim-set','date',today(),'오늘',T.date===today());
     if(!dayLocked(V,yd))b+=chipBtn('trim-set','date',yd,'어제',T.date===yd);
@@ -5240,7 +5284,7 @@ function reportTimes(V,Wk,me){
   }
   h+='</section>';
   h+='<section class="card" id="c-rhour-'+S.repWeek+'" style="--k:4"><div class="ct"><h2>시간대별 공부</h2><small>타이머로 공부한 시간</small></div>';
-  if(!tracked)h+='<p class="empty">아직 시간대 기록이 없습니다. 타이머로 공부하면 몇 시에 무슨 과목을 했는지 여기에 쌓입니다. (이 기능을 올리기 전의 기록은 시간대를 알 수 없습니다.)</p>';
+  if(!tracked)h+='<p class="empty">아직 시간대 기록이 없습니다. 타이머로 공부하면 쌓입니다.</p>';
   else{
     var tot={},best=-1,bh=0;
     HR_AXIS.forEach(function(hr){var o=hrs[hr]||{},t=0;Object.keys(o).forEach(function(s){t+=o[s];});tot[hr]=t;if(t>best){best=t;bh=hr;}});
@@ -5264,7 +5308,7 @@ function reportTimes(V,Wk,me){
     top.sort(function(a,b){return b.sum-a.sum;});
     if(top.length){h+='<ul class="rdelta rband">';top.forEach(function(x){h+='<li style="--sc:'+(x.s==='etc'?SGRAY:subCol(V,x.s))+'"><i></i><span>'+esc(subLabel(V,x.s))+'</span><b>'+esc(x.band)+'</b><em>'+fmtMins(x.sum)+'</em></li>';});h+='</ul>';}
     var pct=me.mins?Math.round(tracked/me.mins*100):0;
-    if(pct<90)h+='<p class="hint">시간대가 기록된 시간은 이 주 공부 시간의 '+Math.min(100,pct)+'%입니다. 직접 입력한 시간과 예전 기록은 시간대를 알 수 없어 빠집니다.</p>';
+    if(pct<90)h+='<p class="hint">이 주 공부 시간의 '+Math.min(100,pct)+'%만 시간대가 있습니다(직접 입력, 예전 기록 제외).</p>';
   }
   return h+'</section>';
 }
@@ -5396,7 +5440,7 @@ function modalDuel(V){
 function duelMain(V,t){
   var h='<section class="card" id="c-duels" style="--k:0"><div class="ct"><h2>1:1 대결</h2><button class="btn small primary" data-act="open" data-modal="duel"'+(V.roster.length<2?' disabled':'')+'>대결 신청</button></div>';
   var all=duelList(V),live=all.filter(function(d){return d.state!=='done';}),done=all.filter(function(d){return d.state==='done'&&diffDays(d.end,t)<=14;}),list=live.concat(done);
-  if(!list.length)h+='<p class="empty">아직 대결이 없습니다. 한 명을 골라 점수, 공부 시간, 끝낸 할 일 중 하나로 겨뤄 보세요. 하루씩 승부하는 라운드제도 있고, 구경하는 사람은 응원할 수 있습니다.</p>';
+  if(!list.length)h+='<p class="empty">아직 대결이 없습니다. 대결 신청으로 시작해 보세요.</p>';
   moreCut('duels',list).forEach(function(d){h+=duelRow(V,d);});
   h+=moreBtn('duels',list.length,10,'개');
   var wins={};all.forEach(function(d){if(d.state==='done'&&d.win)wins[d.win]=(wins[d.win]||0)+1;});
@@ -5457,6 +5501,150 @@ function duelHall(V){
 }
 function duelTab(V,t){
   return '<div class="cols duelcols"><div class="stack">'+duelMain(V,t)+'</div><div class="stack">'+duelRivals(V,t)+duelBig(V)+duelHall(V)+'</div></div>';
+}
+
+/* ---------- v54: 반 전체 목표, 같이 공부하기, 공부 잔디, 조용히 빠진 사람 ---------- */
+
+/* 반 전체 목표: 한 주 동안 모두의 공부 시간 합. 달성한 주마다 모두에게 잉크 CG_INK방울.
+   cfg.cgoal={h:시간, hist:{<월요일>:시간}} 방장이 바꾸면 그 주부터 적용(지난 주는 그때 값) */
+var CG_INK=20,CG_FROM='2026-10-26';
+function cgAuto(V){return Math.max(10,Math.round(V.roster.length*10/10)*10);}
+function cgTarget(V,mon){
+  var g=obj(V.cfg.cgoal),hs=obj(g.hist),best='',v=0;
+  Object.keys(hs).forEach(function(k){if(k<=mon&&k>best&&+hs[k]>0){best=k;v=+hs[k];}});
+  return v||cgAuto(V);
+}
+function cgWeek(V,mon){
+  var g=gcSync(V),k='cg'+mon;if(g[k])return g[k];
+  var st=standings(V,mon,addDays(mon,6)),tot=0,by=[];
+  st.forEach(function(x){tot+=x.mins;if(x.mins>0)by.push({p:x.p,m:x.mins});});
+  by.sort(function(a,b){return b.m-a.m;});
+  var h=cgTarget(V,mon);
+  return g[k]={mon:mon,mins:tot,goal:h,hit:tot>=h*60,by:by};
+}
+function cgInk(V){
+  var t=today(),n=0;
+  for(var w=CG_FROM;addDays(w,6)<t;w=addDays(w,7)){if(cgWeek(V,w).hit)n++;}
+  return n*CG_INK;
+}
+function cgCard(V,k){
+  if(!V.me)return '';
+  var t=today(),mon=mondayOf(t),W=cgWeek(V,mon),pct=Math.min(100,Math.round(W.mins/(W.goal*60)*100)),left=Math.max(0,W.goal*60-W.mins),dl=diffDays(t,addDays(mon,6))+1;
+  var me=0;W.by.forEach(function(x){if(x.p.id===V.me)me=x.m;});
+  var prev=cgWeek(V,addDays(mon,-7)),adm=adminId(V)===V.me;
+  var h='<section class="card cg'+(W.hit?' hit':'')+'" id="c-cg" style="--k:'+k+'"><div class="ct"><h2>반 전체 목표<small>이번 주</small></h2><span class="tag'+(W.hit?' a':'')+'">'+(W.hit?'달성':'D-'+(dl-1))+'</span></div>';
+  h+='<div class="cgnum"><b>'+Math.floor(W.mins/60)+'</b><span>/ '+W.goal+'시간</span><em>'+pct+'%</em></div>';
+  h+='<div class="cgbar" aria-hidden="true"><i style="width:'+pct+'%"></i></div>';
+  h+='<p class="cgsub">'+(W.hit?'모두 잉크 '+CG_INK+'방울을 받습니다':'남은 '+fmtMins(left)+' · 달성하면 모두 잉크 '+CG_INK+'방울')+'</p>';
+  if(W.by.length){
+    h+='<div class="cgtop">';
+    W.by.slice(0,3).forEach(function(x,i){h+='<span>'+(i+1)+'. '+esc(x.p.name)+' <b>'+fmtMins(x.m)+'</b></span>';});
+    h+='</div>';
+  }
+  h+='<p class="hint">내 몫 '+fmtMins(me)+(W.mins?' ('+Math.round(me/W.mins*100)+'%)':'')+(prev.mon>=CG_FROM?' · 지난주 '+(prev.hit?'달성':'미달성')+' ('+Math.floor(prev.mins/60)+'/'+prev.goal+'시간)':'')+'</p>';
+  if(adm){
+    var open=!!S.cgEdit;
+    h+='<div class="cgadm"><button class="linkbtn" data-act="cg-edit" aria-expanded="'+(open?'true':'false')+'">목표 바꾸기</button>';
+    if(open){
+      h+='<div class="chips" style="margin-top:6px">';[100,200,300,400,500].forEach(function(n){h+=chipBtn('cg-set','h',String(n),n+'시간',W.goal===n);});h+='</div>';
+      h+='<div class="row" style="margin-top:6px"><input type="number" inputmode="numeric" min="10" max="5000" data-draft="cgH" placeholder="직접 입력 (시간)" aria-label="목표 시간 직접 입력"><button class="btn small primary" data-act="cg-save">저장</button></div><p class="hint">이번 주부터 적용됩니다.</p>';
+    }
+    h+='</div>';
+  }
+  return h+'</section>';
+}
+function cgTick(V){
+  if(!V||!V.me||!S.ready)return;
+  var mon=mondayOf(today()),W=cgWeek(V,mon);
+  if(W.hit&&lsGet('gbb_cgw')!==mon){lsSet('gbb_cgw',mon);if(W.mins>0)flash('반 전체 목표를 달성했습니다. 모두 잉크 '+CG_INK+'방울을 받습니다.');}
+}
+
+/* 같이 공부하기: 지금 공부 중인 사람과 함께 시작하는 약속. cfg.meet={id:{at,m,t,by}}, 참여는 progress.<나>.mj={id:1} */
+function meetList(V){
+  var now=Date.now(),mt=obj(V.cfg.meet);
+  return Object.keys(mt).map(function(id){var x=obj(mt[id]);return {id:id,at:+x.at||0,m:Math.max(10,Math.min(240,+x.m||50)),t:String(x.t||''),by:x.by};}).filter(function(x){return x.at&&x.at+x.m*60000>now-600000;}).sort(function(a,b){return a.at-b.at;});
+}
+function meetWho(V,id){return V.roster.filter(function(m){return obj(obj(V.progress[m.id]).mj)[id];}).map(function(m){return V.byId[m.id];});}
+function meetTime(at){var d=new Date(at),t=fd(d),td=today(),lab=t===td?'오늘':t===addDays(td,1)?'내일':shortDate(t);return lab+' '+fmtClock(d.toISOString());}
+function togetherCard(V,k){
+  if(!V.me)return '';
+  var now=Date.now(),live=V.roster.map(function(m){var L=liveOf(V,m.id);return L&&!isStale(L)?{p:V.byId[m.id],L:L}:null;}).filter(Boolean),myL=liveOf(V,V.me);
+  var h='<section class="card tg" id="c-tg" style="--k:'+k+'"><div class="ct"><h2>같이 공부하기<small>'+(live.length?'지금 '+live.length+'명':'지금 아무도 없음')+'</small></h2>'+(!myL?'<button class="btn small primary" data-act="timer-start">나도 시작</button>':'')+'</div>';
+  if(live.length){
+    h+='<div class="tglive">';
+    moreCut('tglive',live,10).forEach(function(x){var o=lv(x.L,now);h+='<div class="tgp'+(x.p.me?' me':'')+'">'+av(x.p,'s')+'<span><b>'+esc(x.p.name)+'</b><small>'+(o.rest?'쉬는 중':esc(subLabel(V,x.L.sid)))+' · <span data-lv="'+esc(x.p.id)+'">'+lvText(o)+'</span></small></span></div>';});
+    h+='</div>'+moreBtn('tglive',live.length);
+  }
+  var ms=meetList(V);
+  h+='<div class="sec"><h3>함께 시작하기 약속</h3>';
+  if(!ms.length)h+='<p class="hint">시간을 정해 두면 그 시간에 같이 타이머를 켭니다.</p>';
+  ms.slice(0,5).forEach(function(x){
+    var who=meetWho(V,x.id),inn=who.some(function(p){return p.id===V.me;}),on=now>=x.at-300000&&now<x.at+x.m*60000,mine=x.by===V.me||adminId(V)===V.me;
+    h+='<div class="tgm'+(on?' on':'')+'" id="mt-'+esc(x.id)+'"><div><b>'+esc(meetTime(x.at))+'</b> <small>'+x.m+'분</small>'+(x.t?'<span class="tgt">'+esc(x.t)+'</span>':'')+(on?'<em class="tag a">지금</em>':'')+'<small class="tgw">'+(who.length?who.slice(0,6).map(function(p){return esc(p.name);}).join(', ')+(who.length>6?' 외 '+(who.length-6)+'명':''):'아직 참여한 사람이 없습니다')+'</small></div><div class="row">';
+    if(on&&inn&&!myL)h+='<button class="btn small primary" data-act="timer-start">타이머 켜고 합류</button>';
+    h+='<button class="btn small'+(inn?'':' soft')+'" data-act="meet-join" data-id="'+esc(x.id)+'">'+(inn?'참여 취소':'참여')+'</button>';
+    if(mine)h+='<button class="btn small" data-act="meet-del" data-id="'+esc(x.id)+'">'+(S.confirm==='mdel:'+x.id?'한 번 더 누르면 삭제':'삭제')+'</button>';
+    h+='</div></div>';
+  });
+  if(S.meetForm){
+    var F=S.meetForm;
+    h+='<div class="tgform"><div class="chips">'+chipBtn('meet-set','d','0','오늘',F.d===0)+chipBtn('meet-set','d','1','내일',F.d===1)+'</div>';
+    h+='<div class="row" style="margin-top:6px"><input type="time" data-draft="meetT" aria-label="시작 시각"><input type="text" data-draft="meetN" maxlength="20" placeholder="이름 (선택)" aria-label="약속 이름"></div>';
+    h+='<div class="chips" style="margin-top:6px">';[25,50,90].forEach(function(n){h+=chipBtn('meet-set','m',String(n),n+'분',F.m===n);});h+='</div>';
+    h+='<div class="row" style="margin-top:8px"><button class="btn small primary" data-act="meet-add">만들기</button><button class="btn small" data-act="meet-form">닫기</button></div></div>';
+  }else h+='<div class="row" style="margin-top:6px"><button class="btn small" data-act="meet-form">약속 만들기</button></div>';
+  return h+'</div></section>';
+}
+function meetTick(V){
+  if(!V||!V.me)return;
+  var now=Date.now();S.meetFl=S.meetFl||{};
+  meetList(V).forEach(function(x){
+    if(S.meetFl[x.id]||now<x.at||now>x.at+120000)return;
+    if(!obj(obj(V.progress[V.me]).mj)[x.id])return;
+    S.meetFl[x.id]=1;flash('같이 공부하기 시작 시간입니다'+(x.t?': '+x.t:'')+'.');
+    try{if(typeof sysNotify==='function')sysNotify('같이 공부할 시간입니다',x.t||'타이머를 켜고 합류하세요','meet-'+x.id);}catch(e){}
+  });
+}
+
+/* 공부 잔디: 한 달 동안 매일 공부 시간 */
+function grassLv(m){return m<=0?0:m<60?1:m<180?2:m<300?3:4;}
+function grassCard(V,k){
+  if(!V.me)return '';
+  var t=today(),ym=S.grassM||t.slice(0,7),first=ym+'-01',y=+ym.slice(0,4),mo=+ym.slice(5),nd=new Date(y,mo,0).getDate();
+  var days=[],tot=0,on=0,run=0,best=0,top=null;
+  for(var i=1;i<=nd;i++){
+    var d=ym+'-'+(i<10?'0':'')+i,x=dayOf(V,V.me,d),m=sumMins(x.mins)+sumMins(x.manual);
+    days.push({d:d,m:m});if(d<=t){tot+=m;if(m>0){on++;run++;if(run>best)best=run;if(!top||m>top.m)top={d:d,m:m};}else if(d<t)run=0;}
+  }
+  var lead=(pd(first).getDay()+6)%7,prevM=addDays(first,-1).slice(0,7),nextM=addDays(ym+'-'+nd,1).slice(0,7);
+  var h='<section class="card" id="c-grass" style="--k:'+k+'"><div class="ct"><h2>공부 잔디</h2><div class="mnav sm"><button class="ib" data-act="grass-m" data-v="'+prevM+'" aria-label="이전 달"'+(prevM<CAL_MIN.slice(0,7)?' disabled':'')+'>&lsaquo;</button><b>'+y+'년 '+mo+'월</b><button class="ib" data-act="grass-m" data-v="'+nextM+'" aria-label="다음 달"'+(nextM>t.slice(0,7)?' disabled':'')+'>&rsaquo;</button></div></div>';
+  h+='<div class="grass"><div class="gdow"><span>월</span><span></span><span>수</span><span></span><span>금</span><span></span><span>일</span></div><div class="ggrid">';
+  for(i=0;i<lead;i++)h+='<i class="gx"></i>';
+  days.forEach(function(x){h+='<i class="g'+(x.d>t?' gx':grassLv(x.m))+(x.d===t?' gt':'')+'" title="'+esc(shortDate(x.d)+' '+fmtMins(x.m))+'"></i>';});
+  h+='</div></div><div class="glegend"><small>적음</small><i class="g0"></i><i class="g1"></i><i class="g2"></i><i class="g3"></i><i class="g4"></i><small>많음</small></div>';
+  h+='<div class="hbands gstat"><div><small>공부한 날</small><b>'+on+'일</b></div><div><small>합계</small><b>'+fmtMins(tot)+'</b></div><div><small>최장 연속</small><b>'+best+'일</b></div><div><small>최고</small><b>'+(top?fmtMins(top.m):'-')+'</b></div></div>';
+  return h+'</section>';
+}
+
+/* 조용히 빠진 사람: 방장만. 3일 넘게 출석하지 않은 사람 */
+function quietList(V){
+  var t=today(),out=[];
+  V.roster.forEach(function(m){
+    if(m.id===V.me)return;
+    var last=null;for(var i=0;i<30;i++){var d=addDays(t,-i);if(dayOf(V,m.id,d).in){last=d;break;}}
+    var gap=last?diffDays(last,t):99;
+    if(gap>3)out.push({p:V.byId[m.id],last:last,gap:gap});
+  });
+  return out.sort(function(a,b){return b.gap-a.gap;});
+}
+function quietCard(V,k){
+  if(!V.me||adminId(V)!==V.me)return '';
+  var l=quietList(V);if(!l.length)return '';
+  var h='<section class="card" id="c-quiet" style="--k:'+k+'"><div class="ct"><h2>요즘 안 보이는 사람<small>방장만 보입니다</small></h2></div>';
+  moreCut('quiet',l).forEach(function(x){
+    h+='<div class="brow">'+av(x.p,'s')+'<span>'+esc(x.p.name)+'<small class="rvs">'+(x.last?x.gap+'일째 출석 없음':'30일 넘게 출석 없음')+'</small></span><span></span><div class="row"><button class="btn small" data-act="poke" data-id="'+esc(x.p.id)+'">찌르기</button><button class="btn small soft" data-act="dm" data-id="'+esc(x.p.id)+'">메시지</button></div></div>';
+  });
+  return h+moreBtn('quiet',l.length)+'</section>';
 }
 
 /* ---------- 방: 참여 코드, 새 방, 방 바꾸기 (웹 판) ---------- */
@@ -6202,7 +6390,7 @@ function flagAct(V,f){
   if(!open)return '<div class="flact"><button class="btn small primary" data-act="flag-open" data-id="'+esc(f.id)+'">시간 줄이고 확인하기</button></div>';
   var T=S.flagFix,typed=Math.round(+S.draft.flagN),n=typed>=0&&S.draft.flagN!==''&&S.draft.flagN!=null?typed:T.n,tot=pl.total;
   n=Math.max(0,Math.min(tot,Math.round(+n)||0));
-  var h='<div class="flfix"><p class="hint">공부하지 않은 시간이 있다면 그만큼 빼 주세요. 뺀 뒤 확인하면 이 표시가 사라집니다.'+(tot?' 지금 기록은 '+fmtMins(tot)+'입니다.':' 이 기록에는 지울 시간이 남아 있지 않습니다.')+'</p>';
+  var h='<div class="flfix"><p class="hint">공부하지 않은 시간만큼 빼고 확인하면 표시가 사라집니다.'+(tot?' 지금 기록은 '+fmtMins(tot)+'입니다.':' 이 기록에는 지울 시간이 남아 있지 않습니다.')+'</p>';
   if(tot){
     h+='<div class="chips">';
     [30,60,120,180,240].filter(function(m){return m<tot;}).forEach(function(m){h+=chipBtn('flag-set','n',String(m),m>=60?(m/60)+'시간':m+'분',!S.draft.flagN&&T.n===m);});
@@ -6216,7 +6404,7 @@ function flagAct(V,f){
 function flagTags(f){var w=arr(f.why);return (w.indexOf('cap')>=0?'<em class="tag r">5시간 상한까지 켜짐</em> ':'')+(w.indexOf('dawn')>=0?'<em class="tag r">새벽 내내 켜짐</em>':'');}
 function flagCard(V,k){
   var l=flagList(V);if(!l.length)return '';
-  var h='<section class="card" id="c-flags" style="--k:'+k+'"><div class="ct"><h2>확인 필요<small>최근 7일</small></h2></div><p class="hint">켜놓기만 했을 수 있는 타이머 기록입니다. 본인이나 방장이 공부하지 않은 시간을 빼고 확인하면 이 표시가 사라집니다.</p>';
+  var h='<section class="card" id="c-flags" style="--k:'+k+'"><div class="ct"><h2>확인 필요<small>최근 7일</small></h2></div><p class="hint">켜 두기만 했을 수 있는 기록입니다. 본인이나 방장이 확인하면 사라집니다.</p>';
   l.slice(0,8).forEach(function(f){
     var p=V.byId[f.mid],a=new Date(+f.start),b=new Date(+f.end),same=fd(a)===fd(b);
     h+='<div class="flag" id="fl-'+esc(f.id)+'">'+av(p,'s')+'<div><b>'+esc(p.name)+'</b>'+flagTags(f)+'<small>'+esc(shortDate(fd(a))+' '+fmtClock(a.toISOString())+' ~ '+(same?'':shortDate(fd(b))+' ')+fmtClock(b.toISOString()))+', '+esc(subLabel(V,f.sid))+', '+fmtMins(Math.round((+f.end-+f.start)/60000))+'</small>'+flagAct(V,f)+'</div></div>';
@@ -6225,11 +6413,11 @@ function flagCard(V,k){
 }
 function viewRoom(V){
   var t=today(),L=liveOf(V,V.me),day=dayOf(V,V.me,t),subs=mySubs(V),sel=S.draft.timeSub||(L?L.sid:(subs[0]?subs[0].id:'etc')),total=sumMins(day.mins)+sumMins(day.manual);
-  var h='<div class="view" id="view-room"><header class="vhead"><div><h1>공부방</h1><p>타이머를 켜면 참여 인원 모두에게 바로 공부 중으로 보입니다.</p></div></header><div class="cols"><div class="stack">';
+  var h='<div class="view" id="view-room"><header class="vhead"><div><h1>공부방</h1><p>타이머를 켜면 모두에게 공부 중으로 보입니다.</p></div></header><div class="cols"><div class="stack">';
   h+='<section class="card" id="c-timer" style="--k:0"><div class="ct"><h2>공부 타이머<small>오늘 '+fmtMins(total)+'</small></h2>'+(L?'<button class="btn small soft" data-act="focus-open">크게 보기</button>':'')+'</div>'+studyGoalBar(V,total);
   h+=timerBody(V,L,sel,subs);
   h+=lockRow(L);
-  h+='<div class="sec"><h3>직접 입력<small>타이머 없이 공부한 시간</small></h3><div class="tbtns"><button class="btn" data-act="time-add" data-m="10">+10분</button><button class="btn" data-act="time-add" data-m="30">+30분</button><button class="btn" data-act="time-add" data-m="60">+1시간</button></div><p class="hint" style="margin-top:8px">직접 입력은 하루 1시간까지만 점수에 반영되고, 다른 사람에게도 직접 입력으로 표시됩니다.</p>';
+  h+='<div class="sec"><h3>직접 입력<small>타이머 없이 공부한 시간</small></h3><div class="tbtns"><button class="btn" data-act="time-add" data-m="10">+10분</button><button class="btn" data-act="time-add" data-m="30">+30분</button><button class="btn" data-act="time-add" data-m="60">+1시간</button></div><p class="hint" style="margin-top:8px">직접 입력은 하루 1시간까지 점수에 들어갑니다.</p>';
   var lastM=S.mlog.filter(function(x){return x.date===t&&x.mid===V.me&&(+day.manual[x.sid]||0)>0;}).slice(-1)[0],mk=Object.keys(day.manual).filter(function(x){return (+day.manual[x]||0)>0;});
   if(lastM)h+='<div class="undo" id="undo-'+lastM.n+'"><span>방금 '+esc(subLabel(V,lastM.sid))+'에 '+fmtMins(lastM.m)+'을 넣었습니다.</span><button class="btn small" data-act="time-undo">되돌리기</button></div>';
   if(mk.length){
@@ -6245,14 +6433,14 @@ function viewRoom(V){
     keys.forEach(function(x){var a=+day.mins[x]||0,b=+day.manual[x]||0;h+='<li id="tm-'+esc(x)+'"><span>'+esc(subLabel(V,x))+(b?'<small>직접 입력 '+fmtMins(b)+'</small>':'')+'</span><span><b>'+fmtMins(a+b)+'</b></span></li>';});
     h+='</ul></div>';
   }
-  return h+'</section></div><div class="stack">'+peopleCard(V,t,1)+flagCard(V,2)+songsCard(V,3)+'</div></div></div>';
+  return h+'</section>'+cgCard(V,1)+togetherCard(V,2)+'</div><div class="stack">'+quietCard(V,1)+peopleCard(V,t,1)+flagCard(V,2)+songsCard(V,3)+'</div></div></div>';
 }
 
 /* ---------- 진도 ---------- */
 function viewProg(V){
   if(S.edit)return viewProgEdit(V);
   var mode=S.progMode==='all'||!V.me?'all':'me';
-  var h='<div class="view" id="view-prog"><header class="vhead"><div><h1>과목별 진도</h1><p>'+(mode==='me'?'내 시험 범위의 단원을 적고 단원별로 끝낸 공부를 표시하세요. 단원은 사람마다 따로 정합니다.':'과목마다 각자 얼마나 했는지 봅니다. 과목을 누르면 단원별로 보입니다.')+'</p></div><div class="vacts"><div class="seg mini pmode" role="group" aria-label="보기">'+[['me','내 진도'],['all','모두 보기']].map(function(x){return '<button data-act="prog-mode" data-id="'+x[0]+'" aria-pressed="'+(mode===x[0]?'true':'false')+'">'+x[1]+'</button>';}).join('')+'</div><button class="btn small" data-act="prog-edit">과목과 항목 편집</button></div></header>';
+  var h='<div class="view" id="view-prog"><header class="vhead"><div><h1>과목별 진도</h1><p>'+(mode==='me'?'시험 범위 단원을 적고 끝낸 공부를 표시하세요.':'과목을 누르면 단원별로 보입니다.')+'</p></div><div class="vacts"><div class="seg mini pmode" role="group" aria-label="보기">'+[['me','내 진도'],['all','모두 보기']].map(function(x){return '<button data-act="prog-mode" data-id="'+x[0]+'" aria-pressed="'+(mode===x[0]?'true':'false')+'">'+x[1]+'</button>';}).join('')+'</div><button class="btn small" data-act="prog-edit">과목과 항목 편집</button></div></header>';
   h+='<div class="vbody'+(S.vbDir?' side':'')+'" id="vb-prog-'+mode+'" style="--vd:'+S.vbDir+'"><div class="ustack">'+(mode==='me'?viewProgMine(V):viewProgAll(V))+'</div></div>';
   return h+'</div>';
 }
@@ -6302,7 +6490,7 @@ function viewRank(V){
   if(S.range==='last'){from=addDays(mon,-7);to=addDays(mon,-1);label='지난주';}
   else if(S.range==='all'){from=TALLY;to=END;label='최종';}
   else{from=mon;to=addDays(mon,6);label='이번 주';}
-  var h='<div class="view" id="view-rank"><header class="vhead"><div><h1>순위</h1><p>매일 한 만큼 점수가 쌓이고, 주마다 그리고 시험이 끝났을 때 순위를 매깁니다.'+(TALLY>START?' 집계는 '+shortDate(TALLY)+'부터이고, 그 전 점수는 보이기만 합니다.':'')+'</p></div><div class="seg" role="group" aria-label="집계 기간">';
+  var h='<div class="view" id="view-rank"><header class="vhead"><div><h1>순위</h1><p>매일 점수가 쌓이고, 주마다와 시험 뒤에 순위를 매깁니다.'+(TALLY>START?' 집계는 '+shortDate(TALLY)+'부터입니다.':'')+'</p></div><div class="seg" role="group" aria-label="집계 기간">';
   [['this','이번 주'],['last','지난주'],['all','최종 결과']].forEach(function(r){h+='<button data-act="range" data-id="'+r[0]+'" aria-pressed="'+(S.range===r[0]?'true':'false')+'">'+r[1]+'</button>';});
   h+='</div></header><div class="cols"><div class="stack">';
   if(S.range==='all')return h+finalBody(V)+'</div></div></div>';
@@ -6370,7 +6558,7 @@ function viewBoard(V){
     var lpc=V.posts.filter(function(q){return q.mid===m.id&&q.kind==='lapse'&&(+q.at||0)>=monT;}).length;
     h+='<li>'+av(V.byId[m.id],'s')+'<span>'+esc(V.byId[m.id].name)+'</span><small>문제 '+c+', 답변 '+r+(lpc?', 타임랩스 '+lpc:'')+'</small></li>';
   });
-  h+='</ul><p class="hint" style="margin-top:10px">문제를 올린 날 '+RULE.quiz+'점, 다른 사람 문제를 풀거나 질문에 답하면 1개당 '+RULE.help+'점(하루 '+RULE.helpMax+'개까지)입니다.</p></section></div></div></div>';
+  h+='</ul><p class="hint" style="margin-top:10px">문제 올리기 '+RULE.quiz+'점, 풀이·답변 1개당 '+RULE.help+'점(하루 '+RULE.helpMax+'개).</p></section></div></div></div>';
   return h;
 }
 /* ---------- 주간 리포트 ---------- */
@@ -6425,7 +6613,7 @@ function viewReport(V){
   h+='<div class="stack"><section class="card" id="c-rsubj-'+S.repWeek+'" style="--k:2"><div class="ct"><h2>과목별 공부 시간</h2></div>';
   if(!subj.length)h+='<p class="empty">이 주에 기록된 공부 시간이 없습니다.</p>';
   subj.forEach(function(x){h+='<div class="hb"><span>'+esc(subLabel(V,x.k))+'</span><span class="tr"><i style="width:'+Math.round(x.m/smax*100)+'%"></i></span><small>'+fmtMins(x.m)+' ('+Math.round(x.m/me.mins*100)+'%)</small></div>';});
-  h+='</section><section class="card" id="c-rcmp-'+S.repWeek+'" style="--k:3"><div class="ct"><h2>참여 인원 비교</h2></div>';
+  h+='</section>'+grassCard(V,3)+'<section class="card" id="c-rcmp-'+S.repWeek+'" style="--k:3"><div class="ct"><h2>참여 인원 비교</h2></div>';
   var byT=order.slice().sort(function(a,b){return b.mins-a.mins;}),tmax=byT.length?byT[0].mins:0;
   moreCut('rcmp',byT).forEach(function(o){h+='<div class="hb'+(o.p.me?'':' o')+'"><span>'+esc(o.p.name)+'</span><span class="tr"><i style="width:'+(tmax?Math.round(o.mins/tmax*100):0)+'%"></i></span><small>'+fmtMins(o.mins)+'</small></div>';});
   h+='<div class="wtwrap" style="margin-top:12px"><table class="tb"><thead><tr><th>이름</th><th>공부 시간</th><th>할 일</th><th>점수</th><th>출석</th></tr></thead><tbody>';
@@ -6487,7 +6675,7 @@ function setChan(id){
 function viewChat(V){
   var by=V.chat,c=by[S.chan]?S.chan:'all',list=by[c].slice(-150),dm=c!=='all',who=dm?V.byId[c]:null,lastDay='',key='c:'+c;
   var ed=S.msgEdit&&S.msgEdit.chan===c&&V.msgs[S.msgEdit.id]?S.msgEdit:null;
-  var h='<div class="view" id="view-chat"><header class="vhead"><div><h1>메시지</h1><p>전체 대화와 1:1 메시지를 주고받습니다. 내가 보낸 메시지를 누르면 고치거나 지울 수 있습니다.</p></div></header><div class="chat"><section class="card chlist" id="c-chlist" style="--k:0">';
+  var h='<div class="view" id="view-chat"><header class="vhead"><div><h1>메시지</h1><p>내 메시지를 누르면 고치거나 지울 수 있습니다.</p></div></header><div class="chat"><section class="card chlist" id="c-chlist" style="--k:0">';
   ['all'].concat(dmOrder(V)).forEach(function(k){
     var l=by[k]||[],last=l[l.length-1],un=k===c?0:unreadOf(V,k),p=k==='all'?null:V.byId[k];
     h+='<button class="chrow" data-act="chan" data-id="'+esc(k)+'" aria-current="'+(k===c?'true':'false')+'">'+(p?av(p,'s'):'<span class="av s" aria-hidden="true">전체</span>')+'<span style="min-width:0"><b>'+(p?esc(p.name):'전체 대화')+'</b><small>'+(last?esc(msgPreview(last)):'대화 없음')+'</small></span>'+(un?'<span class="cnt" aria-label="안 읽은 메시지 '+un+'개">'+un+'</span>':'<span></span>')+'</button>';
@@ -6743,13 +6931,13 @@ var PLAYTABS=[['bingo','스터디 빙고'],['duel','1:1 대결'],['badge','배�
 function viewPlay(V){
   var t=today(),mon=mondayOf(t)<START?START:mondayOf(t),pt=PLAYTABS.some(function(x){return x[0]===S.playTab;})?S.playTab:'bingo';
   var pend=duelList(V).filter(function(d){return d.state==='pending'&&d.b===V.me;}).length;
-  var h='<div class="view" id="view-play"><header class="vhead"><div><h1>도전</h1><p>'+({bingo:'매주 월요일에 바뀌는 빙고 판입니다. 기록으로 자동 계산됩니다.',duel:'한 명을 골라 점수, 공부 시간, 끝낸 할 일로 겨룹니다. 하루씩 승부하는 라운드제, 구경하는 사람의 응원, 도전장 한마디도 있습니다.',badge:'기록이 쌓이면 배지를 받습니다. 등급이 높을수록 어렵고, 받은 배지는 최종 점수에 더해집니다.'}[pt])+'</p></div>';
+  var h='<div class="view" id="view-play"><header class="vhead"><div><h1>도전</h1><p>'+({bingo:'매주 월요일에 바뀌고, 기록으로 저절로 채워집니다.',duel:'한 명을 골라 정한 기간 동안 겨룹니다.',badge:'기록이 쌓이면 받고, 최종 점수에 더해집니다.'}[pt])+'</p></div>';
   h+='<div class="seg" role="group" aria-label="도전 종류">'+PLAYTABS.map(function(x){return '<button data-act="play-tab" data-id="'+x[0]+'" aria-pressed="'+(pt===x[0]?'true':'false')+'">'+x[1]+(x[0]==='duel'&&pend?'<b class="sbadge">'+pend+'</b>':'')+'</button>';}).join('')+'</div></header><div class="pwrap" id="pw-'+pt+'">';
   if(pt==='bingo'){
     var B=bingo(V,mon),me=B.per[V.me];
     h+='<section class="card" id="c-bingo-'+mon+'" style="--k:0"><div class="ct"><h2>스터디 빙고<small>'+esc(shortDate(mon)+' ~ '+shortDate(addDays(mon,6)))+'</small></h2><span class="tag a">'+me.lines+'줄, '+me.pts+'점</span></div><div class="bingo">';
     B.cells.forEach(function(c,i){h+='<div class="bcell'+(me.done[i]?' on':'')+'"><span>'+esc(c.t)+'</span><small>'+(me.done[i]?'완료':prog(c,me.vals[i]))+'</small></div>';});
-    h+='</div><p class="hint">가로, 세로, 대각선 한 줄을 채울 때마다 주간 점수에 '+bingoLine(mon)+'점이 더해집니다. 판은 매주 월요일에 바뀝니다.</p><div class="sec"><h3>참여 인원 진행</h3>';
+    h+='</div><p class="hint">한 줄을 채울 때마다 '+bingoLine(mon)+'점.</p><div class="sec"><h3>참여 인원 진행</h3>';
     V.roster.map(function(m){return {p:V.byId[m.id],b:B.per[m.id]};}).sort(function(a,b){return b.b.lines-a.b.lines||b.b.n-a.b.n;}).forEach(function(x){
       h+='<div class="brow">'+av(x.p,'s')+'<span>'+esc(x.p.name)+'</span><span class="mini" aria-hidden="true">'+x.b.done.map(function(d){return '<i class="'+(d?'on':'')+'"></i>';}).join('')+'</span><small>'+x.b.n+'칸, '+x.b.lines+'줄</small></div>';
     });
@@ -6917,7 +7105,7 @@ function modalSettings(V){
   if(V.me){var gmS=+obj(V.progress[V.me]).goalMins||0;b+='<div class="sec"><h3>하루 공부 목표<small>나만 보입니다</small></h3><div class="amt"><button data-act="sgoal" data-d="-30" aria-label="30분 줄이기">-30</button><b>'+(gmS?fmtMins(gmS):'없음')+'</b><button data-act="sgoal" data-d="30" aria-label="30분 늘리기">+30</button></div><p class="hint">정하면 공부방 타이머와 오늘 점수 칸에 얼마나 채웠는지 보입니다.</p></div>';}
   if(V.me)b+='<div class="sec"><h3>내 점수 초기화<small>'+esc(V.byId[V.me].name)+'</small></h3><p class="hint">지금까지 쌓인 내 점수만 0점으로 돌립니다. 할 일과 공부 시간 기록은 그대로 남고, 다른 사람 점수는 바뀌지 않습니다.</p><div class="row" style="margin-top:10px"><button class="btn" data-act="score-reset"'+dis+'>'+(S.confirm==='reset'?'한 번 더 누르면 초기화됩니다':'내 점수 초기화')+'</button></div></div>';
   var adm=adminId(V),isAdm=!!V.me&&adm===V.me,myLock=V.me&&lockOf(V,V.me);
-  if(V.me)b+='<div class="sec"><h3>내 비밀번호<small>'+(myLock?'사용 중':'없음')+'</small></h3><p class="hint">숫자 4자리를 정하면 어느 기기에서든 비밀번호를 눌러야 '+esc(V.byId[V.me].name)+' 님으로 들어올 수 있습니다. 이 기기는 한 번 들어오면 다시 묻지 않습니다.</p><div class="row" style="margin-top:10px"><button class="btn" data-act="pin-set"'+dis+'>'+(myLock?'비밀번호 바꾸기':'비밀번호 정하기')+'</button>'+(myLock?'<button class="btn" data-act="pin-clear"'+dis+'>'+(S.confirm==='pinclear'?'한 번 더 누르면 없어집니다':'비밀번호 없애기')+'</button>':'')+'</div></div>';
+  if(V.me)b+='<div class="sec"><h3>내 비밀번호<small>'+(myLock?'사용 중':'없음')+'</small></h3><p class="hint">정해 두면 다른 기기에서 '+esc(V.byId[V.me].name)+' 님으로 들어올 때 묻습니다.</p><div class="row" style="margin-top:10px"><button class="btn" data-act="pin-set"'+dis+'>'+(myLock?'비밀번호 바꾸기':'비밀번호 정하기')+'</button>'+(myLock?'<button class="btn" data-act="pin-clear"'+dis+'>'+(S.confirm==='pinclear'?'한 번 더 누르면 없어집니다':'비밀번호 없애기')+'</button>':'')+'</div></div>';
   b+='<div class="sec"><h3>참여 인원<small>'+V.roster.length+'명</small></h3>';
   V.roster.forEach(function(m){
     var can=canWrite()&&(isAdm||m.id===V.me),lk=lockOf(V,m.id);
@@ -6929,7 +7117,7 @@ function modalSettings(V){
   [[22,'밤 10시'],[23,'밤 11시'],[24,'자정'],[25,'다음 날 새벽 1시'],[26,'다음 날 새벽 2시'],[27,'다음 날 새벽 3시'],[28,'다음 날 새벽 4시'],[29,'다음 날 새벽 5시']].forEach(function(o){b+='<option value="'+o[0]+'"'+(V.certHour===o[0]?' selected':'')+'>'+o[1]+'</option>';});
   b+='</select>';
   b+='</div>'+pokeSec()+noticeSec(V)+periodSec(V)+'<div class="sec"><h3>사용법</h3><div class="row"><button class="btn small" data-act="open" data-modal="help">사용법 보기</button></div></div><div class="sec"><h3>키보드 단축키<small>키보드를 연결했을 때</small></h3><ul class="kbd">'+[['1 ~ 8','달력부터 메시지까지 화면 이동'],['N','할 일 추가'],['D','마감 있는 할 일 추가'],['L','달력, 할 일, 시간표 차례로 바꿔 보기'],['T','타이머 켜기, 끄기'],['F','타이머 크게 보기'],['Esc','창 닫기']].map(function(x){return '<li><kbd>'+x[0]+'</kbd><span>'+x[1]+'</span></li>';}).join('')+'</ul></div><div class="sec"><h3>저장 위치</h3><p class="hint">'+esc(S.net?({claude:'Claude 공유 저장소에 연결되어 있습니다. Claude에 로그인한 참여 인원끼리 실시간으로 같이 봅니다.',firebase:'공유 저장소에 연결되어 있습니다. 참여 코드로 들어온 사람 모두가 실시간으로 같이 봅니다.',local:'지금은 이 기기에만 저장됩니다. 다른 사람과 같이 보려면 공유 저장소 연결이 필요합니다.'}[S.net.mode]):'연결 중입니다.')+'</p>'+(S.net&&S.net.mode==='firebase'&&S.remote?'<div class="row" style="margin-top:10px"><button class="btn small" data-act="import-pick">기록 가져오기</button><button class="btn small" data-act="export-data">기록 파일로 저장</button><button class="del" data-act="setup-reset">'+(S.confirm==='disc'?'한 번 더 누르면 이 방에서 나갑니다':'이 기기에서 이 방 나가기')+'</button></div><p class="hint" style="margin-top:8px">'+esc(S.importMsg||'친구와 내 다른 기기는 위의 친구 초대하기로 들어옵니다. 기록 가져오기는 처음 연결한 뒤 한 번만 하면 됩니다.')+'</p>':'')+'</div>';
-  b+='<p class="hint appver">앱 버전 10월 29일 07:30</p>';
+  b+='<p class="hint appver">앱 버전 10월 30일 08:57</p>';
   return dlg('wide',{id:'settings',t:'설정'},b);
 }
 function modalCheck(V){
@@ -7062,7 +7250,7 @@ function afterChat(V){
 }
 function after(V){
   afterChat(V);
-  try{paintMore();pruneOnce(V);eggTick(V);}catch(e){}
+  try{paintMore();pruneOnce(V);eggTick(V);cgTick(V);meetTick(V);}catch(e){}
   if(S.scrollTo&&(S.ready||!S.scrollTo.quiet)){var sa=S.scrollTo;S.scrollTo=null;setTimeout(function(){var se=document.getElementById(sa.id);if(!se||!se.scrollIntoView)return;if(sa.inline){var sc=se.closest('.wkscroll');if(sc&&sc.scrollWidth>sc.clientWidth+2)sc.scrollTo({left:se.offsetLeft-sc.firstElementChild.offsetLeft,behavior:sa.quiet||reduced?'auto':'smooth'});return;}se.scrollIntoView({block:sa.block||'start',behavior:reduced?'auto':'smooth'});},30);}
   if(S.ttScrollY!=null){var tsc=document.getElementById('ttScroll');if(tsc){var tv=S.ttScrollY;S.ttScrollY=null;tsc.scrollTop=tv==='auto'?(+tsc.getAttribute('data-auto')||0):tv;}}
   if(S.ready||S.setup||S.join)splashDone();
@@ -7860,6 +8048,47 @@ function act(name,el){
       save('msgs/'+rid('x'),{from:Vb.me,to:'all',text:'1:1 대결에서 '+(lo?lo.name+' 님을 ':'')+'이겼습니다! ('+duelDesc(db)+', '+(duelMode(db)==='rounds'?sb[0]+' : '+sb[1]+' 라운드':duelNum(db,db.pa)+' : '+duelNum(db,db.pb))+')',go:'play',duel:id,at:Date.now()});
       flash('대화방에 자랑했습니다.');break;
     }
+    case 'cg-edit':S.cgEdit=!S.cgEdit;S.draft.cgH='';break;
+    case 'cg-set':case 'cg-save':{
+      var Vg=view();if(!Vg.me||adminId(Vg)!==Vg.me||!need())break;
+      var gh=name==='cg-set'?+el.getAttribute('data-v'):Math.round(+S.draft.cgH);
+      if(!(gh>=10&&gh<=5000)){flash('목표는 10시간에서 5000시간 사이로 정해 주세요.');break;}
+      var gmon=mondayOf(today());
+      editCfg(function(c){c.cgoal=obj(c.cgoal);c.cgoal.hist=obj(c.cgoal.hist);c.cgoal.hist[gmon]=gh;c.cgoal.h=gh;});
+      if(canWrite()){S.cgEdit=false;S.draft.cgH='';flash('이번 주 반 전체 목표를 '+gh+'시간으로 정했습니다.');}
+      break;
+    }
+    case 'meet-form':{
+      if(S.meetForm){S.meetForm=null;break;}
+      var md=new Date(Date.now()+30*60000);md.setMinutes(md.getMinutes()<30?30:60,0,0);
+      S.meetForm={d:fd(md)===today()?0:1,m:50};S.draft.meetT=String(md.getHours()).padStart(2,'0')+':'+String(md.getMinutes()).padStart(2,'0');S.draft.meetN='';S.sync=true;break;
+    }
+    case 'meet-set':{if(!S.meetForm)break;var mk2=el.getAttribute('data-k'),mv2=+el.getAttribute('data-v');if(mk2==='d')S.meetForm.d=mv2?1:0;else if(mk2==='m'&&[25,50,90].indexOf(mv2)>=0)S.meetForm.m=mv2;break;}
+    case 'meet-add':{
+      var Vm=view(),MF=S.meetForm,mt=/^(\d{1,2}):(\d{2})$/.exec(String(S.draft.meetT||''));if(!Vm.me||!MF)break;
+      if(!mt){flash('시작 시각을 골라 주세요.');break;}
+      var mdt=pd(addDays(today(),MF.d));mdt.setHours(+mt[1],+mt[2],0,0);var mat=mdt.getTime();
+      if(mat<Date.now()-60000){flash('이미 지난 시각입니다.');break;}
+      if(meetList(Vm).length>=10){flash('약속은 10개까지 만들 수 있습니다.');break;}
+      if(!need())break;
+      var mid=rid('mt'),mnm=String(S.draft.meetN||'').trim().slice(0,20),mnow=Date.now();
+      editCfg(function(c){c.meet=obj(c.meet);Object.keys(c.meet).forEach(function(k){var x=obj(c.meet[k]);if(!(+x.at)||+x.at+(+x.m||50)*60000<mnow-86400000)delete c.meet[k];});c.meet[mid]={at:mat,m:MF.m,t:mnm,by:Vm.me};});
+      editProg(function(p){p.mj=obj(p.mj);p.mj[mid]=1;});
+      S.meetForm=null;S.draft.meetN='';flash(meetTime(mat)+' 약속을 만들었습니다.');break;
+    }
+    case 'meet-join':{
+      var Vj=view();if(!Vj.me||!obj(Vj.cfg.meet)[id]||!need())break;
+      var live2={};meetList(Vj).forEach(function(x){live2[x.id]=1;});
+      editProg(function(p){p.mj=obj(p.mj);Object.keys(p.mj).forEach(function(k){if(!live2[k])delete p.mj[k];});if(p.mj[id])delete p.mj[id];else p.mj[id]=1;});
+      break;
+    }
+    case 'meet-del':{
+      var Vd2=view(),xm=obj(obj(Vd2.cfg.meet)[id]);if(!Vd2.me||!xm.at||(xm.by!==Vd2.me&&adminId(Vd2)!==Vd2.me))break;
+      if(prev!=='mdel:'+id){S.confirm='mdel:'+id;break;}
+      if(!need())break;
+      editCfg(function(c){c.meet=obj(c.meet);delete c.meet[id];});flash('약속을 지웠습니다.');break;
+    }
+    case 'grass-m':{var gmv=el.getAttribute('data-v');if(/^\d{4}-\d{2}$/.test(gmv))S.grassM=gmv;break;}
     case 'notice-x':{var Vnx=view(),nnx=noticeOf(Vnx);if(nnx)lsSet('gbb_notice',String(nnx.at));break;}
     case 'notice-save':{
       var nst=String(S.draft.noticeText||'').trim().slice(0,200),Vns=view();

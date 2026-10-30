@@ -1,0 +1,43 @@
+/* v54: 반 전체 목표, 같이 공부하기, 공부 잔디 */
+.cgnum{display:flex;align-items:baseline;gap:6px;margin:2px 0 8px}
+.cgnum b{font-size:34px;line-height:1;font-variant-numeric:tabular-nums}
+.cgnum span{color:var(--ink-3);font-size:14px}
+.cgnum em{margin-left:auto;font-style:normal;font-weight:700;color:var(--accent)}
+.cgbar{height:12px;border-radius:999px;background:var(--fill);overflow:hidden}
+.cgbar i{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,var(--accent),color-mix(in srgb,var(--accent) 60%,#F2C14E));transition:width .6s var(--ease)}
+.cg.hit .cgbar i{background:linear-gradient(90deg,#E0A800,#F2D98A)}
+.cgsub{margin:8px 0 6px;font-size:13px;color:var(--ink-2)}
+.cgtop{display:flex;flex-wrap:wrap;gap:6px 12px;font-size:12px;color:var(--ink-3);margin-bottom:4px}
+.cgtop b{color:var(--ink-2);font-weight:600}
+.cgadm{margin-top:6px}
+.tglive{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin-bottom:6px}
+.tgp{display:flex;align-items:center;gap:8px;padding:8px;border-radius:12px;background:var(--fill)}
+.tgp.me{background:var(--accent-soft)}
+.tgp span{min-width:0;display:grid}.tgp b{font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.tgp small{font-size:11px;color:var(--ink-3)}
+.tgm{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px 0;border-top:1px solid var(--line);flex-wrap:wrap}
+.tgm:first-of-type{border-top:0}
+.tgm.on{background:var(--accent-soft);border-radius:12px;padding:10px;border-top:0}
+.tgm small{color:var(--ink-3)}.tgt{margin-left:6px;font-size:13px}.tgw{display:block;margin-top:2px;font-size:12px}
+.tgm em.tag{margin-left:6px}
+.tgform{margin-top:8px;padding:10px;border-radius:12px;background:var(--fill)}
+.tgform input{min-width:0;flex:1}
+.mnav.sm{display:flex;align-items:center;gap:6px}.mnav.sm b{font-size:13px}
+.grass{display:flex;gap:6px;margin:4px 0 8px}
+.gdow{display:grid;grid-template-rows:repeat(7,1fr);font-size:10px;color:var(--ink-3)}
+.gdow span{height:18px;line-height:18px}
+.ggrid{display:grid;grid-auto-flow:column;grid-auto-columns:18px;gap:4px}
+.ggrid i,.glegend i{display:block;width:18px;height:18px;border-radius:5px;background:var(--fill)}
+.ggrid i.gx{background:transparent}
+.ggrid i.gt{outline:2px solid var(--ink-3);outline-offset:1px}
+.g1{background:color-mix(in srgb,var(--accent) 25%,var(--fill))!important}
+.g2{background:color-mix(in srgb,var(--accent) 50%,var(--fill))!important}
+.g3{background:color-mix(in srgb,var(--accent) 75%,var(--fill))!important}
+.g4{background:var(--accent)!important}
+.glegend{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--ink-3);margin-bottom:10px}
+.glegend i{width:12px;height:12px;border-radius:3px}
+.gstat{margin:0}
+.ggrid{grid-template-rows:repeat(7,18px)}
+.gdow{grid-template-rows:repeat(7,18px);gap:4px}
+.brow small.rvs,.rvs{display:block;font-size:12px;color:var(--ink-3)}
+.linkbtn{background:none;border:0;padding:6px 4px;color:var(--accent);font:inherit;font-size:13px;font-weight:600;cursor:pointer}
+.linkbtn:hover{text-decoration:underline}
