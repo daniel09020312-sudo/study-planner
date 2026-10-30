@@ -4,7 +4,13 @@
 // 연동 코드: 상점에서 만들 때 한 번만 보인다. rooms/walletcode-<코드의 SHA-256 앞 24자> = {w:지갑 id}, 지갑의 ck에 그 열쇠를 둔다(다시 만들면 예전 것은 지움).
 // 다른 방에서 코드를 넣으면 그 방 지갑을 코드 지갑에 합치고(산 것, 방 합계), 옛 지갑에 to를 남겨 다른 방도 따라온다.
 // 관리자: 관리자 코드(ECDSA 비밀 열쇠)로 지갑 id에 서명해 unl에 두면, 누구나 공개 열쇠로 확인해 무제한으로 본다.
-var ADM_PUB={kty:'EC',crv:'P-256',x:'vfzTJmmFW0USLkZF7xdyTcjlcOdr8HSkQjarXt0A8b4',y:'-_jKn2V1W8NOJsDkdfJVQzY09uPf05MsAB99oTFx_uY'};
+var ADM_PUB={kty:'EC',crv:'P-256',x:'1fFy94GPoCFNvTBbyKSrrt_Xqslh9xdOUm33zNyHJwE',y:'Ba8Nfltg3fon_c5BGLZqOxqu_lZSUDVxamz8HJJmINw'};
+/* 관리자 코드(사람이 외우는 글)에서 비밀 열쇠 d를 만든다: PBKDF2-SHA256(코드, 'gbb-adm-v2', 200000번) */
+function walDerive(code){
+  var t=new TextEncoder();
+  return crypto.subtle.importKey('raw',t.encode(String(code||'').trim().normalize('NFC')),'PBKDF2',false,['deriveBits'])
+    .then(function(k){return crypto.subtle.deriveBits({name:'PBKDF2',hash:'SHA-256',salt:t.encode('gbb-adm-v2'),iterations:200000},k,256);}).then(b64u);
+}
 var WALS={busy:false,loadAt:0,syncAt:0,tick:0,unlFor:'',unlChk:{}};
 function walUrl(id,p){return S.remote.url.replace(/\/+$/,'')+'/rooms/wallet-'+id+(p?'/'+p:'')+'.json';}
 function walGet(id){return fetch(walUrl(id)).then(function(r){if(!r.ok)throw new Error('http');return r.text();}).then(function(t){try{dlAdd(u8len(t));}catch(e){}return obj(JSON.parse(t));});}
@@ -25,7 +31,7 @@ function walSign(id,d){
 }
 /* 받아 온 지갑을 화면에 반영 (관리자 서명은 확인한 뒤에) */
 function walSet(id,w,key){
-  WAL.on=true;WAL.id=id;WAL.key=key;WAL.own=obj(w.own);WAL.rm=obj(w.rm);WAL.rk=obj(w.rk);WAL.name=String(w.name||'');
+  WAL.on=true;WAL.id=id;WAL.key=key;WAL.own=obj(w.own);WAL.rm=obj(w.rm);WAL.rk=obj(w.rk);WAL.uh=obj(w.uh);WAL.name=String(w.name||'');
   var sig=String(w.unl||'');
   if(!sig){WAL.unl=false;}
   else if(WALS.unlChk[id+'|'+sig]!==undefined){WAL.unl=WALS.unlChk[id+'|'+sig];}
@@ -130,14 +136,14 @@ function walTick(){
 WALH.buy=function(id,price){if(!WAL.on||!WAL.id)return;WAL.own[id]=price;var b={};b['own/'+id]=price;walPatch(WAL.id,b).catch(function(){});};
 /* 관리자가 되돌리기: 지갑에서 빼고 rk에 그 시각을 적는다(다른 방 기록에 남은 것이 다시 들어오지 않게, 다른 기기에서도 숨은 팩 연출이 다시 나오게). 다시 사면 지갑 own에 들어가므로 rk는 남겨 둔다 */
 WALH.revoke=function(ids){if(!WAL.on||!WAL.id||!ids.length)return;var b={},t=Date.now();WAL.rk=obj(WAL.rk);ids.forEach(function(id){b['own/'+id]=null;b['rk/'+id]=t;delete WAL.own[id];WAL.rk[id]=t;});walPatch(WAL.id,b).catch(function(){});};
-WALH.adm=function(code){
+WALH.adm=function(code,raw){
   if(!WAL.on||!WAL.id||!code)return;
-  walSign(WAL.id,code).then(function(sig){return walVerify(WAL.id,sig).then(function(ok){
+  (raw?Promise.resolve(code):walDerive(code)).then(function(d){code=d;return walSign(WAL.id,d);}).then(function(sig){return walVerify(WAL.id,sig).then(function(ok){
     if(!ok)throw new Error('bad');
     return walPatch(WAL.id,{unl:sig}).then(function(){
       WALS.unlChk[WAL.id+'|'+sig]=true;WAL.unl=true;S.admOpen=false;
       try{localStorage.setItem('gbb_adm',code);}catch(e){}
-      walAdmAdd(WAL.id);
+      walAdmAdd(WAL.id);walUnlMark(true);
       flash('관리자 코드를 확인했습니다. 잉크를 무제한으로 쓰고 선물할 수 있습니다.');render();
     });
   });}).catch(function(){flash('관리자 코드가 맞지 않습니다.');});
@@ -146,6 +152,13 @@ WALH.adm=function(code){
 WALH.unlOff=function(){
   if(!WAL.on||!WAL.id)return;var id=WAL.id;
   try{localStorage.setItem('gbb_adm_w',JSON.stringify(walAdmList().filter(function(x){return x!==id;})));}catch(e){}
-  walPatch(id,{unl:null}).then(function(){WAL.unl=false;WALS.unlFor=id;flash('잉크 무제한을 껐습니다. 이제 모은 잉크만큼 씁니다.');render();}).catch(function(){flash('끄지 못했습니다. 인터넷 연결을 확인해 주세요.');});
+  walPatch(id,{unl:null}).then(function(){WAL.unl=false;walUnlMark(false);WALS.unlFor=id;flash('잉크 무제한을 껐습니다. 이제 모은 잉크만큼 씁니다.');render();}).catch(function(){flash('끄지 못했습니다. 인터넷 연결을 확인해 주세요.');});
 };
-WALH.unlOn=function(){var d=null;try{d=localStorage.getItem('gbb_adm');}catch(e){}if(d)WALH.adm(d);else{S.admOpen=true;render();}};
+WALH.unlOn=function(){var d=null;try{d=localStorage.getItem('gbb_adm');}catch(e){}if(d)WALH.adm(d,true);else{S.admOpen=true;render();}};
+/* 무제한이었던 동안(uh={시작:끝, 끝 0은 아직 켜짐})에 보낸 선물은 내 잉크에서 빼지 않는다. 기록이 없던 예전은 '0'부터 */
+function walUnlMark(on){
+  if(!WAL.on||!WAL.id)return;var uh=WAL.uh=obj(WAL.uh),b={},t=Date.now(),ks=Object.keys(uh);
+  if(on){if(!ks.length){uh['0']=t;b['uh/0']=t;}if(!ks.some(function(k){return !+uh[k];})){uh[t+1]=0;b['uh/'+(t+1)]=0;}}
+  else{if(!ks.length){uh['0']=t;b['uh/0']=t;}ks.forEach(function(k){if(!+uh[k]){uh[k]=t;b['uh/'+k]=t;}});}
+  if(Object.keys(b).length)walPatch(WAL.id,b).catch(function(){});
+}

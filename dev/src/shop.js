@@ -126,8 +126,20 @@ function modalShop(V){
   if(WAL.on&&WALH.unlOff&&ink.unl)b+='<div class="admrow"><button class="btn small soft" data-act="adm-off">'+(S.confirm==='admoff'?'한 번 더 누르면 무제한을 끕니다':'잉크 무제한 끄기')+'</button></div>';
   else if(WAL.on&&WALH.adm&&!ink.unl&&admHave)b+='<div class="admrow"><button class="btn small soft" data-act="adm-on">잉크 무제한 다시 켜기</button></div>';
   else if(WAL.on&&WALH.adm&&!ink.unl)b+=S.admOpen?'<div class="admrow"><input type="password" id="admCode" data-draft="admCode" data-enter="adm-go" autocomplete="off" placeholder="관리자 코드" aria-label="관리자 코드"><button class="btn small" data-act="adm-go">확인</button></div>':'<button class="linkbtn admlink" data-act="adm-open">관리자 코드</button>';
+  if(ink.unl||admHave){var rva=shopItems().filter(function(x){return !x.free&&shopOwns(V,x.id);});
+    if(rva.length){b+='<button class="linkbtn admlink" data-act="adm-rvlist" aria-expanded="'+(S.admRv?'true':'false')+'">관리자: 산 물건 되돌리기 ('+rva.length+'개)</button>';
+      if(S.admRv)b+='<div class="chips admrv">'+rva.map(function(x){var cf=S.confirm==='rv1:'+x.id;return '<button class="chip" data-act="adm-rv1" data-id="'+esc(x.id)+'">'+(cf?'한 번 더 누르면 되돌림':esc(x.name)+' 되돌리기')+'</button>';}).join('')+'</div>';}}
   if(ink.unl){var rvn=shopRevokeList(V).length;if(rvn)b+='<button class="linkbtn admlink" data-act="adm-revoke">'+(S.confirm==='admrv'?'한 번 더 누르면 산 이모티콘 팩 '+rvn+'개를 되돌립니다':'관리자: 산 이모티콘 팩 되돌리기')+'</button>';}
   return dlg('wide',{id:'shop',t:'상점'},b);
+}
+/* 관리자: 산 물건 하나 되돌리기(낸 잉크는 돌아옴). 쓰고 있던 모양이면 기본으로 */
+function shopRevokeOne(V,id){
+  var it=shopItem(id);if(!it||it.free||!shopOwns(V,id))return false;
+  editProg(function(p){var sh=p.shop=obj(p.shop);sh.own=obj(sh.own);delete sh.own[id];});
+  if(WALH.revoke)WALH.revoke([id]);
+  if(shopInUse(id)){if(it.cat==='look'){lsSet('gbb_concept','basic');applyLook();}else if(it.cat==='timer'){S.tstyle='ring';lsSet('gbb_tstyle','ring');}}
+  if(it.cat==='stk'){if(S.stkPack===it.v)S.stkPack='basic';Object.keys(SHOP_HIDE).forEach(function(pk){if(pk===it.v||SHOP_HIDE[pk].indexOf(it.v)>=0)lsSet('gbb_rv_'+pk,null);});}
+  S.shopPeek=null;S.shopFocus=null;return true;
 }
 /* 관리자: 산 이모티콘 팩을 되돌려 다시 살 수 있게(숨은 팩 연출도 다시 나오게) */
 function shopRevokeList(V){return shopItems().filter(function(x){return x.cat==='stk'&&!x.free&&shopOwns(V,x.id);}).map(function(x){return x.id;});}

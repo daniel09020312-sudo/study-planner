@@ -4437,7 +4437,7 @@ document.addEventListener('change',function(e){
 
 /* ---------- 처음 화면 ---------- */
 // 앱이 준비되면 알린다. 그림이 아직이면 다 그린 뒤에 열리고, 그림이 먼저 끝났으면 바로 열린다
-var APP_BUILD='1793367354';
+var APP_BUILD='1793367774';
 function splashDone(){
   var sp=document.getElementById('splash'),st=window.__sp;if(!sp||sp.getAttribute('data-out'))return;
   sp.setAttribute('data-out','1');
@@ -4704,7 +4704,13 @@ function inkMins(V,mid,date){
   return m;
 }
 /* 이 방에서: 공부한 분, 받은 선물, 보낸 선물 */
+function unlWin(at){if(!WAL.on)return false;var uh=obj(WAL.uh);return Object.keys(uh).some(function(k){var a=+k||0,b=+uh[k]||0;return at>=a&&(!b||at<=b);});}
 function inkLocal(V){
+  var r0=inkLocal0(V);if(!WAL.on||!Object.keys(obj(WAL.uh)).length)return r0;
+  var g={},cut=false;Object.keys(obj(V.gifts)).forEach(function(k){var x=obj(V.gifts[k]);if(x.from===V.me&&unlWin(+x.at||0)){cut=true;return;}g[k]=V.gifts[k];});
+  if(!cut)return r0;var V2=Object.create(V);V2.gifts=g;return {e:r0.e,gi:r0.gi,go:inkLocal0(V2).go};
+}
+function inkLocal0(V){
   var e=inkMins(V,V.me),gi=0,go=0,g=obj(V.gifts);
   Object.keys(g).forEach(function(k){var x=obj(g[k]),n=Math.max(0,Math.floor(+x.n||0));if(x.g==='first'){var fk=Math.max(1,+x.k||1),fe=Math.floor(n/fk),fc=lotClaims(V,k,x);if(fc.indexOf(V.me)>=0)gi+=fe;if(x.from===V.me)go+=(x.st==='back'||fc.length>=fk)?fe*fc.length:n;return;}if(x.g==='wheel'||x.g==='ladder'){var lw=obj(x.win),ls=0;Object.keys(lw).forEach(function(m){ls+=Math.max(0,Math.floor(+lw[m]||0));});ls=Math.min(ls,n);if(x.st==='done'){if(lw[V.me])gi+=Math.max(0,Math.min(n,Math.floor(+lw[V.me]||0)));if(x.from===V.me)go+=ls;}else if(x.st!=='back'){if(x.from===V.me)go+=n;}return;}if(x.g){if(x.st==='done'){var gg=Math.max(0,Math.min(n,Math.floor(+x.got||0)));if(x.to===V.me)gi+=gg;if(x.from===V.me)go+=gg;}else if(x.st!=='back'){if(x.from===V.me)go+=n;}return;}if(x.to===V.me)gi+=n;if(x.from===V.me)go+=n;});
   gi+=cgInk(V);
@@ -4792,8 +4798,20 @@ function modalShop(V){
   if(WAL.on&&WALH.unlOff&&ink.unl)b+='<div class="admrow"><button class="btn small soft" data-act="adm-off">'+(S.confirm==='admoff'?'한 번 더 누르면 무제한을 끕니다':'잉크 무제한 끄기')+'</button></div>';
   else if(WAL.on&&WALH.adm&&!ink.unl&&admHave)b+='<div class="admrow"><button class="btn small soft" data-act="adm-on">잉크 무제한 다시 켜기</button></div>';
   else if(WAL.on&&WALH.adm&&!ink.unl)b+=S.admOpen?'<div class="admrow"><input type="password" id="admCode" data-draft="admCode" data-enter="adm-go" autocomplete="off" placeholder="관리자 코드" aria-label="관리자 코드"><button class="btn small" data-act="adm-go">확인</button></div>':'<button class="linkbtn admlink" data-act="adm-open">관리자 코드</button>';
+  if(ink.unl||admHave){var rva=shopItems().filter(function(x){return !x.free&&shopOwns(V,x.id);});
+    if(rva.length){b+='<button class="linkbtn admlink" data-act="adm-rvlist" aria-expanded="'+(S.admRv?'true':'false')+'">관리자: 산 물건 되돌리기 ('+rva.length+'개)</button>';
+      if(S.admRv)b+='<div class="chips admrv">'+rva.map(function(x){var cf=S.confirm==='rv1:'+x.id;return '<button class="chip" data-act="adm-rv1" data-id="'+esc(x.id)+'">'+(cf?'한 번 더 누르면 되돌림':esc(x.name)+' 되돌리기')+'</button>';}).join('')+'</div>';}}
   if(ink.unl){var rvn=shopRevokeList(V).length;if(rvn)b+='<button class="linkbtn admlink" data-act="adm-revoke">'+(S.confirm==='admrv'?'한 번 더 누르면 산 이모티콘 팩 '+rvn+'개를 되돌립니다':'관리자: 산 이모티콘 팩 되돌리기')+'</button>';}
   return dlg('wide',{id:'shop',t:'상점'},b);
+}
+/* 관리자: 산 물건 하나 되돌리기(낸 잉크는 돌아옴). 쓰고 있던 모양이면 기본으로 */
+function shopRevokeOne(V,id){
+  var it=shopItem(id);if(!it||it.free||!shopOwns(V,id))return false;
+  editProg(function(p){var sh=p.shop=obj(p.shop);sh.own=obj(sh.own);delete sh.own[id];});
+  if(WALH.revoke)WALH.revoke([id]);
+  if(shopInUse(id)){if(it.cat==='look'){lsSet('gbb_concept','basic');applyLook();}else if(it.cat==='timer'){S.tstyle='ring';lsSet('gbb_tstyle','ring');}}
+  if(it.cat==='stk'){if(S.stkPack===it.v)S.stkPack='basic';Object.keys(SHOP_HIDE).forEach(function(pk){if(pk===it.v||SHOP_HIDE[pk].indexOf(it.v)>=0)lsSet('gbb_rv_'+pk,null);});}
+  S.shopPeek=null;S.shopFocus=null;return true;
 }
 /* 관리자: 산 이모티콘 팩을 되돌려 다시 살 수 있게(숨은 팩 연출도 다시 나오게) */
 function shopRevokeList(V){return shopItems().filter(function(x){return x.cat==='stk'&&!x.free&&shopOwns(V,x.id);}).map(function(x){return x.id;});}
@@ -6262,7 +6280,13 @@ setInterval(function(){if(obCount()&&!OB_BUSY&&navigator.onLine!==false)obFlush(
 // 연동 코드: 상점에서 만들 때 한 번만 보인다. rooms/walletcode-<코드의 SHA-256 앞 24자> = {w:지갑 id}, 지갑의 ck에 그 열쇠를 둔다(다시 만들면 예전 것은 지움).
 // 다른 방에서 코드를 넣으면 그 방 지갑을 코드 지갑에 합치고(산 것, 방 합계), 옛 지갑에 to를 남겨 다른 방도 따라온다.
 // 관리자: 관리자 코드(ECDSA 비밀 열쇠)로 지갑 id에 서명해 unl에 두면, 누구나 공개 열쇠로 확인해 무제한으로 본다.
-var ADM_PUB={kty:'EC',crv:'P-256',x:'vfzTJmmFW0USLkZF7xdyTcjlcOdr8HSkQjarXt0A8b4',y:'-_jKn2V1W8NOJsDkdfJVQzY09uPf05MsAB99oTFx_uY'};
+var ADM_PUB={kty:'EC',crv:'P-256',x:'1fFy94GPoCFNvTBbyKSrrt_Xqslh9xdOUm33zNyHJwE',y:'Ba8Nfltg3fon_c5BGLZqOxqu_lZSUDVxamz8HJJmINw'};
+/* 관리자 코드(사람이 외우는 글)에서 비밀 열쇠 d를 만든다: PBKDF2-SHA256(코드, 'gbb-adm-v2', 200000번) */
+function walDerive(code){
+  var t=new TextEncoder();
+  return crypto.subtle.importKey('raw',t.encode(String(code||'').trim().normalize('NFC')),'PBKDF2',false,['deriveBits'])
+    .then(function(k){return crypto.subtle.deriveBits({name:'PBKDF2',hash:'SHA-256',salt:t.encode('gbb-adm-v2'),iterations:200000},k,256);}).then(b64u);
+}
 var WALS={busy:false,loadAt:0,syncAt:0,tick:0,unlFor:'',unlChk:{}};
 function walUrl(id,p){return S.remote.url.replace(/\/+$/,'')+'/rooms/wallet-'+id+(p?'/'+p:'')+'.json';}
 function walGet(id){return fetch(walUrl(id)).then(function(r){if(!r.ok)throw new Error('http');return r.text();}).then(function(t){try{dlAdd(u8len(t));}catch(e){}return obj(JSON.parse(t));});}
@@ -6283,7 +6307,7 @@ function walSign(id,d){
 }
 /* 받아 온 지갑을 화면에 반영 (관리자 서명은 확인한 뒤에) */
 function walSet(id,w,key){
-  WAL.on=true;WAL.id=id;WAL.key=key;WAL.own=obj(w.own);WAL.rm=obj(w.rm);WAL.rk=obj(w.rk);WAL.name=String(w.name||'');
+  WAL.on=true;WAL.id=id;WAL.key=key;WAL.own=obj(w.own);WAL.rm=obj(w.rm);WAL.rk=obj(w.rk);WAL.uh=obj(w.uh);WAL.name=String(w.name||'');
   var sig=String(w.unl||'');
   if(!sig){WAL.unl=false;}
   else if(WALS.unlChk[id+'|'+sig]!==undefined){WAL.unl=WALS.unlChk[id+'|'+sig];}
@@ -6388,14 +6412,14 @@ function walTick(){
 WALH.buy=function(id,price){if(!WAL.on||!WAL.id)return;WAL.own[id]=price;var b={};b['own/'+id]=price;walPatch(WAL.id,b).catch(function(){});};
 /* 관리자가 되돌리기: 지갑에서 빼고 rk에 그 시각을 적는다(다른 방 기록에 남은 것이 다시 들어오지 않게, 다른 기기에서도 숨은 팩 연출이 다시 나오게). 다시 사면 지갑 own에 들어가므로 rk는 남겨 둔다 */
 WALH.revoke=function(ids){if(!WAL.on||!WAL.id||!ids.length)return;var b={},t=Date.now();WAL.rk=obj(WAL.rk);ids.forEach(function(id){b['own/'+id]=null;b['rk/'+id]=t;delete WAL.own[id];WAL.rk[id]=t;});walPatch(WAL.id,b).catch(function(){});};
-WALH.adm=function(code){
+WALH.adm=function(code,raw){
   if(!WAL.on||!WAL.id||!code)return;
-  walSign(WAL.id,code).then(function(sig){return walVerify(WAL.id,sig).then(function(ok){
+  (raw?Promise.resolve(code):walDerive(code)).then(function(d){code=d;return walSign(WAL.id,d);}).then(function(sig){return walVerify(WAL.id,sig).then(function(ok){
     if(!ok)throw new Error('bad');
     return walPatch(WAL.id,{unl:sig}).then(function(){
       WALS.unlChk[WAL.id+'|'+sig]=true;WAL.unl=true;S.admOpen=false;
       try{localStorage.setItem('gbb_adm',code);}catch(e){}
-      walAdmAdd(WAL.id);
+      walAdmAdd(WAL.id);walUnlMark(true);
       flash('관리자 코드를 확인했습니다. 잉크를 무제한으로 쓰고 선물할 수 있습니다.');render();
     });
   });}).catch(function(){flash('관리자 코드가 맞지 않습니다.');});
@@ -6404,9 +6428,16 @@ WALH.adm=function(code){
 WALH.unlOff=function(){
   if(!WAL.on||!WAL.id)return;var id=WAL.id;
   try{localStorage.setItem('gbb_adm_w',JSON.stringify(walAdmList().filter(function(x){return x!==id;})));}catch(e){}
-  walPatch(id,{unl:null}).then(function(){WAL.unl=false;WALS.unlFor=id;flash('잉크 무제한을 껐습니다. 이제 모은 잉크만큼 씁니다.');render();}).catch(function(){flash('끄지 못했습니다. 인터넷 연결을 확인해 주세요.');});
+  walPatch(id,{unl:null}).then(function(){WAL.unl=false;walUnlMark(false);WALS.unlFor=id;flash('잉크 무제한을 껐습니다. 이제 모은 잉크만큼 씁니다.');render();}).catch(function(){flash('끄지 못했습니다. 인터넷 연결을 확인해 주세요.');});
 };
-WALH.unlOn=function(){var d=null;try{d=localStorage.getItem('gbb_adm');}catch(e){}if(d)WALH.adm(d);else{S.admOpen=true;render();}};
+WALH.unlOn=function(){var d=null;try{d=localStorage.getItem('gbb_adm');}catch(e){}if(d)WALH.adm(d,true);else{S.admOpen=true;render();}};
+/* 무제한이었던 동안(uh={시작:끝, 끝 0은 아직 켜짐})에 보낸 선물은 내 잉크에서 빼지 않는다. 기록이 없던 예전은 '0'부터 */
+function walUnlMark(on){
+  if(!WAL.on||!WAL.id)return;var uh=WAL.uh=obj(WAL.uh),b={},t=Date.now(),ks=Object.keys(uh);
+  if(on){if(!ks.length){uh['0']=t;b['uh/0']=t;}if(!ks.some(function(k){return !+uh[k];})){uh[t+1]=0;b['uh/'+(t+1)]=0;}}
+  else{if(!ks.length){uh['0']=t;b['uh/0']=t;}ks.forEach(function(k){if(!+uh[k]){uh[k]=t;b['uh/'+k]=t;}});}
+  if(Object.keys(b).length)walPatch(WAL.id,b).catch(function(){});
+}
 
 /* ---------- 다른 방에서 내 것 가져오기 (웹 판) ---------- */
 // 이 기기로 들어간 적 있는 다른 방에서, 나 혼자 쓰던 것을 지금 방으로 복사한다.
@@ -7482,7 +7513,7 @@ function modalSettings(V){
   [[22,'밤 10시'],[23,'밤 11시'],[24,'자정'],[25,'다음 날 새벽 1시'],[26,'다음 날 새벽 2시'],[27,'다음 날 새벽 3시'],[28,'다음 날 새벽 4시'],[29,'다음 날 새벽 5시']].forEach(function(o){b+='<option value="'+o[0]+'"'+(V.certHour===o[0]?' selected':'')+'>'+o[1]+'</option>';});
   b+='</select>';
   b+='</div>'+spSec()+pokeSec()+noticeSec(V)+periodSec(V)+'<div class="sec"><h3>사용법</h3><div class="row"><button class="btn small" data-act="open" data-modal="help">사용법 보기</button></div></div><div class="sec"><h3>키보드 단축키<small>키보드를 연결했을 때</small></h3><ul class="kbd">'+[['1 ~ 8','달력부터 메시지까지 화면 이동'],['N','할 일 추가'],['D','마감 있는 할 일 추가'],['L','달력, 할 일, 시간표 차례로 바꿔 보기'],['T','타이머 켜기, 끄기'],['F','타이머 크게 보기'],['Esc','창 닫기']].map(function(x){return '<li><kbd>'+x[0]+'</kbd><span>'+x[1]+'</span></li>';}).join('')+'</ul></div><div class="sec"><h3>저장 위치</h3><p class="hint">'+esc(S.net?({claude:'Claude 공유 저장소에 연결되어 있습니다. Claude에 로그인한 참여 인원끼리 실시간으로 같이 봅니다.',firebase:'공유 저장소에 연결되어 있습니다. 참여 코드로 들어온 사람 모두가 실시간으로 같이 봅니다.',local:'지금은 이 기기에만 저장됩니다. 다른 사람과 같이 보려면 공유 저장소 연결이 필요합니다.'}[S.net.mode]):'연결 중입니다.')+'</p>'+(S.net&&S.net.mode==='firebase'&&S.remote?'<div class="row" style="margin-top:10px"><button class="btn small" data-act="import-pick">기록 가져오기</button><button class="btn small" data-act="export-data">기록 파일로 저장</button><button class="del" data-act="setup-reset">'+(S.confirm==='disc'?'한 번 더 누르면 이 방에서 나갑니다':'이 기기에서 이 방 나가기')+'</button></div><p class="hint" style="margin-top:8px">'+esc(S.importMsg||'친구와 내 다른 기기는 위의 친구 초대하기로 들어옵니다. 기록 가져오기는 처음 연결한 뒤 한 번만 하면 됩니다.')+'</p>':'')+'</div>';
-  b+='<p class="hint appver">앱 버전 10월 30일 22:35</p>';
+  b+='<p class="hint appver">앱 버전 10월 30일 22:42</p>';
   return dlg('wide',{id:'settings',t:'설정'},b);
 }
 function modalCheck(V){
@@ -7934,6 +7965,8 @@ function act(name,el){
     case 'adm-open':S.admOpen=true;S.focusAfter='admCode';break;
     case 'adm-off':if(prev==='admoff'){if(WALH.unlOff)WALH.unlOff();}else S.confirm='admoff';break;
     case 'adm-on':if(WALH.unlOn)WALH.unlOn();break;
+    case 'adm-rvlist':S.admRv=!S.admRv;break;
+    case 'adm-rv1':{if(prev!=='rv1:'+id){S.confirm='rv1:'+id;break;}var Vr1=view();if(!Vr1.me||!need())break;var it1=shopItem(id);if(shopRevokeOne(Vr1,id))flash(jos(it1.name,'을','를')+' 되돌렸습니다.');break;}
     case 'adm-go':{var acd=String(S.draft.admCode||'').trim();S.draft.admCode='';S.sync=true;if(acd&&WALH.adm)WALH.adm(acd);break;}
     case 'wal-open':S.walLinkOpen=!S.walLinkOpen;S.walCode=null;S.draft.walLink='';S.sync=true;break;
     case 'wal-code':if(WALH.code)WALH.code();break;
