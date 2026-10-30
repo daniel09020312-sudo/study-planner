@@ -44,7 +44,7 @@ function crPlan(V,D,opt){
     if(hit){map[sid]=hit.id;items[sid]={};its.forEach(function(it){var d=hit.items.filter(function(x){return x.label===String(it.label||'');})[0];if(d)items[sid][it.id]=d.id;});return;}
     if(srcSkip[sid]||!opt.sub)return;
     var nid=rid('s');map[sid]=nid;items[sid]={};its.forEach(function(it){items[sid][it.id]=String(it.id);});
-    W['subjects/'+nid]={name:nm.slice(0,24),order:maxOrd+1+n.newSubs.length,items:its.map(function(it){return {id:String(it.id),label:String(it.label||'').slice(0,30)};})};
+    W['subjects/'+nid]={by:me,name:nm.slice(0,24),order:maxOrd+1+n.newSubs.length,items:its.map(function(it){return {id:String(it.id),label:String(it.label||'').slice(0,30)};})};
     n.newSubs.push(nm);
   });
   function ms(sid){return sid&&map[sid]?map[sid]:'';}
@@ -136,6 +136,7 @@ function crPlan(V,D,opt){
     var sc2=P.scol=obj(clone(P.scol||{}));Object.keys(obj(sp.scol)).forEach(function(k){var d=D.subjects[k]?ms(k):k;if(d&&sc2[d]==null){sc2[d]=sp.scol[k];n.misc++;pch=true;}});
     var ab=P.abbr=obj(clone(P.abbr||{}));Object.keys(obj(sp.abbr)).forEach(function(k){var d=ms(k);if(d&&!ab[d]&&sp.abbr[k]){ab[d]=sp.abbr[k];n.misc++;pch=true;}});
     var sk=P.skip=obj(clone(P.skip||{}));Object.keys(srcSkip).forEach(function(k){var d=ms(k);if(srcSkip[k]&&d&&!sk[d]){sk[d]=true;n.misc++;pch=true;}});
+    var su=P.suse=obj(clone(P.suse||{}));Object.keys(map).forEach(function(k){var d=map[k];if(!srcSkip[k]&&d&&!sk[d]&&!su[d]&&typeof skipOf==='function'&&skipOf(V,me)[d]){su[d]=true;pch=true;}});
     if(+sp.goalMins>0&&!(+P.goalMins>0)){P.goalMins=+sp.goalMins;n.misc++;pch=true;}
     if(sp.hideGoals!=null&&P.hideGoals==null){P.hideGoals=sp.hideGoals;pch=true;}
   }
