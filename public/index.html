@@ -2313,9 +2313,8 @@ var RULES=[
   ['인증','마감 전 10점, 마감 뒤 3점'],
   ['문제 내기','문제를 올린 날 10점'],
   ['풀이와 답변','다른 사람 문제를 풀거나 질문에 답하면 1개당 3점, 하루 3개까지'],
-  ['하루 순위','하루가 끝나면 그날 점수 1등 15점, 2등 10점, 3등 5점 추가'],
   ['스터디 빙고','한 줄을 채울 때마다 10점. 주간 점수와 최종 점수에 더함'],
-  ['주간 순위','한 주가 끝나면 1등 100점, 2등 60점, 3등 30점을 최종 점수에 더함'],
+  
   ['배지','받은 배지마다 동 10점, 은 30점, 금 60점, 전설 100점을 최종 점수에 더함'],
   ['최종 결과','2차 시험이 끝난 다음 날 공개. 1등, 2등, 3등은 미리 정해 둔 상품']
 ];
@@ -2669,7 +2668,7 @@ function buildScores0(V){
   for(var d=START;d<t&&d<=END;d=addDays(d,1)){
     var rows=V.roster.map(function(m){return sc[m.id][d];}).filter(function(r){return r&&r.base>0;}).sort(function(a,b){return b.base-a.base;});
     var place=0,prev=null;
-    rows.forEach(function(r,i){if(r.base!==prev){place=i+1;prev=r.base;}r.place=place;r.bonus=RULE.rank[place-1]||0;r.total=r.base+r.bonus;});
+    rows.forEach(function(r,i){if(r.base!==prev){place=i+1;prev=r.base;}r.place=place;r.bonus=0;r.total=r.base;});
   }
   V.roster.forEach(function(m){
     var rows=sc[m.id];
@@ -4219,7 +4218,7 @@ function weekResults(V){
   for(var w=START;w<=END&&w<=t;w=addDays(w,7)){
     var e=addDays(w,6);if(e>END)e=END;
     var done=t>e,st=standings(V,w,e),rows=[],place=0,prev=null;
-    st.forEach(function(x,i){if(x.total!==prev){place=i+1;prev=x.total;}if(place<=3&&x.total>0&&st.length>1)rows.push({p:x.p,place:place,total:x.total,bonus:done&&w>=TALLY?WEEK_BONUS[place-1]:0});});
+    st.forEach(function(x,i){if(x.total!==prev){place=i+1;prev=x.total;}if(place<=3&&x.total>0&&st.length>1)rows.push({p:x.p,place:place,total:x.total,bonus:0});});
     out.push({w:w,e:e,done:done,rows:rows,no:weekNo(w)});
   }
   return V._wr=out;
@@ -4231,7 +4230,7 @@ function finalStandings(V){
   return V._fs=standings(V,TALLY,END).map(function(x){var wb=weekBonusOf(V,x.p.id),bp=badgePts(V,x.p.id);return {p:x.p,base:x.total,wb:wb,bp:bp,total:x.total+wb+bp,mins:x.mins};})
     .sort(function(a,b){return b.total-a.total||b.base-a.base||b.mins-a.mins||a.p.name.localeCompare(b.p.name);});
 }
-function finBreak(x){return '<div class="finbk"><span>누적 '+fmtN(x.base)+'</span><span>주간 순위 +'+fmtN(x.wb)+'</span><span>배지 +'+fmtN(x.bp)+'</span><b>'+fmtN(x.total)+'<small>점</small></b></div>';}
+function finBreak(x){return '<div class="finbk"><span>누적 '+fmtN(x.base)+'</span><span>배지 +'+fmtN(x.bp)+'</span><b>'+fmtN(x.total)+'<small>점</small></b></div>';}
 /* 상품: 최종 1·2·3등. cfg.prizes={p1:{t,by},p2:..,p3:..}(숫자 열쇠는 Firebase가 배열로 돌려줘서 p를 붙임), 예전 cfg.prize는 1등 상품으로 읽는다 */
 var PRIZE_N=3;
 function prizeOf(V,k){
@@ -4257,7 +4256,7 @@ function finalBody(V){
     L+='<section class="card fin" id="c-fin-wait" style="--k:0"><div class="ct"><h2>최종 결과<small>'+esc(longDate(open))+' 공개</small></h2></div>';
     L+='<div class="fincd"><b>D-'+Math.max(0,diffDays(t,open))+'</b><span>2차 시험이 끝난 다음 날 모두에게 공개됩니다. 그 전까지는 내 점수만 보입니다.</span></div>';
     if(me)L+='<div class="finme"><small>지금까지 내 최종 점수</small>'+finBreak(me)+(today()<TALLY?'<p class="hint" style="margin-top:6px">집계는 '+esc(longDate(TALLY))+'부터라 지금은 0점입니다.</p>':'')+'</div>';
-    L+='<p class="hint" style="margin-top:10px">최종 점수는 매일 쌓인 점수에 주간 순위 점수와 배지 점수를 더한 값입니다.</p></section>';
+    L+='<p class="hint" style="margin-top:10px">최종 점수는 매일 쌓인 점수에 배지 점수를 더한 값입니다.</p></section>';
   }else{
     L+='<section class="card fin" id="c-fin" style="--k:0"><div class="ct"><h2>최종 결과<small>'+esc(shortDate(TALLY)+' ~ '+shortDate(END))+'</small></h2></div>';
     if(!fs.some(function(x){return x.total>0;}))return L+'<p class="empty">기간 동안 쌓인 점수가 없습니다.</p></section></div><div class="stack">'+prizeCard(V,2);
@@ -4267,13 +4266,13 @@ function finalBody(V){
     fs.forEach(function(x,i){L+='<div class="rk fr2'+(x.p.me?' me':'')+'" id="fn-'+esc(x.p.id)+'"><div class="n">'+(i+1)+'</div>'+av(x.p)+'<div><div class="line"><b>'+esc(x.p.name)+'</b>'+titleTag(V,x.p.id)+(i<PRIZE_N&&x.total>0?'<span class="tag a">'+(i+1)+'등</span>':'')+'</div>'+finBreak(x)+'</div></div>';});
     L+='</section>';
   }
-  L+='<section class="card" id="c-weeks" style="--k:1"><div class="ct"><h2>주간 우승 기록<small>1등 '+WEEK_BONUS[0]+'점, 2등 '+WEEK_BONUS[1]+'점, 3등 '+WEEK_BONUS[2]+'점</small></h2></div>';
+  L+='<section class="card" id="c-weeks" style="--k:1"><div class="ct"><h2>주간 우승 기록<small>기록만, 점수 없음</small></h2></div>';
   if(!wr.length)L+='<p class="empty">아직 끝난 주가 없습니다.</p>';
   wr.slice().reverse().forEach(function(r){
     L+='<div class="wkres"><div class="wkn"><b>'+r.no+'주차</b><small>'+esc(shortDate(r.w)+' ~ '+shortDate(r.e))+'</small></div><div class="wkw">';
     if(!r.done)L+='<span class="hint">진행 중'+(r.rows[0]?', 지금 1등 '+esc(r.rows[0].p.name):'')+'</span>';
     else if(!r.rows.length)L+='<span class="hint">점수가 없었습니다</span>';
-    else r.rows.forEach(function(x){L+='<span class="ww p'+x.place+'">'+x.place+'등 <b>'+esc(x.p.name)+'</b> +'+x.bonus+'</span>';});
+    else r.rows.forEach(function(x){L+='<span class="ww p'+x.place+'">'+x.place+'등 <b>'+esc(x.p.name)+'</b></span>';});
     L+='</div></div>';
   });
   L+='</section>';
@@ -4438,7 +4437,7 @@ document.addEventListener('change',function(e){
 
 /* ---------- 처음 화면 ---------- */
 // 앱이 준비되면 알린다. 그림이 아직이면 다 그린 뒤에 열리고, 그림이 먼저 끝났으면 바로 열린다
-var APP_BUILD='1793366271';
+var APP_BUILD='1793366848';
 function splashDone(){
   var sp=document.getElementById('splash'),st=window.__sp;if(!sp||sp.getAttribute('data-out'))return;
   sp.setAttribute('data-out','1');
@@ -4459,17 +4458,15 @@ function rulesData(){
       ['인증',RULE.certOn+'점',['마감 뒤 인증은 '+RULE.certLate+'점']],
       ['공부 시간','30분 '+RULE.per30+'점',['하루 '+RULE.timeMax+'점까지','직접 입력한 시간은 하루 1시간까지']],
       ['문제 내기',RULE.quiz+'점',['문제를 올린 날']],
-      ['풀이와 답변','1개 '+RULE.help+'점',['다른 사람 문제 풀기, 질문에 답하기','하루 '+RULE.helpMax+'개까지']],
-      ['하루 순위',RULE.rank.join(' · ')+'점',['그날 점수 1 · 2 · 3등']]
+      ['풀이와 답변','1개 '+RULE.help+'점',['다른 사람 문제 풀기, 질문에 답하기','하루 '+RULE.helpMax+'개까지']]
     ]},
     {t:'매주',items:[
       ['스터디 빙고','1줄 '+bingoLine(today())+'점',['한 줄 채울 때마다']]
     ]}
   ];
-  if(WB)g[1].items.push(['주간 순위',WB.join(' · ')+'점',['한 주 점수 1 · 2 · 3등','최종 점수에 더함']]);
   if(T)g.push({t:'시험 끝나고',items:[
     ['배지',T.b[1]+' · '+T.s[1]+' · '+T.g[1]+' · '+T.l[1]+'점',[T.b[0]+' · '+T.s[0]+' · '+T.g[0]+' · '+T.l[0]+' 등급 순서','받은 배지마다 최종 점수에 더함']],
-    ['최종 점수','합계',['누적 점수 + 주간 순위 + 배지']]
+    ['최종 점수','합계',['누적 점수 + 배지']]
   ]});
   return g;
 }
@@ -4983,7 +4980,7 @@ function reportMore(V,from,Wk,Pv){
   h+='</div></section>';
   var cat={att:0,goal:0,time:0,cert:0,quiz:0,bonus:0,off:0};
   days.forEach(function(d){var r=V.sc[V.me]&&V.sc[V.me][d];if(!r)return;cat.att+=r.att;cat.goal+=r.goal+r.clear;cat.time+=r.time;cat.cert+=r.cert;cat.quiz+=r.quiz;cat.bonus+=r.bonus;cat.off+=r.off||0;});
-  var bg=from>=START?(bingo(V,from).per[V.me]||{}).pts||0:0,rows=[['출석',cat.att],['할 일 모두 끝내기',cat.goal],['공부 시간',cat.time],['인증',cat.cert],['문제, 풀이, 답변',cat.quiz],['하루 순위 보너스',cat.bonus],['스터디 빙고',bg]],tot=rows.reduce(function(s,x){return s+x[1];},0),mx=Math.max.apply(null,rows.map(function(x){return x[1];}).concat([1]));
+  var bg=from>=START?(bingo(V,from).per[V.me]||{}).pts||0:0,rows=[['출석',cat.att],['할 일 모두 끝내기',cat.goal],['공부 시간',cat.time],['인증',cat.cert],['문제, 풀이, 답변',cat.quiz],['스터디 빙고',bg]],tot=rows.reduce(function(s,x){return s+x[1];},0),mx=Math.max.apply(null,rows.map(function(x){return x[1];}).concat([1]));
   h+='<section class="card" id="c-rpts-'+S.repWeek+'" style="--k:4"><div class="ct"><h2>점수 내역<small>합계 '+tot+'점</small></h2></div>';
   rows.forEach(function(x){h+='<div class="hb'+(x[1]?'':' o')+'"><span>'+x[0]+'</span><span class="tr"><i style="width:'+Math.round(x[1]/mx*100)+'%"></i></span><small>'+x[1]+'점</small></div>';});
   if(cat.off)h+='<p class="hint">점수 초기화로 '+cat.off+'점을 뺐습니다.</p>';
@@ -5160,7 +5157,7 @@ function modalHelp(V){
     ['할 일 적기','달력에서 날짜를 고르면 할 일 칸 위에 입력칸이 있습니다. 적고 넣기를 누르면 바로 들어가고, 과목 이름이나 줄임말로 시작하면 그 과목으로 들어갑니다. 요일을 아직 못 정한 일은 할 일 모음에 적어 두고 요일을 눌러 나눠 넣으세요.'],
     ['마감 있는 할 일','시험이나 수행평가처럼 며칠까지 끝낼 일은 마감 있는 할 일로 정하면 날짜별로 나눠서 그날 할 일에 넣어 줍니다.'],
     ['지난 날','인증 마감(다음 날 새벽 5시)이 지나도 지난 날의 할 일은 완료 표시하고 인증할 수 있습니다. 늦은 인증 점수가 적용되고, 새 할 일을 더하거나 고칠 수는 없습니다.'],
-    ['점수','출석, 공부 시간, 모두 끝내고 인증, 문제 내기와 풀이, 하루 순위, 빙고로 점수가 쌓입니다. 자세한 점수표는 아래 단추에서 볼 수 있습니다.'],
+    ['점수','출석, 공부 시간, 모두 끝내고 인증, 문제 내기와 풀이, 빙고로 점수가 쌓입니다. 자세한 점수표는 아래 단추에서 볼 수 있습니다.'],
     ['문제가 생길 때','화면이 이상하면 새로고침하세요. 인터넷이 끊겨도 내 기록은 이 기기에 모아 두었다가 연결되면 올라갑니다. 친구 기록은 연결된 뒤에 새로 보입니다.']
   ];
   var b='<div class="helplist">'+items.map(function(x){return '<section><h3>'+x[0]+'</h3><p>'+esc(x[1])+'</p></section>';}).join('')+'</div>';
@@ -5191,7 +5188,7 @@ function periodSec(V){
   if(!V.me||adminId(V)!==V.me)return '';
   var p=periodOf(V.cfg),custom=!!obj(V.cfg.period).s;
   if(!S.draft.periodS)S.draft.periodS=p[0];if(!S.draft.periodE)S.draft.periodE=p[1];if(!S.draft.periodA)S.draft.periodA=p[2];
-  return '<div class="sec"><h3>점수 집계 기간<small>방장만 바꿀 수 있습니다</small></h3><div class="row"><label for="perS">시작일</label><input type="date" id="perS" data-draft="periodS" value="'+(S.draft.periodS||p[0])+'" min="2026-01-01" max="2028-12-31"><label for="perE">종료일</label><input type="date" id="perE" data-draft="periodE" value="'+(S.draft.periodE||p[1])+'" min="2026-01-01" max="2028-12-31"></div><div class="row" style="margin-top:8px"><label for="perA">집계 시작일</label><input type="date" id="perA" data-draft="periodA" value="'+(S.draft.periodA||p[2])+'" min="2026-01-01" max="2028-12-31"></div><div class="row" style="margin-top:8px"><button class="btn small primary" data-act="period-save">저장</button>'+(custom?'<button class="btn small" data-act="period-reset">처음 값으로</button>':'')+'</div><p class="hint">지금 '+esc(shortDate(p[0])+' ~ '+shortDate(p[1]))+'. 주간 순위·배지·최종 결과는 '+esc(shortDate(p[2]))+'부터 집계합니다. 월요일로 맞추면 깔끔합니다.</p></div>';
+  return '<div class="sec"><h3>점수 집계 기간<small>방장만 바꿀 수 있습니다</small></h3><div class="row"><label for="perS">시작일</label><input type="date" id="perS" data-draft="periodS" value="'+(S.draft.periodS||p[0])+'" min="2026-01-01" max="2028-12-31"><label for="perE">종료일</label><input type="date" id="perE" data-draft="periodE" value="'+(S.draft.periodE||p[1])+'" min="2026-01-01" max="2028-12-31"></div><div class="row" style="margin-top:8px"><label for="perA">집계 시작일</label><input type="date" id="perA" data-draft="periodA" value="'+(S.draft.periodA||p[2])+'" min="2026-01-01" max="2028-12-31"></div><div class="row" style="margin-top:8px"><button class="btn small primary" data-act="period-save">저장</button>'+(custom?'<button class="btn small" data-act="period-reset">처음 값으로</button>':'')+'</div><p class="hint">지금 '+esc(shortDate(p[0])+' ~ '+shortDate(p[1]))+'. 배지·최종 결과는 '+esc(shortDate(p[2]))+'부터 집계합니다. 월요일로 맞추면 깔끔합니다.</p></div>';
 }
 
 
@@ -6856,7 +6853,7 @@ function viewRank(V){
   if(!any)h+='<p class="empty">이 기간에는 아직 점수가 없습니다.</p>';
   moreCut('rank'+S.range,st).forEach(function(x){var i=st.indexOf(x);
     var last=i===st.length-1&&st.length>1&&any,done=S.range==='last'||(S.range==='all'&&t>END);
-    h+='<div class="rk'+(x.p.me?' me':'')+'" id="rk-'+esc(x.p.id)+'"><div class="n">'+(i+1)+'</div>'+av(x.p)+'<div><div class="line"><b>'+esc(x.p.name)+'</b>'+(x.p.me?'<span class="tag a">나</span>':'')+titleTag(V,x.p.id)+(S.range==='last'&&i<3&&x.total>0&&st.length>1?'<span class="tag wb">주간 '+(i+1)+'등'+(from>=TALLY?' +'+WEEK_BONUS[i]:' (집계 전)')+'</span>':'')+'</div>';
+    h+='<div class="rk'+(x.p.me?' me':'')+'" id="rk-'+esc(x.p.id)+'"><div class="n">'+(i+1)+'</div>'+av(x.p)+'<div><div class="line"><b>'+esc(x.p.name)+'</b>'+(x.p.me?'<span class="tag a">나</span>':'')+titleTag(V,x.p.id)+(S.range==='last'&&i<3&&x.total>0&&st.length>1?'<span class="tag wb">주간 '+(i+1)+'등</span>':'')+'</div>';
     h+='<div class="bar"><i style="width:'+(max?Math.round(x.total/max*100):0)+'%"></i></div><div class="sub">할 일 '+x.done+'개, '+fmtMins(x.mins)+', 인증 '+x.cert+'일, 출석 '+x.att+'일'+(x.bingo?', 빙고 '+x.bingo+'점':'')+'</div></div><div class="t"><b>'+x.total+'</b><small>점</small></div></div>';
   });
   h+=moreBtn('rank'+S.range,st.length)+'</section>';
@@ -7338,7 +7335,7 @@ function modalReward(V){
     slots+='<div class="d7'+(on?' on':'')+(i===pos&&!claimed?' today':'')+(i===pos&&claimed?' now':'')+'"><i>+'+attReward(base+i)+'</i><span>'+(base+i)+'일째</span></div>';
   }
   var b='<p class="hint">하루 한 번 출석하면 점수를 받습니다. 연속으로 출석할수록 점수가 오르고, 7일째에는 5점을 더 받습니다.</p><div class="days7">'+slots+'</div>';
-  if(ys&&ys.place)b+='<p class="center hint" style="margin-bottom:14px">어제는 '+ys.place+'등이었습니다.'+(ys.bonus?' 순위 보너스 '+ys.bonus+'점이 더해졌습니다.':'')+'</p>';
+  if(ys&&ys.place)b+='<p class="center hint" style="margin-bottom:14px">어제는 '+ys.place+'등이었습니다.</p>';
   if(claimed)b+='<div class="center"><div class="gain">+'+sc[t].att+'<small>점</small></div><p class="hint" style="margin:8px 0 18px">연속 출석 '+streak+'일째입니다.</p><button class="btn xl primary" data-act="modal-close">확인</button></div>';
   else b+='<button class="btn xl primary" data-act="checkin">출석하고 '+attReward(streak)+'점 받기</button>';
   return dlg('',{id:'reward',t:claimed?'출석 완료':'오늘 출석'},b);
@@ -7443,7 +7440,7 @@ function modalScore(V){
   if(r){
     var rows=[['출석',r.att]].concat(t<NEWRULE?[['할 일 완료',r.goal],['모두 완료',r.clear]]:[['모두 끝내고 인증',r.clear]]).concat([['공부 시간',r.time],['인증',r.cert],['문제, 풀이, 답변',r.quiz]]);
     if(t>=NEWRULE&&!r.clear){var dd0=dayOf(V,V.me,t),gn0=dd0.goals.length,gd0=dd0.goals.filter(isDone).length;b+='<p class="hint" style="margin-bottom:10px">'+(gn0<3?'할 일을 3개 이상 세우고 모두 끝낸 뒤 인증하면 '+RULE.allCert+'점을 더 받습니다.':gd0<gn0?'할 일 '+(gn0-gd0)+'개를 마저 끝내고 인증하면 '+RULE.allCert+'점을 더 받습니다.':'할 일을 모두 끝냈습니다. 인증하면 '+RULE.allCert+'점을 더 받습니다.')+'</p>';}
-    b+='<ul class="brk">'+rows.map(function(x){return '<li class="'+(x[1]?'':'zero')+'"><span>'+x[0]+'</span><b>'+(x[1]?'+'+x[1]:'0')+'</b></li>';}).join('')+(r.off?'<li><span>초기화로 뺀 점수</span><b>-'+r.off+'</b></li>':'')+'<li><span><b>오늘 합계</b><small>순위 보너스는 하루가 끝난 뒤 더해집니다</small></span><b>'+r.total+'</b></li></ul>';
+    b+='<ul class="brk">'+rows.map(function(x){return '<li class="'+(x[1]?'':'zero')+'"><span>'+x[0]+'</span><b>'+(x[1]?'+'+x[1]:'0')+'</b></li>';}).join('')+(r.off?'<li><span>초기화로 뺀 점수</span><b>-'+r.off+'</b></li>':'')+'<li><span><b>오늘 합계</b></span><b>'+r.total+'</b></li></ul>';
   }
   b+='<div class="sec"><h3>점수 규칙</h3>'+rulesHtml()+'</div>';
   return dlg('',{id:'score',t:'오늘 점수'},b);
@@ -7475,7 +7472,7 @@ function modalSettings(V){
   [[22,'밤 10시'],[23,'밤 11시'],[24,'자정'],[25,'다음 날 새벽 1시'],[26,'다음 날 새벽 2시'],[27,'다음 날 새벽 3시'],[28,'다음 날 새벽 4시'],[29,'다음 날 새벽 5시']].forEach(function(o){b+='<option value="'+o[0]+'"'+(V.certHour===o[0]?' selected':'')+'>'+o[1]+'</option>';});
   b+='</select>';
   b+='</div>'+spSec()+pokeSec()+noticeSec(V)+periodSec(V)+'<div class="sec"><h3>사용법</h3><div class="row"><button class="btn small" data-act="open" data-modal="help">사용법 보기</button></div></div><div class="sec"><h3>키보드 단축키<small>키보드를 연결했을 때</small></h3><ul class="kbd">'+[['1 ~ 8','달력부터 메시지까지 화면 이동'],['N','할 일 추가'],['D','마감 있는 할 일 추가'],['L','달력, 할 일, 시간표 차례로 바꿔 보기'],['T','타이머 켜기, 끄기'],['F','타이머 크게 보기'],['Esc','창 닫기']].map(function(x){return '<li><kbd>'+x[0]+'</kbd><span>'+x[1]+'</span></li>';}).join('')+'</ul></div><div class="sec"><h3>저장 위치</h3><p class="hint">'+esc(S.net?({claude:'Claude 공유 저장소에 연결되어 있습니다. Claude에 로그인한 참여 인원끼리 실시간으로 같이 봅니다.',firebase:'공유 저장소에 연결되어 있습니다. 참여 코드로 들어온 사람 모두가 실시간으로 같이 봅니다.',local:'지금은 이 기기에만 저장됩니다. 다른 사람과 같이 보려면 공유 저장소 연결이 필요합니다.'}[S.net.mode]):'연결 중입니다.')+'</p>'+(S.net&&S.net.mode==='firebase'&&S.remote?'<div class="row" style="margin-top:10px"><button class="btn small" data-act="import-pick">기록 가져오기</button><button class="btn small" data-act="export-data">기록 파일로 저장</button><button class="del" data-act="setup-reset">'+(S.confirm==='disc'?'한 번 더 누르면 이 방에서 나갑니다':'이 기기에서 이 방 나가기')+'</button></div><p class="hint" style="margin-top:8px">'+esc(S.importMsg||'친구와 내 다른 기기는 위의 친구 초대하기로 들어옵니다. 기록 가져오기는 처음 연결한 뒤 한 번만 하면 됩니다.')+'</p>':'')+'</div>';
-  b+='<p class="hint appver">앱 버전 10월 30일 22:17</p>';
+  b+='<p class="hint appver">앱 버전 10월 30일 22:27</p>';
   return dlg('wide',{id:'settings',t:'설정'},b);
 }
 function modalCheck(V){
