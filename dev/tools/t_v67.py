@@ -10,7 +10,7 @@ def check(n,c,x=''):
     if not c: ok=False
 def ev(p,js):return p.evaluate('()=>'+js)
 def store(p,k):return json.loads(ev(p,"JSON.stringify(window.__store[%s]||null)"%json.dumps(k)))
-PRE="(function(){var t=setInterval(function(){var S=window.__store;if(!S)return;S['subjects/s2'].items=[{id:'a',label:'개념'},{id:'b',label:'고쟁이'},{id:'c',label:'고쟁이'},{id:'d',label:'고쟁이'},{id:'e',label:'쎈'},{id:'f',label:'블랙라벨',by:'m2'}];S['progress/m2']=Object.assign({},S['progress/m2']||{},{checks:{'s2__c':true}});clearInterval(t);},5);})();"
+PRE="(function(){var t=setInterval(function(){var S=window.__store;if(!S)return;S['meta/config'].migItems2=1;S['subjects/s2'].items=[{id:'a',label:'개념'},{id:'b',label:'고쟁이'},{id:'c',label:'고쟁이'},{id:'d',label:'고쟁이'},{id:'e',label:'쎈'},{id:'f',label:'블랙라벨',by:'m2'}];S['progress/m2']=Object.assign({},S['progress/m2']||{},{checks:{'s2__c':true}});clearInterval(t);},5);})();"
 p=R.open(1180,900,ls={'gbb_note':'9999999999999'},pre=PRE);close_dlg(p);p.wait_for_timeout(1000)
 click(p,'[data-act="tab"][data-tab="prog"]',700);click(p,'[data-act="prog-mode"][data-id="me"]',700)
 def labels():return ev(p,"(()=>{const c=[...document.querySelectorAll('.card')].find(e=>e.textContent.includes('미적분Ⅰ'));return c?[...c.querySelectorAll('.uck')].map(b=>b.textContent.trim()):[]})()")
