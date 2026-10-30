@@ -8,3 +8,7 @@ sub("if(pnOn()){lsSet('gbb_pokenote',null);pnApply();", "if(pnOn()){lsSet('gbb_p
 sub("앱이 가려져 있어도 찌르기를 알려 줍니다. 앱을 완전히 닫으면 받지 못합니다.", "앱을 닫아도 찌르기를 휴대폰 알림으로 받습니다. 아이폰은 홈 화면에 추가한 앱(iOS 16.4 이상)에서만 됩니다.")
 sub("try{paintMore();pruneOnce(V);eggTick(V);cgTick(V);meetTick(V);}catch(e){}", "try{paintMore();pruneOnce(V);eggTick(V);cgTick(V);meetTick(V);pushEnsure(V);}catch(e){}")
 sub("unitsOf:unitsOf,dayOf:dayOf,today:today,netFresh:netFresh};", "unitsOf:unitsOf,dayOf:dayOf,today:today,netFresh:netFresh,push:function(){return {ok:pushOk(),on:pnOn(),st:PUSH};}};")
+# 나 찌르기(시험 알림): 내 사람 카드와 설정
+sub("(x.p.me||!V.me?'<span></span>':", "(!V.me?'<span></span>':x.p.me?'<button class=\"btn small soft\" data-act=\"poke-me\">나 찌르기</button>':")
+sub("(on?'알림 끄기':'알림 켜기')+'</button></div>", "(on?'알림 끄기':'알림 켜기')+'</button>'+(on?'<button class=\"btn small soft\" data-act=\"poke-me\">나 찌르기(시험)</button>':'')+'</div>")
+sub("    case 'rep-week':S.repWeek=id;break;", "    case 'poke-me':pushSelf();break;\n    case 'rep-week':S.repWeek=id;break;")

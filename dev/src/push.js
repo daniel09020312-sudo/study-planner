@@ -47,3 +47,12 @@ function pushEnsure(V){
   PUSH.tried=true;
   if(!obj(obj(V.progress[V.me]).ps).e)pushSubscribe();
 }
+/* 나 찌르기: 내 기기로 시험 알림(메시지는 남기지 않음) */
+function pushSelf(){
+  var V=view();if(!V.me)return;
+  if(!pnOn()){flash('설정 > 찌르기 알림을 먼저 켜 주세요.');return;}
+  if(!pushOk()){flash('이 브라우저는 앱 밖 알림을 받을 수 없습니다. 아이폰은 홈 화면에 추가한 앱에서만 됩니다.');return;}
+  var go=function(){pushSend(view(),V.me,{t:'나를 찔렀습니다',b:'찌르기 알림 시험입니다',tag:'poke-self'});flash('나에게 알림을 보냈습니다. 몇 초 안에 알림이 오면 됩니다.');};
+  if(obj(obj(V.progress[V.me]).ps).e)go();
+  else{flash('알림을 받을 준비를 하는 중입니다.');pushSubscribe().then(function(ok){if(ok)go();else flash('알림 준비에 실패했습니다. 알림을 껐다 켜 보세요.');});}
+}

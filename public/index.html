@@ -4401,7 +4401,7 @@ document.addEventListener('change',function(e){
 
 /* ---------- 처음 화면 ---------- */
 // 앱이 준비되면 알린다. 그림이 아직이면 다 그린 뒤에 열리고, 그림이 먼저 끝났으면 바로 열린다
-var APP_BUILD='1793346794';
+var APP_BUILD='1793354098';
 function splashDone(){
   var sp=document.getElementById('splash'),st=window.__sp;if(!sp||sp.getAttribute('data-out'))return;
   sp.setAttribute('data-out','1');
@@ -5191,7 +5191,7 @@ function sysNotify(title,body,tag){
 }
 function pokeSec(){
   var sup=typeof Notification!=='undefined',on=pnOn(),den=sup&&Notification.permission==='denied';
-  return '<div class="sec"><h3>찌르기 알림<small>이 기기</small></h3><div class="row"><button class="btn small'+(on?'':' primary')+'" data-act="pn-toggle" aria-pressed="'+(on?'true':'false')+'">'+(on?'알림 끄기':'알림 켜기')+'</button></div><p class="hint">'+(!sup?'이 브라우저는 알림을 지원하지 않습니다. 아이폰은 홈 화면에 추가한 앱(iOS 16.4 이상)에서만 됩니다.':den?'브라우저 설정에서 이 사이트의 알림을 허용해 주세요.':'앱을 닫아도 찌르기를 휴대폰 알림으로 받습니다. 아이폰은 홈 화면에 추가한 앱(iOS 16.4 이상)에서만 됩니다.')+'</p></div>';
+  return '<div class="sec"><h3>찌르기 알림<small>이 기기</small></h3><div class="row"><button class="btn small'+(on?'':' primary')+'" data-act="pn-toggle" aria-pressed="'+(on?'true':'false')+'">'+(on?'알림 끄기':'알림 켜기')+'</button>'+(on?'<button class="btn small soft" data-act="poke-me">나 찌르기(시험)</button>':'')+'</div><p class="hint">'+(!sup?'이 브라우저는 알림을 지원하지 않습니다. 아이폰은 홈 화면에 추가한 앱(iOS 16.4 이상)에서만 됩니다.':den?'브라우저 설정에서 이 사이트의 알림을 허용해 주세요.':'앱을 닫아도 찌르기를 휴대폰 알림으로 받습니다. 아이폰은 홈 화면에 추가한 앱(iOS 16.4 이상)에서만 됩니다.')+'</p></div>';
 }
 pnApply();
 
@@ -6658,6 +6658,15 @@ function pushEnsure(V){
   PUSH.tried=true;
   if(!obj(obj(V.progress[V.me]).ps).e)pushSubscribe();
 }
+/* 나 찌르기: 내 기기로 시험 알림(메시지는 남기지 않음) */
+function pushSelf(){
+  var V=view();if(!V.me)return;
+  if(!pnOn()){flash('설정 > 찌르기 알림을 먼저 켜 주세요.');return;}
+  if(!pushOk()){flash('이 브라우저는 앱 밖 알림을 받을 수 없습니다. 아이폰은 홈 화면에 추가한 앱에서만 됩니다.');return;}
+  var go=function(){pushSend(view(),V.me,{t:'나를 찔렀습니다',b:'찌르기 알림 시험입니다',tag:'poke-self'});flash('나에게 알림을 보냈습니다. 몇 초 안에 알림이 오면 됩니다.');};
+  if(obj(obj(V.progress[V.me]).ps).e)go();
+  else{flash('알림을 받을 준비를 하는 중입니다.');pushSubscribe().then(function(ok){if(ok)go();else flash('알림 준비에 실패했습니다. 알림을 껐다 켜 보세요.');});}
+}
 
 /* ---------- 공부방 ---------- */
 function peopleCard(V,date,k){
@@ -6673,7 +6682,7 @@ function peopleCard(V,date,k){
     if(x.on)st='<small class="live'+(x.o.rest?' rest':'')+'">'+liveLine(V,x.p.id,x.L,x.o)+'</small>';
     else st='<small>'+'오늘 '+fmtMins(mins)+(man?' (직접 입력 '+fmtMins(man)+')':'')+(g.length?', 할 일 '+done+'/'+g.length:'')+'</small>';
     var ns=nowSong(V,x.p.id);if(ns)st+='<small>노동요: '+esc(cut(V.songs[ns].title,24))+'</small>';
-    h+='<div class="fr" id="fr-'+esc(x.p.id)+'"><button class="frmain" data-act="fr-toggle" data-id="'+esc(x.p.id)+'" aria-expanded="'+(open?'true':'false')+'">'+av(x.p)+'<span><span class="fl"><b>'+esc(x.p.name)+'</b>'+(x.p.me?'<em class="tag a">나</em>':'')+titleTag(V,x.p.id)+(x.day.certAt?'<em class="tag">인증</em>':'')+(flagged[x.p.id]?'<em class="tag r">확인 필요</em>':'')+'</span>'+st+'</span></button><span class="fp"><b>'+((x.r&&x.r.total)||0)+'</b><small>점</small></span>'+(x.p.me||!V.me?'<span></span>':'<button class="btn small" data-act="poke" data-id="'+esc(x.p.id)+'">찌르기</button>')+'</div>';
+    h+='<div class="fr" id="fr-'+esc(x.p.id)+'"><button class="frmain" data-act="fr-toggle" data-id="'+esc(x.p.id)+'" aria-expanded="'+(open?'true':'false')+'">'+av(x.p)+'<span><span class="fl"><b>'+esc(x.p.name)+'</b>'+(x.p.me?'<em class="tag a">나</em>':'')+titleTag(V,x.p.id)+(x.day.certAt?'<em class="tag">인증</em>':'')+(flagged[x.p.id]?'<em class="tag r">확인 필요</em>':'')+'</span>'+st+'</span></button><span class="fp"><b>'+((x.r&&x.r.total)||0)+'</b><small>점</small></span>'+(!V.me?'<span></span>':x.p.me?'<button class="btn small soft" data-act="poke-me">나 찌르기</button>':'<button class="btn small" data-act="poke" data-id="'+esc(x.p.id)+'">찌르기</button>')+'</div>';
     if(open){
       if(g.length&&!x.p.me&&obj(V.progress[x.p.id]).hideGoals)h+='<p class="fgoals hint" id="fg-'+esc(x.p.id)+'">할 일을 비공개로 해 두었습니다. '+g.length+'개 중 '+done+'개를 끝냈습니다.</p>';
       else if(g.length){h+='<ul class="fgoals" id="fg-'+esc(x.p.id)+'">';g.forEach(function(y){h+='<li class="'+(y.done?'done':'')+'"><span class="mk'+(y.done?' on':'')+'" role="img" aria-label="'+(y.done?'완료':'미완료')+'"></span><span>'+(y.sid&&V.subName[y.sid]?'<em class="tag">'+esc(V.subName[y.sid])+'</em> ':'')+'<span class="t">'+esc(y.text)+'</span></span></li>';});h+='</ul>';}
@@ -7422,7 +7431,7 @@ function modalSettings(V){
   [[22,'밤 10시'],[23,'밤 11시'],[24,'자정'],[25,'다음 날 새벽 1시'],[26,'다음 날 새벽 2시'],[27,'다음 날 새벽 3시'],[28,'다음 날 새벽 4시'],[29,'다음 날 새벽 5시']].forEach(function(o){b+='<option value="'+o[0]+'"'+(V.certHour===o[0]?' selected':'')+'>'+o[1]+'</option>';});
   b+='</select>';
   b+='</div>'+pokeSec()+noticeSec(V)+periodSec(V)+'<div class="sec"><h3>사용법</h3><div class="row"><button class="btn small" data-act="open" data-modal="help">사용법 보기</button></div></div><div class="sec"><h3>키보드 단축키<small>키보드를 연결했을 때</small></h3><ul class="kbd">'+[['1 ~ 8','달력부터 메시지까지 화면 이동'],['N','할 일 추가'],['D','마감 있는 할 일 추가'],['L','달력, 할 일, 시간표 차례로 바꿔 보기'],['T','타이머 켜기, 끄기'],['F','타이머 크게 보기'],['Esc','창 닫기']].map(function(x){return '<li><kbd>'+x[0]+'</kbd><span>'+x[1]+'</span></li>';}).join('')+'</ul></div><div class="sec"><h3>저장 위치</h3><p class="hint">'+esc(S.net?({claude:'Claude 공유 저장소에 연결되어 있습니다. Claude에 로그인한 참여 인원끼리 실시간으로 같이 봅니다.',firebase:'공유 저장소에 연결되어 있습니다. 참여 코드로 들어온 사람 모두가 실시간으로 같이 봅니다.',local:'지금은 이 기기에만 저장됩니다. 다른 사람과 같이 보려면 공유 저장소 연결이 필요합니다.'}[S.net.mode]):'연결 중입니다.')+'</p>'+(S.net&&S.net.mode==='firebase'&&S.remote?'<div class="row" style="margin-top:10px"><button class="btn small" data-act="import-pick">기록 가져오기</button><button class="btn small" data-act="export-data">기록 파일로 저장</button><button class="del" data-act="setup-reset">'+(S.confirm==='disc'?'한 번 더 누르면 이 방에서 나갑니다':'이 기기에서 이 방 나가기')+'</button></div><p class="hint" style="margin-top:8px">'+esc(S.importMsg||'친구와 내 다른 기기는 위의 친구 초대하기로 들어옵니다. 기록 가져오기는 처음 연결한 뒤 한 번만 하면 됩니다.')+'</p>':'')+'</div>';
-  b+='<p class="hint appver">앱 버전 10월 30일 16:53</p>';
+  b+='<p class="hint appver">앱 버전 10월 30일 18:54</p>';
   return dlg('wide',{id:'settings',t:'설정'},b);
 }
 function modalCheck(V){
@@ -7930,6 +7939,7 @@ function act(name,el){
       pushSend(Vp,id,{t:Vp.byId[Vp.me].name+' 님이 찔렀습니다',b:'눌러서 답장하기',tag:'poke-'+Vp.me});
       flash(Vp.byId[id].name+' 님을 찔렀습니다.');break;
     }
+    case 'poke-me':pushSelf();break;
     case 'rep-week':S.repWeek=id;break;
     case 'theme':lsSet('gbb_theme',el.getAttribute('data-v'));applyLook();break;
     case 'accent':{var acv=el.getAttribute('data-v');if(!shopOwns(view(),'a:'+acv)){shopGo('a:'+acv);return;}lsSet('gbb_accent',acv);applyLook();break;}
