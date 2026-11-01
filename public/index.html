@@ -2645,6 +2645,33 @@ function mvBack(from,id){
   editDay(from,function(d){d.goals.forEach(function(x){if(x&&x.id===id){delete x.mv;x.done=false;}});});
   flash(shortDate(from)+' 할 일로 되돌렸습니다.'+(tg?' ('+shortDate(tg.d)+'에서 뺐습니다)':''),sn);
 }
+/* ---------- v70: 달력 화면에서 옆으로 밀어 넘기기 (할 일 목록은 주, 달력은 달). 옆으로 밀리는 칸이 있으면 그 끝에 닿아 있을 때만 ---------- */
+var SWP=null;
+function swpScroller(el,stop){
+  for(var e=el;e&&e!==stop&&e!==document.body;e=e.parentElement){
+    if(e.scrollWidth>e.clientWidth+2){var ox=getComputedStyle(e).overflowX;if(ox==='auto'||ox==='scroll')return e;}
+  }
+  return null;
+}
+document.addEventListener('touchstart',function(e){
+  SWP=null;if(!e.touches||e.touches.length!==1||S.modal)return;
+  var v=document.getElementById('view-cal'),t=e.target;if(!v||!v.contains(t))return;
+  if(S.calMode!=='list'&&S.calMode!=='cal'&&S.calMode)return;
+  if(t.closest&&t.closest('input,textarea,select,[contenteditable],.noswipe'))return;
+  var sc=swpScroller(t,v),p=e.touches[0];
+  SWP={x:p.clientX,y:p.clientY,t:Date.now(),sc:sc,s0:sc?sc.scrollLeft<=1:true,e0:sc?sc.scrollLeft+sc.clientWidth>=sc.scrollWidth-1:true};
+},{passive:true});
+document.addEventListener('touchend',function(e){
+  var s=SWP;SWP=null;if(!s||!e.changedTouches||!e.changedTouches.length)return;
+  var p=e.changedTouches[0],dx=p.clientX-s.x,dy=p.clientY-s.y,dt=Date.now()-s.t;
+  if(S.drag||(window.__ttDragEnd&&Date.now()-window.__ttDragEnd<500)||(typeof WD!=='undefined'&&WD))return;
+  if(dt>800||Math.abs(dx)<70||Math.abs(dx)<Math.abs(dy)*2)return;
+  var d=dx<0?1:-1;if(d>0&&!s.e0)return;if(d<0&&!s.s0)return;
+  var name=S.calMode==='list'?'al-week':'month';
+  act(name,{getAttribute:function(k){return k==='data-d'?String(d):null;}});
+},{passive:true});
+document.addEventListener('touchcancel',function(){SWP=null;},{passive:true});
+
 /* ---------- 점수 ---------- */
 function buildScores0(V){
   var t=today(),last=t<END?t:END,sc={},posts={},helps={};
@@ -4471,7 +4498,7 @@ document.addEventListener('change',function(e){
 
 /* ---------- 처음 화면 ---------- */
 // 앱이 준비되면 알린다. 그림이 아직이면 다 그린 뒤에 열리고, 그림이 먼저 끝났으면 바로 열린다
-var APP_BUILD='1793371408';
+var APP_BUILD='1793539909';
 function splashDone(){
   var sp=document.getElementById('splash'),st=window.__sp;if(!sp||sp.getAttribute('data-out'))return;
   sp.setAttribute('data-out','1');
@@ -7554,7 +7581,7 @@ function modalSettings(V){
   [[22,'밤 10시'],[23,'밤 11시'],[24,'자정'],[25,'다음 날 새벽 1시'],[26,'다음 날 새벽 2시'],[27,'다음 날 새벽 3시'],[28,'다음 날 새벽 4시'],[29,'다음 날 새벽 5시']].forEach(function(o){b+='<option value="'+o[0]+'"'+(V.certHour===o[0]?' selected':'')+'>'+o[1]+'</option>';});
   b+='</select>';
   b+='</div>'+spSec()+pokeSec()+noticeSec(V)+periodSec(V)+'<div class="sec"><h3>사용법</h3><div class="row"><button class="btn small" data-act="open" data-modal="help">사용법 보기</button></div></div><div class="sec"><h3>키보드 단축키<small>키보드를 연결했을 때</small></h3><ul class="kbd">'+[['1 ~ 8','달력부터 메시지까지 화면 이동'],['N','할 일 추가'],['D','마감 있는 할 일 추가'],['L','달력, 할 일, 시간표 차례로 바꿔 보기'],['T','타이머 켜기, 끄기'],['F','타이머 크게 보기'],['Esc','창 닫기']].map(function(x){return '<li><kbd>'+x[0]+'</kbd><span>'+x[1]+'</span></li>';}).join('')+'</ul></div><div class="sec"><h3>저장 위치</h3><p class="hint">'+esc(S.net?({claude:'Claude 공유 저장소에 연결되어 있습니다. Claude에 로그인한 참여 인원끼리 실시간으로 같이 봅니다.',firebase:'공유 저장소에 연결되어 있습니다. 참여 코드로 들어온 사람 모두가 실시간으로 같이 봅니다.',local:'지금은 이 기기에만 저장됩니다. 다른 사람과 같이 보려면 공유 저장소 연결이 필요합니다.'}[S.net.mode]):'연결 중입니다.')+'</p>'+(S.net&&S.net.mode==='firebase'&&S.remote?'<div class="row" style="margin-top:10px"><button class="btn small" data-act="import-pick">기록 가져오기</button><button class="btn small" data-act="export-data">기록 파일로 저장</button><button class="del" data-act="setup-reset">'+(S.confirm==='disc'?'한 번 더 누르면 이 방에서 나갑니다':'이 기기에서 이 방 나가기')+'</button></div><p class="hint" style="margin-top:8px">'+esc(S.importMsg||'친구와 내 다른 기기는 위의 친구 초대하기로 들어옵니다. 기록 가져오기는 처음 연결한 뒤 한 번만 하면 됩니다.')+'</p>':'')+'</div>';
-  b+='<p class="hint appver">앱 버전 10월 30일 23:43</p>';
+  b+='<p class="hint appver">앱 버전 11월 1일 22:31</p>';
   return dlg('wide',{id:'settings',t:'설정'},b);
 }
 function modalCheck(V){
