@@ -1,0 +1,5 @@
+# ---------------------------------------------------------------- v73: 위 알림줄 닫기 - 수업 알림(그 수업 동안 안 보임, gbb_schx)과 잠깐 알림(flash)에 닫기 단추
+sub("  var x=schNow(V,Date.now());if(!x)return '';\n  var b=x.b,c=b.c,multi", "  var x=schNow(V,Date.now());if(!x)return '';if(lsGet('gbb_schx')===x.ds+'|'+x.b.i)return '';\n  var b=x.b,c=b.c,multi")
+sub("(b.j>b.i?'<span class=\"snx\">'+(b.j-b.i+1)+'시간 연속</span>':'')+'</div>';", "(b.j>b.i?'<span class=\"snx\">'+(b.j-b.i+1)+'시간 연속</span>':'')+'<button class=\"bnx\" data-act=\"sch-x\" data-id=\"'+esc(x.ds+'|'+x.b.i)+'\" aria-label=\"수업 알림 닫기\">닫기</button></div>';")
+sub("(S.undo?'<button data-act=\"undo\">되돌리기</button>':'')+'</div>';", "(S.undo?'<button data-act=\"undo\">되돌리기</button>':'')+'<button class=\"bnx\" data-act=\"flash-x\" aria-label=\"알림 닫기\">닫기</button></div>';")
+sub("    case 'notice-x':", "    case 'sch-x':lsSet('gbb_schx',id);paintBanner();break;\n    case 'flash-x':S.flash='';S.undo=null;clearTimeout(flashTimer);paintBanner();break;\n    case 'notice-x':")

@@ -1019,3 +1019,6 @@ html.wkdragging .wkscroll{overflow-x:hidden;scroll-snap-type:none;touch-action:n
 #banner{position:absolute;top:0;left:0;right:0;z-index:40;pointer-events:none;display:grid;gap:6px;padding:8px 12px 0;justify-items:center}
 #banner>*{pointer-events:auto;width:min(720px,100%);border-radius:14px;box-shadow:0 8px 24px rgba(0,0,0,.18);border-bottom:0}
 #banner:empty{display:none}
+/* v73: 알림줄 닫기 단추 */
+#banner .bnx{margin-left:auto;background:none;border:0;font:inherit;font-size:12px;font-weight:600;color:inherit;opacity:.75;padding:4px 8px;border-radius:8px;cursor:pointer}
+#banner .flash .bnx{margin-left:0}
