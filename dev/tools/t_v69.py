@@ -13,7 +13,7 @@ def check(n,c,x=''):
 def ev(p,js):return p.evaluate('()=>'+js)
 p=R.open(1180,900,ls={'gbb_note':'9999999999999'},now='2026-11-01T22:00:00+09:00');close_dlg(p);p.wait_for_timeout(800)
 click(p,'[data-act="tab"][data-tab="cal"]',600);click(p,'[data-act="cal-mode"][data-id="list"]',800)
-def title():return ev(p,"(document.querySelector('#view-cal h1')||{}).textContent")
+def title():return ev(p,"(document.getElementById('wkScroll')||{dataset:{}}).dataset.fv||(document.querySelector('#view-cal h1')||{}).textContent")
 SW="""(a)=>{const v=document.querySelector('#view-cal .card')||document.getElementById('view-cal');const r=v.getBoundingClientRect();const y=r.top+Math.min(300,r.height/2),x0=r.left+r.width/2;
 const mk=(x)=>new Touch({identifier:1,target:v,clientX:x,clientY:y});
 v.dispatchEvent(new TouchEvent('touchstart',{bubbles:true,touches:[mk(x0)],changedTouches:[mk(x0)]}));

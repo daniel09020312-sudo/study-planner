@@ -1012,3 +1012,10 @@ img.sa{background-repeat:no-repeat;background-position:0 0;aspect-ratio:1/1}
 .wkscroll.alc{container-type:inline-size}
 .wkscroll.alc .wk{grid-template-columns:repeat(21,max(94px,calc(100cqw / 7)))}
 @media (max-width:699px){.wkscroll.alc .wk{grid-template-columns:repeat(21,128px)}}
+/* v72: 할 일을 끄는 동안 옆 스크롤 막기 */
+html.wkdragging .wkscroll{overflow-x:hidden;scroll-snap-type:none;touch-action:none}
+/* v72: 위 알림줄은 화면을 밀어내지 않고 위에 뜸 */
+.stage{position:relative}
+#banner{position:absolute;top:0;left:0;right:0;z-index:40;pointer-events:none;display:grid;gap:6px;padding:8px 12px 0;justify-items:center}
+#banner>*{pointer-events:auto;width:min(720px,100%);border-radius:14px;box-shadow:0 8px 24px rgba(0,0,0,.18);border-bottom:0}
+#banner:empty{display:none}
