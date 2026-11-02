@@ -1008,3 +1008,7 @@ img.sa{background-repeat:no-repeat;background-position:0 0;aspect-ratio:1/1}
 @media (prefers-reduced-motion:reduce){.rvfx *,.rvfx{animation-duration:.01ms !important;animation-delay:0s !important;animation-iteration-count:1 !important}}
 @media (prefers-reduced-motion:reduce){.stk img,.stkbtn[data-m] img{animation:none !important}}
 .admin-secret{-webkit-text-security:disc;text-security:disc}
+/* v71: 이어지는 할 일 목록 - 한 화면에 7일, 앞뒤로 이어짐 */
+.wkscroll.alc{container-type:inline-size}
+.wkscroll.alc .wk{grid-template-columns:repeat(21,max(94px,calc(100cqw / 7)))}
+@media (max-width:699px){.wkscroll.alc .wk{grid-template-columns:repeat(21,128px)}}

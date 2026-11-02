@@ -1532,6 +1532,10 @@ img.sa{background-repeat:no-repeat;background-position:0 0;aspect-ratio:1/1}
 @media (prefers-reduced-motion:reduce){.rvfx *,.rvfx{animation-duration:.01ms !important;animation-delay:0s !important;animation-iteration-count:1 !important}}
 @media (prefers-reduced-motion:reduce){.stk img,.stkbtn[data-m] img{animation:none !important}}
 .admin-secret{-webkit-text-security:disc;text-security:disc}
+/* v71: 이어지는 할 일 목록 - 한 화면에 7일, 앞뒤로 이어짐 */
+.wkscroll.alc{container-type:inline-size}
+.wkscroll.alc .wk{grid-template-columns:repeat(21,max(94px,calc(100cqw / 7)))}
+@media (max-width:699px){.wkscroll.alc .wk{grid-template-columns:repeat(21,128px)}}
 #splash{position:fixed;inset:0;z-index:200;overflow:hidden;-webkit-tap-highlight-color:transparent}
 .spcv{position:absolute;inset:0;display:block;width:100%;height:100%;overflow:visible}
 .spcur,.sphole{fill:var(--bg)}
@@ -2447,7 +2451,7 @@ try{var drf=obj(JSON.parse(lsGet('gbb_drafts')||'{}'));for(var dk0 in drf)if(DRA
 S.gDoneLast=lsGet('gbb_donelast')==='1';S.undo=null;
 S.schWho=null;S.schSel=null;S.schTimes=false;
 S.ttSpan=(function(v){return v===1||v===3||v===7?v:null;})(+lsGet('gbb_ttspan'));S.ttPrevSpan=null;S.ttStart=null;S.ttPick=null;S.ttScrollY=null;S.ttSel=null;S.ttSlot=null;S.ttTab='fixed';S.ttEd=null;S.ttXDur=60;S.ttXK='etc';S.drag=false;
-S.calMode=(function(m){return m==='list'||m==='tt'||m==='ev'?m:'cal';})(lsGet('gbb_calmode'));S.evPast=false;S.upF='all';if(S.calMode==='tt')S.ttScrollY='auto';S.alWeek=null;S.alLeft=lsGet('gbb_alleft')==='1';S.scrollTo=S.calMode==='list'?{id:'wc-'+today(),inline:'start',quiet:1}:null;S.vbDir=0;
+S.calMode=(function(m){return m==='list'||m==='tt'||m==='ev'?m:'cal';})(lsGet('gbb_calmode'));S.evPast=false;S.upF='all';if(S.calMode==='tt')S.ttScrollY='auto';S.alWeek=null;S.alLeft=lsGet('gbb_alleft')==='1';S.scrollTo=null;S.alFirst=S.calMode==='list'&&innerWidth<700?today():null;S.vbDir=0;
 S.noteTs=+lsGet('gbb_note')||0;if(!S.noteTs){S.noteTs=Date.now();lsSet('gbb_note',String(S.noteTs));}
 var O={},W={},V0=null,flashTimer=null,retry=false;
 if(MONTHS.indexOf(S.month)<0){S.month=S.date<START?MONTHS[0]:MONTHS[MONTHS.length-1];}
@@ -3295,7 +3299,7 @@ function calModeSeg(){
 function setCalMode(m){
   var a=-1,b=-1;CMODES.forEach(function(x,j){if(x[0]===S.calMode)a=j;if(x[0]===m)b=j;});if(b<0||a===b)return;
   S.vbDir=b>a?1:-1;S.calMode=m;lsSet('gbb_calmode',m==='cal'?null:m);
-  if(m==='list'){S.alWeek=wkStart(S.date||today());if(S.alWeek===wkStart(today()))S.scrollTo={id:'wc-'+today(),inline:'start',quiet:1};}
+  if(m==='list'){S.alFirst=null;S.alKey=null;S.alWeek=wkStart(S.date||today());if(S.alWeek===wkStart(today()))S.alFirst=innerWidth<700?today():null;}
   if(m==='tt')ttEnter();
 }
 function wkStart(d){return addDays(d,-((pd(d).getDay()+6)%7));}
@@ -3326,20 +3330,21 @@ function wkCell(V,d,t){
 }
 function viewAgenda(V){
   var t=today(),cur=wkStart(t),ws=alClamp(S.alWeek||wkStart(S.date||t)),dd=diffDays(t,EXAM[0]),ph=phaseOf(ws),wk=weekNo(ws);
-  S.alWeek=ws;
-  var h='<div class="view" id="view-cal"><header class="vhead"><div class="mnav"><button class="ib" data-act="al-week" data-d="-1" aria-label="이전 주"'+(ws<=AL_MIN?' disabled':'')+'>&lsaquo;</button><h1 class="wkt">'+wkTitle(ws)+'</h1><button class="ib" data-act="al-week" data-d="1" aria-label="다음 주"'+(ws>=AL_MAX?' disabled':'')+'>&rsaquo;</button>';
-  if(ws!==cur)h+='<button class="btn small" data-act="al-week" data-d="0" style="margin-left:6px">이번 주</button>';
+  S.alWeek=ws;var fv=S.alFirst&&S.alFirst>=addDays(ws,-6)&&S.alFirst<=addDays(ws,13)?S.alFirst:ws,alFrom=addDays(fv,-7);
+  var h='<div class="view" id="view-cal"><header class="vhead"><div class="mnav"><button class="ib" data-act="al-week" data-d="-1" aria-label="이전 주"'+(ws<=AL_MIN?' disabled':'')+'>&lsaquo;</button><h1 class="wkt" id="alTitle">'+wkTitle(fv)+'</h1><button class="ib" data-act="al-week" data-d="1" aria-label="다음 주"'+(ws>=AL_MAX?' disabled':'')+'>&rsaquo;</button>';
+  if(wkStart(fv)!==cur)h+='<button class="btn small" data-act="al-week" data-d="0" style="margin-left:6px">이번 주</button>';
   h+='</div><div class="vacts">'+calModeSeg();
   if(ph&&wk>=1)h+='<span class="pill">'+wk+'주차<b>'+esc(ph.name)+'</b></span>';
   if(dd>0)h+='<span class="pill">2차 시험<b>D-'+dd+'</b></span>';
   h+='</div></header>';
   var days=[],tot=0,dn=0,late=0;
-  for(var i=0;i<7;i++){var d=addDays(ws,i),g=dayOf(V,V.me,d).goals,c=g.filter(isDone).length;days.push(d);tot+=g.length;dn+=c;if(d<t)late+=g.filter(function(x){return !x.done&&!x.mv;}).length;}
-  h+='<div class="vbody'+(S.vbDir?' side':'')+'" id="vb-list-'+ws+'" style="--vd:'+S.vbDir+'"><section class="card wkcard" id="c-wk" style="--k:0"><div class="ct"><h2>할 일'+(tot?'<small>'+dn+'/'+tot+'</small>':'')+'</h2><div class="acts">'+(late?'<span class="wklate">지난 날 못 끝낸 일 '+late+'개</span>':'')+''+ibBtn(V,'soft')+'<button class="chip" data-act="al-left" aria-pressed="'+(S.alLeft?'true':'false')+'">남은 일만</button></div></div>';
-  h+='<div class="wkscroll" id="wkScroll"><div class="wk">';
-  days.forEach(function(d){var dt=pd(d),off=dt.getDay()===0||(EVENTS[d]&&EVENTS[d].off),g=dayOf(V,V.me,d).goals,c=g.filter(isDone).length;
+  for(var i=0;i<7;i++){var d=addDays(fv,i),g=dayOf(V,V.me,d).goals,c=g.filter(isDone).length;days.push(d);tot+=g.length;dn+=c;if(d<t)late+=g.filter(function(x){return !x.done&&!x.mv;}).length;}
+  h+='<div class="vbody'+(S.vbDir?' side':'')+'" id="vb-list-'+(S.alKey||ws)+'" style="--vd:'+S.vbDir+'"><section class="card wkcard" id="c-wk" style="--k:0"><div class="ct"><h2>할 일'+(tot?'<small>'+dn+'/'+tot+'</small>':'')+'</h2><div class="acts">'+(late?'<span class="wklate">지난 날 못 끝낸 일 '+late+'개</span>':'')+''+ibBtn(V,'soft')+'<button class="chip" data-act="al-left" aria-pressed="'+(S.alLeft?'true':'false')+'">남은 일만</button></div></div>';
+  var alDays=[];for(var ai=0;ai<21;ai++)alDays.push(addDays(alFrom,ai));
+  h+='<div class="wkscroll alc" id="wkScroll" data-fv="'+fv+'" data-from="'+alFrom+'"><div class="wk">';
+  alDays.forEach(function(d){var dt=pd(d),off=dt.getDay()===0||(EVENTS[d]&&EVENTS[d].off),g=dayOf(V,V.me,d).goals,c=g.filter(isDone).length;
     h+='<button class="wkh'+(d===t?' today':'')+(off?' sun':'')+(d<t?' past':'')+'" data-act="al-open" data-d="'+d+'" aria-label="'+esc(longDate(d))+', 달력에서 열기"><small>'+DOW[dt.getDay()]+'</small><b>'+dt.getDate()+'</b>'+(g.length?'<em class="'+(c===g.length?'all':'')+'">'+c+'/'+g.length+'</em>':'<em></em>')+'</button>';});
-  days.forEach(function(d){h+=wkCell(V,d,t);});
+  alDays.forEach(function(d){h+=wkCell(V,d,t);});
   h+='</div></div>';
   if(!tot)h+='<p class="hint wkhint">이 주에는 적은 할 일이 없습니다. 날짜 칸의 추가를 눌러 적어 보세요.</p>';
   else h+='<p class="hint wkhint">꾹 눌러 끌면 다른 날로 옮기거나 순서를 바꿉니다.</p>';
@@ -4498,7 +4503,7 @@ document.addEventListener('change',function(e){
 
 /* ---------- 처음 화면 ---------- */
 // 앱이 준비되면 알린다. 그림이 아직이면 다 그린 뒤에 열리고, 그림이 먼저 끝났으면 바로 열린다
-var APP_BUILD='1793539909';
+var APP_BUILD='1793581692';
 function splashDone(){
   var sp=document.getElementById('splash'),st=window.__sp;if(!sp||sp.getAttribute('data-out'))return;
   sp.setAttribute('data-out','1');
@@ -7581,7 +7586,7 @@ function modalSettings(V){
   [[22,'밤 10시'],[23,'밤 11시'],[24,'자정'],[25,'다음 날 새벽 1시'],[26,'다음 날 새벽 2시'],[27,'다음 날 새벽 3시'],[28,'다음 날 새벽 4시'],[29,'다음 날 새벽 5시']].forEach(function(o){b+='<option value="'+o[0]+'"'+(V.certHour===o[0]?' selected':'')+'>'+o[1]+'</option>';});
   b+='</select>';
   b+='</div>'+spSec()+pokeSec()+noticeSec(V)+periodSec(V)+'<div class="sec"><h3>사용법</h3><div class="row"><button class="btn small" data-act="open" data-modal="help">사용법 보기</button></div></div><div class="sec"><h3>키보드 단축키<small>키보드를 연결했을 때</small></h3><ul class="kbd">'+[['1 ~ 8','달력부터 메시지까지 화면 이동'],['N','할 일 추가'],['D','마감 있는 할 일 추가'],['L','달력, 할 일, 시간표 차례로 바꿔 보기'],['T','타이머 켜기, 끄기'],['F','타이머 크게 보기'],['Esc','창 닫기']].map(function(x){return '<li><kbd>'+x[0]+'</kbd><span>'+x[1]+'</span></li>';}).join('')+'</ul></div><div class="sec"><h3>저장 위치</h3><p class="hint">'+esc(S.net?({claude:'Claude 공유 저장소에 연결되어 있습니다. Claude에 로그인한 참여 인원끼리 실시간으로 같이 봅니다.',firebase:'공유 저장소에 연결되어 있습니다. 참여 코드로 들어온 사람 모두가 실시간으로 같이 봅니다.',local:'지금은 이 기기에만 저장됩니다. 다른 사람과 같이 보려면 공유 저장소 연결이 필요합니다.'}[S.net.mode]):'연결 중입니다.')+'</p>'+(S.net&&S.net.mode==='firebase'&&S.remote?'<div class="row" style="margin-top:10px"><button class="btn small" data-act="import-pick">기록 가져오기</button><button class="btn small" data-act="export-data">기록 파일로 저장</button><button class="del" data-act="setup-reset">'+(S.confirm==='disc'?'한 번 더 누르면 이 방에서 나갑니다':'이 기기에서 이 방 나가기')+'</button></div><p class="hint" style="margin-top:8px">'+esc(S.importMsg||'친구와 내 다른 기기는 위의 친구 초대하기로 들어옵니다. 기록 가져오기는 처음 연결한 뒤 한 번만 하면 됩니다.')+'</p>':'')+'</div>';
-  b+='<p class="hint appver">앱 버전 11월 1일 22:31</p>';
+  b+='<p class="hint appver">앱 버전 11월 2일 10:08</p>';
   return dlg('wide',{id:'settings',t:'설정'},b);
 }
 function modalCheck(V){
@@ -7715,8 +7720,27 @@ function afterChat(V){
   if(badge){badge.hidden=!un;badge.textContent=un>99?'99+':(un?String(un):'');}
   if(notesEl)paint(notesEl,notesHtml(V));
 }
+/* 이어지는 할 일 목록: 그린 뒤 보이는 첫날로 맞추고, 스크롤이 멈추면 그 날 기준으로 다시 그림 */
+function alSync(){
+  var sc=document.getElementById('wkScroll');if(!sc||!sc.getAttribute('data-from'))return;
+  var fv=sc.getAttribute('data-fv'),k=sc.getAttribute('data-from')+'|'+fv;
+  if(sc.__k!==k){var c=document.getElementById('wc-'+fv),w=sc.firstElementChild;if(c&&w){sc.__lock=Date.now();sc.scrollLeft=c.offsetLeft-w.offsetLeft;}sc.__k=k;}
+  if(sc.__on)return;sc.__on=1;
+  sc.addEventListener('scroll',function(){
+    if(Date.now()-(sc.__lock||0)<120)return;
+    clearTimeout(sc.__t);sc.__t=setTimeout(function(){
+      if(S.drag||S.calMode!=='list')return;
+      var from=sc.getAttribute('data-from'),c0=document.getElementById('wc-'+from),w=sc.firstElementChild;if(!c0||!w)return;
+      var cw=c0.offsetWidth||1,idx=Math.max(0,Math.min(20,Math.round(sc.scrollLeft/cw))),d=addDays(from,idx);
+      if(d===sc.getAttribute('data-fv'))return;
+      var tl=document.getElementById('alTitle');if(tl)tl.textContent=wkTitle(d);
+      S.alKey=S.alKey||S.alWeek;S.alFirst=d;S.alWeek=wkStart(d);S.vbDir=0;render();
+    },180);
+  },{passive:true});
+}
 function after(V){
   afterChat(V);
+  try{alSync();}catch(e){}
   try{paintMore();pruneOnce(V);eggTick(V);cgTick(V);meetTick(V);pushEnsure(V);}catch(e){}
   if(S.scrollTo&&(S.ready||!S.scrollTo.quiet)){var sa=S.scrollTo;S.scrollTo=null;setTimeout(function(){var se=document.getElementById(sa.id);if(!se||!se.scrollIntoView)return;if(sa.inline){var sc=se.closest('.wkscroll');if(sc&&sc.scrollWidth>sc.clientWidth+2)sc.scrollTo({left:se.offsetLeft-sc.firstElementChild.offsetLeft,behavior:sa.quiet||reduced?'auto':'smooth'});return;}se.scrollIntoView({block:sa.block||'start',behavior:reduced?'auto':'smooth'});},30);}
   if(S.ttScrollY!=null){var tsc=document.getElementById('ttScroll');if(tsc){var tv=S.ttScrollY;S.ttScrollY=null;tsc.scrollTop=tv==='auto'?(+tsc.getAttribute('data-auto')||0):tv;}}
@@ -8276,7 +8300,7 @@ function act(name,el){
     case 'checkin':editDay(today(),function(d){if(!d.in)d.in=new Date().toISOString();});break;
     case 'month':{var md=+el.getAttribute('data-d')||0,mi=MONTHS.indexOf(S.month)+md;if(MONTHS[mi]){S.month=MONTHS[mi];S.vbDir=md>0?1:-1;}break;}
     case 'cal-mode':setCalMode(id==='list'||id==='tt'||id==='ev'?id:'cal');break;
-    case 'al-week':{var aw=+el.getAttribute('data-d')||0,ow=S.alWeek||wkStart(today());S.alWeek=alClamp(aw===0?wkStart(today()):addDays(ow,7*aw));S.vbDir=S.alWeek>ow?1:S.alWeek<ow?-1:0;if(S.alWeek===wkStart(today()))S.scrollTo={id:'wc-'+today(),inline:'start',quiet:1};break;}
+    case 'al-week':{S.alFirst=null;S.alKey=null;var aw=+el.getAttribute('data-d')||0,ow=S.alWeek||wkStart(today());S.alWeek=alClamp(aw===0?wkStart(today()):addDays(ow,7*aw));S.vbDir=S.alWeek>ow?1:S.alWeek<ow?-1:0;if(S.alWeek===wkStart(today()))S.alFirst=innerWidth<700?today():null;break;}
     case 'al-left':S.alLeft=!S.alLeft;lsSet('gbb_alleft',S.alLeft?'1':null);break;
     case 'al-open':case 'al-goal':{
       var ad=el.getAttribute('data-d');S.vbDir=-1;S.calMode='cal';lsSet('gbb_calmode',null);S.date=ad;if(MONTHS.indexOf(ad.slice(0,7))>=0)S.month=ad.slice(0,7);
