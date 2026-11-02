@@ -27,9 +27,9 @@ g2=[g for g in store(p,'days/m1_'+PAST)['goals'] if g['id']=='mv2'][0]
 check('restored without target',not g2.get('mv'),g2)
 check('other goal untouched',[g['id'] for g in store(p,'days/m1_'+T)['goals']]==['nw'])
 # 옮겨 간 날에 끝냈으면 되돌리지 않음
-p.evaluate("()=>{const S=window.__store;S['days/m1_%s']={goals:[{id:'z',text:'끝냄',sid:'s2',done:false,mv:1}]};S['days/m1_%s']={goals:[{id:'z',text:'끝냄',sid:'s2',done:true}]};window.__fire();}"%('2026-10-18',T));p.wait_for_timeout(600)
-pick('2026-10-18');click(p,'#c-goals [data-act="mv-back"][data-id="z"]',700)
-check('done target blocks undo',[g for g in store(p,'days/m1_2026-10-18')['goals']][0].get('mv')==1)
+p.evaluate("()=>{const S=window.__store;S['days/m1_%s']={goals:[{id:'z',text:'끝냄',sid:'s2',done:false,mv:1}]};S['days/m1_%s']={goals:[{id:'z',text:'끝냄',sid:'s2',done:true}]};window.__fire();}"%('2026-10-20',T));p.wait_for_timeout(600)
+pick('2026-10-20');click(p,'#c-goals [data-act="mv-back"][data-id="z"]',700)
+check('done target blocks undo',[g for g in store(p,'days/m1_2026-10-20')['goals']][0].get('mv')==1)
 # 20개까지
 p.evaluate("()=>{const S=window.__store;S['days/m1_2026-10-22']={goals:Array.from({length:19},(_, i)=>({id:'q'+i,text:'할 일 '+i,sid:'s2',done:false}))};window.__fire();}");p.wait_for_timeout(600)
 pick('2026-10-22')

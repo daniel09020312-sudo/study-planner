@@ -2943,6 +2943,7 @@ function guardDay(path,data){
   return Object.assign({},data,{goals:out});
 }
 function goalRow(V,date,mode,day,x,isT){
+  if(x.mv&&date<addDays(today(),-2))return '';
   if(x.mv)return '<li class="goal mv" id="g-'+esc(x.id)+'-mv"><span class="chk ghost" aria-hidden="true"><span></span></span><div class="gt">'+(x.sid&&V.subName[x.sid]&&S.gGroup!=='sub'?subTag(V,x):'')+'<span>'+esc(x.text)+'</span><em class="tag">다른 날로 옮김</em></div><button class="btn small soft" data-act="mv-back" data-date="'+esc(date)+'" data-id="'+esc(x.id)+'">되돌리기</button></li>';
   var key=date+'|'+x.id,f=isT&&day.focus===x.id&&!x.done,sub=x.sid&&V.subName[x.sid],p=x.pid&&V.plans[x.pid]?obj(V.plans[x.pid]):null,sel=S.gSel===key,ed=S.gEdit===key;
   var h='<li class="goal'+(x.done?' done':'')+(f?' focus':'')+(sel?' sel':'')+'" id="g-'+esc(x.id)+'"><button class="chk'+(x.done?' on':'')+'" data-act="goal-toggle" data-date="'+date+'" data-id="'+esc(x.id)+'" aria-pressed="'+(x.done?'true':'false')+'" aria-label="'+esc(x.text)+' 완료 표시"'+(mode==='plan'||doneLocked(V,date)?' disabled':'')+'><span></span></button>';
@@ -2978,7 +2979,7 @@ function goalsCard(V,date,k){
   else if(mode!=='view'&&dayLocked(V,date))h+='<p class="hint">인증 마감이 지나 새 할 일을 더할 수 없습니다. 완료 표시와 인증은 할 수 있습니다.</p>';
   if(g.length){
     if(g.length>1)h+='<div class="gtools"><div class="seg mini" style="grid-template-columns:repeat(3,minmax(0,1fr))" role="group" aria-label="할 일 묶어 보기">'+[['none','적은 순서'],['sub','과목별'],['plan','마감별']].map(function(x){return '<button data-act="g-group" data-id="'+x[0]+'" aria-pressed="'+(S.gGroup===x[0]?'true':'false')+'">'+x[1]+'</button>';}).join('')+'</div><button class="chip" data-act="g-donelast" aria-pressed="'+(S.gDoneLast?'true':'false')+'">끝낸 일 아래로</button></div>';
-    var gl=S.gDoneLast?g.filter(function(x){return !x.done;}).concat(g.filter(isDone)):g;
+    var gl=gSortSub(V,S.gDoneLast?g.filter(function(x){return !x.done;}).concat(g.filter(isDone)):g);
     h+='<ul>';
     if(S.gGroup==='none'||g.length<2)gl.forEach(function(x){h+=goalRow(V,date,mode,day,x,isT);});
     else{
@@ -3317,6 +3318,7 @@ var AL_MIN=wkStart(MONTHS[0]+'-01'),AL_MAX=(function(){var m=MONTHS[MONTHS.lengt
 function alClamp(d){return d<AL_MIN?AL_MIN:d>AL_MAX?AL_MAX:d;}
 function wkTitle(ws,n){n=n||7;var a=pd(ws),b=pd(addDays(ws,n-1));return (a.getMonth()+1)+'월 '+a.getDate()+'일 ~ '+(a.getMonth()===b.getMonth()?'':(b.getMonth()+1)+'월 ')+b.getDate()+'일';}
 function wkItem(V,d,mode,x,t){
+  if(x.mv&&d<addDays(today(),-2))return '';
   if(x.mv)return '<div class="wki mv" id="wi-'+esc(x.id)+'-mv" style="--sc:'+goalCol(V,x)+'"><span class="wkchk ghost" aria-hidden="true"><span></span></span><span class="wkt"><span class="t">'+esc(x.text)+'</span><small>다른 날로 옮김</small></span></div>';
   var sub=x.sid&&V.subName[x.sid],late=!x.done&&d<t,p=x.pid&&V.plans[x.pid]?obj(V.plans[x.pid]):null,meta=[];
   if(sub)meta.push(esc(sub));
@@ -3327,9 +3329,16 @@ function wkItem(V,d,mode,x,t){
   h+='<button class="wkt" data-act="al-goal" data-d="'+d+'" data-id="'+esc(x.id)+'" aria-label="'+esc(x.text)+', 달력에서 열어 고치기"><span class="t">'+esc(x.text)+'</span>'+(meta.length||late?'<small>'+meta.join(' · ')+(late?'<em>못 끝냄</em>':'')+'</small>':'')+'</button>';
   return h+'</div>';
 }
+/* 과목순(과목 색 무지개 순서 = 과목 순서) 정렬: 같은 과목 안에서는 원래 순서, 과목 없는 할 일은 맨 뒤 */
+function gSortOn(){return lsGet('gbb_gsort')==='1';}
+function gSortSub(V,list){
+  if(!gSortOn()||list.length<2)return list;
+  var rk=function(x){var s=x&&!isEtcGoal(x)&&V.subById[x.sid];return s?V.subs.indexOf(s):9999;};
+  return list.map(function(x,i){return {x:x,i:i,r:rk(x)};}).sort(function(a,b){return a.r-b.r||a.i-b.i;}).map(function(o){return o.x;});
+}
 function wkCell(V,d,t){
   var day=dayOf(V,V.me,d),g=day.goals,mode=modeOf(d),done=g.filter(isDone).length;
-  var list=S.alLeft?g.filter(function(x){return !x.done;}):(S.gDoneLast?g.filter(function(x){return !x.done;}).concat(g.filter(isDone)):g);
+  var list=gSortSub(V,S.alLeft?g.filter(function(x){return !x.done;}):(S.gDoneLast?g.filter(function(x){return !x.done;}).concat(g.filter(isDone)):g));
   var h='<div class="wkc'+(d===t?' today':'')+(d<t?' past':'')+'" id="wc-'+d+'" data-d="'+d+'">';
   if(g.length)h+='<div class="wkbar" role="img" aria-label="'+g.length+'개 중 '+done+'개 완료"><i style="width:'+Math.round(done*100/g.length)+'%"></i></div>';
   (dueMap(V)[d]||[]).forEach(function(p){h+='<p class="wkdue">마감 · '+esc(p.label)+'</p>';});
@@ -3349,7 +3358,7 @@ function viewAgenda(V){
   h+='</div></header>';
   var days=[],tot=0,dn=0,late=0;
   for(var i=0;i<7;i++){var d=addDays(fv,i),g=dayOf(V,V.me,d).goals,c=g.filter(isDone).length;days.push(d);tot+=g.length;dn+=c;if(d<t)late+=g.filter(function(x){return !x.done&&!x.mv;}).length;}
-  h+='<div class="vbody'+(S.vbDir?' side':'')+'" id="vb-list-'+(S.alKey||ws)+'" style="--vd:'+S.vbDir+'"><section class="card wkcard" id="c-wk" style="--k:0"><div class="ct"><h2>할 일'+(tot?'<small>'+dn+'/'+tot+'</small>':'')+'</h2><div class="acts">'+(late?'<span class="wklate">지난 날 못 끝낸 일 '+late+'개</span>':'')+''+ibBtn(V,'soft')+'<button class="chip" data-act="al-left" aria-pressed="'+(S.alLeft?'true':'false')+'">남은 일만</button></div></div>';
+  h+='<div class="vbody'+(S.vbDir?' side':'')+'" id="vb-list-'+(S.alKey||ws)+'" style="--vd:'+S.vbDir+'"><section class="card wkcard" id="c-wk" style="--k:0"><div class="ct"><h2>할 일'+(tot?'<small>'+dn+'/'+tot+'</small>':'')+'</h2><div class="acts">'+(late?'<span class="wklate">지난 날 못 끝낸 일 '+late+'개</span>':'')+''+ibBtn(V,'soft')+'<button class="chip" data-act="al-sort" aria-pressed="'+(gSortOn()?'true':'false')+'">과목순</button><button class="chip" data-act="al-left" aria-pressed="'+(S.alLeft?'true':'false')+'">남은 일만</button></div></div>';
   var alDays=[];for(var ai=0;ai<21;ai++)alDays.push(addDays(alFrom,ai));
   h+='<div class="wkscroll alc" id="wkScroll" data-fv="'+fv+'" data-from="'+alFrom+'"><div class="wk">';
   alDays.forEach(function(d){var dt=pd(d),off=dt.getDay()===0||(EVENTS[d]&&EVENTS[d].off),g=dayOf(V,V.me,d).goals,c=g.filter(isDone).length;
@@ -4513,7 +4522,7 @@ document.addEventListener('change',function(e){
 
 /* ---------- 처음 화면 ---------- */
 // 앱이 준비되면 알린다. 그림이 아직이면 다 그린 뒤에 열리고, 그림이 먼저 끝났으면 바로 열린다
-var APP_BUILD='1793586372';
+var APP_BUILD='1793632787';
 function splashDone(){
   var sp=document.getElementById('splash'),st=window.__sp;if(!sp||sp.getAttribute('data-out'))return;
   sp.setAttribute('data-out','1');
@@ -7596,7 +7605,7 @@ function modalSettings(V){
   [[22,'밤 10시'],[23,'밤 11시'],[24,'자정'],[25,'다음 날 새벽 1시'],[26,'다음 날 새벽 2시'],[27,'다음 날 새벽 3시'],[28,'다음 날 새벽 4시'],[29,'다음 날 새벽 5시']].forEach(function(o){b+='<option value="'+o[0]+'"'+(V.certHour===o[0]?' selected':'')+'>'+o[1]+'</option>';});
   b+='</select>';
   b+='</div>'+spSec()+pokeSec()+noticeSec(V)+periodSec(V)+'<div class="sec"><h3>사용법</h3><div class="row"><button class="btn small" data-act="open" data-modal="help">사용법 보기</button></div></div><div class="sec"><h3>키보드 단축키<small>키보드를 연결했을 때</small></h3><ul class="kbd">'+[['1 ~ 8','달력부터 메시지까지 화면 이동'],['N','할 일 추가'],['D','마감 있는 할 일 추가'],['L','달력, 할 일, 시간표 차례로 바꿔 보기'],['T','타이머 켜기, 끄기'],['F','타이머 크게 보기'],['Esc','창 닫기']].map(function(x){return '<li><kbd>'+x[0]+'</kbd><span>'+x[1]+'</span></li>';}).join('')+'</ul></div><div class="sec"><h3>저장 위치</h3><p class="hint">'+esc(S.net?({claude:'Claude 공유 저장소에 연결되어 있습니다. Claude에 로그인한 참여 인원끼리 실시간으로 같이 봅니다.',firebase:'공유 저장소에 연결되어 있습니다. 참여 코드로 들어온 사람 모두가 실시간으로 같이 봅니다.',local:'지금은 이 기기에만 저장됩니다. 다른 사람과 같이 보려면 공유 저장소 연결이 필요합니다.'}[S.net.mode]):'연결 중입니다.')+'</p>'+(S.net&&S.net.mode==='firebase'&&S.remote?'<div class="row" style="margin-top:10px"><button class="btn small" data-act="import-pick">기록 가져오기</button><button class="btn small" data-act="export-data">기록 파일로 저장</button><button class="del" data-act="setup-reset">'+(S.confirm==='disc'?'한 번 더 누르면 이 방에서 나갑니다':'이 기기에서 이 방 나가기')+'</button></div><p class="hint" style="margin-top:8px">'+esc(S.importMsg||'친구와 내 다른 기기는 위의 친구 초대하기로 들어옵니다. 기록 가져오기는 처음 연결한 뒤 한 번만 하면 됩니다.')+'</p>':'')+'</div>';
-  b+='<p class="hint appver">앱 버전 11월 2일 11:26</p>';
+  b+='<p class="hint appver">앱 버전 11월 3일 00:19</p>';
   return dlg('wide',{id:'settings',t:'설정'},b);
 }
 function modalCheck(V){
@@ -8311,6 +8320,7 @@ function act(name,el){
     case 'month':{var md=+el.getAttribute('data-d')||0,mi=MONTHS.indexOf(S.month)+md;if(MONTHS[mi]){S.month=MONTHS[mi];S.vbDir=md>0?1:-1;}break;}
     case 'cal-mode':setCalMode(id==='list'||id==='tt'||id==='ev'?id:'cal');break;
     case 'al-week':{S.alFirst=null;S.alKey=null;var aw=+el.getAttribute('data-d')||0,ow=S.alWeek||wkStart(today());S.alWeek=alClamp(aw===0?wkStart(today()):addDays(ow,7*aw));S.vbDir=S.alWeek>ow?1:S.alWeek<ow?-1:0;if(S.alWeek===wkStart(today()))S.alFirst=innerWidth<700?today():null;break;}
+    case 'al-sort':lsSet('gbb_gsort',gSortOn()?null:'1');break;
     case 'al-left':S.alLeft=!S.alLeft;lsSet('gbb_alleft',S.alLeft?'1':null);break;
     case 'al-open':case 'al-goal':{
       var ad=el.getAttribute('data-d');S.vbDir=-1;S.calMode='cal';lsSet('gbb_calmode',null);S.date=ad;if(MONTHS.indexOf(ad.slice(0,7))>=0)S.month=ad.slice(0,7);
