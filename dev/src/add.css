@@ -1022,3 +1022,5 @@ html.wkdragging .wkscroll{overflow-x:hidden;scroll-snap-type:none;touch-action:n
 /* v73: 알림줄 닫기 단추 */
 #banner .bnx{margin-left:auto;background:none;border:0;font:inherit;font-size:12px;font-weight:600;color:inherit;opacity:.75;padding:4px 8px;border-radius:8px;cursor:pointer}
 #banner .flash .bnx{margin-left:0}
+/* v76: 이어지는 할 일 목록을 다시 맞출 때는 전환·등장 효과 없이 */
+html.alsnap #wkScroll *{transition:none !important;animation:none !important}

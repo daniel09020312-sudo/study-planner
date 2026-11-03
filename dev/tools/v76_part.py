@@ -1,0 +1,3 @@
+# ---------------------------------------------------------------- v76: 이어지는 할 일 목록을 다시 그릴 때 날짜 머리(오늘 파란 표시)가 깜빡이지 않게 - 머리에 날짜 id(morphdom이 같은 칸을 씀), 다시 그리는 순간 전환 효과 끔
+sub("h+='<button class=\"wkh'+(d===t?' today':'')", "h+='<button id=\"wh-'+d+'\" class=\"wkh'+(d===t?' today':'')")
+sub("      S.alKey=S.alKey||S.alWeek;S.alFirst=d;S.alWeek=wkStart(d);S.vbDir=0;render();", "      S.alKey=S.alKey||S.alWeek;S.alFirst=d;S.alWeek=wkStart(d);S.vbDir=0;var de=document.documentElement;de.classList.add('alsnap');render();requestAnimationFrame(function(){requestAnimationFrame(function(){de.classList.remove('alsnap');});});")

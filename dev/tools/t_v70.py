@@ -14,8 +14,10 @@ click(p,'[data-act="tab"][data-tab="cal"]',600);click(p,'[data-act="cal-mode"][d
 def st():return ev(p,"(()=>{const s=document.getElementById('wkScroll');const fv=s.dataset.fv;const c=document.getElementById('wc-'+fv);return {title:fv,fv:fv,n:s.querySelectorAll('.wkh').length,off:Math.round(c.offsetLeft-s.firstElementChild.offsetLeft-s.scrollLeft),cw:c.offsetWidth,vis:Math.round(s.clientWidth/c.offsetWidth)}})()")
 a=st();print(a)
 check('21 days rendered, 7 visible',a['n']==21 and a['vis']==7 and a['fv']=='2026-11-02' and abs(a['off'])<=1,a)
+p.evaluate("()=>{const h=document.getElementById('wh-2026-11-04');h.__tag=1;window.__swaps=0;new MutationObserver(m=>m.forEach(r=>{if(r.attributeName==='class'&&r.target.classList.contains('wkh'))window.__swaps++;})).observe(document.getElementById('wkScroll'),{attributes:true,subtree:true,attributeFilter:['class']});}")
 p.evaluate("()=>{const s=document.getElementById('wkScroll');const c=document.getElementById('wc-2026-11-02');s.scrollLeft+=c.offsetWidth*3;}");p.wait_for_timeout(700)
 b=st();print(b)
+check('today header kept (no flicker)',ev(p,"(()=>{const h=document.getElementById('wh-2026-11-04');return !!(h&&h.__tag&&h.classList.contains('today'))&&window.__swaps===0})()"),ev(p,"window.__swaps"))
 check('scroll 3 days -> starts Thu',b['fv']=='2026-11-05' and abs(b['off'])<=1 ,b)
 for k in range(3):
     p.evaluate("()=>{const s=document.getElementById('wkScroll');const c=s.querySelector('.wkh');s.scrollLeft+=s.querySelector('[id^=wc-]').offsetWidth*5;}");p.wait_for_timeout(700)
