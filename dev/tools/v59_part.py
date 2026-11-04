@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------- v59: 할 일 하루 최대 20개, 다른 날로 옮긴 할 일 되돌리기(mv-back)
-sub("var GMAX=12,ROSTER_MAX=", "var GMAX=20,ROSTER_MAX=")
+sub("var GMAX=12,ROSTER_MAX=", "var GMAX=30,ROSTER_MAX=")
 sub("<em class=\"tag\">다른 날로 옮김</em></div><span></span></li>'", "<em class=\"tag\">다른 날로 옮김</em></div><button class=\"btn small soft\" data-act=\"mv-back\" data-date=\"'+esc(date)+'\" data-id=\"'+esc(x.id)+'\">되돌리기</button></li>'")
 sub("/* ---------- 점수 ---------- */", r"""/* ---------- v59: 옮긴 할 일 되돌리기. 옮겨 간 날(오늘이나 그 뒤)에서 빼고, 원래 날의 '다른 날로 옮김'을 다시 할 일로 ---------- */
 function mvTarget(V,from,g){
