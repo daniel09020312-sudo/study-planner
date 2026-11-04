@@ -1,0 +1,3 @@
+# ---------------------------------------------------------------- v77: 할 일 목록을 옆으로 넘길 때 화면을 매번 다시 그리지 않음(끝 가까이에 갔을 때만, 세로 스크롤 위치는 지킴)
+sub("S.alKey=S.alKey||S.alWeek;S.alFirst=d;S.alWeek=wkStart(d);S.vbDir=0;var de=document.documentElement;de.classList.add('alsnap');render();",
+    "S.alKey=S.alKey||S.alWeek;S.alFirst=d;S.alWeek=wkStart(d);S.vbDir=0;sc.setAttribute('data-fv',d);sc.__k=from+'|'+d;if(idx>=4&&idx<=10)return;var de=document.documentElement,mn=document.getElementById('main'),my=mn?mn.scrollTop:0,wy=window.scrollY;de.classList.add('alsnap');render();if(mn&&mn.scrollTop!==my)mn.scrollTop=my;if(window.scrollY!==wy)window.scrollTo(0,wy);")
