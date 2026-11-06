@@ -18,20 +18,25 @@ def ink():
     click(p,'#shopBtn',800);v=st(p,"(document.querySelector('.wallet .wl b')||{}).textContent");close_dlg(p);return int(''.join(ch for ch in (v or '0') if ch.isdigit()) or 0)
 def newlot(g,k,amt):
     click(p,'[data-act="tab"][data-tab="chat"]',600);click(p,'[data-act="chan"][data-id="all"]',500);click(p,'#msgLot',500)
-    click(p,'[data-act="lot-set"][data-k="g"][data-v="%s"]'%g,300)
-    if k: click(p,'[data-act="lot-set"][data-k="k"][data-v="%d"]'%k,300)
-    click(p,'[data-act="lot-amt"][data-v="%d"]'%amt,300);click(p,'[data-act="lot-add"]',900)
+    click(p,'[data-act="lot-set2"][data-k="g"][data-v="%s"]'%g,300)
+    if k: click(p,'[data-act="lot-set2"][data-k="k"][data-v="%d"]'%k,300)
+    click(p,'[data-act="lot-amt"][data-v="%d"]'%amt,300);click(p,'[data-act="lot-add2"]',900)
 i0=ink()
 # 1) 뽑기(전체): 올리자마자 결과
 newlot('wheel',0,30)
 gs=allk(p,'gifts/');g=[v for v in gs.values() if v['g']=='wheel'][0]
 check('draw done at once over all members',g['st']=='done' and len(g['who'])==4 and sum(g['win'].values())==30 and len(g['win'])==1,g)
+wid=[k for k,v in allk(p,'gifts/').items() if v['g']=='wheel'][0]
+check('result hidden until opened',not st(p,"!!document.querySelector('#dlg-lot')"))
+click(p,'[data-act="lot-open"][data-id="%s"]'%wid,800)
 check('result modal opens',st(p,"!!document.querySelector('#dlg-lot .lwh')"))
 close_dlg(p)
 # 2) 사다리(전체) 2명
 newlot('ladder',2,10)
 g=[v for v in allk(p,'gifts/').values() if v['g']=='ladder'][0]
 check('ladder 2 winners 5 each',g['st']=='done' and sorted(g['win'].values())==[5,5],g['win'])
+lad=[k for k,v in allk(p,'gifts/').items() if v['g']=='ladder'][0]
+click(p,'[data-act="lot-open"][data-id="%s"]'%lad,800)
 check('ladder 4 paths',st(p,"document.querySelectorAll('#dlg-lot .lp').length")==4)
 close_dlg(p)
 i1=ink();check('spent 40',i0-i1==40,(i0,i1))
@@ -41,7 +46,7 @@ fid=[k for k,v in allk(p,'gifts/').items() if v['g']=='first'][0]
 i2=ink();check('first-come reserves 30',i1-i2==30,(i1,i2))
 p.evaluate("(id)=>{const S=window.__store,n=Date.now();S['progress/m3']=Object.assign({},S['progress/m3']||{},{lc:{[id]:n-5000}});S['progress/m2']=Object.assign({},S['progress/m2']||{},{lc:{[id]:n-3000}});S['progress/m4']=Object.assign({},S['progress/m4']||{},{lc:{[id]:n-1000}});window.__fire();}",fid);p.wait_for_timeout(500)
 click(p,'[data-act="tab"][data-tab="chat"]',600)
-t=st(p,"[...document.querySelectorAll('.bb.lot')].map(e=>e.innerText).join('|')")
+t=st(p,"[...document.querySelectorAll('.bb.lot')].map(e=>e.textContent).join('|')")
 check('first two shown, full',('(2/2)' in t),t[:200])
 i3=ink();check('sender pays 30 total (2x15)',i2==i3,(i2,i3))
 # 4) 받는 쪽: 다른 사람이 올린 선착순에서 m1이 받기
