@@ -38,6 +38,7 @@ cp src/sw.js <저장소>/public/sw.js   # sw.js를 바꿨을 때
 ```
 바꾼 원본 파일은 `dev/`에도 다시 복사해서 같은 커밋에 넣는다.
 push 뒤에는 `gh api repos/daniel09020312-sudo/study-planner/commits/<sha>/check-runs`로 Cloudflare Pages 성공을 확인한다.
+Cloudflare Pages가 로그 없이 실패하면(Deploy failed) 대개 Cloudflare 쪽 문제라 잠시 뒤 다음 커밋으로 다시 배포된다. 로그는 대시보드에서만 볼 수 있다.
 
 ## 방과 참여 코드 (웹 판)
 - 참여 링크 `사이트#join=<저장소 이름>` -> 참여 코드 6자리 -> 이름 고르기. 평소 주소창은 `#j=<저장소 이름>`.
