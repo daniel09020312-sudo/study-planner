@@ -13,3 +13,20 @@
 .gordt{min-width:0;overflow-wrap:anywhere}
 .gordt small{display:block;font-size:11px;color:var(--ink-3)}
 .gordi .ib.sm{width:40px;height:40px;font-size:16px}
+/* v80: 끌기와 여러 개 고르기 */
+.gordi{grid-template-columns:28px minmax(0,1fr) 30px 40px 40px}
+.gordi.lock{grid-template-columns:10px minmax(0,1fr)}
+.gordi.sel{box-shadow:inset 0 0 0 2px var(--accent)}
+.gck{width:26px;height:26px;border-radius:50%;border:2px solid var(--ink-3);background:var(--surface);padding:0;display:grid;place-items:center}
+.gck.on{background:var(--accent);border-color:var(--accent)}
+.gck.on span{width:8px;height:8px;border-radius:50%;background:var(--on-accent)}
+.gdh{display:grid;place-items:center;width:30px;height:40px;font-size:20px;color:var(--ink-3);cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none}
+.gdghost{position:fixed;z-index:200;pointer-events:none;opacity:.92;box-shadow:0 10px 28px rgba(0,0,0,.25);transform:scale(1.02)}
+.gdghost .gdn{position:absolute;right:-6px;top:-8px;background:var(--accent);color:var(--on-accent);font-style:normal;font-size:12px;font-weight:700;padding:2px 7px;border-radius:999px}
+.gordi.gdover{box-shadow:inset 0 3px 0 var(--accent)}
+.gordi.gdafter{box-shadow:inset 0 -3px 0 var(--accent)}
+.gordd.gdend ol{box-shadow:0 3px 0 var(--accent)}
+html.gdragging,html.gdragging *{cursor:grabbing !important;user-select:none;-webkit-user-select:none}
+.gselbar{position:sticky;top:-2px;z-index:2;display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding:8px;margin:0 0 10px;border-radius:12px;background:var(--accent-soft)}
+.gseld{display:flex;gap:6px;overflow-x:auto;max-width:100%}
+.gseld .chip{flex:none}
