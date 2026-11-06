@@ -2057,6 +2057,21 @@ html.alsnap #wkScroll *{transition:none !important;animation:none !important}
 @keyframes lotFlip{from{opacity:0;transform:perspective(500px) rotateY(90deg) scale(.9)}to{opacity:1;transform:none}}
 .lres.fast{animation-delay:.4s}
 @media (prefers-reduced-motion:reduce){.lcard{animation:none}}
+/* v79: 할 일 순서 정리 창 */
+.gordr{margin-bottom:8px}
+.gorda{margin-bottom:10px}
+.gordd{margin:0 0 14px}
+.gordd.today .gordh b{color:var(--accent-ink)}
+.gordh{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:6px 2px;border-bottom:1px solid var(--line)}
+.gordh small{color:var(--ink-3)}
+.gordb{margin-left:auto;display:flex;gap:10px}
+.gordd ol{list-style:none;margin:6px 0 0;padding:0;display:grid;gap:4px}
+.gordi{display:grid;grid-template-columns:10px minmax(0,1fr) 40px 40px;align-items:center;gap:8px;padding:6px 8px;border-radius:10px;background:color-mix(in srgb,var(--sc) 10%,var(--surface))}
+.gordi .sdot{width:8px;height:8px;border-radius:50%;background:var(--sc)}
+.gordi.done .gordt{color:var(--ink-3);text-decoration:line-through}
+.gordt{min-width:0;overflow-wrap:anywhere}
+.gordt small{display:block;font-size:11px;color:var(--ink-3)}
+.gordi .ib.sm{width:40px;height:40px;font-size:16px}
 #c-setup .row input{min-width:0}
 #c-setup .lb{margin-top:0}
 .serr{color:var(--red);margin-top:8px}
@@ -2992,7 +3007,7 @@ function goalsCard(V,date,k){
   if(canAddTo(V,date)&&g.length<GMAX)h+=quickAddRow(V,date);
   else if(mode!=='view'&&dayLocked(V,date))h+='<p class="hint">인증 마감이 지나 새 할 일을 더할 수 없습니다. 완료 표시와 인증은 할 수 있습니다.</p>';
   if(g.length){
-    if(g.length>1)h+='<div class="gtools"><div class="seg mini" style="grid-template-columns:repeat(3,minmax(0,1fr))" role="group" aria-label="할 일 묶어 보기">'+[['none','적은 순서'],['sub','과목별'],['plan','마감별']].map(function(x){return '<button data-act="g-group" data-id="'+x[0]+'" aria-pressed="'+(S.gGroup===x[0]?'true':'false')+'">'+x[1]+'</button>';}).join('')+'</div><button class="chip" data-act="g-donelast" aria-pressed="'+(S.gDoneLast?'true':'false')+'">끝낸 일 아래로</button></div>';
+    if(g.length>1)h+='<div class="gtools"><div class="seg mini" style="grid-template-columns:repeat(3,minmax(0,1fr))" role="group" aria-label="할 일 묶어 보기">'+[['none','적은 순서'],['sub','과목별'],['plan','마감별']].map(function(x){return '<button data-act="g-group" data-id="'+x[0]+'" aria-pressed="'+(S.gGroup===x[0]?'true':'false')+'">'+x[1]+'</button>';}).join('')+'</div><button class="chip" data-act="open" data-modal="gorder">순서 정리</button><button class="chip" data-act="g-donelast" aria-pressed="'+(S.gDoneLast?'true':'false')+'">끝낸 일 아래로</button></div>';
     var gl=gSortSub(V,S.gDoneLast?g.filter(function(x){return !x.done;}).concat(g.filter(isDone)):g);
     h+='<ul>';
     if(S.gGroup==='none'||g.length<2)gl.forEach(function(x){h+=goalRow(V,date,mode,day,x,isT);});
@@ -3372,7 +3387,7 @@ function viewAgenda(V){
   h+='</div></header>';
   var days=[],tot=0,dn=0,late=0;
   for(var i=0;i<7;i++){var d=addDays(fv,i),g=dayOf(V,V.me,d).goals,c=g.filter(isDone).length;days.push(d);tot+=g.length;dn+=c;if(d<t)late+=g.filter(function(x){return !x.done&&!x.mv;}).length;}
-  h+='<div class="vbody'+(S.vbDir?' side':'')+'" id="vb-list-'+(S.alKey||ws)+'" style="--vd:'+S.vbDir+'"><section class="card wkcard" id="c-wk" style="--k:0"><div class="ct"><h2>할 일'+(tot?'<small>'+dn+'/'+tot+'</small>':'')+'</h2><div class="acts">'+(late?'<span class="wklate">지난 날 못 끝낸 일 '+late+'개</span>':'')+''+ibBtn(V,'soft')+'<button class="chip" data-act="al-sort" aria-pressed="'+(gSortOn()?'true':'false')+'">과목순</button><button class="chip" data-act="al-left" aria-pressed="'+(S.alLeft?'true':'false')+'">남은 일만</button></div></div>';
+  h+='<div class="vbody'+(S.vbDir?' side':'')+'" id="vb-list-'+(S.alKey||ws)+'" style="--vd:'+S.vbDir+'"><section class="card wkcard" id="c-wk" style="--k:0"><div class="ct"><h2>할 일'+(tot?'<small>'+dn+'/'+tot+'</small>':'')+'</h2><div class="acts">'+(late?'<span class="wklate">지난 날 못 끝낸 일 '+late+'개</span>':'')+''+ibBtn(V,'soft')+'<button class="chip" data-act="open" data-modal="gorder">순서 정리</button><button class="chip" data-act="al-sort" aria-pressed="'+(gSortOn()?'true':'false')+'">과목순</button><button class="chip" data-act="al-left" aria-pressed="'+(S.alLeft?'true':'false')+'">남은 일만</button></div></div>';
   var alDays=[];for(var ai=0;ai<21;ai++)alDays.push(addDays(alFrom,ai));
   h+='<div class="wkscroll alc" id="wkScroll" data-fv="'+fv+'" data-from="'+alFrom+'"><div class="wk">';
   alDays.forEach(function(d){var dt=pd(d),off=dt.getDay()===0||(EVENTS[d]&&EVENTS[d].off),g=dayOf(V,V.me,d).goals,c=g.filter(isDone).length;
@@ -4536,7 +4551,7 @@ document.addEventListener('change',function(e){
 
 /* ---------- 처음 화면 ---------- */
 // 앱이 준비되면 알린다. 그림이 아직이면 다 그린 뒤에 열리고, 그림이 먼저 끝났으면 바로 열린다
-var APP_BUILD='1793928476';
+var APP_BUILD='1793954881';
 function splashDone(){
   var sp=document.getElementById('splash'),st=window.__sp;if(!sp||sp.getAttribute('data-out'))return;
   sp.setAttribute('data-out','1');
@@ -6172,6 +6187,39 @@ function modalLot(V){
 }
 function lotFmtMin(m){m=Math.round(+m||0);return (m>=60?Math.floor(m/60)+'시간 ':'')+(m%60?m%60+'분':m>=60?'':'0분');}
 
+/* ---------- v79: 할 일 순서 정리 창(여러 날 할 일을 날짜별로 한 번에 보고 위·아래로 옮기기, 과목순·끝낸 일 아래로 자동 정리) ----------
+   보기 범위 S.gord.r: today(오늘) week(이번 주) next(앞으로 2주) all(지난 2주부터 앞으로 4주). 다른 날로 옮긴 할 일(mv)은 보이지 않고 자리만 지킨다 */
+var GORD_R=[['today','오늘'],['week','이번 주'],['next','앞으로 2주'],['all','전체']];
+function gordDays(){
+  var t=today(),r=(S.gord&&S.gord.r)||'next',a,b;
+  if(r==='today'){a=t;b=t;}else if(r==='week'){a=wkStart(t);b=addDays(a,6);}else if(r==='all'){a=addDays(t,-14);b=addDays(t,28);}else{a=t;b=addDays(t,13);}
+  var out=[];for(var d=a;d<=b;d=addDays(d,1))out.push(d);return out;
+}
+function gordSortRank(V,x,k){if(k==='done')return x.done?1:0;var s=x&&!isEtcGoal(x)&&V.subById[x.sid];return s?V.subs.indexOf(s):9999;}
+function gordSort(V,goals,k){
+  var keep=goals.map(function(x,i){return {x:x,i:i};}),live=keep.filter(function(o){return !o.x.mv;}),slots=live.map(function(o){return o.i;});
+  var sorted=live.slice().sort(function(a,b){return gordSortRank(V,a.x,k)-gordSortRank(V,b.x,k)||a.i-b.i;});
+  var out=goals.slice();slots.forEach(function(si,j){out[si]=sorted[j].x;});return out;
+}
+function modalGOrder(V){
+  var G=S.gord||(S.gord={r:'next'}),days=gordDays(),t=today(),n=0,b='';
+  b+='<div class="chips gordr">'+GORD_R.map(function(x){return chipBtn('go-r','r',x[0],x[1],G.r===x[0]);}).join('')+'<button class="chip" data-act="go-left" aria-pressed="'+(G.left?'true':'false')+'">남은 일만</button></div>';
+  b+='<div class="row gorda"><button class="btn small soft" data-act="go-sort" data-k="sub" data-date="all">보이는 날 모두 과목순</button><button class="btn small soft" data-act="go-sort" data-k="done" data-date="all">모두 끝낸 일 아래로</button></div>';
+  days.forEach(function(d){
+    var g=dayOf(V,V.me,d).goals,live=g.filter(function(x){return x&&!x.mv;}),shown=G.left?live.filter(function(x){return !x.done;}):live;if(!shown.length)return;n+=shown.length;
+    var dt=pd(d),lock=dayLocked(V,d);
+    b+='<section class="gordd'+(d===t?' today':'')+'" id="go-'+d+'"><div class="gordh"><b>'+(dt.getMonth()+1)+'월 '+dt.getDate()+'일 '+DOW[dt.getDay()]+'</b><small>'+(d===t?'오늘 · ':'')+live.filter(isDone).length+'/'+live.length+'</small>'+(lock?'':'<span class="gordb"><button class="linkbtn" data-act="go-sort" data-k="sub" data-date="'+d+'">과목순</button><button class="linkbtn" data-act="go-sort" data-k="done" data-date="'+d+'">끝낸 일 아래로</button></span>')+'</div><ol>';
+    shown.forEach(function(x,i){
+      b+='<li class="gordi'+(x.done?' done':'')+'" style="--sc:'+goalCol(V,x)+'"><i class="sdot"></i><span class="gordt">'+esc(x.text)+(x.sid&&V.subName[x.sid]?'<small>'+esc(V.subName[x.sid])+'</small>':'')+'</span>';
+      if(!lock)b+='<button class="ib sm" data-act="go-mv" data-date="'+d+'" data-id="'+esc(x.id)+'" data-v="-1" aria-label="위로"'+(i===0?' disabled':'')+'>&#8593;</button><button class="ib sm" data-act="go-mv" data-date="'+d+'" data-id="'+esc(x.id)+'" data-v="1" aria-label="아래로"'+(i===shown.length-1?' disabled':'')+'>&#8595;</button>';
+      b+='</li>';
+    });
+    b+='</ol></section>';
+  });
+  if(!n)b+='<p class="empty">이 기간에는 할 일이 없습니다.</p>';
+  return dlg('wide',{id:'gorder',t:'할 일 순서 정리'},b,'<div class="df"><span class="hint">마감이 지난 날은 보기만 됩니다.'+(gSortOn()?' 할 일 목록의 과목순 보기가 켜져 있으면 목록에서는 과목순으로 보입니다.':'')+'</span><button class="btn primary" data-act="modal-close">닫기</button></div>');
+}
+
 /* ---------- 방: 참여 코드, 새 방, 방 바꾸기 (웹 판) ---------- */
 // 참여 링크: 사이트주소#join=<저장소 이름>  -> 참여 코드 6자리 -> 이름 고르기
 // 코드 연결: rooms/joincode-<코드> = {r:방 id, n:방 이름, at}
@@ -7771,7 +7819,7 @@ function modalSettings(V){
   [[22,'밤 10시'],[23,'밤 11시'],[24,'자정'],[25,'다음 날 새벽 1시'],[26,'다음 날 새벽 2시'],[27,'다음 날 새벽 3시'],[28,'다음 날 새벽 4시'],[29,'다음 날 새벽 5시']].forEach(function(o){b+='<option value="'+o[0]+'"'+(V.certHour===o[0]?' selected':'')+'>'+o[1]+'</option>';});
   b+='</select>';
   b+='</div>'+spSec()+pokeSec()+noticeSec(V)+periodSec(V)+'<div class="sec"><h3>사용법</h3><div class="row"><button class="btn small" data-act="open" data-modal="help">사용법 보기</button></div></div><div class="sec"><h3>키보드 단축키<small>키보드를 연결했을 때</small></h3><ul class="kbd">'+[['1 ~ 8','달력부터 메시지까지 화면 이동'],['N','할 일 추가'],['D','마감 있는 할 일 추가'],['L','달력, 할 일, 시간표 차례로 바꿔 보기'],['T','타이머 켜기, 끄기'],['F','타이머 크게 보기'],['Esc','창 닫기']].map(function(x){return '<li><kbd>'+x[0]+'</kbd><span>'+x[1]+'</span></li>';}).join('')+'</ul></div><div class="sec"><h3>저장 위치</h3><p class="hint">'+esc(S.net?({claude:'Claude 공유 저장소에 연결되어 있습니다. Claude에 로그인한 참여 인원끼리 실시간으로 같이 봅니다.',firebase:'공유 저장소에 연결되어 있습니다. 참여 코드로 들어온 사람 모두가 실시간으로 같이 봅니다.',local:'지금은 이 기기에만 저장됩니다. 다른 사람과 같이 보려면 공유 저장소 연결이 필요합니다.'}[S.net.mode]):'연결 중입니다.')+'</p>'+(S.net&&S.net.mode==='firebase'&&S.remote?'<div class="row" style="margin-top:10px"><button class="btn small" data-act="import-pick">기록 가져오기</button><button class="btn small" data-act="export-data">기록 파일로 저장</button><button class="del" data-act="setup-reset">'+(S.confirm==='disc'?'한 번 더 누르면 이 방에서 나갑니다':'이 기기에서 이 방 나가기')+'</button></div><p class="hint" style="margin-top:8px">'+esc(S.importMsg||'친구와 내 다른 기기는 위의 친구 초대하기로 들어옵니다. 기록 가져오기는 처음 연결한 뒤 한 번만 하면 됩니다.')+'</p>':'')+'</div>';
-  b+='<p class="hint appver">앱 버전 11월 6일 10:27</p>';
+  b+='<p class="hint appver">앱 버전 11월 6일 17:48</p>';
   return dlg('wide',{id:'settings',t:'설정'},b);
 }
 function modalCheck(V){
@@ -7808,6 +7856,7 @@ function modalHtml(V){
   if(t==='invite')return modalInvite(V);
   if(t==='a2hs')return modalA2HS(V);
   if(t==='help')return modalHelp(V);
+  if(t==='gorder')return modalGOrder(V);
   if(t==='lotnew'&&S.lot)return modalLotNew(V,inkOf(V));
   if(t==='lot')return modalLot(V);
   if(t==='gg')return modalGG(V);
@@ -8487,6 +8536,24 @@ function act(name,el){
     case 'month':{var md=+el.getAttribute('data-d')||0,mi=MONTHS.indexOf(S.month)+md;if(MONTHS[mi]){S.month=MONTHS[mi];S.vbDir=md>0?1:-1;}break;}
     case 'cal-mode':setCalMode(id==='list'||id==='tt'||id==='ev'?id:'cal');break;
     case 'al-week':{S.alFirst=null;S.alKey=null;var aw=+el.getAttribute('data-d')||0,ow=S.alWeek||wkStart(today());S.alWeek=alClamp(aw===0?wkStart(today()):addDays(ow,7*aw));S.vbDir=S.alWeek>ow?1:S.alWeek<ow?-1:0;if(S.alWeek===wkStart(today()))S.alFirst=innerWidth<700?today():null;break;}
+    case 'go-r':S.gord=S.gord||{};S.gord.r=el.getAttribute('data-v')||'next';break;
+    case 'go-left':S.gord=S.gord||{};S.gord.left=!S.gord.left;break;
+    case 'go-mv':{
+      var gV=view(),gdir=+el.getAttribute('data-v')||0;if(!gV.me||!need()||dayLocked(gV,date))break;
+      var gleft=S.gord&&S.gord.left;
+      editDay(date,function(d){
+        var vis=d.goals.map(function(x,i){return {x:x,i:i};}).filter(function(o){return o.x&&!o.x.mv&&!(gleft&&o.x.done);});
+        var p=-1;vis.forEach(function(o,j){if(o.x.id===id)p=j;});var q=p+gdir;if(p<0||q<0||q>=vis.length)return;
+        var a=vis[p].i,b=vis[q].i,tmp=d.goals[a];d.goals[a]=d.goals[b];d.goals[b]=tmp;
+      });
+      S.scrollAfter='go-'+date;break;
+    }
+    case 'go-sort':{
+      var gV2=view(),gk=el.getAttribute('data-k')==='done'?'done':'sub';if(!gV2.me||!need())break;
+      var gds=date==='all'?gordDays():[date],gn=0;
+      gds.forEach(function(d){if(dayLocked(gV2,d))return;var g0=dayOf(gV2,gV2.me,d).goals;if(g0.length<2)return;var g1=gordSort(gV2,g0,gk);if(g1.some(function(x,i){return x!==g0[i];})){gn++;editDay(d,function(dd){dd.goals=gordSort(gV2,dd.goals,gk);});}});
+      flash(gn?(gk==='sub'?'과목순으로 정리했습니다.':'끝낸 일을 아래로 내렸습니다.'):'이미 그 순서입니다.');break;
+    }
     case 'al-sort':lsSet('gbb_gsort',gSortOn()?null:'1');break;
     case 'al-left':S.alLeft=!S.alLeft;lsSet('gbb_alleft',S.alLeft?'1':null);break;
     case 'al-open':case 'al-goal':{

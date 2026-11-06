@@ -1,0 +1,15 @@
+/* v79: 할 일 순서 정리 창 */
+.gordr{margin-bottom:8px}
+.gorda{margin-bottom:10px}
+.gordd{margin:0 0 14px}
+.gordd.today .gordh b{color:var(--accent-ink)}
+.gordh{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:6px 2px;border-bottom:1px solid var(--line)}
+.gordh small{color:var(--ink-3)}
+.gordb{margin-left:auto;display:flex;gap:10px}
+.gordd ol{list-style:none;margin:6px 0 0;padding:0;display:grid;gap:4px}
+.gordi{display:grid;grid-template-columns:10px minmax(0,1fr) 40px 40px;align-items:center;gap:8px;padding:6px 8px;border-radius:10px;background:color-mix(in srgb,var(--sc) 10%,var(--surface))}
+.gordi .sdot{width:8px;height:8px;border-radius:50%;background:var(--sc)}
+.gordi.done .gordt{color:var(--ink-3);text-decoration:line-through}
+.gordt{min-width:0;overflow-wrap:anywhere}
+.gordt small{display:block;font-size:11px;color:var(--ink-3)}
+.gordi .ib.sm{width:40px;height:40px;font-size:16px}
