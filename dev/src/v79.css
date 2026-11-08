@@ -36,3 +36,13 @@ html.gdragging,html.gdragging *{cursor:grabbing !important;user-select:none;-web
 .ibsubs{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:8px}
 .ibsubs small{color:var(--ink-3)}
 .ibod{display:block;font-size:11px;color:var(--ink-3);font-weight:400}
+/* v82 모음 과목별 묶음 */
+.ibhead{gap:8px;flex-wrap:wrap}
+.ibview{display:flex;gap:4px;margin-left:auto}
+.ibview .chip{min-height:30px;padding:4px 10px;font-size:12px}
+.ibgrp{display:flex;align-items:center;gap:8px;padding:10px 4px 2px;font-size:13px;color:var(--ink-2)}
+.ibgrp:first-child{padding-top:2px}
+.ibgrp > i{width:10px;height:10px;border-radius:50%;background:var(--sc,var(--ink-4,#aaa));flex:none}
+.ibgrp small{color:var(--ink-3)}
+.ibgrp .linkbtn{margin-left:auto;border:0;background:none;padding:6px 4px;font:inherit;font-size:12px;font-weight:700;color:var(--accent-ink);cursor:pointer}
+.ibgrp ~ .ibrow .stag{display:none}
