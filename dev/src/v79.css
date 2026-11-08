@@ -30,3 +30,9 @@ html.gdragging,html.gdragging *{cursor:grabbing !important;user-select:none;-web
 .gselbar{position:sticky;top:-2px;z-index:2;display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding:8px;margin:0 0 10px;border-radius:12px;background:var(--accent-soft)}
 .gseld{display:flex;gap:6px;overflow-x:auto;max-width:100%}
 .gseld .chip{flex:none}
+/* v81: 거둬들이기·골고루 나누기 */
+.ibspread{display:grid;gap:6px;margin:10px 0 4px;padding:10px;border-radius:12px;background:var(--fill)}
+.ibspread .chips{display:flex;flex-wrap:wrap;gap:6px}
+.ibsubs{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:8px}
+.ibsubs small{color:var(--ink-3)}
+.ibod{display:block;font-size:11px;color:var(--ink-3);font-weight:400}
