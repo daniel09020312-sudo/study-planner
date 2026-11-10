@@ -46,6 +46,10 @@ html.gdragging,html.gdragging *{cursor:grabbing !important;user-select:none;-web
 .ibgrp small{color:var(--ink-3)}
 .ibgrp .linkbtn{margin-left:auto;border:0;background:none;padding:6px 4px;font:inherit;font-size:12px;font-weight:700;color:var(--accent-ink);cursor:pointer}
 .ibgrp ~ .ibrow .stag{display:none}
-/* v84 자습 표시 */
-.selfb{display:inline-flex;align-items:center;margin-left:6px;padding:1px 7px;border-radius:999px;background:color-mix(in srgb,var(--sc,var(--accent)) 16%,transparent);color:var(--ink-1,inherit);font-size:11px;font-weight:700;font-style:normal;letter-spacing:0;vertical-align:middle;white-space:nowrap}
-.usub .selfb{background:var(--fill)}
+/* v84 학교 시간표 자습 수업 */
+.sjb{display:inline-block;margin-left:4px;padding:0 6px;border-radius:999px;background:var(--accent-soft);color:var(--accent-ink);font-size:10px;font-weight:700;font-style:normal;line-height:16px;vertical-align:middle;white-space:nowrap}
+.schc .sjb{display:block;width:max-content;margin:2px auto 0}
+.schc.sj{background-image:none;box-shadow:inset 0 0 0 1.5px var(--accent-soft)}
+.ttsc.sj .tbt{opacity:.9}
+.schnow .sjx{background:var(--accent-soft);color:var(--accent-ink)}
+.sjlist{margin:10px 0 0}
