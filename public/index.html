@@ -3846,7 +3846,7 @@ function schCell(V,sch,dw,i){
   var c=obj(obj(sch.w[dw])['p'+i]),o=null;
   if(c.s&&V.subName[c.s])o={sid:c.s,name:V.subName[c.s]};
   else if(c.t)o={t:String(c.t),name:String(c.t)};
-  if(o){o.tc=String(c.tc||'').trim();o.r=String(c.r||'').trim();o.key=o.sid?'s:'+o.sid:'t:'+o.t;o.sj=!!obj(sch.sj)[sjKey(o.key)];}
+  if(o){o.tc=String(c.tc||'').trim();o.r=String(c.r||'').trim();o.key=o.sid?'s:'+o.sid:'t:'+o.t;o.sj=!!(obj(sch.sj)[sjKey(o.key)]||(o.tc&&obj(sch.sj)[sjKey(o.key+'|'+o.tc)]));}
   return o;
 }
 function schSame(a,b){return !!(a&&b&&a.key===b.key&&a.tc===b.tc&&a.r===b.r);}
@@ -3938,7 +3938,7 @@ function modalSchool(V){
     b+='</tr>';
   });
   b+='</tbody></table></div>';
-  var sjn={};schEach(V,sch,function(c){if(c.sj)sjn[c.name]=1;});if(Object.keys(sjn).length)b+='<p class="hint sjlist">자습 수업(진도 끝): '+Object.keys(sjn).map(esc).join(', ')+'</p>';
+  var sjn={};schEach(V,sch,function(c){if(c.sj)sjn[c.name+(c.tc&&schTeachers(V,sch,c.key).length>1&&!sch.sj[sjKey(c.key)]?' ('+c.tc+')':'')]=1;});if(Object.keys(sjn).length)b+='<p class="hint sjlist">자습 수업(진도 끝): '+Object.keys(sjn).map(esc).join(', ')+'</p>';
   if(mine&&sel){
     var cur=schCell(V,sch,sel.d,sel.i);
     b+='<div class="schpick" id="schPick"><h3>'+DOW[sel.d]+'요일 '+(sel.i+1)+'교시<small>'+fmtHM(sch.p[sel.i].s)+'~'+fmtHM(sch.p[sel.i].e)+'</small></h3><div class="chips">';
@@ -3953,7 +3953,7 @@ function modalSchool(V){
       if(cbs.length)b+='<div class="schcombo"><small>이 과목에서 쓴 것</small><div class="chips">'+cbs.slice(0,4).map(function(x){return '<button class="chip" data-act="sch-combo" data-tc="'+esc(x.tc)+'" data-r="'+esc(x.r)+'">'+esc([x.tc,x.r].filter(Boolean).join(' · '))+'</button>';}).join('')+'</div></div>';
       b+='<p class="hint" style="margin-top:8px">선생님이 둘인 과목은 칸마다 선생님을 적어 두세요.</p>';
     }
-    b+='<div class="row" style="margin-top:10px"><button class="btn small primary" data-act="sch-next">'+(sel.i+1<sch.p.length?'다음 칸':'끝')+'</button>'+(cur?'<button class="btn small'+(cur.sj?'':' soft')+'" data-act="sch-sj" aria-pressed="'+(cur.sj?'true':'false')+'">'+(cur.sj?'자습 표시 끄기':'진도 끝, 자습 수업')+'</button><button class="btn small" data-act="sch-clear">비우기</button>':'')+'</div></div>';
+    b+='<div class="row" style="margin-top:10px"><button class="btn small primary" data-act="sch-next">'+(sel.i+1<sch.p.length?'다음 칸':'끝')+'</button>'+(cur?'<button class="btn small'+(cur.sj?'':' soft')+'" data-act="sch-sj" aria-pressed="'+(cur.sj?'true':'false')+'">'+(cur.sj?'자습 표시 끄기':'진도 끝, 자습 수업')+(cur.tc&&schTeachers(V,sch,cur.key).length>1?' ('+esc(cur.tc)+')':'')+'</button><button class="btn small" data-act="sch-clear">비우기</button>':'')+'</div></div>';
   }else if(mine)b+='<p class="hint" style="margin-top:12px">칸을 누르고 과목을 고르세요. 선생님과 장소는 선택입니다.</p>';
   if(!mine&&sch.has)b+='<div class="row" style="margin-top:12px"><button class="btn small primary" data-act="sch-copy" data-id="'+esc(who)+'">'+(S.confirm==='schcopy:'+who?'한 번 더 누르면 내 시간표를 바꿉니다':'이 시간표를 내 걸로 가져오기')+'</button></div>';
   if(mine){
@@ -4593,7 +4593,7 @@ document.addEventListener('change',function(e){
 
 /* ---------- 처음 화면 ---------- */
 // 앱이 준비되면 알린다. 그림이 아직이면 다 그린 뒤에 열리고, 그림이 먼저 끝났으면 바로 열린다
-var APP_BUILD='1794272744';
+var APP_BUILD='1794273119';
 function splashDone(){
   var sp=document.getElementById('splash'),st=window.__sp;if(!sp||sp.getAttribute('data-out'))return;
   sp.setAttribute('data-out','1');
@@ -7985,7 +7985,7 @@ function modalSettings(V){
   [[22,'밤 10시'],[23,'밤 11시'],[24,'자정'],[25,'다음 날 새벽 1시'],[26,'다음 날 새벽 2시'],[27,'다음 날 새벽 3시'],[28,'다음 날 새벽 4시'],[29,'다음 날 새벽 5시']].forEach(function(o){b+='<option value="'+o[0]+'"'+(V.certHour===o[0]?' selected':'')+'>'+o[1]+'</option>';});
   b+='</select>';
   b+='</div>'+spSec()+pokeSec()+noticeSec(V)+periodSec(V)+'<div class="sec"><h3>사용법</h3><div class="row"><button class="btn small" data-act="open" data-modal="help">사용법 보기</button></div></div><div class="sec"><h3>키보드 단축키<small>키보드를 연결했을 때</small></h3><ul class="kbd">'+[['1 ~ 8','달력부터 메시지까지 화면 이동'],['N','할 일 추가'],['D','마감 있는 할 일 추가'],['L','달력, 할 일, 시간표 차례로 바꿔 보기'],['T','타이머 켜기, 끄기'],['F','타이머 크게 보기'],['Esc','창 닫기']].map(function(x){return '<li><kbd>'+x[0]+'</kbd><span>'+x[1]+'</span></li>';}).join('')+'</ul></div><div class="sec"><h3>저장 위치</h3><p class="hint">'+esc(S.net?({claude:'Claude 공유 저장소에 연결되어 있습니다. Claude에 로그인한 참여 인원끼리 실시간으로 같이 봅니다.',firebase:'공유 저장소에 연결되어 있습니다. 참여 코드로 들어온 사람 모두가 실시간으로 같이 봅니다.',local:'지금은 이 기기에만 저장됩니다. 다른 사람과 같이 보려면 공유 저장소 연결이 필요합니다.'}[S.net.mode]):'연결 중입니다.')+'</p>'+(S.net&&S.net.mode==='firebase'&&S.remote?'<div class="row" style="margin-top:10px"><button class="btn small" data-act="import-pick">기록 가져오기</button><button class="btn small" data-act="export-data">기록 파일로 저장</button><button class="del" data-act="setup-reset">'+(S.confirm==='disc'?'한 번 더 누르면 이 방에서 나갑니다':'이 기기에서 이 방 나가기')+'</button></div><p class="hint" style="margin-top:8px">'+esc(S.importMsg||'친구와 내 다른 기기는 위의 친구 초대하기로 들어옵니다. 기록 가져오기는 처음 연결한 뒤 한 번만 하면 됩니다.')+'</p>':'')+'</div>';
-  b+='<p class="hint appver">앱 버전 11월 10일 10:05</p>';
+  b+='<p class="hint appver">앱 버전 11월 10일 10:11</p>';
   return dlg('wide',{id:'settings',t:'설정'},b);
 }
 function modalCheck(V){
@@ -8836,7 +8836,7 @@ function act(name,el){
       schDraftSet(scs,ctc,cr);break;
     }
     case 'lock-toggle':{var lon=!lockOn();lsSet('gbb_lock',lon?'1':null);if(!lon)lockStop();else LK.want=true;break;}
-    case 'sch-sj':{var sjs=S.schSel;if(!sjs)break;var Vsj=view(),sjc=schCell(Vsj,schOf(Vsj,Vsj.me),sjs.d,sjs.i);if(!sjc)break;var sjk=sjKey(sjc.key),sjOn=!sjc.sj;editSch(function(s){s.sj=obj(s.sj);if(sjOn)s.sj[sjk]=today();else delete s.sj[sjk];});flash(sjOn?sjc.name+': 진도 끝, 모든 교시에 자습으로 표시했습니다.':sjc.name+': 자습 표시를 껐습니다.');break;}
+    case 'sch-sj':{var sjs=S.schSel;if(!sjs)break;var Vsj=view(),sjsch=schOf(Vsj,Vsj.me),sjc=schCell(Vsj,sjsch,sjs.d,sjs.i);if(!sjc)break;var sjT=schTeachers(Vsj,sjsch,sjc.key),sjBy=!!(sjc.tc&&sjT.length>1),sjOn=!sjc.sj,sjb=sjKey(sjc.key);editSch(function(s){s.sj=obj(s.sj);if(sjOn){s.sj[sjBy?sjKey(sjc.key+'|'+sjc.tc):sjb]=today();}else{var was=s.sj[sjb];delete s.sj[sjb];if(sjc.tc)delete s.sj[sjKey(sjc.key+'|'+sjc.tc)];if(was&&sjBy)sjT.forEach(function(t){if(t!==sjc.tc)s.sj[sjKey(sjc.key+'|'+t)]=was;});}});var sjNm=sjc.name+(sjBy?'('+sjc.tc+' 선생님)':'');flash(sjOn?sjNm+': 진도 끝, '+(sjBy?'이 선생님 수업에':'모든 교시에')+' 자습으로 표시했습니다.':sjNm+': 자습 표시를 껐습니다.');break;}
     case 'sch-clear':{var ssel2=S.schSel;if(!ssel2)break;editSch(function(s){var w=obj(s.w[ssel2.d]);delete w['p'+ssel2.i];s.w[ssel2.d]=w;});break;}
     case 'sch-times':S.schTimes=!S.schTimes;break;
     case 'sch-padd':editSch(function(s){var l=s.p[s.p.length-1]||{e:480};if(s.p.length<10)s.p.push({s:l.e+10,e:l.e+60});});break;
