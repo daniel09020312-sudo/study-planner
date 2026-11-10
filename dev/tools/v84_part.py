@@ -1,0 +1,10 @@
+# ---------------------------------------------------------------- v84: 진도 다 나가서 자습하는 과목 표시(사람마다 progress.<나>.self={<과목>:표시한 날}). 내 진도 카드 단추(self-tg), 모두의 진도에 자습 n명·사람별 '자습'
+sub("function progRows(V){", "function selfOf(V,mid){return obj(obj(V.progress[mid]).self);}\nfunction progRows(V){")
+sub("<small>'+(us.length?'단원 '+us.length+'개':'단원 없음')+'</small></h2>", "<small>'+(us.length?'단원 '+us.length+'개':'단원 없음')+'</small>'+(selfOf(V,V.me)[s.id]?'<em class=\"selfb\">자습</em>':'')+'</h2>")
+sub("'<button class=\"btn small\" data-act=\"skip\" data-id=\"'+esc(s.id)+'\">안 듣는 과목이면 빼기</button></div></section>';\n  });\n  if(off.length)",
+    "'<button class=\"btn small'+(selfOf(V,V.me)[s.id]?'':' soft')+'\" data-act=\"self-tg\" data-id=\"'+esc(s.id)+'\" aria-pressed=\"'+(selfOf(V,V.me)[s.id]?'true':'false')+'\">'+(selfOf(V,V.me)[s.id]?'자습 끝내기':'진도 다 나감(자습 중)')+'</button><button class=\"btn small\" data-act=\"skip\" data-id=\"'+esc(s.id)+'\">안 듣는 과목이면 빼기</button></div></section>';\n  });\n  if(off.length)")
+sub("per.push({m:m,pct:u.pct,us:us.length,full:full});", "per.push({m:m,pct:u.pct,us:us.length,full:full,self:!!selfOf(V,m.id)[s.id]});")
+sub("esc(s.name)+'</b><small>'+r.per.length+'명'+(r.skipN?', 제외 '+r.skipN+'명':'')+'</small>",
+    "esc(s.name)+(r.mine&&r.mine.self?'<em class=\"selfb\">자습</em>':'')+'</b><small>'+r.per.length+'명'+(r.skipN?', 제외 '+r.skipN+'명':'')+(r.per.filter(function(x){return x.self;}).length?', 자습 '+r.per.filter(function(x){return x.self;}).length+'명':'')+'</small>")
+sub("<span class=\"ppn\">'+esc(V.byId[x.m.id].name)+'</span>", "<span class=\"ppn\">'+esc(V.byId[x.m.id].name)+(x.self?'<em class=\"selfb\">자습</em>':'')+'</span>")
+sub("    case 'sub-lib':{", "    case 'self-tg':{var Vsf=view();if(!Vsf.subjects[id]||!need())break;var sfOn=!selfOf(Vsf,Vsf.me)[id];editProg(function(p){p.self=obj(p.self);if(sfOn)p.self[id]=today();else delete p.self[id];});flash(sfOn?Vsf.subName[id]+': 진도 다 나감, 자습 중으로 표시했습니다.':Vsf.subName[id]+': 자습 표시를 껐습니다.');break;}\n    case 'sub-lib':{")

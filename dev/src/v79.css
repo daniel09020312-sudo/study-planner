@@ -46,3 +46,6 @@ html.gdragging,html.gdragging *{cursor:grabbing !important;user-select:none;-web
 .ibgrp small{color:var(--ink-3)}
 .ibgrp .linkbtn{margin-left:auto;border:0;background:none;padding:6px 4px;font:inherit;font-size:12px;font-weight:700;color:var(--accent-ink);cursor:pointer}
 .ibgrp ~ .ibrow .stag{display:none}
+/* v84 자습 표시 */
+.selfb{display:inline-flex;align-items:center;margin-left:6px;padding:1px 7px;border-radius:999px;background:color-mix(in srgb,var(--sc,var(--accent)) 16%,transparent);color:var(--ink-1,inherit);font-size:11px;font-weight:700;font-style:normal;letter-spacing:0;vertical-align:middle;white-space:nowrap}
+.usub .selfb{background:var(--fill)}

@@ -2105,6 +2105,9 @@ html.gdragging,html.gdragging *{cursor:grabbing !important;user-select:none;-web
 .ibgrp small{color:var(--ink-3)}
 .ibgrp .linkbtn{margin-left:auto;border:0;background:none;padding:6px 4px;font:inherit;font-size:12px;font-weight:700;color:var(--accent-ink);cursor:pointer}
 .ibgrp ~ .ibrow .stag{display:none}
+/* v84 자습 표시 */
+.selfb{display:inline-flex;align-items:center;margin-left:6px;padding:1px 7px;border-radius:999px;background:color-mix(in srgb,var(--sc,var(--accent)) 16%,transparent);color:var(--ink-1,inherit);font-size:11px;font-weight:700;font-style:normal;letter-spacing:0;vertical-align:middle;white-space:nowrap}
+.usub .selfb{background:var(--fill)}
 #c-setup .row input{min-width:0}
 #c-setup .lb{margin-top:0}
 .serr{color:var(--red);margin-top:8px}
@@ -4455,11 +4458,11 @@ function viewProgMine(V){
   mine.forEach(function(s,k){
     if(isLib(V,s.id)){var lc=subCol(V,s.id);h+='<section class="card usub ulib" id="us-'+esc(s.id)+'" style="--k:'+Math.min(k+1,6)+';--sc:'+lc+';--fg:'+fgOn(lc)+'"><div class="ct"><h2><i class="sdot"></i>'+esc(s.name)+'<small>교양 과목, 시험 없음</small></h2></div><div class="row ufoot"><button class="btn small" data-act="skip" data-id="'+esc(s.id)+'">안 듣는 과목이면 빼기</button></div></section>';return;}
     var st=unitStat(V,V.me,s),us=st.us,edit=S.uEdit===s.id,col=subCol(V,s.id);
-    h+='<section class="card usub" id="us-'+esc(s.id)+'" style="--k:'+Math.min(k+1,6)+';--sc:'+col+';--fg:'+fgOn(col)+'"><div class="ct"><h2><i class="sdot"></i>'+esc(s.name)+'<small>'+(us.length?'단원 '+us.length+'개':'단원 없음')+'</small></h2><b class="upct">'+st.pct+'%</b></div><div class="ubar" aria-hidden="true"><i style="width:'+st.pct+'%"></i></div>';
+    h+='<section class="card usub" id="us-'+esc(s.id)+'" style="--k:'+Math.min(k+1,6)+';--sc:'+col+';--fg:'+fgOn(col)+'"><div class="ct"><h2><i class="sdot"></i>'+esc(s.name)+'<small>'+(us.length?'단원 '+us.length+'개':'단원 없음')+'</small>'+(selfOf(V,V.me)[s.id]?'<em class="selfb">자습</em>':'')+'</h2><b class="upct">'+st.pct+'%</b></div><div class="ubar" aria-hidden="true"><i style="width:'+st.pct+'%"></i></div>';
     if(us.length)us.forEach(function(u,i){h+=unitRow(V,s,u,ck,edit,i,us.length);});
     else h+=unitRow(V,s,null,ck,false,0,1)+'<p class="hint" style="margin-top:6px">아래에 단원을 적으면 단원마다 따로 표시할 수 있습니다.</p>';
     h+='<div class="uadd"><input type="text" data-draft="unit:'+esc(s.id)+'" data-enter="unit-add" data-id="'+esc(s.id)+'" maxlength="80" placeholder="예: 1. 지수와 로그, 2. 삼각함수" aria-label="'+esc(s.name)+' 단원 추가"><button class="btn small" data-act="unit-add" data-id="'+esc(s.id)+'">단원 추가</button></div>';
-    h+='<div class="row ufoot">'+(us.length?'<button class="btn small" data-act="unit-edit" data-id="'+esc(s.id)+'" aria-pressed="'+(edit?'true':'false')+'">'+(edit?'고치기 끝':'단원 순서, 삭제')+'</button>':'')+'<button class="btn small" data-act="skip" data-id="'+esc(s.id)+'">안 듣는 과목이면 빼기</button></div></section>';
+    h+='<div class="row ufoot">'+(us.length?'<button class="btn small" data-act="unit-edit" data-id="'+esc(s.id)+'" aria-pressed="'+(edit?'true':'false')+'">'+(edit?'고치기 끝':'단원 순서, 삭제')+'</button>':'')+'<button class="btn small'+(selfOf(V,V.me)[s.id]?'':' soft')+'" data-act="self-tg" data-id="'+esc(s.id)+'" aria-pressed="'+(selfOf(V,V.me)[s.id]?'true':'false')+'">'+(selfOf(V,V.me)[s.id]?'자습 끝내기':'진도 다 나감(자습 중)')+'</button><button class="btn small" data-act="skip" data-id="'+esc(s.id)+'">안 듣는 과목이면 빼기</button></div></section>';
   });
   if(off.length)h+='<section class="card" id="c-uoff" style="--k:6"><div class="ct"><h2>뺀 과목, 다른 사람 과목<small>눌러서 내 과목에 넣기</small></h2></div><div class="chips">'+off.map(function(s){return '<button class="chip" data-act="skip" data-id="'+esc(s.id)+'">'+esc(s.name)+' 다시 넣기</button>';}).join('')+'</div></section>';
   return h;
@@ -4487,6 +4490,7 @@ function itemMig(){
   editProg(function(p){if(p.ihide)kept.forEach(function(k){delete p.ihide[k];});});
   editCfg(function(c){c.migItems2=1;});
 }
+function selfOf(V,mid){return obj(obj(V.progress[mid]).self);}
 function progRows(V){
   return mySubs(V).filter(function(s){return !isLib(V,s.id);}).map(function(s){
     var per=[],skipN=0;
@@ -4494,7 +4498,7 @@ function progRows(V){
       if(skipOf(V,m.id)[s.id]){skipN++;return;}
       var u=unitStat(V,m.id,s),us=u.us,full=0,ck=obj(obj(V.progress[m.id]).checks);
       var sit=subFor(V,m.id,s).items;us.forEach(function(x){if(sit.length&&sit.every(function(it){return ck[s.id+'__'+x.id+'__'+it.id];}))full++;});
-      per.push({m:m,pct:u.pct,us:us.length,full:full});
+      per.push({m:m,pct:u.pct,us:us.length,full:full,self:!!selfOf(V,m.id)[s.id]});
     });
     var avg=per.length?Math.round(per.reduce(function(a,x){return a+x.pct;},0)/per.length):0,mine=per.filter(function(x){return x.m.id===V.me;})[0];
     return {s:s,per:per,avg:avg,mine:mine,skipN:skipN};
@@ -4514,14 +4518,14 @@ function viewProgAll(V){
     r.per.forEach(function(x){bins[Math.min(4,Math.floor(x.pct/20))]++;});
     var bm=Math.max.apply(null,bins.concat([1]));
     h+='<div class="prow'+(open?' open':'')+'" id="pr-'+esc(s.id)+'" style="--sc:'+col+'"><button class="phead" data-act="prog-toggle" data-id="'+esc(s.id)+'" aria-expanded="'+(open?'true':'false')+'">';
-    h+='<span class="pnm"><i class="sdot"></i><b>'+esc(s.name)+'</b><small>'+r.per.length+'명'+(r.skipN?', 제외 '+r.skipN+'명':'')+'</small></span>';
+    h+='<span class="pnm"><i class="sdot"></i><b>'+esc(s.name)+(r.mine&&r.mine.self?'<em class="selfb">자습</em>':'')+'</b><small>'+r.per.length+'명'+(r.skipN?', 제외 '+r.skipN+'명':'')+(r.per.filter(function(x){return x.self;}).length?', 자습 '+r.per.filter(function(x){return x.self;}).length+'명':'')+'</small></span>';
     h+='<span class="pmid"><span class="pbar" aria-hidden="true"><i style="width:'+r.avg+'%"></i>'+(r.mine?'<u style="left:'+r.mine.pct+'%"></u>':'')+'</span><span class="pnums"><em>반 평균 <b>'+r.avg+'%</b></em>'+(r.mine?'<em class="me">나 <b>'+r.mine.pct+'%</b></em>':'<em class="me">나 제외</em>')+'</span></span>';
     h+='<span class="pdist" aria-label="진도 분포">'+bins.map(function(n,i){return '<i style="--h:'+Math.round(n/bm*100)+'%" title="'+(i*20)+'~'+(i*20+19)+'%: '+n+'명"></i>';}).join('')+'</span><i class="pchev" aria-hidden="true"></i></button>';
     if(open){
       h+='<div class="pppl" id="pp-'+esc(s.id)+'">';
       r.per.slice().sort(function(a,b){return b.pct-a.pct;}).forEach(function(x,i){
         var me=x.m.id===V.me;
-        h+='<div class="pp'+(me?' me':'')+'"><span class="ppr">'+(i+1)+'</span><span class="ppn">'+esc(V.byId[x.m.id].name)+'</span><span class="pbar sm" aria-hidden="true"><i style="width:'+x.pct+'%"></i></span><b>'+x.pct+'%</b><small>'+(x.us?'단원 '+x.full+'/'+x.us:'단원 없음')+'</small></div>';
+        h+='<div class="pp'+(me?' me':'')+'"><span class="ppr">'+(i+1)+'</span><span class="ppn">'+esc(V.byId[x.m.id].name)+(x.self?'<em class="selfb">자습</em>':'')+'</span><span class="pbar sm" aria-hidden="true"><i style="width:'+x.pct+'%"></i></span><b>'+x.pct+'%</b><small>'+(x.us?'단원 '+x.full+'/'+x.us:'단원 없음')+'</small></div>';
       });
       h+='</div>';
     }
@@ -4584,7 +4588,7 @@ document.addEventListener('change',function(e){
 
 /* ---------- 처음 화면 ---------- */
 // 앱이 준비되면 알린다. 그림이 아직이면 다 그린 뒤에 열리고, 그림이 먼저 끝났으면 바로 열린다
-var APP_BUILD='1794202525';
+var APP_BUILD='1794272189';
 function splashDone(){
   var sp=document.getElementById('splash'),st=window.__sp;if(!sp||sp.getAttribute('data-out'))return;
   sp.setAttribute('data-out','1');
@@ -7976,7 +7980,7 @@ function modalSettings(V){
   [[22,'밤 10시'],[23,'밤 11시'],[24,'자정'],[25,'다음 날 새벽 1시'],[26,'다음 날 새벽 2시'],[27,'다음 날 새벽 3시'],[28,'다음 날 새벽 4시'],[29,'다음 날 새벽 5시']].forEach(function(o){b+='<option value="'+o[0]+'"'+(V.certHour===o[0]?' selected':'')+'>'+o[1]+'</option>';});
   b+='</select>';
   b+='</div>'+spSec()+pokeSec()+noticeSec(V)+periodSec(V)+'<div class="sec"><h3>사용법</h3><div class="row"><button class="btn small" data-act="open" data-modal="help">사용법 보기</button></div></div><div class="sec"><h3>키보드 단축키<small>키보드를 연결했을 때</small></h3><ul class="kbd">'+[['1 ~ 8','달력부터 메시지까지 화면 이동'],['N','할 일 추가'],['D','마감 있는 할 일 추가'],['L','달력, 할 일, 시간표 차례로 바꿔 보기'],['T','타이머 켜기, 끄기'],['F','타이머 크게 보기'],['Esc','창 닫기']].map(function(x){return '<li><kbd>'+x[0]+'</kbd><span>'+x[1]+'</span></li>';}).join('')+'</ul></div><div class="sec"><h3>저장 위치</h3><p class="hint">'+esc(S.net?({claude:'Claude 공유 저장소에 연결되어 있습니다. Claude에 로그인한 참여 인원끼리 실시간으로 같이 봅니다.',firebase:'공유 저장소에 연결되어 있습니다. 참여 코드로 들어온 사람 모두가 실시간으로 같이 봅니다.',local:'지금은 이 기기에만 저장됩니다. 다른 사람과 같이 보려면 공유 저장소 연결이 필요합니다.'}[S.net.mode]):'연결 중입니다.')+'</p>'+(S.net&&S.net.mode==='firebase'&&S.remote?'<div class="row" style="margin-top:10px"><button class="btn small" data-act="import-pick">기록 가져오기</button><button class="btn small" data-act="export-data">기록 파일로 저장</button><button class="del" data-act="setup-reset">'+(S.confirm==='disc'?'한 번 더 누르면 이 방에서 나갑니다':'이 기기에서 이 방 나가기')+'</button></div><p class="hint" style="margin-top:8px">'+esc(S.importMsg||'친구와 내 다른 기기는 위의 친구 초대하기로 들어옵니다. 기록 가져오기는 처음 연결한 뒤 한 번만 하면 됩니다.')+'</p>':'')+'</div>';
-  b+='<p class="hint appver">앱 버전 11월 9일 14:35</p>';
+  b+='<p class="hint appver">앱 버전 11월 10일 09:56</p>';
   return dlg('wide',{id:'settings',t:'설정'},b);
 }
 function modalCheck(V){
@@ -9410,6 +9414,7 @@ function act(name,el){
       if(add.length||Object.keys(del).length)editSub(id,function(s){s.items=s.items.filter(function(it){return it&&!del[it.id];}).concat(add);});
       flash(jos(sir.name,'은','는')+' 기본 항목만 남겼습니다. 친구들 항목은 그대로입니다.');break;
     }
+    case 'self-tg':{var Vsf=view();if(!Vsf.subjects[id]||!need())break;var sfOn=!selfOf(Vsf,Vsf.me)[id];editProg(function(p){p.self=obj(p.self);if(sfOn)p.self[id]=today();else delete p.self[id];});flash(sfOn?Vsf.subName[id]+': 진도 다 나감, 자습 중으로 표시했습니다.':Vsf.subName[id]+': 자습 표시를 껐습니다.');break;}
     case 'sub-lib':{var Vlb=view();if(!Vlb.subjects[id]||!need())break;var lbOn=!isLib(Vlb,id);editSub(id,function(s){s.lib=lbOn;});flash(lbOn?'교양 과목으로 바꿨습니다. 진도 없이 이름만 보입니다.':'시험 보는 과목으로 바꿨습니다.');break;}
     case 'item-del':{var iid=el.getAttribute('data-item'),Vid=view(),sid0=Vid.subById[id],it0=sid0&&(sid0.all||[]).filter(function(it){return it.id===iid;})[0];if(it0&&it0.by&&it0.by===Vid.me)editSub(id,function(s){s.items=s.items.filter(function(it){return it&&it.id!==iid;});});else if(Vid.me)editProg(function(p){p.ihide=obj(p.ihide);p.ihide[id+'__'+iid]=true;});break;}
     case 'sub-add':{
