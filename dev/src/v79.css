@@ -59,3 +59,7 @@ html.gdragging,html.gdragging *{cursor:grabbing !important;user-select:none;-web
 .ibrow .ibpick{padding-left:2px}
 .ibrow.gdover{box-shadow:inset 0 3px 0 var(--accent)}
 .ibrow.gdafter{box-shadow:inset 0 -3px 0 var(--accent)}
+/* v86 모음 적기 칸 늘 보이게 */
+#dlg-inbox .ibadd{position:sticky;top:-4px;z-index:3;background:var(--surface);padding:6px 0 10px;margin:-4px 0 8px;box-shadow:0 6px 8px -8px rgba(0,0,0,.25)}
+.ibgrp .ibgadd{margin-left:6px}
+.ibgrp .linkbtn:first-of-type{margin-left:auto}
