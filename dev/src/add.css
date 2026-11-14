@@ -1047,3 +1047,12 @@ html.alsnap #wkScroll *{transition:none !important;animation:none !important}
 .sdock.sp .sdf iframe{height:152px}
 .sdock.min .sdf{height:1px;overflow:hidden;opacity:0}
 @media (max-width:699px){.sdock{right:10px;left:10px;width:auto;bottom:calc(76px + env(safe-area-inset-bottom,0px))}}
+/* v91 노동요 해시태그 */
+.sfilter{display:flex;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+.sfilter::-webkit-scrollbar{display:none}
+.sfilter .chip{flex:0 0 auto}
+.sfilter .chip small{font-size:11px;opacity:.7;margin-left:2px}
+.stg{color:var(--accent-ink)}
+.stedit{margin-top:8px;gap:5px}
+.stedit .chip{min-height:30px;padding:3px 10px;font-size:12px}
+.songnew .chips .chip{min-height:32px;padding:3px 11px;font-size:13px}

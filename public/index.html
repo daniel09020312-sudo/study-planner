@@ -1571,6 +1571,15 @@ html.alsnap #wkScroll *{transition:none !important;animation:none !important}
 .sdock.sp .sdf iframe{height:152px}
 .sdock.min .sdf{height:1px;overflow:hidden;opacity:0}
 @media (max-width:699px){.sdock{right:10px;left:10px;width:auto;bottom:calc(76px + env(safe-area-inset-bottom,0px))}}
+/* v91 노동요 해시태그 */
+.sfilter{display:flex;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+.sfilter::-webkit-scrollbar{display:none}
+.sfilter .chip{flex:0 0 auto}
+.sfilter .chip small{font-size:11px;opacity:.7;margin-left:2px}
+.stg{color:var(--accent-ink)}
+.stedit{margin-top:8px;gap:5px}
+.stedit .chip{min-height:30px;padding:3px 10px;font-size:12px}
+.songnew .chips .chip{min-height:32px;padding:3px 11px;font-size:13px}
 #splash{position:fixed;inset:0;z-index:200;overflow:hidden;-webkit-tap-highlight-color:transparent}
 .spcv{position:absolute;inset:0;display:block;width:100%;height:100%;overflow:visible}
 .spcur,.sphole{fill:var(--bg)}
@@ -4689,7 +4698,7 @@ document.addEventListener('change',function(e){
 
 /* ---------- 처음 화면 ---------- */
 // 앱이 준비되면 알린다. 그림이 아직이면 다 그린 뒤에 열리고, 그림이 먼저 끝났으면 바로 열린다
-var APP_BUILD='1794667978';
+var APP_BUILD='1794668182';
 function splashDone(){
   var sp=document.getElementById('splash'),st=window.__sp;if(!sp||sp.getAttribute('data-out'))return;
   sp.setAttribute('data-out','1');
@@ -7867,7 +7876,10 @@ function notesHtml(V){
 
 /* ---------- 노동요 ---------- */
 function host(u){try{return new URL(u).hostname.replace(/^www\./,'');}catch(e){return '';}}
-var MOODS=['집중','잔잔한','신나는','가사 없음','잠 깰 때'];
+var MOODS=['집중','잔잔한','신나는','가사 없음','잠 깰 때','새벽','아침','비 오는 날','암기할 때','문제 풀 때','시험 직전','쉬는 시간','로파이','피아노','클래식','재즈','K-팝','팝송','OST','자연 소리','백색소음'];
+var SONG_TAG_MAX=3;
+function songTags(x){var o={},out=[];if(x&&x.mood)o[x.mood]=1;var t=obj(x&&x.tags);for(var k in t)if(t[k])o[k]=1;MOODS.forEach(function(m){if(o[m]){out.push(m);delete o[m];}});return out.concat(Object.keys(o));}
+function songMoodSel(){var s=obj(S.songMoods);return MOODS.filter(function(m){return s[m];});}
 var PLATFORMS=[['music.youtube.com','유튜브 뮤직'],['youtube.com','유튜브'],['youtu.be','유튜브'],['melon.com','멜론'],['spotify.com','스포티파이'],['music.apple.com','애플 뮤직'],['genie.co.kr','지니'],['music-flo.com','플로'],['bugs.co.kr','벅스'],['vibe.naver.com','바이브'],['soundcloud.com','사운드클라우드']];
 function platformOf(u){
   var h=host(u);if(!h)return '';
@@ -7891,15 +7903,15 @@ function songsCard(V,k){
     if(n)(hear[n]=hear[n]||[]).push(m.id===V.me?'나':shortName(V.byId[m.id].name));
   });
   var all=Object.keys(V.songs).map(function(id){return Object.assign({id:id},obj(V.songs[id]));}).filter(function(x){return x.title;}).sort(function(a,b){return (likes[b.id]||0)-(likes[a.id]||0)||(+b.at||0)-(+a.at||0);});
-  var moods=MOODS.filter(function(m){return all.some(function(x){return x.mood===m;});}),f=moods.indexOf(S.songFilter)>=0?S.songFilter:'';
-  var list=songSorted(V,f?all.filter(function(x){return x.mood===f;}):all,likes),pls=songPlays(V),top=all.length&&likes[all[0].id]?all[0].id:null,rolling=S.songRoll&&!S.songRoll.done;
+  var tcnt={};all.forEach(function(x){songTags(x).forEach(function(m){tcnt[m]=(tcnt[m]||0)+1;});});var moods=MOODS.filter(function(m){return tcnt[m];}),f=moods.indexOf(S.songFilter)>=0?S.songFilter:'';
+  var list=songSorted(V,f?all.filter(function(x){return songTags(x).indexOf(f)>=0;}):all,likes),pls=songPlays(V),top=all.length&&likes[all[0].id]?all[0].id:null,rolling=S.songRoll&&!S.songRoll.done;
   S._songIds=list.map(function(x){return x.id;});
   var h='<section class="card" id="c-songs" style="--k:'+k+'"><div class="ct"><h2>노동요<small>'+all.length+'곡</small></h2>'+(list.length>1?'<button class="btn small soft" data-act="song-roll"'+(rolling?' disabled':'')+'>'+(rolling?'고르는 중':'아무거나 골라줘')+'</button>':'')+'</div>';
   h+='<div class="songform" id="songform"><input type="text" id="songIn" data-draft="songIn" data-live="1" data-enter="song-add" maxlength="360" placeholder="음악 이름" aria-label="음악 이름"><div class="row"><input type="text" id="songUrl" data-draft="songUrl" data-live="1" data-enter="song-add" maxlength="300" inputmode="url" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="링크 붙여넣기 (없어도 됩니다)" aria-label="링크"><button class="btn primary" id="songAdd" data-act="song-add"'+(pv&&pv.title&&!pv.bad?'':' disabled')+'>올리기</button></div>';
   if(pv&&pv.bad)h+='<div class="songnew" id="songNew"><p class="hint">링크 칸에는 주소를 통째로 붙여넣어 주세요. 예: https://youtu.be/...</p></div>';
-  else if(pv&&pv.title)h+='<div class="songnew" id="songNew"><p class="hint">'+(pv.auto?'이름 없이 <b>'+esc(pv.title)+'</b>(으)로 올라갑니다. 이름을 같이 적으면 알아보기 쉽습니다. ':pv.url?'올리면 <b>'+esc(pv.title)+'</b> 이름을 눌러 '+esc(platformOf(pv.url))+(isPlaylist(pv.url)?' 플레이리스트':' 링크')+'로 이동할 수 있습니다. ':'링크도 넣으면 이름을 눌러 바로 이동할 수 있습니다. ')+'언제 듣기 좋은지도 골라보세요.</p><div class="chips">'+MOODS.map(function(m){return '<button class="chip" data-act="song-mood" data-id="'+m+'" aria-pressed="'+(S.songMood===m?'true':'false')+'">'+m+'</button>';}).join('')+'</div><input type="text" class="snotein" data-draft="songNote" maxlength="60" placeholder="한마디 (선택, 예: 수학 풀 때 최고)" aria-label="한마디"></div>';
+  else if(pv&&pv.title)h+='<div class="songnew" id="songNew"><p class="hint">'+(pv.auto?'이름 없이 <b>'+esc(pv.title)+'</b>(으)로 올라갑니다. 이름을 같이 적으면 알아보기 쉽습니다. ':pv.url?'올리면 <b>'+esc(pv.title)+'</b> 이름을 눌러 '+esc(platformOf(pv.url))+(isPlaylist(pv.url)?' 플레이리스트':' 링크')+'로 이동할 수 있습니다. ':'링크도 넣으면 이름을 눌러 바로 이동할 수 있습니다. ')+'언제 듣기 좋은지도 골라보세요.</p><div class="chips">'+MOODS.map(function(m){return '<button class="chip" data-act="song-mood" data-id="'+m+'" aria-pressed="'+(obj(S.songMoods)[m]?'true':'false')+'">#'+m+'</button>';}).join('')+'</div><input type="text" class="snotein" data-draft="songNote" maxlength="60" placeholder="한마디 (선택, 예: 수학 풀 때 최고)" aria-label="한마디"></div>';
   h+='</div>';
-  if(moods.length&&all.length>1&&!pv)h+='<div class="chips sfilter" id="songFilter" role="group" aria-label="분위기로 고르기">'+[''].concat(moods).map(function(m){return '<button class="chip" data-act="song-filter" data-id="'+m+'" aria-pressed="'+(f===m?'true':'false')+'">'+(m||'전체')+'</button>';}).join('')+'</div>';
+  if(moods.length&&all.length>1&&!pv)h+='<div class="chips sfilter" id="songFilter" role="group" aria-label="해시태그로 고르기">'+[''].concat(moods).map(function(m){return '<button class="chip" data-act="song-filter" data-id="'+m+'" aria-pressed="'+(f===m?'true':'false')+'">'+(m?'#'+m+' <small>'+tcnt[m]+'</small>':'전체 <small>'+all.length+'</small>')+'</button>';}).join('')+'</div>';
   if(!pv)h+=songTools(V,all.length);
   if(all.length&&!list.length)h+='<p class="empty">'+(S.songSort==='mine'&&!String(S.draft.songQ||'').trim()?'아직 좋아요를 누른 곡이 없습니다.':'찾는 곡이 없습니다.')+'</p>';
   if(!all.length)h+='<p class="empty">공부할 때 듣는 음악을 올려보세요. 이름과 링크를 같이 넣으면 이름을 눌러 바로 이동할 수 있습니다.</p>';
@@ -7907,12 +7919,13 @@ function songsCard(V,k){
     var w=V.byId[x.mid],ok=/^https?:\/\//i.test(x.url||''),n=likes[x.id]||0,hs=hear[x.id]||[],on=myNow===x.id,roll=S.songRoll&&S.songRoll.id===x.id;
     h+='<div class="song'+(roll?' pick':'')+'" id="sg-'+esc(x.id)+'"><div class="sinfo">';
     h+=ok?'<a class="st" href="'+esc(x.url)+'" target="_blank" rel="noopener noreferrer" data-act="song-open" data-id="'+esc(x.id)+'">'+esc(x.title)+'</a>':'<button class="st" data-act="song-now" data-id="'+esc(x.id)+'" aria-pressed="'+(on?'true':'false')+'">'+esc(x.title)+'</button>';
-    h+='<div class="smeta">'+(roll&&S.songRoll.done?'<em class="tag a">오늘은 이 곡</em>':'')+(top===x.id?'<em class="tag a">좋아요 1위</em>':'')+(Date.now()-(+x.at||0)<3*86400000?'<em class="tag snew">새 곡</em>':'')+(x.mood?'<em class="tag">'+esc(x.mood)+'</em>':'')+(ok&&isPlaylist(x.url)?'<em class="tag">플레이리스트</em>':'')+'<small>'+(ok?esc(platformOf(x.url))+', ':'')+esc(w?w.name:'나간 인원')+(pls[x.id]?', '+pls[x.id]+'번 들음':'')+'</small></div>';
+    h+='<div class="smeta">'+(roll&&S.songRoll.done?'<em class="tag a">오늘은 이 곡</em>':'')+(top===x.id?'<em class="tag a">좋아요 1위</em>':'')+(Date.now()-(+x.at||0)<3*86400000?'<em class="tag snew">새 곡</em>':'')+songTags(x).map(function(m){return '<em class="tag stg">#'+esc(m)+'</em>';}).join('')+(ok&&isPlaylist(x.url)?'<em class="tag">플레이리스트</em>':'')+'<small>'+(ok?esc(platformOf(x.url))+', ':'')+esc(w?w.name:'나간 인원')+(pls[x.id]?', '+pls[x.id]+'번 들음':'')+'</small></div>';
     if(x.note)h+='<p class="snote">'+esc(x.note)+'</p>';
+    if(S.songTagEdit===x.id&&x.mid===V.me){var xt=songTags(x);h+='<div class="chips stedit">'+MOODS.map(function(m){return '<button class="chip" data-act="song-tagset" data-id="'+esc(x.id)+'" data-v="'+esc(m)+'" aria-pressed="'+(xt.indexOf(m)>=0?'true':'false')+'">#'+esc(m)+'</button>';}).join('')+'<button class="btn small" data-act="song-tagedit" data-id="'+esc(x.id)+'">다 했어요</button></div>';}
     if(hs.length)h+='<div class="snow"><span>듣는 중: '+esc(hs.join(', '))+'</span>'+(on?'<button class="del" data-act="song-stop">그만 듣기</button>':'')+'</div>';
     if(S.songShow[x.id]&&ok)h+='<small class="url">'+esc(x.url)+'</small>';
     var emb=ok?songEmbed(x.url):null;
-    h+='</div><div class="acts">'+(emb?'<button class="btn small soft" data-act="song-play" data-id="'+esc(x.id)+'" aria-pressed="'+(S.songPlay===x.id?'true':'false')+'">'+(S.songPlay===x.id?'플레이어 닫기':'여기서 듣기')+'</button>':'')+'<button class="btn small'+(mine[x.id]?' soft':'')+'" data-act="song-like" data-id="'+esc(x.id)+'" aria-pressed="'+(mine[x.id]?'true':'false')+'">좋아요 '+n+'</button>'+(ok?'<button class="del" data-act="song-copy" data-id="'+esc(x.id)+'">링크 복사</button>':'')+(x.mid===V.me?'<button class="del" data-act="song-del" data-id="'+esc(x.id)+'">'+(S.confirm==='song:'+x.id?'한 번 더':'삭제')+'</button>':'')+'</div></div>';
+    h+='</div><div class="acts">'+(emb?'<button class="btn small soft" data-act="song-play" data-id="'+esc(x.id)+'" aria-pressed="'+(S.songPlay===x.id?'true':'false')+'">'+(S.songPlay===x.id?'플레이어 닫기':'여기서 듣기')+'</button>':'')+'<button class="btn small'+(mine[x.id]?' soft':'')+'" data-act="song-like" data-id="'+esc(x.id)+'" aria-pressed="'+(mine[x.id]?'true':'false')+'">좋아요 '+n+'</button>'+(ok?'<button class="del" data-act="song-copy" data-id="'+esc(x.id)+'">링크 복사</button>':'')+(x.mid===V.me?'<button class="del" data-act="song-tagedit" data-id="'+esc(x.id)+'">태그</button>':'')+(x.mid===V.me?'<button class="del" data-act="song-del" data-id="'+esc(x.id)+'">'+(S.confirm==='song:'+x.id?'한 번 더':'삭제')+'</button>':'')+'</div></div>';
   });
   if(all.length)h+='<p class="hint" style="margin-top:10px">이름을 누르면 링크로 이동하고, 내가 듣는 중으로 표시됩니다.</p>';
   return h+'</section>';
@@ -8271,7 +8284,7 @@ function modalSettings(V){
   [[22,'밤 10시'],[23,'밤 11시'],[24,'자정'],[25,'다음 날 새벽 1시'],[26,'다음 날 새벽 2시'],[27,'다음 날 새벽 3시'],[28,'다음 날 새벽 4시'],[29,'다음 날 새벽 5시']].forEach(function(o){b+='<option value="'+o[0]+'"'+(V.certHour===o[0]?' selected':'')+'>'+o[1]+'</option>';});
   b+='</select>';
   b+='</div>'+spSec()+pokeSec()+noticeSec(V)+periodSec(V)+'<div class="sec"><h3>사용법</h3><div class="row"><button class="btn small" data-act="open" data-modal="help">사용법 보기</button></div></div><div class="sec"><h3>키보드 단축키<small>키보드를 연결했을 때</small></h3><ul class="kbd">'+[['1 ~ 8','달력부터 메시지까지 화면 이동'],['N','할 일 추가'],['D','마감 있는 할 일 추가'],['L','달력, 할 일, 시간표 차례로 바꿔 보기'],['T','타이머 켜기, 끄기'],['F','타이머 크게 보기'],['Esc','창 닫기']].map(function(x){return '<li><kbd>'+x[0]+'</kbd><span>'+x[1]+'</span></li>';}).join('')+'</ul></div><div class="sec"><h3>저장 위치</h3><p class="hint">'+esc(S.net?({claude:'Claude 공유 저장소에 연결되어 있습니다. Claude에 로그인한 참여 인원끼리 실시간으로 같이 봅니다.',firebase:'공유 저장소에 연결되어 있습니다. 참여 코드로 들어온 사람 모두가 실시간으로 같이 봅니다.',local:'지금은 이 기기에만 저장됩니다. 다른 사람과 같이 보려면 공유 저장소 연결이 필요합니다.'}[S.net.mode]):'연결 중입니다.')+'</p>'+(S.net&&S.net.mode==='firebase'&&S.remote?'<div class="row" style="margin-top:10px"><button class="btn small" data-act="import-pick">기록 가져오기</button><button class="btn small" data-act="export-data">기록 파일로 저장</button><button class="del" data-act="setup-reset">'+(S.confirm==='disc'?'한 번 더 누르면 이 방에서 나갑니다':'이 기기에서 이 방 나가기')+'</button></div><p class="hint" style="margin-top:8px">'+esc(S.importMsg||'친구와 내 다른 기기는 위의 친구 초대하기로 들어옵니다. 기록 가져오기는 처음 연결한 뒤 한 번만 하면 됩니다.')+'</p>':'')+'</div>';
-  b+='<p class="hint appver">앱 버전 11월 14일 23:52</p>';
+  b+='<p class="hint appver">앱 버전 11월 14일 23:56</p>';
   return dlg('wide',{id:'settings',t:'설정'},b);
 }
 function modalCheck(V){
@@ -8850,7 +8863,9 @@ function act(name,el){
       flash(dx.a===Vx.me?'대결 신청을 취소했습니다. 보낸 신청 메시지도 지웠습니다.':'대결을 거절했습니다. 신청 메시지도 지웠습니다.');
       break;
     }
-    case 'song-mood':S.songMood=S.songMood===id?'':id;break;
+    case 'song-mood':{S.songMoods=obj(S.songMoods);if(S.songMoods[id])delete S.songMoods[id];else{if(songMoodSel().length>=SONG_TAG_MAX){flash('태그는 '+SONG_TAG_MAX+'개까지 고를 수 있습니다.');break;}S.songMoods[id]=1;}S.songMood=songMoodSel()[0]||'';break;}
+    case 'song-tagedit':S.songTagEdit=S.songTagEdit===id?null:id;break;
+    case 'song-tagset':{var Vt=view(),so=obj(Vt.songs[id]),tv=el.getAttribute('data-v');if(!so.title||so.mid!==Vt.me||!need())break;var cur=songTags(so),on=cur.indexOf(tv)<0;if(on&&cur.length>=SONG_TAG_MAX){flash('태그는 '+SONG_TAG_MAX+'개까지 고를 수 있습니다.');break;}cur=on?cur.concat([tv]):cur.filter(function(m){return m!==tv;});var ns=clone(so);ns.mood=cur[0]||'';ns.tags={};cur.forEach(function(m){ns.tags[m]=1;});if(!cur.length)delete ns.tags;save('songs/'+id,ns);break;}
     case 'song-filter':S.songFilter=id;S.songRoll=null;break;
     case 'song-roll':rollSong();return;
     case 'song-open':setTimeout(function(){songListen(id);render();},60);return;
@@ -8867,8 +8882,8 @@ function act(name,el){
       if(!ps.title)break;
       var Vs=view();if(!Vs.me||!need())break;
       if(Object.keys(Vs.songs).length>=60){flash('노동요는 60곡까지 올릴 수 있습니다. 안 듣는 곡을 지운 뒤 올려주세요.');break;}
-      save('songs/'+rid('n'),{mid:Vs.me,title:ps.title,url:ps.url,mood:MOODS.indexOf(S.songMood)>=0?S.songMood:'',note:String(S.draft.songNote||'').trim().slice(0,60),at:Date.now()});
-      S.draft.songNote='';S.draft.songIn='';S.draft.songUrl='';S.songMood='';S.songFilter='';break;
+      save('songs/'+rid('n'),{mid:Vs.me,title:ps.title,url:ps.url,mood:songMoodSel()[0]||'',tags:(function(){var o={};songMoodSel().forEach(function(m){o[m]=1;});return o;})(),note:String(S.draft.songNote||'').trim().slice(0,60),at:Date.now()});
+      S.draft.songNote='';S.draft.songIn='';S.draft.songUrl='';S.songMood='';S.songMoods={};S.songFilter='';break;
     }
     case 'song-del':if(prev==='song:'+id){if(need())save('songs/'+id,null);}else S.confirm='song:'+id;break;
     case 'song-like':editProg(function(p){p.liked=obj(p.liked);if(p.liked[id])delete p.liked[id];else p.liked[id]=true;});break;

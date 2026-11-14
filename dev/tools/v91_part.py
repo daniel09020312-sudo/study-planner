@@ -1,0 +1,18 @@
+# ---------------------------------------------------------------- v91: 노동요 해시태그 늘리기. MOODS 확장, 곡마다 여러 태그(songs.tags={태그:1}, mood는 첫 태그), 올릴 때 여러 개 고르기(S.songMoods, 3개까지), 올린 사람은 '태그' 고치기(S.songTagEdit), 거르기 칩에 #과 곡 수
+sub("var MOODS=['집중','잔잔한','신나는','가사 없음','잠 깰 때'];", r"""var MOODS=['집중','잔잔한','신나는','가사 없음','잠 깰 때','새벽','아침','비 오는 날','암기할 때','문제 풀 때','시험 직전','쉬는 시간','로파이','피아노','클래식','재즈','K-팝','팝송','OST','자연 소리','백색소음'];
+var SONG_TAG_MAX=3;
+function songTags(x){var o={},out=[];if(x&&x.mood)o[x.mood]=1;var t=obj(x&&x.tags);for(var k in t)if(t[k])o[k]=1;MOODS.forEach(function(m){if(o[m]){out.push(m);delete o[m];}});return out.concat(Object.keys(o));}
+function songMoodSel(){var s=obj(S.songMoods);return MOODS.filter(function(m){return s[m];});}""")
+sub("var moods=MOODS.filter(function(m){return all.some(function(x){return x.mood===m;});}),", "var tcnt={};all.forEach(function(x){songTags(x).forEach(function(m){tcnt[m]=(tcnt[m]||0)+1;});});var moods=MOODS.filter(function(m){return tcnt[m];}),")
+sub("f?all.filter(function(x){return x.mood===f;}):all", "f?all.filter(function(x){return songTags(x).indexOf(f)>=0;}):all")
+sub("aria-pressed=\"'+(f===m?'true':'false')+'\">'+(m||'전체')+'</button>';", "aria-pressed=\"'+(f===m?'true':'false')+'\">'+(m?'#'+m+' <small>'+tcnt[m]+'</small>':'전체 <small>'+all.length+'</small>')+'</button>';")
+sub("aria-label=\"분위기로 고르기\">", "aria-label=\"해시태그로 고르기\">")
+sub("aria-pressed=\"'+(S.songMood===m?'true':'false')+'\">'+m+'</button>';", "aria-pressed=\"'+(obj(S.songMoods)[m]?'true':'false')+'\">#'+m+'</button>';")
+sub("(x.mood?'<em class=\"tag\">'+esc(x.mood)+'</em>':'')", "songTags(x).map(function(m){return '<em class=\"tag stg\">#'+esc(m)+'</em>';}).join('')")
+sub("if(x.note)h+='<p class=\"snote\">'+esc(x.note)+'</p>';", "if(x.note)h+='<p class=\"snote\">'+esc(x.note)+'</p>';\n    if(S.songTagEdit===x.id&&x.mid===V.me){var xt=songTags(x);h+='<div class=\"chips stedit\">'+MOODS.map(function(m){return '<button class=\"chip\" data-act=\"song-tagset\" data-id=\"'+esc(x.id)+'\" data-v=\"'+esc(m)+'\" aria-pressed=\"'+(xt.indexOf(m)>=0?'true':'false')+'\">#'+esc(m)+'</button>';}).join('')+'<button class=\"btn small\" data-act=\"song-tagedit\" data-id=\"'+esc(x.id)+'\">다 했어요</button></div>';}")
+sub("(x.mid===V.me?'<button class=\"del\" data-act=\"song-del\"", "(x.mid===V.me?'<button class=\"del\" data-act=\"song-tagedit\" data-id=\"'+esc(x.id)+'\">태그</button>':'')+(x.mid===V.me?'<button class=\"del\" data-act=\"song-del\"")
+sub("    case 'song-mood':S.songMood=S.songMood===id?'':id;break;", r"""    case 'song-mood':{S.songMoods=obj(S.songMoods);if(S.songMoods[id])delete S.songMoods[id];else{if(songMoodSel().length>=SONG_TAG_MAX){flash('태그는 '+SONG_TAG_MAX+'개까지 고를 수 있습니다.');break;}S.songMoods[id]=1;}S.songMood=songMoodSel()[0]||'';break;}
+    case 'song-tagedit':S.songTagEdit=S.songTagEdit===id?null:id;break;
+    case 'song-tagset':{var Vt=view(),so=obj(Vt.songs[id]),tv=el.getAttribute('data-v');if(!so.title||so.mid!==Vt.me||!need())break;var cur=songTags(so),on=cur.indexOf(tv)<0;if(on&&cur.length>=SONG_TAG_MAX){flash('태그는 '+SONG_TAG_MAX+'개까지 고를 수 있습니다.');break;}cur=on?cur.concat([tv]):cur.filter(function(m){return m!==tv;});var ns=clone(so);ns.mood=cur[0]||'';ns.tags={};cur.forEach(function(m){ns.tags[m]=1;});if(!cur.length)delete ns.tags;save('songs/'+id,ns);break;}""")
+sub("mood:MOODS.indexOf(S.songMood)>=0?S.songMood:'',note:", "mood:songMoodSel()[0]||'',tags:(function(){var o={};songMoodSel().forEach(function(m){o[m]=1;});return o;})(),note:")
+sub("S.draft.songNote='';S.draft.songIn='';S.draft.songUrl='';S.songMood='';", "S.draft.songNote='';S.draft.songIn='';S.draft.songUrl='';S.songMood='';S.songMoods={};")
