@@ -1037,8 +1037,13 @@ html.alsnap #wkScroll *{transition:none !important;animation:none !important}
 .snew{background:var(--accent-soft);color:var(--accent-ink)}
 .snote{margin:5px 0 0;font-size:13px;color:var(--ink-2);padding-left:8px;border-left:2px solid var(--line)}
 .snotein{margin-top:8px}
-.sply{margin-top:8px;border-radius:12px;overflow:hidden;background:#000}
-.sply iframe{display:block;width:100%;border:0}
-.sply.yt iframe{aspect-ratio:16/9;height:auto}
-.sply.sp{background:transparent}
-.sply.sp iframe{height:152px}
+.sdock{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:45;width:min(340px,calc(100vw - 32px));background:var(--surface);border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.22);overflow:hidden}
+.sdh{display:flex;align-items:center;gap:6px;padding:8px 8px 8px 12px}
+.sdl{font-size:11px;font-weight:800;color:var(--accent-ink)}
+.sdt{flex:1;min-width:0;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sdh .del{height:28px;padding:0 8px;font-size:12px}
+.sdf iframe{display:block;width:100%;border:0}
+.sdock.yt .sdf iframe{aspect-ratio:16/9;height:auto}
+.sdock.sp .sdf iframe{height:152px}
+.sdock.min .sdf{height:1px;overflow:hidden;opacity:0}
+@media (max-width:699px){.sdock{right:10px;left:10px;width:auto;bottom:calc(76px + env(safe-area-inset-bottom,0px))}}

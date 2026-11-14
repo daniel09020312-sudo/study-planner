@@ -42,11 +42,29 @@ function songBar(V){
   else h+='<span class="sbt">'+(ids.length?ids.length+'곡 있음':'아직 올린 곡이 없습니다')+'</span>';
   if(cnt)h+='<em class="tag">'+cnt+'명 듣는 중</em>';
   h+='<span class="sbb">';
-  if(x&&/^https?:\/\//i.test(x.url||''))h+=(songEmbed(x.url)?'<button class="btn small soft" data-act="song-play" data-id="'+esc(cur)+'">'+(S.songPlay===cur&&S.songPlayW==='bar'?'플레이어 닫기':'여기서 듣기')+'</button>':'<a class="btn small soft" href="'+esc(x.url)+'" target="_blank" rel="noopener noreferrer" data-act="song-open" data-id="'+esc(cur)+'">열기</a>');
+  if(x&&/^https?:\/\//i.test(x.url||''))h+=(songEmbed(x.url)?'<button class="btn small soft" data-act="song-play" data-id="'+esc(cur)+'">'+(S.songPlay===cur?'플레이어 닫기':'여기서 듣기')+'</button>':'<a class="btn small soft" href="'+esc(x.url)+'" target="_blank" rel="noopener noreferrer" data-act="song-open" data-id="'+esc(cur)+'">열기</a>');
   if(ids.length>1)h+='<button class="btn small soft" data-act="song-pick">아무거나 골라줘</button>';
   h+='<button class="btn small" data-act="song-goto">'+(ids.length?'노동요 보기':'노동요 올리기')+'</button></span>';
-  if(S.songPlay&&S.songPlay===cur&&S.songPlayW==='bar'&&x){var e=songEmbed(x.url);if(e)h+=songFrame(e,'bar');}
   return h+'</div>';
 }
-function songFrame(e,w){return '<div class="sply '+e.k+'" id="sply-'+w+'"><iframe src="'+esc(e.src)+'" title="노동요 플레이어" loading="lazy" allow="autoplay; encrypted-media; clipboard-write; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe></div>';}
+/* 플레이어는 화면(#main) 밖, body에 붙은 떠 있는 창(#songDock)에 둬서 다른 탭으로 가도 계속 재생. render 뒤 songDock()이 맞춤 */
+function songDock(){
+  try{
+    var V=view(),id=S.songPlay,x=id&&V.songs[id]?obj(V.songs[id]):null,e=x?songEmbed(x.url):null,el=document.getElementById('songDock');
+    if(!e){if(el)el.parentNode.removeChild(el);if(id&&!x)S.songPlay=null;return;}
+    if(!el){
+      el=document.createElement('div');el.id='songDock';el.setAttribute('role','region');el.setAttribute('aria-label','노동요 플레이어');
+      el.innerHTML='<div class="sdh"><span class="sdl">노동요</span><b class="sdt"></b><button class="del sdmin" data-act="song-dockmin"></button><button class="del sdx" data-act="song-play">닫기</button></div><div class="sdf"></div>';
+      document.body.appendChild(el);
+    }
+    el.className='sdock '+e.k+(S.songMin?' min':'');
+    el.querySelector('.sdt').textContent=x.title;
+    el.querySelector('.sdmin').textContent=S.songMin?'펼치기':'접기';
+    el.querySelector('.sdx').setAttribute('data-id',id);
+    var f=el.querySelector('.sdf'),fr=f.querySelector('iframe');
+    if(!fr||fr.getAttribute('src')!==e.src){
+      f.innerHTML='<iframe src="'+esc(e.src)+'" title="노동요 플레이어" allow="autoplay; encrypted-media; clipboard-write; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>';
+    }
+  }catch(err){}
+}
 function songListen(id){if(canWrite()&&view().me)editProg(function(p){p.now={id:id,at:Date.now()};p.sp=obj(p.sp);p.sp[id]=(+p.sp[id]||0)+1;});}
