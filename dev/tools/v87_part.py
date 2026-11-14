@@ -15,3 +15,4 @@ sub("    case 'ib-view':", r"""    case 'ib-edit':{var Ve=view(),xe=ibItems(Ve).
     case 'ib-ecancel':if(S.ibEdit){delete S.draft['ibE:'+S.ibEdit.id];S.ibEdit=null;}break;
     case 'ib-esave':{var Es=S.ibEdit;if(!Es)break;var et=String(S.draft['ibE:'+Es.id]||'').trim();if(!et){flash('할 일 내용을 적어 주세요.');break;}var Vs=view();if(!ibItems(Vs).some(function(q){return q.id===Es.id;})){S.ibEdit=null;break;}var esn=snap(['inbox/'+Vs.me]);editInbox(function(d){var it=d.items[Es.id];if(!it)return;it.t=et.slice(0,90);if(Es.sid)it.sid=Es.sid;else delete it.sid;});delete S.draft['ibE:'+Es.id];S.ibEdit=null;flash('고쳤습니다.',esn);break;}
     case 'ib-view':""")
+sub("if(type==='inbox'){S.ib={sel:{},week:wkStart(today()),sid:''};S.draft.ibText='';}", "if(type==='inbox'){S.ib={sel:{},week:wkStart(today()),sid:''};S.draft.ibText='';S.ibEdit=null;}")
