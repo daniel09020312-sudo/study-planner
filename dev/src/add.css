@@ -1056,3 +1056,6 @@ html.alsnap #wkScroll *{transition:none !important;animation:none !important}
 .stedit{margin-top:8px;gap:5px}
 .stedit .chip{min-height:30px;padding:3px 10px;font-size:12px}
 .songnew .chips .chip{min-height:32px;padding:3px 11px;font-size:13px}
+.stagin{display:inline-flex;gap:4px;align-items:center}
+.stagin input{min-height:32px;width:130px;padding:4px 10px;font-size:13px;border-radius:999px}
+.stagin .btn{min-height:32px}

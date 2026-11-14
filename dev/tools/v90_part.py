@@ -11,7 +11,7 @@ sub("aria-pressed=\"'+(S.songMood===m?'true':'false')+'\">'+m+'</button>';}).joi
 sub("mood:MOODS.indexOf(S.songMood)>=0?S.songMood:'',at:Date.now()});\n      S.draft.songIn='';", "mood:MOODS.indexOf(S.songMood)>=0?S.songMood:'',note:String(S.draft.songNote||'').trim().slice(0,60),at:Date.now()});\n      S.draft.songNote='';S.draft.songIn='';")
 sub("    case 'song-open':setTimeout(function(){if(canWrite()&&view().me){editProg(function(p){p.now={id:id,at:Date.now()};});render();}},60);return;",
     r"""    case 'song-open':setTimeout(function(){songListen(id);render();},60);return;
-    case 'song-play':if(!id||S.songPlay===id)S.songPlay=null;else{songListen(id);S.songPlay=id;S.songMin=false;}break;
+    case 'song-play':{var spOff=S.songPlay;if(!id||S.songPlay===id){S.songPlay=null;if(spOff&&canWrite()&&view().me)editProg(function(p){if(obj(p.now).id===spOff)delete p.now;});}else{songListen(id);S.songPlay=id;S.songMin=false;}break;}
     case 'song-dockmin':S.songMin=!S.songMin;break;
     case 'song-sort':S.songSort=id;S.songRoll=null;break;
     case 'song-pick':{if(S.tab!=='room')break;rollSong();setTimeout(function(){var e=document.getElementById('songBar');if(e&&e.scrollIntoView)e.scrollIntoView({block:'nearest'});},50);return;}
