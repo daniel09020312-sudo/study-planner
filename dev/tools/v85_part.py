@@ -1,0 +1,5 @@
+# ---------------------------------------------------------------- v85: 할 일 모음 끌어서 순서 바꾸기(src/v85.js, 항목 o)
+V85_JS = open(BASE + '/src/v85.js', encoding='utf-8').read()
+sub("/* ---------- 공부방 ---------- */", V85_JS + "\n/* ---------- 공부방 ---------- */")
+sub(".filter(function(x){return x.t;}).sort(function(a,b){return (+a.at||0)-(+b.at||0);});", ".filter(function(x){return x.t;}).sort(function(a,b){return ibOrd(a)-ibOrd(b)||(+a.at||0)-(+b.at||0);});")
+sub("b+='<li class=\"ibrow'+(on?' on':'')+'\"><button class=\"ibpick\"", "b+='<li class=\"ibrow'+(on?' on':'')+'\" data-id=\"'+esc(x.id)+'\"><span class=\"gdh ibh\" aria-label=\"끌어서 순서 바꾸기\" title=\"끌어서 순서 바꾸기\">&#8801;</span><button class=\"ibpick\"")

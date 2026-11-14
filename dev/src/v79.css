@@ -53,3 +53,9 @@ html.gdragging,html.gdragging *{cursor:grabbing !important;user-select:none;-web
 .ttsc.sj .tbt{opacity:.9}
 .schnow .sjx{background:var(--accent-soft);color:var(--accent-ink)}
 .sjlist{margin:10px 0 0}
+/* v85 모음 끌기 */
+.ibrow{grid-template-columns:auto minmax(0,1fr) auto}
+.ibrow .ibh{width:28px;margin-left:4px}
+.ibrow .ibpick{padding-left:2px}
+.ibrow.gdover{box-shadow:inset 0 3px 0 var(--accent)}
+.ibrow.gdafter{box-shadow:inset 0 -3px 0 var(--accent)}
