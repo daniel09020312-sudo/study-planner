@@ -17,6 +17,6 @@ sub("    case 'song-open':setTimeout(function(){if(canWrite()&&view().me){editPr
     case 'song-pick':{if(S.tab!=='room')break;rollSong();setTimeout(function(){var e=document.getElementById('songBar');if(e&&e.scrollIntoView)e.scrollIntoView({block:'nearest'});},50);return;}
     case 'song-goto':{var sc=document.getElementById('c-songs');if(sc&&sc.scrollIntoView)sc.scrollIntoView({behavior:reduced?'auto':'smooth',block:'start'});var si=document.getElementById(Object.keys(view().songs).length?'songIn':'songIn');if(si&&!Object.keys(view().songs).length)setTimeout(function(){try{si.focus();}catch(e){}},300);return;}""")
 sub("return h+'</section>'+cgCard(V,1)+togetherCard(V,2)+'</div><div class=\"stack\">'+quietCard(V,1)+peopleCard(V,t,1)+flagCard(V,2)+songsCard(V,3)+'</div></div></div>';",
-    "return h+'</section>'+cgCard(V,1)+togetherCard(V,2)+'</div><div class=\"stack\">'+quietCard(V,1)+songsCard(V,1)+peopleCard(V,t,2)+flagCard(V,3)+'</div></div></div>';")
+    "return h+'</section>'+cgCard(V,1)+togetherCard(V,2)+'</div><div class=\"stack\">'+songsCard(V,1)+peopleCard(V,t,2)+flagCard(V,3)+quietCard(V,4)+'</div></div></div>';")
 sub("  h+='<p class=\"hint\" style=\"margin-top:12px\">'+(m==='pomo'?'집중한 시간만", "  h+=songBar(V);\n  h+='<p class=\"hint\" style=\"margin-top:12px\">'+(m==='pomo'?'집중한 시간만")
 sub("try{paintMore();pruneOnce(V);eggTick(V);cgTick(V);meetTick(V);", "try{songDock();}catch(e){}\n  try{paintMore();pruneOnce(V);eggTick(V);cgTick(V);meetTick(V);")
