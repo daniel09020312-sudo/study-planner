@@ -2128,6 +2128,38 @@ html.gdragging,html.gdragging *{cursor:grabbing !important;user-select:none;-web
 .ibrow.ibedit{display:block;padding:10px 12px;background:var(--accent-soft);box-shadow:inset 0 0 0 1.5px var(--accent-ink)}
 .ibe{display:grid;gap:8px}
 .ibe input{width:100%;min-width:0}
+/* v88 모음 크게 보기 */
+#dlg-inbox .dh h2{display:flex;align-items:center;gap:10px}
+.ibbigb{font-size:13px}
+.dialog.ibbig,.dialog.wide.ibbig{width:100%;max-width:none;height:100%;max-height:100%}
+.layer:has(.dialog.ibbig){padding:calc(10px + env(safe-area-inset-top,0px)) 10px calc(10px + env(safe-area-inset-bottom,0px));place-items:stretch}
+.ibbig .db{flex:1 1 auto}
+.ibcols{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:12px;align-items:start}
+.ibcol{background:var(--fill);border-radius:16px;padding:4px 8px 8px;min-width:0}
+.ibcol .iblist{gap:5px}
+.ibcol .ibgrp{padding:8px 4px 6px;position:sticky;top:0}
+.ibcol .ibrow{background:var(--surface)}
+.ibcol .ibrow.on{background:var(--accent-soft)}
+.ibbig .ibrow .ibpick{padding-top:8px;padding-bottom:8px}
+.ibbig .ibrow .ibpick b{font-size:14px}
+.iblist.ibflow{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:6px}
+@media (min-width:760px){
+  .ibbig .ibdays{grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:16px;align-items:start}
+  .ibbig .ibwk,.ibbig .ibdgrid{grid-column:1}
+  .ibbig .ibspread{grid-column:2;grid-row:1 / span 2;margin:0}
+  .ibbig .ibdays > .hint{grid-column:1 / -1}
+}
+.ibcol .ibrow{gap:2px}
+.ibcol .ibrow .ibh{width:22px;margin-left:2px}
+.ibcol .ibrow .ibpick{gap:8px;padding-left:0}
+.ibcol .ibacts{flex-direction:column;align-items:stretch;gap:0;margin-right:6px}
+.ibcol .ibacts .del{height:24px;min-height:0;padding:0 6px;font-size:11px}
+.ibcol .ibgrp{flex-wrap:wrap;row-gap:0}
+.ibcol .ibgrp b{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:calc(100% - 60px)}
+.ibcol .ibgrp .linkbtn{padding:4px 2px}
+.ibbig .ibdays > .hint,.ibbig .ibspread .hint{display:none}
+.ibbig .ibdgrid .ibday{min-height:0;padding-top:4px;padding-bottom:4px}
+.ibbig .dfoot{padding-top:8px;padding-bottom:10px}
 #c-setup .row input{min-width:0}
 #c-setup .lb{margin-top:0}
 .serr{color:var(--red);margin-top:8px}
@@ -4609,7 +4641,7 @@ document.addEventListener('change',function(e){
 
 /* ---------- 처음 화면 ---------- */
 // 앱이 준비되면 알린다. 그림이 아직이면 다 그린 뒤에 열리고, 그림이 먼저 끝났으면 바로 열린다
-var APP_BUILD='1794619704';
+var APP_BUILD='1794620397';
 function splashDone(){
   var sp=document.getElementById('splash'),st=window.__sp;if(!sp||sp.getAttribute('data-out'))return;
   sp.setAttribute('data-out','1');
@@ -5102,22 +5134,24 @@ function ibEditRow(V,x){
   h+='<div class="row"><button class="btn small primary" data-act="ib-esave">저장</button><button class="btn small" data-act="ib-ecancel">취소</button></div></div></li>';
   return h;
 }
+function ibBig(){return lsGet('gbb_ibbig')==='1';}
 function modalInbox(V){
   var I=S.ib,list=ibItems(V),t=today(),ws=I.week,nsel=list.filter(function(x){return I.sel[x.id];}).length,b='';
   b+='<div class="ibadd"><div class="chips scroll">'+mySubs(V).map(function(s){return chipBtn('ib-sid','sid',s.id,s.name,I.sid===s.id);}).join('')+'</div>';
   b+='<div class="row"><input type="text" id="ibText" data-draft="ibText" data-enter="ib-add" maxlength="90" placeholder="예: 쎈 3단원 50문제" aria-label="모아 둘 할 일"><button class="btn primary" data-act="ib-add">적기</button></div></div>';
   if(!list.length)b+='<p class="empty ibempty">생각나는 할 일을 적어 두고, 요일을 골라 나눠 넣으세요.</p>';
   else{
-    b+='<div class="ibhead"><span>'+list.length+'개'+(nsel?', '+nsel+'개 고름':'')+'</span><span class="ibview"><button class="chip" data-act="ib-view" data-v="sub" aria-pressed="'+(ibBySub()?'true':'false')+'">과목별</button><button class="chip" data-act="ib-view" data-v="at" aria-pressed="'+(ibBySub()?'false':'true')+'">적은 순</button></span><button class="linkbtn" data-act="ib-all">'+(nsel===list.length?'모두 풀기':'모두 고르기')+'</button></div><ul class="iblist">';
-    var ibg=ibBySub(),ibPrev=null,ibCnt={},ibOn={};
+    b+='<div class="ibhead"><span>'+list.length+'개'+(nsel?', '+nsel+'개 고름':'')+'</span><span class="ibview"><button class="chip" data-act="ib-view" data-v="sub" aria-pressed="'+(ibBySub()?'true':'false')+'">과목별</button><button class="chip" data-act="ib-view" data-v="at" aria-pressed="'+(ibBySub()?'false':'true')+'">적은 순</button></span><button class="linkbtn" data-act="ib-all">'+(nsel===list.length?'모두 풀기':'모두 고르기')+'</button></div>';
+    var ibg=ibBySub(),ibPrev=null,ibCnt={},ibOn={},ibCol=ibBig()&&ibg;
+    b+=ibCol?'<div class="ibcols"><section class="ibcol"><ul class="iblist">':'<ul class="iblist'+(ibBig()?' ibflow':'')+'">';
     if(ibg){list=list.map(function(x,i){return {x:x,i:i,r:ibSubRank(V,x.sid)};}).sort(function(a,c){return a.r-c.r||a.i-c.i;}).map(function(o){return o.x;});list.forEach(function(x){var k=V.subById[x.sid]?x.sid:'';ibCnt[k]=(ibCnt[k]||0)+1;if(I.sel[x.id])ibOn[k]=(ibOn[k]||0)+1;});}
     list.forEach(function(x){
       var on=!!I.sel[x.id],sub=x.sid&&V.subName[x.sid];
-      if(ibg){var gk=V.subById[x.sid]?x.sid:'';if(gk!==ibPrev){ibPrev=gk;var all=ibOn[gk]===ibCnt[gk];b+='<li class="ibgrp"'+(gk?' style="--sc:'+subCol(V,gk)+'"':'')+'><i aria-hidden="true"></i><b>'+esc(gk?V.subName[gk]:'과목 없음')+'</b><small>'+ibCnt[gk]+'개</small><button class="linkbtn" data-act="ib-selsub" data-v="'+esc(gk)+'">'+(all?'풀기':'모두 고르기')+'</button>'+(gk?'<button class="linkbtn ibgadd" data-act="ib-addsub" data-v="'+esc(gk)+'">+ 추가</button>':'')+'</li>';}}
+      if(ibg){var gk=V.subById[x.sid]?x.sid:'';if(gk!==ibPrev){if(ibCol&&ibPrev!==null)b+='</ul></section><section class="ibcol"><ul class="iblist">';ibPrev=gk;var all=ibOn[gk]===ibCnt[gk];b+='<li class="ibgrp"'+(gk?' style="--sc:'+subCol(V,gk)+'"':'')+'><i aria-hidden="true"></i><b>'+esc(gk?V.subName[gk]:'과목 없음')+'</b><small>'+ibCnt[gk]+'개</small><button class="linkbtn" data-act="ib-selsub" data-v="'+esc(gk)+'">'+(all?'풀기':'모두 고르기')+'</button>'+(gk?'<button class="linkbtn ibgadd" data-act="ib-addsub" data-v="'+esc(gk)+'">+ 추가</button>':'')+'</li>';}}
       if(S.ibEdit&&S.ibEdit.id===x.id){b+=ibEditRow(V,x);return;}
       b+='<li class="ibrow'+(on?' on':'')+'" data-id="'+esc(x.id)+'"><span class="gdh ibh" aria-label="끌어서 순서 바꾸기" title="끌어서 순서 바꾸기">&#8801;</span><button class="ibpick" data-act="ib-sel" data-id="'+esc(x.id)+'" aria-pressed="'+(on?'true':'false')+'"><i aria-hidden="true"></i><span>'+(sub?'<em class="tag stag" style="--sc:'+subCol(V,x.sid)+'"><i></i>'+esc(sub)+'</em>':'')+'<b>'+esc(x.t)+'</b>'+(x.od?'<small class="ibod">'+(+x.od.slice(5,7))+'/'+(+x.od.slice(8))+'에서</small>':'')+'</span></button><span class="ibacts"><button class="del ibedb" data-act="ib-edit" data-id="'+esc(x.id)+'">고치기</button><button class="del" data-act="ib-del" data-id="'+esc(x.id)+'">'+(S.confirm==='ibdel:'+x.id?'한 번 더':'지우기')+'</button></span></li>';
     });
-    b+='</ul>';
+    b+=ibCol?'</ul></section></div>':'</ul>';
     var isubs={};list.forEach(function(x){isubs[x.sid||'']=1;});var iks=Object.keys(isubs);if(iks.length>1&&!ibg)b+='<div class="chips ibsubs"><small>과목별 고르기</small>'+iks.map(function(k){return chipBtn('ib-selsub','sid',k,k&&V.subName[k]?V.subName[k]:'과목 없음',false);}).join('')+'</div>';
   }
   var f='';
@@ -5129,7 +5163,7 @@ function modalInbox(V){
     }
     f+='</div>'+ibSpreadHtml(V,nsel)+'<p class="hint">'+(nsel?'요일을 누르면 고른 '+nsel+'개가 그날 할 일로 들어갑니다.':'할 일을 눌러 고른 뒤 넣을 요일을 누르세요.')+'</p></div>';
   }
-  return dlg('wide',{id:'inbox',t:'할 일 모음'},b,f);
+  return dlg('wide'+(ibBig()?' ibbig':''),{id:'inbox',t:'할 일 모음<button class="btn small soft ibbigb" data-act="ib-big" aria-pressed="'+(ibBig()?'true':'false')+'">'+(ibBig()?'작게 보기':'크게 보기')+'</button>'},b,f);
 }
 function ibBtn(V,cls){var n=ibItems(V).length;return '<button class="btn small '+(cls||'')+'" data-act="open" data-modal="inbox">할 일 모음'+(n?' <b class="ibn">'+n+'</b>':'')+'</button>';}
 
@@ -8058,7 +8092,7 @@ function modalSettings(V){
   [[22,'밤 10시'],[23,'밤 11시'],[24,'자정'],[25,'다음 날 새벽 1시'],[26,'다음 날 새벽 2시'],[27,'다음 날 새벽 3시'],[28,'다음 날 새벽 4시'],[29,'다음 날 새벽 5시']].forEach(function(o){b+='<option value="'+o[0]+'"'+(V.certHour===o[0]?' selected':'')+'>'+o[1]+'</option>';});
   b+='</select>';
   b+='</div>'+spSec()+pokeSec()+noticeSec(V)+periodSec(V)+'<div class="sec"><h3>사용법</h3><div class="row"><button class="btn small" data-act="open" data-modal="help">사용법 보기</button></div></div><div class="sec"><h3>키보드 단축키<small>키보드를 연결했을 때</small></h3><ul class="kbd">'+[['1 ~ 8','달력부터 메시지까지 화면 이동'],['N','할 일 추가'],['D','마감 있는 할 일 추가'],['L','달력, 할 일, 시간표 차례로 바꿔 보기'],['T','타이머 켜기, 끄기'],['F','타이머 크게 보기'],['Esc','창 닫기']].map(function(x){return '<li><kbd>'+x[0]+'</kbd><span>'+x[1]+'</span></li>';}).join('')+'</ul></div><div class="sec"><h3>저장 위치</h3><p class="hint">'+esc(S.net?({claude:'Claude 공유 저장소에 연결되어 있습니다. Claude에 로그인한 참여 인원끼리 실시간으로 같이 봅니다.',firebase:'공유 저장소에 연결되어 있습니다. 참여 코드로 들어온 사람 모두가 실시간으로 같이 봅니다.',local:'지금은 이 기기에만 저장됩니다. 다른 사람과 같이 보려면 공유 저장소 연결이 필요합니다.'}[S.net.mode]):'연결 중입니다.')+'</p>'+(S.net&&S.net.mode==='firebase'&&S.remote?'<div class="row" style="margin-top:10px"><button class="btn small" data-act="import-pick">기록 가져오기</button><button class="btn small" data-act="export-data">기록 파일로 저장</button><button class="del" data-act="setup-reset">'+(S.confirm==='disc'?'한 번 더 누르면 이 방에서 나갑니다':'이 기기에서 이 방 나가기')+'</button></div><p class="hint" style="margin-top:8px">'+esc(S.importMsg||'친구와 내 다른 기기는 위의 친구 초대하기로 들어옵니다. 기록 가져오기는 처음 연결한 뒤 한 번만 하면 됩니다.')+'</p>':'')+'</div>';
-  b+='<p class="hint appver">앱 버전 11월 14일 10:28</p>';
+  b+='<p class="hint appver">앱 버전 11월 14일 10:39</p>';
   return dlg('wide',{id:'settings',t:'설정'},b);
 }
 function modalCheck(V){
@@ -8787,6 +8821,7 @@ function act(name,el){
     case 'ib-esid':if(S.ibEdit)S.ibEdit.sid=el.getAttribute('data-v')||'';break;
     case 'ib-ecancel':if(S.ibEdit){delete S.draft['ibE:'+S.ibEdit.id];S.ibEdit=null;}break;
     case 'ib-esave':{var Es=S.ibEdit;if(!Es)break;var et=String(S.draft['ibE:'+Es.id]||'').trim();if(!et){flash('할 일 내용을 적어 주세요.');break;}var Vs=view();if(!ibItems(Vs).some(function(q){return q.id===Es.id;})){S.ibEdit=null;break;}var esn=snap(['inbox/'+Vs.me]);editInbox(function(d){var it=d.items[Es.id];if(!it)return;it.t=et.slice(0,90);if(Es.sid)it.sid=Es.sid;else delete it.sid;});delete S.draft['ibE:'+Es.id];S.ibEdit=null;flash('고쳤습니다.',esn);break;}
+    case 'ib-big':lsSet('gbb_ibbig',ibBig()?null:'1');break;
     case 'ib-view':lsSet('gbb_ibview',el.getAttribute('data-v')==='at'?'at':null);break;
     case 'go-clr':S.gsel={};break;
     case 'go-to':{var gti=gselKeys().map(function(s){var i=s.indexOf('|');return [s.slice(0,i),s.slice(i+1)];});gordMove(gti,date,null);break;}
