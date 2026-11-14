@@ -11,11 +11,15 @@ def check(n,c,x=''):
 def ev(p,js):return p.evaluate('()=>'+js)
 def st(k):return json.loads(ev(p,"JSON.stringify(window.__store[%s]||null)"%json.dumps(k)))
 T='2026-11-14'
-PRE="(function(){var t=setInterval(function(){var S=window.__store;if(!S)return;Object.keys(S).filter(k=>k.startsWith('days/m1_')).forEach(k=>delete S[k]);S['days/m1_2026-11-10']={goals:[{id:'a',text:'지난1',sid:'s1',done:false},{id:'b',text:'지난2',sid:'s2',done:true},{id:'m',text:'옮김',sid:'s1',done:false,mv:1}]};S['days/m1_%s']={goals:[{id:'c',text:'오늘1',sid:'s1',done:false}]};S['days/m1_2026-11-20']={goals:[{id:'d',text:'앞으로1',sid:'s3',done:false},{id:'e',text:'기타',done:false}]};clearInterval(t);},5);})();"%T
+PRE="(function(){var t=setInterval(function(){var S=window.__store;if(!S)return;Object.keys(S).filter(k=>k.startsWith('days/m1_')).forEach(k=>delete S[k]);S['days/m1_2026-11-10']={goals:[{id:'a',text:'지난1',sid:'s1',done:false},{id:'b',text:'지난2',sid:'s2',done:true},{id:'m',text:'옮김',sid:'s1',done:false,mv:1}]};S['days/m1_%s']={goals:[{id:'c',text:'오늘1',sid:'s1',done:false}]};S['days/m1_2026-11-01']={goals:[{id:'o',text:'오래된',sid:'s1',done:false}]};S['days/m1_2026-11-20']={goals:[{id:'d',text:'앞으로1',sid:'s3',done:false},{id:'e',text:'기타',done:false}]};clearInterval(t);},5);})();"%T
 p=R.open(1366,1024,ls={'gbb_note':'9999999999999','gbb_calmode':'list'},now=T+'T10:00:00+09:00',pre=PRE);close_dlg(p);p.wait_for_timeout(600)
 click(p,'[data-act="tab"][data-tab="cal"]',600)
 click(p,'#c-wk [data-act="open"][data-modal="gall"]',700)
 rows=lambda:ev(p,"[...document.querySelectorAll('#dlg-gall .garow .gatx b')].map(e=>e.textContent)")
+check('older than a week hidden by default','오래된' not in rows(),rows())
+click(p,'[data-act="ga-old"]',400)
+check('old shown when asked','오래된' in rows())
+click(p,'[data-act="ga-old"]',400)
 check('all goals shown (no mv)',sorted(rows())==sorted(['지난1','지난2','오늘1','앞으로1','기타']),rows())
 check('columns by subject',ev(p,"document.querySelectorAll('#dlg-gall .gacol').length")==4)
 click(p,'#dlg-gall [data-act="goal-toggle"][data-id="a"]',600)

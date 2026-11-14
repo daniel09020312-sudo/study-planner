@@ -1,6 +1,6 @@
 /* ---------- v89: 전체 할 일 창(창 'gall'): 날짜마다 들어 있는 내 할 일을 모두 과목별 칸으로 한 화면에.
    완료 표시는 날짜 상관없이(goal-toggle). 이 창에서 뺀 할 일은 progress.<나>.gah={'<날짜>|<id>':1}(할 일 자체는 그대로), '뺀 할 일'에서 다시 넣기.
-   이 창에서 새 할 일 더하기(날짜·과목 골라서). 기본은 전체 ---------- */
+   이 창에서 새 할 일 더하기(날짜·과목 골라서). 기본은 최근 일주일(오늘-7일)부터 앞으로 전부, '일주일 전 것도 보기'(S.ga.old)로 전체 ---------- */
 var GA_F=[['all','전체'],['left','남은 일'],['done','끝낸 일']];
 function gaHid(V){return obj(obj(V.progress[V.me]).gah);}
 function gaAll(V){
@@ -13,11 +13,11 @@ function gaAll(V){
 }
 function gaDateLab(d){var x=pd(d);return (x.getMonth()+1)+'/'+x.getDate()+' '+DOW[x.getDay()];}
 function modalGAll(V){
-  var G=S.ga,t=today(),hid=gaHid(V),all=gaAll(V),inV=all.filter(function(x){return !hid[x.k];}),out=all.filter(function(x){return hid[x.k];});
+  var G=S.ga,t=today(),hid=gaHid(V),all=gaAll(V),wk=addDays(t,-7),nOld=all.filter(function(x){return !hid[x.k]&&x.d<wk;}).length,inV=all.filter(function(x){return !hid[x.k]&&(G.old||x.d>=wk);}),out=all.filter(function(x){return hid[x.k];});
   var nDone=inV.filter(function(x){return x.g.done;}).length,list=G.hid?out:inV.filter(function(x){return G.f==='left'?!x.g.done:G.f==='done'?x.g.done:true;});
   var b='<div class="ibadd gaadd"><div class="chips scroll">'+mySubs(V).map(function(s){return chipBtn('ga-sid','sid',s.id,s.name,G.sid===s.id);}).join('')+'</div>';
   b+='<div class="row"><input type="date" class="gadate" data-draft="gaDate" min="'+t+'" max="'+CAL_MAX+'-31" aria-label="넣을 날짜"><input type="text" id="gaText" data-draft="gaText" data-enter="ga-add" maxlength="90" placeholder="새 할 일 (날짜를 고르고 적기)" aria-label="새 할 일"><button class="btn primary" data-act="ga-add">더하기</button></div></div>';
-  b+='<div class="ibhead gahead"><span>'+(G.hid?'뺀 할 일 '+out.length+'개':'할 일 '+inV.length+'개, 끝낸 일 '+nDone+'개')+'</span><span class="ibview">'+(G.hid?'':GA_F.map(function(x){return '<button class="chip" data-act="ga-f" data-v="'+x[0]+'" aria-pressed="'+(G.f===x[0]?'true':'false')+'">'+x[1]+'</button>';}).join(''))+'<button class="chip" data-act="ga-hid" aria-pressed="'+(G.hid?'true':'false')+'">'+(G.hid?'돌아가기':'뺀 할 일 '+out.length)+'</button></span></div>';
+  b+='<div class="ibhead gahead"><span>'+(G.hid?'뺀 할 일 '+out.length+'개':'할 일 '+inV.length+'개, 끝낸 일 '+nDone+'개')+'</span><span class="ibview">'+(G.hid?'':GA_F.map(function(x){return '<button class="chip" data-act="ga-f" data-v="'+x[0]+'" aria-pressed="'+(G.f===x[0]?'true':'false')+'">'+x[1]+'</button>';}).join(''))+(G.hid?'':'<button class="chip" data-act="ga-old" aria-pressed="'+(G.old?'true':'false')+'">'+(G.old?'일주일 전 것 숨기기':'일주일 전 것도 보기'+(nOld?' '+nOld:''))+'</button>')+'<button class="chip" data-act="ga-hid" aria-pressed="'+(G.hid?'true':'false')+'">'+(G.hid?'돌아가기':'뺀 할 일 '+out.length)+'</button></span></div>';
   if(!list.length)b+='<p class="empty ibempty">'+(G.hid?'이 창에서 뺀 할 일이 없습니다.':'보여 줄 할 일이 없습니다.')+'</p>';
   else{
     var grp={},keys=[];

@@ -4663,7 +4663,7 @@ document.addEventListener('change',function(e){
 
 /* ---------- 처음 화면 ---------- */
 // 앱이 준비되면 알린다. 그림이 아직이면 다 그린 뒤에 열리고, 그림이 먼저 끝났으면 바로 열린다
-var APP_BUILD='1794622721';
+var APP_BUILD='1794623193';
 function splashDone(){
   var sp=document.getElementById('splash'),st=window.__sp;if(!sp||sp.getAttribute('data-out'))return;
   sp.setAttribute('data-out','1');
@@ -6517,7 +6517,7 @@ document.addEventListener('pointercancel',function(e){ibdEnd(e,true);});
 
 /* ---------- v89: 전체 할 일 창(창 'gall'): 날짜마다 들어 있는 내 할 일을 모두 과목별 칸으로 한 화면에.
    완료 표시는 날짜 상관없이(goal-toggle). 이 창에서 뺀 할 일은 progress.<나>.gah={'<날짜>|<id>':1}(할 일 자체는 그대로), '뺀 할 일'에서 다시 넣기.
-   이 창에서 새 할 일 더하기(날짜·과목 골라서). 기본은 전체 ---------- */
+   이 창에서 새 할 일 더하기(날짜·과목 골라서). 기본은 최근 일주일(오늘-7일)부터 앞으로 전부, '일주일 전 것도 보기'(S.ga.old)로 전체 ---------- */
 var GA_F=[['all','전체'],['left','남은 일'],['done','끝낸 일']];
 function gaHid(V){return obj(obj(V.progress[V.me]).gah);}
 function gaAll(V){
@@ -6530,11 +6530,11 @@ function gaAll(V){
 }
 function gaDateLab(d){var x=pd(d);return (x.getMonth()+1)+'/'+x.getDate()+' '+DOW[x.getDay()];}
 function modalGAll(V){
-  var G=S.ga,t=today(),hid=gaHid(V),all=gaAll(V),inV=all.filter(function(x){return !hid[x.k];}),out=all.filter(function(x){return hid[x.k];});
+  var G=S.ga,t=today(),hid=gaHid(V),all=gaAll(V),wk=addDays(t,-7),nOld=all.filter(function(x){return !hid[x.k]&&x.d<wk;}).length,inV=all.filter(function(x){return !hid[x.k]&&(G.old||x.d>=wk);}),out=all.filter(function(x){return hid[x.k];});
   var nDone=inV.filter(function(x){return x.g.done;}).length,list=G.hid?out:inV.filter(function(x){return G.f==='left'?!x.g.done:G.f==='done'?x.g.done:true;});
   var b='<div class="ibadd gaadd"><div class="chips scroll">'+mySubs(V).map(function(s){return chipBtn('ga-sid','sid',s.id,s.name,G.sid===s.id);}).join('')+'</div>';
   b+='<div class="row"><input type="date" class="gadate" data-draft="gaDate" min="'+t+'" max="'+CAL_MAX+'-31" aria-label="넣을 날짜"><input type="text" id="gaText" data-draft="gaText" data-enter="ga-add" maxlength="90" placeholder="새 할 일 (날짜를 고르고 적기)" aria-label="새 할 일"><button class="btn primary" data-act="ga-add">더하기</button></div></div>';
-  b+='<div class="ibhead gahead"><span>'+(G.hid?'뺀 할 일 '+out.length+'개':'할 일 '+inV.length+'개, 끝낸 일 '+nDone+'개')+'</span><span class="ibview">'+(G.hid?'':GA_F.map(function(x){return '<button class="chip" data-act="ga-f" data-v="'+x[0]+'" aria-pressed="'+(G.f===x[0]?'true':'false')+'">'+x[1]+'</button>';}).join(''))+'<button class="chip" data-act="ga-hid" aria-pressed="'+(G.hid?'true':'false')+'">'+(G.hid?'돌아가기':'뺀 할 일 '+out.length)+'</button></span></div>';
+  b+='<div class="ibhead gahead"><span>'+(G.hid?'뺀 할 일 '+out.length+'개':'할 일 '+inV.length+'개, 끝낸 일 '+nDone+'개')+'</span><span class="ibview">'+(G.hid?'':GA_F.map(function(x){return '<button class="chip" data-act="ga-f" data-v="'+x[0]+'" aria-pressed="'+(G.f===x[0]?'true':'false')+'">'+x[1]+'</button>';}).join(''))+(G.hid?'':'<button class="chip" data-act="ga-old" aria-pressed="'+(G.old?'true':'false')+'">'+(G.old?'일주일 전 것 숨기기':'일주일 전 것도 보기'+(nOld?' '+nOld:''))+'</button>')+'<button class="chip" data-act="ga-hid" aria-pressed="'+(G.hid?'true':'false')+'">'+(G.hid?'돌아가기':'뺀 할 일 '+out.length)+'</button></span></div>';
   if(!list.length)b+='<p class="empty ibempty">'+(G.hid?'이 창에서 뺀 할 일이 없습니다.':'보여 줄 할 일이 없습니다.')+'</p>';
   else{
     var grp={},keys=[];
@@ -8168,7 +8168,7 @@ function modalSettings(V){
   [[22,'밤 10시'],[23,'밤 11시'],[24,'자정'],[25,'다음 날 새벽 1시'],[26,'다음 날 새벽 2시'],[27,'다음 날 새벽 3시'],[28,'다음 날 새벽 4시'],[29,'다음 날 새벽 5시']].forEach(function(o){b+='<option value="'+o[0]+'"'+(V.certHour===o[0]?' selected':'')+'>'+o[1]+'</option>';});
   b+='</select>';
   b+='</div>'+spSec()+pokeSec()+noticeSec(V)+periodSec(V)+'<div class="sec"><h3>사용법</h3><div class="row"><button class="btn small" data-act="open" data-modal="help">사용법 보기</button></div></div><div class="sec"><h3>키보드 단축키<small>키보드를 연결했을 때</small></h3><ul class="kbd">'+[['1 ~ 8','달력부터 메시지까지 화면 이동'],['N','할 일 추가'],['D','마감 있는 할 일 추가'],['L','달력, 할 일, 시간표 차례로 바꿔 보기'],['T','타이머 켜기, 끄기'],['F','타이머 크게 보기'],['Esc','창 닫기']].map(function(x){return '<li><kbd>'+x[0]+'</kbd><span>'+x[1]+'</span></li>';}).join('')+'</ul></div><div class="sec"><h3>저장 위치</h3><p class="hint">'+esc(S.net?({claude:'Claude 공유 저장소에 연결되어 있습니다. Claude에 로그인한 참여 인원끼리 실시간으로 같이 봅니다.',firebase:'공유 저장소에 연결되어 있습니다. 참여 코드로 들어온 사람 모두가 실시간으로 같이 봅니다.',local:'지금은 이 기기에만 저장됩니다. 다른 사람과 같이 보려면 공유 저장소 연결이 필요합니다.'}[S.net.mode]):'연결 중입니다.')+'</p>'+(S.net&&S.net.mode==='firebase'&&S.remote?'<div class="row" style="margin-top:10px"><button class="btn small" data-act="import-pick">기록 가져오기</button><button class="btn small" data-act="export-data">기록 파일로 저장</button><button class="del" data-act="setup-reset">'+(S.confirm==='disc'?'한 번 더 누르면 이 방에서 나갑니다':'이 기기에서 이 방 나가기')+'</button></div><p class="hint" style="margin-top:8px">'+esc(S.importMsg||'친구와 내 다른 기기는 위의 친구 초대하기로 들어옵니다. 기록 가져오기는 처음 연결한 뒤 한 번만 하면 됩니다.')+'</p>':'')+'</div>';
-  b+='<p class="hint appver">앱 버전 11월 14일 11:18</p>';
+  b+='<p class="hint appver">앱 버전 11월 14일 11:26</p>';
   return dlg('wide',{id:'settings',t:'설정'},b);
 }
 function modalCheck(V){
@@ -8363,7 +8363,7 @@ function shopGo(id){var it=shopItem(id);S.shopNext=it?{cat:it.cat,focus:it.id}:n
 function openModal(type,el){
   var V=view();S.ttPend=null;
   if(type==='compose'&&V.me){var cdt=(el&&el.getAttribute('data-date'))||today();if(dayLocked(V,cdt)){flash('인증 마감이 지나 이 날에는 새 할 일을 더할 수 없습니다.');return;}}
-  if(type==='gall'){S.ga={f:'all',hid:false,sid:(S.ga&&S.ga.sid)||''};S.draft.gaText='';if(!S.draft.gaDate||S.draft.gaDate<today())S.draft.gaDate=today();}
+  if(type==='gall'){S.ga={f:'all',hid:false,old:false,sid:(S.ga&&S.ga.sid)||''};S.draft.gaText='';if(!S.draft.gaDate||S.draft.gaDate<today())S.draft.gaDate=today();}
   if(type==='inbox'){S.ib={sel:{},week:wkStart(today()),sid:''};S.draft.ibText='';S.ibEdit=null;}
   if(type==='shop'){S.giftOpen=false;S.admOpen=false;S.draft.admCode='';S.walLinkOpen=false;S.walCode=null;}
   if(type==='shop'){var snx=S.shopNext;S.shopNext=null;S.shopCat=snx?snx.cat:(S.shopCat||'look');S.shopFocus=snx?snx.focus:null;S.shopPeek=snx&&snx.cat==='stk'?snx.focus:null;}
@@ -8900,6 +8900,7 @@ function act(name,el){
     case 'ib-ecancel':if(S.ibEdit){delete S.draft['ibE:'+S.ibEdit.id];S.ibEdit=null;}break;
     case 'ib-esave':{var Es=S.ibEdit;if(!Es)break;var et=String(S.draft['ibE:'+Es.id]||'').trim();if(!et){flash('할 일 내용을 적어 주세요.');break;}var Vs=view();if(!ibItems(Vs).some(function(q){return q.id===Es.id;})){S.ibEdit=null;break;}var esn=snap(['inbox/'+Vs.me]);editInbox(function(d){var it=d.items[Es.id];if(!it)return;it.t=et.slice(0,90);if(Es.sid)it.sid=Es.sid;else delete it.sid;});delete S.draft['ibE:'+Es.id];S.ibEdit=null;flash('고쳤습니다.',esn);break;}
     case 'ga-f':if(S.ga)S.ga.f=el.getAttribute('data-v');break;
+    case 'ga-old':if(S.ga)S.ga.old=!S.ga.old;break;
     case 'ga-hid':if(S.ga)S.ga.hid=!S.ga.hid;break;
     case 'ga-sid':if(S.ga)S.ga.sid=S.ga.sid===el.getAttribute('data-v')?'':el.getAttribute('data-v');break;
     case 'ga-addsub':if(S.ga){S.ga.sid=el.getAttribute('data-v')||'';S.focusAfter='gaText';var gdb=document.querySelector('#dlg-gall .db');if(gdb)gdb.scrollTop=0;}break;
