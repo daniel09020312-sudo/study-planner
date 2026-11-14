@@ -1,0 +1,51 @@
+# v89: 전체 할 일 창
+import sys,json
+sys.path.insert(0,'/home/claude/planner/tools')
+from rig import *
+R=Rig()
+ok=True
+def check(n,c,x=''):
+    global ok
+    print(('OK  ' if c else 'FAIL'),n,x)
+    if not c: ok=False
+def ev(p,js):return p.evaluate('()=>'+js)
+def st(k):return json.loads(ev(p,"JSON.stringify(window.__store[%s]||null)"%json.dumps(k)))
+T='2026-11-14'
+PRE="(function(){var t=setInterval(function(){var S=window.__store;if(!S)return;Object.keys(S).filter(k=>k.startsWith('days/m1_')).forEach(k=>delete S[k]);S['days/m1_2026-11-10']={goals:[{id:'a',text:'지난1',sid:'s1',done:false},{id:'b',text:'지난2',sid:'s2',done:true},{id:'m',text:'옮김',sid:'s1',done:false,mv:1}]};S['days/m1_%s']={goals:[{id:'c',text:'오늘1',sid:'s1',done:false}]};S['days/m1_2026-11-20']={goals:[{id:'d',text:'앞으로1',sid:'s3',done:false},{id:'e',text:'기타',done:false}]};clearInterval(t);},5);})();"%T
+p=R.open(1366,1024,ls={'gbb_note':'9999999999999','gbb_calmode':'list'},now=T+'T10:00:00+09:00',pre=PRE);close_dlg(p);p.wait_for_timeout(600)
+click(p,'[data-act="tab"][data-tab="cal"]',600)
+click(p,'#c-wk [data-act="open"][data-modal="gall"]',700)
+rows=lambda:ev(p,"[...document.querySelectorAll('#dlg-gall .garow .gatx b')].map(e=>e.textContent)")
+check('all goals shown (no mv)',sorted(rows())==sorted(['지난1','지난2','오늘1','앞으로1','기타']),rows())
+check('columns by subject',ev(p,"document.querySelectorAll('#dlg-gall .gacol').length")==4)
+click(p,'#dlg-gall [data-act="goal-toggle"][data-id="a"]',600)
+check('past goal done',[g['done'] for g in st('days/m1_2026-11-10')['goals'] if g['id']=='a']==[True])
+click(p,'#dlg-gall [data-act="goal-toggle"][data-id="d"]',600)
+check('future goal done',[g['done'] for g in st('days/m1_2026-11-20')['goals'] if g['id']=='d']==[True])
+click(p,'[data-act="ga-f"][data-v="left"]',400)
+check('left filter',sorted(rows())==['기타','오늘1'],rows())
+click(p,'[data-act="ga-f"][data-v="all"]',400)
+click(p,'#dlg-gall .garow[data-k="2026-11-10|b"] [data-act="ga-hide"]',500)
+check('hidden from view','지난2' not in rows())
+check('goal still exists',any(g['id']=='b' for g in st('days/m1_2026-11-10')['goals']))
+check('hidden saved',(st('progress/m1') or {}).get('gah',{}).get('2026-11-10|b')==1)
+click(p,'[data-act="ga-hid"]',400)
+check('hidden list',rows()==['지난2'],rows())
+click(p,'#dlg-gall [data-act="ga-show"]',500);click(p,'[data-act="ga-hid"]',400)
+check('back in view','지난2' in rows())
+click(p,'#dlg-gall [data-act="ga-addsub"][data-v="s2"]',400)
+ev(p,"(()=>{var i=document.querySelector('#dlg-gall .gadate');i.value='2026-11-18';i.dispatchEvent(new Event('input',{bubbles:true}));i.dispatchEvent(new Event('change',{bubbles:true}));return 1})()")
+p.focus('#gaText');p.keyboard.type('새로 더함');p.keyboard.press('Enter');p.wait_for_timeout(600)
+g18=(st('days/m1_2026-11-18') or {}).get('goals',[])
+check('added to date with subject',[(g['text'],g.get('sid')) for g in g18]==[('새로 더함','s2')],g18)
+check('new shows in view','새로 더함' in rows())
+p.screenshot(path='/tmp/claude-0/-home-user/e7c3557b-cbdd-5867-afb0-e8d2fce386ea/scratchpad/gall.png')
+print('errors',R.errors);check('no errors',not R.errors,R.errors)
+R.close()
+R=Rig()
+p=R.open(390,844,ls={'gbb_note':'9999999999999'},now=T+'T10:00:00+09:00',pre=PRE);close_dlg(p);p.wait_for_timeout(500)
+ev(p,"(()=>{var b=document.createElement('button');b.dataset.act='open';b.dataset.modal='gall';document.body.appendChild(b);b.click();return 1})()");p.wait_for_timeout(700)
+check('phone no overflow',ev(p,"document.querySelector('#dlg-gall .db').scrollWidth<=document.querySelector('#dlg-gall .db').clientWidth+1"))
+p.screenshot(path='/tmp/claude-0/-home-user/e7c3557b-cbdd-5867-afb0-e8d2fce386ea/scratchpad/gall_phone.png')
+print('errors',R.errors);check('no errors',not R.errors,R.errors)
+R.close();print('ALL OK' if ok else 'SOME FAILED')

@@ -101,3 +101,25 @@ html.gdragging,html.gdragging *{cursor:grabbing !important;user-select:none;-web
 .ibbig .ibdays > .hint,.ibbig .ibspread .hint{display:none}
 .ibbig .ibdgrid .ibday{min-height:0;padding-top:4px;padding-bottom:4px}
 .ibbig .dfoot{padding-top:8px;padding-bottom:10px}
+/* v89 전체 할 일 창 */
+#dlg-gall .ibadd{position:sticky;top:-4px;z-index:3;background:var(--surface);padding:6px 0 10px;margin:-4px 0 8px;display:grid;gap:10px;box-shadow:0 6px 8px -8px rgba(0,0,0,.25)}
+#dlg-gall .ibadd .row{display:flex;gap:8px;flex-wrap:wrap}
+#dlg-gall .ibadd input[type=text]{flex:1 1 200px;min-width:0}
+#dlg-gall .gadate{flex:0 0 auto;width:auto;min-width:140px}
+.gahead{margin-top:2px}
+.garow{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:8px;padding:6px 6px 6px 8px}
+.gack{width:30px;height:30px;display:grid;place-items:center;border:0;background:none;padding:0;cursor:pointer}
+.gack i{width:20px;height:20px;border-radius:50%;box-shadow:inset 0 0 0 2px var(--sc,var(--ink-3));position:relative;display:block}
+.garow.done .gack i{background:var(--sc,var(--accent));box-shadow:none}
+.garow.done .gack i::after{content:'';position:absolute;left:7px;top:3px;width:5px;height:10px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg)}
+.gack[disabled]{opacity:.5;cursor:default}
+.gatx{display:grid;gap:1px;min-width:0}
+.gatx b{font-size:14px;font-weight:600;overflow-wrap:anywhere}
+.garow.done .gatx b{text-decoration:line-through;color:var(--ink-3)}
+.gad{font-size:11px;color:var(--ink-3)}
+.gad.late{color:var(--danger,#d33)}
+.garow.today .gad{color:var(--accent-ink);font-weight:700}
+.gacol .ibgrp > i{background:var(--sc,var(--ink-4,#aaa))}
+.garow .del{height:26px;padding:0 6px;font-size:11px}
+#dlg-gall .gadate{border:0;border-radius:12px;padding:0 12px;font:inherit;font-size:15px;background:var(--fill);color:var(--ink);min-height:46px}
+#dlg-gall .gadate:focus{outline:0;box-shadow:inset 0 0 0 1.5px var(--accent)}
