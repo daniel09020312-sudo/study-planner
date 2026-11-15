@@ -2254,6 +2254,83 @@ html.gdragging,html.gdragging *{cursor:grabbing !important;user-select:none;-web
 .exnotes{border-top:1px solid var(--line);padding-top:10px}
 .exnotes h3{font-size:13px;margin:0 0 4px}
 .exnotes p{margin:2px 0;font-size:13px}
+/* v94 노동요 방장 보기 */
+.sadmb{margin:4px 0}
+.sadm{background:var(--fill);border-radius:14px;padding:10px 12px;margin:6px 0 8px}
+.sadm h3{font-size:13px;margin:0 0 6px;display:flex;gap:6px;align-items:baseline}
+.sadm h3 small{color:var(--ink-3);font-weight:500}
+.sadmp{display:grid;gap:2px;padding:6px 0;border-top:1px solid var(--line);font-size:12px}
+.sadmp:first-of-type{border-top:0}
+.sadmp span{color:var(--ink-2)}
+.sadmr{margin:4px 0 0;font-size:12px;color:var(--accent-ink)}
+/* v94 최종 결과 공개 */
+.fincut{display:grid;gap:2px;margin:0 0 12px;padding:10px 12px;border-radius:12px;background:var(--accent-soft);font-size:13px}
+.fincut b{color:var(--accent-ink)}
+.finpre summary{cursor:pointer;font-size:13px;color:var(--ink-2)}
+.finpre .frr{display:grid;grid-template-columns:48px 1fr auto;padding:4px 0;font-size:13px}
+.frv{position:fixed;inset:0;z-index:60;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:calc(24px + env(safe-area-inset-top,0px)) 20px calc(24px + env(safe-area-inset-bottom,0px));color:#fff;overflow:hidden;background:#0b0d1a}
+.frbg{position:absolute;inset:-20%;background:radial-gradient(ellipse at 50% 30%,#3b2a7a 0%,#141633 45%,#07080f 75%);animation:frBg 12s ease-in-out infinite alternate}
+@keyframes frBg{to{transform:scale(1.15) rotate(3deg)}}
+.frv > *{position:relative;z-index:1}
+.frin{text-align:center;display:grid;gap:8px;animation:frUp .8s cubic-bezier(.2,.9,.2,1) both}
+.frin small{opacity:.7;letter-spacing:.1em}
+.frin h2{font-size:clamp(34px,8vw,64px);margin:0;background:linear-gradient(90deg,#ffd76a,#fff,#ffb3d9);-webkit-background-clip:text;background-clip:text;color:transparent;background-size:200% auto;animation:frShine 3s linear infinite}
+@keyframes frShine{to{background-position:200% center}}
+.frin p{margin:0;opacity:.8}
+.frcount{position:relative;height:90px;margin-top:10px}
+.frcount b{position:absolute;left:50%;top:0;transform:translateX(-50%);font-size:80px;opacity:0;animation:frCount 1s ease both}
+.frcount b:nth-child(1){animation-delay:.6s}.frcount b:nth-child(2){animation-delay:1.6s}.frcount b:nth-child(3){animation-delay:2.6s}
+@keyframes frCount{0%{opacity:0;transform:translateX(-50%) scale(2.2)}30%{opacity:1;transform:translateX(-50%) scale(1)}80%{opacity:1}100%{opacity:0;transform:translateX(-50%) scale(.6)}}
+@keyframes frUp{from{opacity:0;transform:translateY(30px) scale(.96)}to{opacity:1;transform:none}}
+.frsec{width:min(720px,100%);max-height:70vh;display:flex;flex-direction:column;gap:14px;text-align:center}
+.frsec h2{margin:0;font-size:clamp(24px,5vw,38px);animation:frUp .6s both}
+.frsec h2 small{display:block;font-size:15px;opacity:.7;margin-top:4px}
+.frcut{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;overflow:auto}
+.frcut span{padding:10px 16px;border-radius:999px;background:rgba(255,255,255,.1);box-shadow:0 0 0 1px rgba(255,215,106,.5),0 0 20px rgba(255,215,106,.25);font-weight:700;font-size:17px;opacity:0;animation:frPop .5s cubic-bezier(.2,1.4,.4,1) both;animation-delay:calc(.4s + var(--i) * .25s)}
+@keyframes frPop{from{opacity:0;transform:scale(.3)}to{opacity:1;transform:none}}
+.frnote{margin:0;opacity:.6;font-size:13px}
+.frrest{display:grid;gap:8px;overflow:auto;padding:4px}
+.frr{display:grid;grid-template-columns:64px 1fr auto;align-items:center;gap:10px;padding:10px 14px;border-radius:14px;background:rgba(255,255,255,.08);text-align:left}
+.frrest .frr{opacity:0;animation:frSlide .5s ease both;animation-delay:calc(.3s + var(--i) * .35s)}
+@keyframes frSlide{from{opacity:0;transform:translateX(-40px)}to{opacity:1;transform:none}}
+.frr b{color:#ffd76a}.frr em{font-style:normal;opacity:.8}
+.frr.me{box-shadow:0 0 0 2px #7cc4ff}
+.frr.cut span::after{content:' ★';color:#ffd76a;font-size:12px}
+.frpod{display:grid;justify-items:center;gap:20px;text-align:center}
+.frdrum{display:grid;gap:4px;animation:frDrum .9s ease-in-out 2}
+.frdrum small{letter-spacing:.3em;opacity:.7}
+.frdrum b{font-size:clamp(28px,6vw,44px)}
+@keyframes frDrum{0%,100%{transform:none}25%{transform:translateX(-4px) rotate(-1deg)}75%{transform:translateX(4px) rotate(1deg)}}
+.frcard{display:grid;justify-items:center;gap:6px;padding:28px 40px;border-radius:24px;background:rgba(255,255,255,.08);backdrop-filter:blur(6px);opacity:0;animation:frFlip 1s cubic-bezier(.2,1,.3,1) 1.9s both}
+@keyframes frFlip{0%{opacity:0;transform:perspective(800px) rotateY(90deg) scale(.6)}60%{opacity:1;transform:perspective(800px) rotateY(-12deg) scale(1.08)}100%{opacity:1;transform:none}}
+.frmed{width:78px;height:78px;border-radius:50%;display:grid;place-items:center;font-size:36px;font-weight:900;color:#3a2a00}
+.k1 .frmed{background:radial-gradient(circle at 35% 30%,#fff5c2,#ffcc33 45%,#b8860b);box-shadow:0 0 40px #ffd76a}
+.k2 .frmed{background:radial-gradient(circle at 35% 30%,#fff,#cfd8e3 45%,#8a97a8);box-shadow:0 0 30px #cfd8e3}
+.k3 .frmed{background:radial-gradient(circle at 35% 30%,#ffe2c6,#d9894a 45%,#8b4f22);box-shadow:0 0 30px #d9894a}
+.frname{font-size:clamp(32px,8vw,60px)}
+.k1 .frname{background:linear-gradient(90deg,#ffd76a,#fff6cf,#ffd76a);-webkit-background-clip:text;background-clip:text;color:transparent;background-size:200% auto;animation:frShine 2.5s linear infinite}
+.frcard em{font-style:normal;font-size:20px;opacity:.85}
+.frprize{opacity:.75}
+.frrays{position:absolute;left:50%;top:45%;width:160vmax;height:160vmax;transform:translate(-50%,-50%);z-index:-1;background:repeating-conic-gradient(from 0deg,rgba(255,215,106,.18) 0 6deg,transparent 6deg 18deg);opacity:0;animation:frRays 1s ease 2s both,frSpin 30s linear 2s infinite}
+@keyframes frRays{to{opacity:1}}
+@keyframes frSpin{to{transform:translate(-50%,-50%) rotate(360deg)}}
+.frconf{position:fixed;inset:0;pointer-events:none;z-index:2}
+.frconf i{position:absolute;top:-5vh;left:calc(var(--x) * 1%);width:9px;height:14px;border-radius:2px;opacity:0;animation:frFall 3.6s linear calc(2s + var(--d)) infinite;transform:rotate(var(--r))}
+.frconf i:nth-child(5n){background:#ffd76a}.frconf i:nth-child(5n+1){background:#ff7ab6}.frconf i:nth-child(5n+2){background:#7cc4ff}.frconf i:nth-child(5n+3){background:#9cf09c}.frconf i:nth-child(5n+4){background:#fff}
+.frconf:not(.big) i{animation-iteration-count:2}
+@keyframes frFall{0%{opacity:1;transform:translateY(0) rotate(var(--r))}100%{opacity:1;transform:translateY(110vh) rotate(calc(var(--r) + 720deg))}}
+.frall{max-height:78vh}
+.frpodium{display:grid;grid-template-columns:repeat(3,1fr);align-items:end;gap:10px;animation:frUp .7s both}
+.frp{display:grid;justify-items:center;gap:4px;padding:14px 6px 0;border-radius:14px 14px 0 0;background:rgba(255,255,255,.1)}
+.frp span{font-size:28px;font-weight:900;color:#ffd76a;padding-bottom:10px}
+.frp.p1{min-height:150px;box-shadow:0 0 30px rgba(255,215,106,.4)}.frp.p2{min-height:115px}.frp.p3{min-height:90px}
+.frp small{opacity:.75}
+.frlist{display:grid;gap:6px;overflow:auto;padding:4px}
+.frnav{display:flex;flex-direction:column;align-items:center;gap:8px;z-index:3}
+.frnav .btn{min-width:200px;opacity:0;animation:frUp .5s ease both;animation-delay:.6s}
+.s-intro .frnav .btn{animation-delay:3.4s}.s-p1 .frnav .btn,.s-p2 .frnav .btn,.s-p3 .frnav .btn{animation-delay:2.8s}.s-rest .frnav .btn{animation-delay:1.6s}
+.frskip{color:rgba(255,255,255,.6);background:none;border:0;font:inherit;font-size:13px;cursor:pointer}
+@media (prefers-reduced-motion:reduce){.frv *,.frv{animation-duration:.01s!important;animation-delay:0s!important;animation-iteration-count:1!important}.frconf{display:none}}
 #c-setup .row input{min-width:0}
 #c-setup .lb{margin-top:0}
 .serr{color:var(--red);margin-top:8px}
@@ -2542,7 +2619,7 @@ var RULES=[
   ['스터디 빙고','한 줄을 채울 때마다 10점. 주간 점수와 최종 점수에 더함'],
   
   ['배지','받은 배지마다 동 10점, 은 30점, 금 60점, 전설 100점을 최종 점수에 더함'],
-  ['최종 결과','2차 시험이 끝난 다음 날 공개. 1등, 2등, 3등은 미리 정해 둔 상품']
+  ['최종 결과','2차 시험이 끝나고 방장이 승인하면 공개 연출과 함께 공개. 100점 넘긴 사람 명단, 4등부터, 3·2·1등 순서. 1등, 2등, 3등은 미리 정해 둔 상품']
 ];
 var RULE3='2026-10-27';
 function attReward(n,d){if((d||today())>=RULE3)return Math.min(5,2+n)+(n%7===0?5:0);return Math.min(10,4+n)+(n%7===0?10:0);}
@@ -4476,7 +4553,7 @@ var BADGE_ICONS={
 };
 var BADGE_CATS=[['att','출석'],['time','공부 시간'],['plan','할 일과 인증'],['rank','순위'],['board','게시판'],['play','빙고와 대결']];
 function fmtN(n){n=Math.round(+n||0);return String(n).replace(/\B(?=(\d{3})+(?!\d))/g,',');}
-function finalOpen(){return today()>END;}
+
 /* 주마다 1, 2, 3등 (같은 점수는 같은 등수) */
 function weekResults(V){
   if(V._wr)return V._wr;
@@ -4512,19 +4589,21 @@ function prizeCard(V,k){
     if(!rev&&V.me)h+='<div class="row"><input type="text" data-draft="prizeText'+i+'" data-enter="prize-save" data-id="'+i+'" maxlength="40" placeholder="'+(i===1?'예: 기프티콘':i===2?'예: 간식 세트':'예: 음료수')+'" aria-label="'+i+'등 상품"><button class="btn small" data-act="prize-save" data-id="'+i+'">'+(pz.t?'바꾸기':'정하기')+'</button></div>';
     h+='</div>';
   }
-  h+='</div><p class="hint" style="margin-top:8px">'+(rev?'결과가 나와서 더 고칠 수 없습니다.':'2차 시험이 끝난 다음 날 최종 결과와 함께 1·2·3등이 정해집니다.')+'</p>';
+  h+='</div><p class="hint" style="margin-top:8px">'+(rev?'결과가 나와서 더 고칠 수 없습니다.':'2차 시험이 끝나고 방장이 승인하면 최종 결과와 함께 1·2·3등이 공개됩니다.')+'</p>';
   return h+'</section>';
 }
 function finalBody(V){
   var t=today(),rev=finalOpen(),fs=finalStandings(V),me=fs.filter(function(x){return x.p.id===V.me;})[0],wr=weekResults(V),L='';
   if(!rev){
     var open=addDays(END,1);
-    L+='<section class="card fin" id="c-fin-wait" style="--k:0"><div class="ct"><h2>최종 결과<small>'+esc(longDate(open))+' 공개</small></h2></div>';
-    L+='<div class="fincd"><b>D-'+Math.max(0,diffDays(t,open))+'</b><span>2차 시험이 끝난 다음 날 모두에게 공개됩니다. 그 전까지는 내 점수만 보입니다.</span></div>';
+    L+=finAdminCard(V);
+    L+='<section class="card fin" id="c-fin-wait" style="--k:0"><div class="ct"><h2>최종 결과<small>'+(t>END?'공개 준비 중':esc(longDate(open))+'부터')+'</small></h2></div>';
+    L+='<div class="fincd">'+(t>END?'<b>곧</b><span>집계가 끝났습니다. 방장이 승인하면 공개 연출과 함께 순위가 공개됩니다.</span>':'<b>D-'+Math.max(0,diffDays(t,open))+'</b><span>2차 시험이 끝나고 방장이 승인하면 공개 연출과 함께 모두에게 공개됩니다. 그 전까지는 내 점수만 보입니다.</span>')+'</div>';
     if(me)L+='<div class="finme"><small>지금까지 내 최종 점수</small>'+finBreak(me)+(today()<TALLY?'<p class="hint" style="margin-top:6px">집계는 '+esc(longDate(TALLY))+'부터라 지금은 0점입니다.</p>':'')+'</div>';
     L+='<p class="hint" style="margin-top:10px">최종 점수는 매일 쌓인 점수에 배지 점수를 더한 값입니다.</p></section>';
   }else{
-    L+='<section class="card fin" id="c-fin" style="--k:0"><div class="ct"><h2>최종 결과<small>'+esc(shortDate(TALLY)+' ~ '+shortDate(END))+'</small></h2></div>';
+    L+='<section class="card fin" id="c-fin" style="--k:0"><div class="ct"><h2>최종 결과<small>'+esc(shortDate(TALLY)+' ~ '+shortDate(END))+'</small></h2><button class="btn small soft" data-act="fr-replay">공개 연출 다시 보기</button></div>';
+    var cutL=fs.filter(function(x){return x.total>=FIN_CUT;});L+='<div class="fincut"><b>'+FIN_CUT+'점 넘긴 사람 '+cutL.length+'명</b><span>'+cutL.map(function(x){return esc(x.p.name);}).join(', ')+'</span></div>';
     if(!fs.some(function(x){return x.total>0;}))return L+'<p class="empty">기간 동안 쌓인 점수가 없습니다.</p></section></div><div class="stack">'+prizeCard(V,2);
     L+='<div class="podium">';
     [1,0,2].forEach(function(i){var x=fs[i];if(!x)return;L+='<div class="pd p'+(i+1)+'">'+av(x.p)+'<b>'+esc(x.p.name)+'</b><small>'+fmtN(x.total)+'점</small><span class="pdn">'+(i+1)+'</span>'+(prizeOf(V,i+1).t?'<em class="tag a">상품: '+esc(prizeOf(V,i+1).t)+'</em>':'')+'</div>';});
@@ -4738,7 +4817,7 @@ document.addEventListener('change',function(e){
 
 /* ---------- 처음 화면 ---------- */
 // 앱이 준비되면 알린다. 그림이 아직이면 다 그린 뒤에 열리고, 그림이 먼저 끝났으면 바로 열린다
-var APP_BUILD='1794739240';
+var APP_BUILD='1794739465';
 function splashDone(){
   var sp=document.getElementById('splash'),st=window.__sp;if(!sp||sp.getAttribute('data-out'))return;
   sp.setAttribute('data-out','1');
@@ -6803,6 +6882,56 @@ function examMig(){
   editCfg(function(cc){cc.exam=clone(EXAM_PRESET);cc.migExam2=1;});
 }
 
+/* ---------- v94: (1) 노동요 방장 보기: 사람별로 들은 곡(progress.sp)·좋아요(progress.liked)와 곡마다 들은 사람·좋아요 누른 사람(S.songAdm)
+   (2) 최종 결과는 END가 지나고 방장이 승인해야 공개(cfg.finalOk={at,by}). 공개되면 처음 열 때 한 번 큰 연출(창 'finrev', 이 기기 gbb_finrv=승인 시각):
+   시작 -> 100점 넘긴 사람 명단 -> 4등부터 꼴찌까지(아래에서 위로) -> 3등 -> 2등 -> 1등 -> 전체 순위. 결과 화면에서 다시 보기 ---------- */
+var FIN_CUT=100;
+function finOk(V){var f=obj(obj((V||V0||{}).cfg).finalOk);return f.at?f:null;}
+function finalOpen(){return today()>END&&!!finOk(V0);}
+function songAdmHtml(V){
+  if(adminId(V)!==V.me||!S.songAdm)return '';
+  var h='<div class="sadm"><h3>사람별 노동요<small>방장만 보입니다</small></h3>';
+  V.roster.forEach(function(m){
+    var p=obj(V.progress[m.id]),sp=obj(p.sp),lk=obj(p.liked),pl=Object.keys(sp).filter(function(k){return V.songs[k]&&+sp[k]>0;}).sort(function(a,b){return sp[b]-sp[a];}),li=Object.keys(lk).filter(function(k){return lk[k]&&V.songs[k];});
+    if(!pl.length&&!li.length)return;
+    h+='<div class="sadmp"><b>'+esc(V.byId[m.id].name)+'</b>'+(pl.length?'<span>들음: '+pl.map(function(k){return esc(cut(obj(V.songs[k]).title,18))+' '+sp[k]+'번';}).join(', ')+'</span>':'')+(li.length?'<span>좋아요: '+li.map(function(k){return esc(cut(obj(V.songs[k]).title,18));}).join(', ')+'</span>':'')+'</div>';
+  });
+  return h+'</div>';
+}
+function songAdmRow(V,id){
+  if(adminId(V)!==V.me||!S.songAdm)return '';
+  var lk=[],pl=[];V.roster.forEach(function(m){var p=obj(V.progress[m.id]),n=+obj(p.sp)[id]||0,nm=V.byId[m.id].name;if(obj(p.liked)[id])lk.push(nm);if(n>0)pl.push(nm+' '+n+'번');});
+  return '<p class="sadmr">'+(pl.length?'들은 사람: '+esc(pl.join(', ')):'들은 사람 없음')+' · '+(lk.length?'좋아요: '+esc(lk.join(', ')):'좋아요 없음')+'</p>';
+}
+/* 공개 연출 */
+var FR_STEPS=['intro','cut','rest','p3','p2','p1','all'];
+function finConfetti(n,cls){var h='<div class="frconf '+(cls||'')+'" aria-hidden="true">';for(var i=0;i<n;i++){h+='<i style="--x:'+((i*37)%100)+';--d:'+((i*53)%23/10)+'s;--r:'+((i*71)%360)+'deg;--c:'+(i%5)+'"></i>';}return h+'</div>';}
+function modalFinRev(V){
+  var fs=finalStandings(V).filter(function(x){return x.total>0;}),st=S.fr||{s:0},step=FR_STEPS[st.s]||'all',h='';
+  var top=fs.slice(0,3),rest=fs.slice(3),cutL=fs.filter(function(x){return x.total>=FIN_CUT;});
+  h+='<div class="frv s-'+step+'" id="dlg-finrev" role="dialog" aria-modal="true" aria-label="최종 결과 발표" tabindex="-1"><div class="frbg" aria-hidden="true"></div>';
+  if(step==='intro')h+='<div class="frin"><small>'+esc(shortDate(TALLY)+' ~ '+shortDate(END))+'</small><h2>최종 결과 발표</h2><p>'+fs.length+'명의 기록을 모두 더했습니다</p><div class="frcount"><b>3</b><b>2</b><b>1</b></div></div>';
+  else if(step==='cut')h+='<div class="frsec"><h2>'+FIN_CUT+'점 넘긴 사람<small>'+cutL.length+'명</small></h2><div class="frcut">'+(cutL.length?cutL.slice().sort(function(a,b){return a.p.name.localeCompare(b.p.name);}).map(function(x,i){return '<span style="--i:'+i+'">'+esc(x.p.name)+'</span>';}).join(''):'<p class="hint">'+FIN_CUT+'점을 넘긴 사람이 없습니다</p>')+'</div><p class="frnote">순서는 이름순입니다. 등수는 곧 공개됩니다</p></div>';
+  else if(step==='rest')h+='<div class="frsec"><h2>'+(rest.length?'4등부터':'등수 공개')+'</h2><div class="frrest">'+(rest.length?rest.map(function(x,i){return {x:x,i:i};}).reverse().map(function(o,j){return '<div class="frr'+(o.x.p.id===V.me?' me':'')+'" style="--i:'+j+'"><b>'+(o.i+4)+'등</b><span>'+esc(o.x.p.name)+'</span><em>'+fmtN(o.x.total)+'점</em></div>';}).join(''):'<p class="hint">이제 1, 2, 3등만 남았습니다</p>')+'</div></div>';
+  else if(step==='p3'||step==='p2'||step==='p1'){
+    var k=+step.slice(1),x=top[k-1],pz=prizeOf(V,k);
+    h+='<div class="frpod k'+k+'"><div class="frdrum"><small>두구두구</small><b>'+k+'등은</b></div>'+(x?'<div class="frcard"><span class="frmed">'+k+'</span><b class="frname">'+esc(x.p.name)+'</b><em>'+fmtN(x.total)+'점</em>'+(pz.t?'<small class="frprize">상품: '+esc(pz.t)+'</small>':'')+'</div>':'<div class="frcard"><b class="frname">없음</b></div>')+(k===1?finConfetti(70,'big')+'<div class="frrays" aria-hidden="true"></div>':finConfetti(k===2?30:20,''))+'</div>';
+  }else{
+    h+='<div class="frsec frall"><h2>최종 순위</h2><div class="frpodium">'+[1,0,2].map(function(i){var x=top[i];return x?'<div class="frp p'+(i+1)+'"><b>'+esc(x.p.name)+'</b><small>'+fmtN(x.total)+'점</small><span>'+(i+1)+'</span></div>':'';}).join('')+'</div><div class="frlist">'+fs.map(function(x,i){return '<div class="frr'+(x.p.id===V.me?' me':'')+(x.total>=FIN_CUT?' cut':'')+'"><b>'+(i+1)+'등</b><span>'+esc(x.p.name)+'</span><em>'+fmtN(x.total)+'점</em></div>';}).join('')+'</div></div>';
+  }
+  var last=st.s>=FR_STEPS.length-1;
+  h+='<div class="frnav">'+(last?'<button class="btn xl primary" data-act="fr-close">닫기</button>':'<button class="btn xl primary" data-act="fr-next">'+(step==='intro'?'시작':step==='p1'?'전체 순위 보기':'다음')+'</button><button class="linkbtn frskip" data-act="fr-skip">건너뛰기</button>')+'</div></div>';
+  return h;
+}
+function finRevTick(V){
+  try{var f=finOk(V);if(!f||!V.me||S.modal||today()<=END)return;if(lsGet('gbb_finrv')===String(f.at))return;lsSet('gbb_finrv',String(f.at));S.fr={s:0};openModal('finrev');}catch(e){}
+}
+function finAdminCard(V){
+  if(adminId(V)!==V.me||today()<=END||finOk(V))return '';
+  var fs=finalStandings(V);
+  return '<section class="card fin" id="c-fin-ok" style="--k:0"><div class="ct"><h2>최종 결과 공개 승인<small>방장만 보입니다</small></h2></div><p class="hint">승인하면 모두에게 공개 연출과 함께 순위가 공개됩니다. 승인 전에는 아무에게도 보이지 않습니다.</p><div class="row" style="margin:10px 0"><button class="btn primary" data-act="fin-ok">'+(S.confirm==='finok'?'한 번 더 누르면 공개합니다':'승인하고 공개하기')+'</button></div><details class="finpre"><summary>미리 보기 (방장만)</summary>'+fs.map(function(x,i){return '<div class="frr"><b>'+(i+1)+'등</b><span>'+esc(x.p.name)+'</span><em>'+fmtN(x.total)+'점</em></div>';}).join('')+'</details></section>';
+}
+
 /* ---------- 방: 참여 코드, 새 방, 방 바꾸기 (웹 판) ---------- */
 // 참여 링크: 사이트주소#join=<저장소 이름>  -> 참여 코드 6자리 -> 이름 고르기
 // 코드 연결: rooms/joincode-<코드> = {r:방 id, n:방 이름, at}
@@ -8046,6 +8175,7 @@ function songsCard(V,k){
   h+='</div>';
   if(moods.length&&all.length>1&&!pv)h+='<div class="chips sfilter" id="songFilter" role="group" aria-label="태그로 고르기">'+[''].concat(moods).map(function(m){return '<button class="chip" data-act="song-filter" data-id="'+m+'" aria-pressed="'+(f===m?'true':'false')+'">'+(m?'#'+esc(m)+' <small>'+tcnt[m]+'</small>':'전체 <small>'+all.length+'</small>')+'</button>';}).join('')+'</div>';
   if(!pv)h+=songTools(V,all.length);
+  if(adminId(V)===V.me&&all.length)h+='<div class="row sadmb"><button class="btn small soft" data-act="song-adm" aria-pressed="'+(S.songAdm?'true':'false')+'">'+(S.songAdm?'누가 들었나 닫기':'누가 들었나 보기 (방장만)')+'</button></div>'+songAdmHtml(V);
   if(all.length&&!list.length)h+='<p class="empty">'+(S.songSort==='mine'&&!String(S.draft.songQ||'').trim()?'아직 좋아요를 누른 곡이 없습니다.':'찾는 곡이 없습니다.')+'</p>';
   if(!all.length)h+='<p class="empty">공부할 때 듣는 음악을 올려보세요. 이름과 링크를 같이 넣으면 이름을 눌러 바로 이동할 수 있습니다.</p>';
   list.forEach(function(x){
@@ -8054,6 +8184,7 @@ function songsCard(V,k){
     h+=ok?'<a class="st" href="'+esc(x.url)+'" target="_blank" rel="noopener noreferrer" data-act="song-open" data-id="'+esc(x.id)+'">'+esc(x.title)+'</a>':'<button class="st" data-act="song-now" data-id="'+esc(x.id)+'" aria-pressed="'+(on?'true':'false')+'">'+esc(x.title)+'</button>';
     h+='<div class="smeta">'+(roll&&S.songRoll.done?'<em class="tag a">오늘은 이 곡</em>':'')+(top===x.id?'<em class="tag a">좋아요 1위</em>':'')+(Date.now()-(+x.at||0)<3*86400000?'<em class="tag snew">새 곡</em>':'')+songTags(x).map(function(m){return '<em class="tag stg">#'+esc(m)+'</em>';}).join('')+(ok&&isPlaylist(x.url)?'<em class="tag">플레이리스트</em>':'')+'<small>'+(ok?esc(platformOf(x.url))+', ':'')+esc(w?w.name:'나간 인원')+(pls[x.id]?', '+pls[x.id]+'번 들음':'')+'</small></div>';
     if(x.note)h+='<p class="snote">'+esc(x.note)+'</p>';
+    h+=songAdmRow(V,x.id);
     if(S.songTagEdit===x.id&&x.mid===V.me)h+='<div class="chips stedit">'+songTagChips('song-tagset',x.id,songTags(x))+songTagInput('songTagE:'+x.id,'song-tagset',x.id)+'<button class="btn small" data-act="song-tagedit" data-id="'+esc(x.id)+'">다 했어요</button></div>';
     if(hs.length)h+='<div class="snow"><span>듣는 중: '+esc(hs.join(', '))+'</span>'+(on?'<button class="del" data-act="song-stop">그만 듣기</button>':'')+'</div>';
     if(S.songShow[x.id]&&ok)h+='<small class="url">'+esc(x.url)+'</small>';
@@ -8454,7 +8585,7 @@ function modalSettings(V){
   [[22,'밤 10시'],[23,'밤 11시'],[24,'자정'],[25,'다음 날 새벽 1시'],[26,'다음 날 새벽 2시'],[27,'다음 날 새벽 3시'],[28,'다음 날 새벽 4시'],[29,'다음 날 새벽 5시']].forEach(function(o){b+='<option value="'+o[0]+'"'+(V.certHour===o[0]?' selected':'')+'>'+o[1]+'</option>';});
   b+='</select>';
   b+='</div>'+spSec()+pokeSec()+noticeSec(V)+periodSec(V)+'<div class="sec"><h3>사용법</h3><div class="row"><button class="btn small" data-act="open" data-modal="help">사용법 보기</button></div></div><div class="sec"><h3>키보드 단축키<small>키보드를 연결했을 때</small></h3><ul class="kbd">'+[['1 ~ 8','달력부터 메시지까지 화면 이동'],['N','할 일 추가'],['D','마감 있는 할 일 추가'],['L','달력, 할 일, 시간표 차례로 바꿔 보기'],['T','타이머 켜기, 끄기'],['F','타이머 크게 보기'],['Esc','창 닫기']].map(function(x){return '<li><kbd>'+x[0]+'</kbd><span>'+x[1]+'</span></li>';}).join('')+'</ul></div><div class="sec"><h3>저장 위치</h3><p class="hint">'+esc(S.net?({claude:'Claude 공유 저장소에 연결되어 있습니다. Claude에 로그인한 참여 인원끼리 실시간으로 같이 봅니다.',firebase:'공유 저장소에 연결되어 있습니다. 참여 코드로 들어온 사람 모두가 실시간으로 같이 봅니다.',local:'지금은 이 기기에만 저장됩니다. 다른 사람과 같이 보려면 공유 저장소 연결이 필요합니다.'}[S.net.mode]):'연결 중입니다.')+'</p>'+(S.net&&S.net.mode==='firebase'&&S.remote?'<div class="row" style="margin-top:10px"><button class="btn small" data-act="import-pick">기록 가져오기</button><button class="btn small" data-act="export-data">기록 파일로 저장</button><button class="del" data-act="setup-reset">'+(S.confirm==='disc'?'한 번 더 누르면 이 방에서 나갑니다':'이 기기에서 이 방 나가기')+'</button></div><p class="hint" style="margin-top:8px">'+esc(S.importMsg||'친구와 내 다른 기기는 위의 친구 초대하기로 들어옵니다. 기록 가져오기는 처음 연결한 뒤 한 번만 하면 됩니다.')+'</p>':'')+'</div>';
-  b+='<p class="hint appver">앱 버전 11월 15일 19:40</p>';
+  b+='<p class="hint appver">앱 버전 11월 15일 19:44</p>';
   return dlg('wide',{id:'settings',t:'설정'},b);
 }
 function modalCheck(V){
@@ -8493,6 +8624,7 @@ function modalHtml(V){
   if(t==='help')return modalHelp(V);
   if(t==='gorder')return modalGOrder(V);
   if(t==='gall')return modalGAll(V);
+  if(t==='finrev'){if(!finalOpen()){S.modal=null;return '';}return modalFinRev(V);}
   if(t==='exam')return modalExam(V);
   if(t==='lotnew'&&S.lot)return modalLotNew(V,inkOf(V));
   if(t==='lot')return modalLot(V);
@@ -8613,6 +8745,7 @@ function after(V){
   afterChat(V);
   try{alSync();}catch(e){}
   try{songDock();}catch(e){}
+  try{finRevTick(V);}catch(e){}
   try{paintMore();pruneOnce(V);eggTick(V);cgTick(V);meetTick(V);pushEnsure(V);}catch(e){}
   if(S.scrollTo&&(S.ready||!S.scrollTo.quiet)){var sa=S.scrollTo;S.scrollTo=null;setTimeout(function(){var se=document.getElementById(sa.id);if(!se||!se.scrollIntoView)return;if(sa.inline){var sc=se.closest('.wkscroll');if(sc&&sc.scrollWidth>sc.clientWidth+2)sc.scrollTo({left:se.offsetLeft-sc.firstElementChild.offsetLeft,behavior:sa.quiet||reduced?'auto':'smooth'});return;}se.scrollIntoView({block:sa.block||'start',behavior:reduced?'auto':'smooth'});},30);}
   if(S.ttScrollY!=null){var tsc=document.getElementById('ttScroll');if(tsc){var tv=S.ttScrollY;S.ttScrollY=null;tsc.scrollTop=tv==='auto'?(+tsc.getAttribute('data-auto')||0):tv;}}
@@ -9219,6 +9352,12 @@ function act(name,el){
     case 'ex-who':if(S.ex)S.ex.who=S.ex.who===el.getAttribute('data-v')?null:el.getAttribute('data-v');break;
     case 'ex-edit':{if(!S.ex)break;var exk=el.getAttribute('data-v')||null;S.ex.edit=exk;if(exk){var Vx=view(),ex0=obj(examMap(examOf(Vx)||{})[exk]);S.draft['exR:'+exk]=ex0.r||'';}break;}
     case 'ex-save':{var Ve=view(),E0=examOf(Ve),ek=el.getAttribute('data-v'),en=el.getAttribute('data-n'),er=String(S.draft['exR:'+ek]||'').trim().slice(0,400);if(!E0||!need())break;editCfg(function(c){var e=c.exam;e.subs=arr(e.subs);var i=-1;e.subs.forEach(function(x,j){if(examKey(obj(x).n)===ek)i=j;});var nx={n:en,r:er,by:Ve.me,at:Date.now()};if(i<0)e.subs.push(nx);else e.subs[i]=Object.assign({},obj(e.subs[i]),nx);});S.ex.edit=null;flash(en+' 시험 범위를 고쳤습니다.');break;}
+    case 'song-adm':S.songAdm=!S.songAdm;break;
+    case 'fin-ok':{var Vf=view();if(adminId(Vf)!==Vf.me||today()<=END)break;if(prev!=='finok'){S.confirm='finok';break;}editCfg(function(c){c.finalOk={at:Date.now(),by:Vf.me};});flash('최종 결과를 공개했습니다.');break;}
+    case 'fr-next':if(S.fr){S.fr.s=Math.min(FR_STEPS.length-1,S.fr.s+1);}break;
+    case 'fr-skip':if(S.fr)S.fr.s=FR_STEPS.length-1;break;
+    case 'fr-close':closeModal();return;
+    case 'fr-replay':S.fr={s:0};openModal('finrev');return;
     case 'ga-old':if(S.ga)S.ga.old=!S.ga.old;break;
     case 'ga-hid':if(S.ga)S.ga.hid=!S.ga.hid;break;
     case 'ga-sid':if(S.ga)S.ga.sid=S.ga.sid===el.getAttribute('data-v')?'':el.getAttribute('data-v');break;

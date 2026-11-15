@@ -9,7 +9,9 @@ def check(n,c,x=''):
     if not c: ok=False
 NOW=datetime.datetime(2026,12,10,15,0,0)
 R=Rig()
-p=R.open(1180,820,ls={'gbb_note':'9999999999999'},now=NOW);close_dlg(p)
+p=R.open(1180,820,ls={'gbb_note':'9999999999999','gbb_finrv':'1'},now=NOW);close_dlg(p)
+# v94: 최종 결과는 방장 승인 뒤 공개
+p.evaluate("()=>{window.__store['meta/config'].finalOk={at:1,by:'m1'};window.__fire&&window.__fire();}");p.wait_for_timeout(400)
 seed="""()=>{const S=window.__store;
 ['2026-10-14','2026-10-15','2026-10-16'].forEach(d=>{S['days/m2_'+d]={in:d+'T00:10:00.000Z',mins:{s2:400},goals:[]};});
 S['days/m3_2026-11-03']={in:'2026-11-03T00:10:00.000Z',mins:{s2:60},goals:[]};

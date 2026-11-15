@@ -52,7 +52,9 @@ print('errors',R.errors);R.errors.clear()
 # 예전 방: cfg.prize만 있으면 1등 상품으로, 시험 끝난 뒤 시상대에 1·2·3등 상품
 AFTER=datetime.datetime(2026,12,10,15,0,0)
 SEED2="()=>{const S=window.__store;S['meta/config'].prize={t:'예전 1등 선물',by:'m2'};S['meta/config'].penalties=[{t:'매점 간식 사기',by:'m1'}];const ms={m1:[300,240,200],m2:[420,380,300],m3:[120,100,90],m4:[60,30,20],m5:[200,260,240]};Object.keys(ms).forEach(m=>{['2026-11-02','2026-11-03','2026-11-10'].forEach((d,i)=>{S['days/'+m+'_'+d]={in:d+'T00:10:00.000Z',mins:{s2:ms[m][i]},goals:[]};});});window.__fire&&window.__fire();}"
-p=R.open(1180,820,ls={'gbb_note':'9999999999999'},now=AFTER)
+p=R.open(1180,820,ls={'gbb_note':'9999999999999','gbb_finrv':'1'},now=AFTER)
+# v94: 최종 결과는 방장 승인 뒤 공개
+p.evaluate("()=>{window.__store['meta/config'].finalOk={at:1,by:'m1'};window.__fire&&window.__fire();}");p.wait_for_timeout(400)
 p.evaluate(SEED2);p.wait_for_timeout(600);close_dlg(p)
 click(p,'[data-act="tab"][data-tab="rank"]',800)
 click(p,'[data-act="range"][data-id="all"]',800)
