@@ -26,13 +26,14 @@ check('not admin: no toggle',ev(p,"(window.__me=document.querySelector('[data-ac
 R.close()
 SEEDF="(function(){var t=setInterval(function(){var S=window.__store;if(!S||!S['meta/config'])return;var ms=Object.keys(S['meta/config'].roster||{}).length?S['meta/config'].roster.map(function(m){return m.id;}):['m1','m2','m3','m4','m5'];var d0=new Date('2026-11-02T12:00:00+09:00').getTime();ms.forEach(function(m,i){for(var k=0;k<(4+i*3)%13+2;k++){var dt=new Date(d0+k*86400000*2),ds=dt.toISOString().slice(0,10);S['days/'+m+'_'+ds]={mins:{s1:60+i*40+k*7},in:dt.getTime(),certAt:dt.getTime()+3600000,goals:[{id:'g1',text:'a',sid:'s1',done:true},{id:'g2',text:'b',sid:'s1',done:true},{id:'g3',text:'c',sid:'s2',done:true}]};}});%sclearInterval(t);},5);})();"
 # 최종 결과
-R=Rig();p=R.open(1280,900,ls={'gbb_note':'9999999999999'},now='2026-12-10T10:00:00+09:00',pre=SEEDF.replace("%s",""));close_dlg(p);p.wait_for_timeout(600)
+R=Rig();p=R.open(1280,900,ls={'gbb_note':'9999999999999'},now='2026-12-10T10:00:00+09:00',pre='window.WebGLRenderingContext=undefined;'+SEEDF.replace("%s",""));close_dlg(p);p.wait_for_timeout(600)
 click(p,'[data-act="tab"][data-tab="rank"]',600);click(p,'[data-act="range"][data-id="all"]',600)
 check('not revealed before approval',not ev(p,"!!document.getElementById('c-fin')") and ev(p,"!!document.getElementById('c-fin-wait')"))
 check('admin approve card',ev(p,"!!document.getElementById('c-fin-ok')"))
 click(p,'[data-act="fin-ok"]',300);click(p,'[data-act="fin-ok"]',900)
 check('approved saved',bool(json.loads(ev(p,"JSON.stringify(window.__store['meta/config'].finalOk||null)"))))
-check('reveal opened',ev(p,"!!document.getElementById('dlg-finrev')"))
+p.wait_for_selector('#dlg-finrev',timeout=30000)
+check('reveal opened (fallback without 3D)',ev(p,"!!document.getElementById('dlg-finrev')"))
 steps=[]
 for i in range(7):
     steps.append(ev(p,"document.getElementById('dlg-finrev').className"))
@@ -47,7 +48,8 @@ p.reload();p.wait_for_timeout(1500);close_dlg(p) if False else None
 check('not shown again on reload',not ev(p,"!!document.getElementById('dlg-finrev')"))
 print('errors',R.errors);check('no errors',not R.errors,R.errors)
 R.close()
-R=Rig();p=R.open(390,844,ls={'gbb_note':'9999999999999'},now='2026-12-10T10:00:00+09:00',pre=SEEDF.replace("%s","S['meta/config'].finalOk={at:1,by:'m1'};"));p.wait_for_timeout(1500)
+R=Rig();p=R.open(390,844,ls={'gbb_note':'9999999999999'},now='2026-12-10T10:00:00+09:00',pre='window.WebGLRenderingContext=undefined;'+SEEDF.replace("%s","S['meta/config'].finalOk={at:1,by:'m1'};"));p.wait_for_timeout(1500)
+p.wait_for_selector('#dlg-finrev',timeout=30000)
 check('auto reveal for others on open',ev(p,"!!document.getElementById('dlg-finrev')"))
 for i in range(5):click(p,'[data-act="fr-next"]',300)
 p.wait_for_timeout(3500);p.screenshot(path=SS+'fr_phone.png')
