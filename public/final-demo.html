@@ -158,7 +158,7 @@ var FR3=(function(){
     R.shadowMap.enabled=true;R.shadowMap.type=T3.PCFSoftShadowMap;
     var BG=0x0b0c10;
     var scene=new T3.Scene();scene.background=new T3.Color(BG);scene.fog=new T3.Fog(L(BG),34,mobile?110:140);
-    var camera=new T3.PerspectiveCamera(portrait?58:40,W/H,0.1,800);
+    var camera=new T3.PerspectiveCamera(portrait?58:40,W/H,0.5,600);
     var cam={pos:new T3.Vector3(0,62,260),look:new T3.Vector3(0,14,-40)};
     /* ---- 반사용 환경: 어두운 방에 부드러운 큰 조명판 몇 개 ---- */
     (function(){
@@ -446,6 +446,9 @@ var FR3=(function(){
       if(busy&&T>=actEnd)onActEnd();
       for(var ri=rips.length-1;ri>=0;ri--){var rp=rips[ri];rp.t+=dt;var rk=Math.min(1,rp.t/rp.d),rs=1+E.out(rk)*rp.s;rp.m.scale.set(rs,rs,rs);rp.m.material.opacity=rp.o*(1-rk);if(rk>=1){scene.remove(rp.m);rp.m.geometry.dispose();rp.m.material.dispose();rips.splice(ri,1);}}
       if(motes.material.opacity>0){var a=motes.geometry.attributes.position.array,sp=motes.userData.sp;for(var i=0;i<sp.length;i++){a[i*3+1]+=sp[i]*dt*.9;if(a[i*3+1]>18)a[i*3+1]=0;}motes.geometry.attributes.position.needsUpdate=true;}
+      /* 납작한(아직 안 솟은) 판은 바닥과 겹쳐 깜빡이므로 그리지 않음 */
+      for(var pk in pods){var pd=pods[pk];pd.m.visible=pd.m.scale.y>.02;}
+      for(var bi=0;bi<bars.length;bi++){bars[bi].mesh.visible=bars[bi].mesh.scale.y>.02;}
       camera.position.copy(cam.pos);camera.lookAt(cam.look);if(portrait)camera.rotateX(.14);
       R.render(scene,camera);
     }
