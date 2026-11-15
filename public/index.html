@@ -2219,6 +2219,41 @@ html.gdragging,html.gdragging *{cursor:grabbing !important;user-select:none;-web
 #dlg-gall .gadate:focus{outline:0;box-shadow:inset 0 0 0 1.5px var(--accent)}
 .ibrow.ibdone .ibpick b{text-decoration:line-through;color:var(--ink-3)}
 #dlg-gall .ganod{flex:0 0 auto;min-height:46px}
+/* v92 시험 안내 */
+.pillbtn{cursor:pointer;font:inherit;border:0}
+.excard .ct{align-items:center}
+.exchips{display:flex;flex-wrap:wrap;gap:6px}
+.exchip{display:inline-flex;align-items:center;gap:6px;border:0;border-radius:12px;background:var(--fill);padding:7px 10px;font:inherit;cursor:pointer;color:var(--ink)}
+.exchip i{width:8px;height:8px;border-radius:50%;background:var(--sc)}
+.exchip b{font-size:13px}
+.exchip small{font-size:12px;color:var(--ink-3)}
+.exchip.past{opacity:.5}
+.uexam{display:grid;gap:2px;width:100%;text-align:left;border:0;border-radius:12px;background:var(--fill);padding:8px 10px;margin:8px 0 4px;font:inherit;color:var(--ink);cursor:pointer}
+.uexam b{font-size:12px;color:var(--accent-ink)}
+.uexam span{font-size:13px;color:var(--ink-2);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.exseg{margin-bottom:12px}
+.exday{margin:0 0 16px}
+.exday h3{display:flex;align-items:baseline;gap:8px;margin:0 0 8px;font-size:14px}
+.exday h3 small{color:var(--ink-3);font-weight:600}
+.exday.past{opacity:.55}
+.exrow{border-radius:14px;background:var(--fill);padding:10px 12px;margin-bottom:6px;box-shadow:inset 3px 0 0 var(--sc)}
+.exrow.focus{box-shadow:inset 3px 0 0 var(--sc),0 0 0 2px var(--accent)}
+.exh{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.exp{display:grid;font-size:12px;font-weight:800;color:var(--accent-ink);min-width:62px}
+.exp small{font-weight:500;color:var(--ink-3);font-size:11px}
+.exn{display:flex;align-items:center;gap:6px;flex:1;min-width:0;font-size:15px}
+.exn i{width:8px;height:8px;border-radius:50%;background:var(--sc);flex:none}
+.exh .linkbtn{border:0;background:none;padding:0;font:inherit;font-size:12px;font-weight:700;color:var(--accent-ink);cursor:pointer}
+.exwho{margin:6px 0 0;font-size:12px;color:var(--ink-2)}
+.exr{margin:6px 0 0;font-size:14px;line-height:1.5;white-space:pre-wrap}
+.exft{display:flex;align-items:center;justify-content:space-between;margin-top:4px}
+.exft small{font-size:11px;color:var(--ink-3)}
+.exft .del{height:26px;font-size:12px}
+.exedit{display:grid;gap:6px;margin-top:6px}
+.exedit textarea{width:100%;min-height:72px}
+.exnotes{border-top:1px solid var(--line);padding-top:10px}
+.exnotes h3{font-size:13px;margin:0 0 4px}
+.exnotes p{margin:2px 0;font-size:13px}
 #c-setup .row input{min-width:0}
 #c-setup .lb{margin-top:0}
 .serr{color:var(--red);margin-top:8px}
@@ -3447,7 +3482,7 @@ function viewCal(V){
   if(S.date!==t||ym!==t.slice(0,7))h+='<button class="btn small" data-act="cal-today" style="margin-left:6px">오늘</button>';
   h+='</div><div class="vacts">'+calModeSeg();
   if(ph&&wk<=8)h+='<span class="pill">'+wk+'주차<b>'+esc(ph.name)+'</b></span>';
-  if(dd>0)h+='<span class="pill">2차 시험<b>D-'+dd+'</b></span>';
+  if(dd>0)h+='<button class="pill pillbtn" data-act="open" data-modal="exam">2차 시험<b>D-'+dd+'</b></button>';
   if(t>=START&&t<=END){
     var x=obj(V.days[V.me+'_'+t]);
     h+=x.in?'<span class="pill">연속 출석<b>'+V.sc[V.me][t].streak+'일</b></span>':'<button class="btn small primary" data-act="open" data-modal="reward">출석하기</button>';
@@ -3531,7 +3566,7 @@ function viewAgenda(V){
   if(t<fv||t>addDays(fv,6))h+='<button class="btn small" data-act="al-week" data-d="0">오늘로</button>';
   h+='</div><div class="vacts">'+calModeSeg();
   if(ph&&wk>=1)h+='<span class="pill">'+wk+'주차<b>'+esc(ph.name)+'</b></span>';
-  if(dd>0)h+='<span class="pill">2차 시험<b>D-'+dd+'</b></span>';
+  if(dd>0)h+='<button class="pill pillbtn" data-act="open" data-modal="exam">2차 시험<b>D-'+dd+'</b></button>';
   h+='</div></header>';
   var days=[],tot=0,dn=0,late=0;
   for(var i=0;i<7;i++){var d=addDays(fv,i),g=dayOf(V,V.me,d).goals,c=g.filter(isDone).length;days.push(d);tot+=g.length;dn+=c;if(d<t)late+=g.filter(function(x){return !x.done&&!x.mv;}).length;}
@@ -3622,7 +3657,7 @@ function viewTT(V){
   var title=n===1?longDate(days[0]):wkTitle(days[0],n);
   var h='<div class="view" id="view-cal"><header class="vhead"><div class="mnav"><button class="ib" data-act="tt-nav" data-d="-1" aria-label="이전">&lsaquo;</button><h1 class="wkt">'+esc(title)+'</h1><button class="ib" data-act="tt-nav" data-d="1" aria-label="다음">&rsaquo;</button>';
   if(!hasT)h+='<button class="btn small" data-act="tt-nav" data-d="0" style="margin-left:6px">오늘</button>';
-  h+='</div><div class="vacts">'+calModeSeg()+(dd>0?'<span class="pill">2차 시험<b>D-'+dd+'</b></span>':'')+'</div></header>';
+  h+='</div><div class="vacts">'+calModeSeg()+(dd>0?'<button class="pill pillbtn" data-act="open" data-modal="exam">2차 시험<b>D-'+dd+'</b></button>':'')+'</div></header>';
   var cols=days.map(function(d){
     var day=dayOf(V,V.me,d),mode=modeOf(d);
     return {d:d,day:day,mode:mode,ro:mode==='view',lk:mode!=='view'&&ttLocked(),fx:(function(f,sc){return sc.length?f.filter(function(b){return b.k!=='school';}):f;})(fixedOn(V,d),schItems(V,d)),sc:schItems(V,d),offN:fixedOn(V,d,true).filter(function(b){return b.off;}).length,
@@ -4415,7 +4450,7 @@ function evRow(V,x){
 function viewEvents(V){
   var t=today(),dd=diffDays(t,EXAM[0]),past=!!S.evPast;
   var h='<div class="view" id="view-cal"><header class="vhead"><div><h1>일정</h1><p>학교 행사와 시험, 수행평가를 나눠서 봅니다.</p></div><div class="vacts">'+calModeSeg();
-  if(dd>0)h+='<span class="pill">2차 시험<b>D-'+dd+'</b></span>';
+  if(dd>0)h+='<button class="pill pillbtn" data-act="open" data-modal="exam">2차 시험<b>D-'+dd+'</b></button>';
   h+='</div></header><div class="vbody'+(S.vbDir?' side':'')+'" id="vb-ev-'+(past?'p':'n')+'" style="--vd:'+S.vbDir+'"><div class="cols evcols">';
   [['task','수행평가','수행평가'],['exam','학교 행사와 시험','시험']].forEach(function(g,k){
     var list=evItems(V,g[0],past);
@@ -4568,11 +4603,13 @@ function viewProgMine(V){
   var p=obj(V.progress[V.me]),ck=obj(p.checks),skip=skipOf(V,V.me),mine=V.subs.filter(function(s){return !skip[s.id];}),off=V.subs.filter(function(s){return skip[s.id];}),h='';
   if(!V.subs.length)return '<section class="card" style="--k:0"><p class="empty">아직 과목이 없습니다.</p>'+(canWrite()?'<div class="row" style="margin-top:10px"><button class="btn primary" data-act="seed">기본 과목 8개 넣기</button><button class="btn" data-act="prog-edit">직접 추가하기</button></div>':'')+'</section>';
   var tot=0,dn=0;mine.forEach(function(s){if(isLib(V,s.id))return;var u=unitStat(V,V.me,s);tot+=u.t;dn+=u.d;});
+  h+=examCard(V);
   h+='<section class="card usum" id="c-usum" style="--k:0"><div class="usumrow"><div><small>내 전체 진도</small><b>'+(tot?Math.round(dn/tot*100):0)+'%</b></div><p class="hint">과목 '+mine.length+'개, 단원 '+mine.reduce(function(a,s){return a+unitsOf(V,V.me,s.id).length;},0)+'개, 표시한 칸 '+dn+' / '+tot+'</p></div></section>';
   mine.forEach(function(s,k){
     if(isLib(V,s.id)){var lc=subCol(V,s.id);h+='<section class="card usub ulib" id="us-'+esc(s.id)+'" style="--k:'+Math.min(k+1,6)+';--sc:'+lc+';--fg:'+fgOn(lc)+'"><div class="ct"><h2><i class="sdot"></i>'+esc(s.name)+'<small>교양 과목, 시험 없음</small></h2></div><div class="row ufoot"><button class="btn small" data-act="skip" data-id="'+esc(s.id)+'">안 듣는 과목이면 빼기</button></div></section>';return;}
     var st=unitStat(V,V.me,s),us=st.us,edit=S.uEdit===s.id,col=subCol(V,s.id);
     h+='<section class="card usub" id="us-'+esc(s.id)+'" style="--k:'+Math.min(k+1,6)+';--sc:'+col+';--fg:'+fgOn(col)+'"><div class="ct"><h2><i class="sdot"></i>'+esc(s.name)+'<small>'+(us.length?'단원 '+us.length+'개':'단원 없음')+'</small></h2><b class="upct">'+st.pct+'%</b></div><div class="ubar" aria-hidden="true"><i style="width:'+st.pct+'%"></i></div>';
+    var exs=examForSub(V,s.id);if(exs&&exs.d)h+='<button class="uexam" data-act="open" data-modal="exam" data-id="'+esc(s.id)+'"><b>시험 '+examDate(exs.d)+' '+exs.p+'교시</b><span>'+esc(exs.r||'범위 보기')+'</span></button>';
     if(us.length)us.forEach(function(u,i){h+=unitRow(V,s,u,ck,edit,i,us.length);});
     else h+=unitRow(V,s,null,ck,false,0,1)+'<p class="hint" style="margin-top:6px">아래에 단원을 적으면 단원마다 따로 표시할 수 있습니다.</p>';
     h+='<div class="uadd"><input type="text" data-draft="unit:'+esc(s.id)+'" data-enter="unit-add" data-id="'+esc(s.id)+'" maxlength="80" placeholder="예: 1. 지수와 로그, 2. 삼각함수" aria-label="'+esc(s.name)+' 단원 추가"><button class="btn small" data-act="unit-add" data-id="'+esc(s.id)+'">단원 추가</button></div>';
@@ -4701,7 +4738,7 @@ document.addEventListener('change',function(e){
 
 /* ---------- 처음 화면 ---------- */
 // 앱이 준비되면 알린다. 그림이 아직이면 다 그린 뒤에 열리고, 그림이 먼저 끝났으면 바로 열린다
-var APP_BUILD='1794669631';
+var APP_BUILD='1794719369';
 function splashDone(){
   var sp=document.getElementById('splash'),st=window.__sp;if(!sp||sp.getAttribute('data-out'))return;
   sp.setAttribute('data-out','1');
@@ -6680,6 +6717,92 @@ function songDock(){
 }
 function songListen(id){if(canWrite()&&view().me)editProg(function(p){p.now={id:id,at:Date.now()};p.sp=obj(p.sp);p.sp[id]=(+p.sp[id]||0)+1;});}
 
+/* ---------- v92: 시험 안내(창 'exam'). 방 설정 cfg.exam={t,days:[{d,ps:[[교시,[과목 이름..]]]}],times:[[교시,'시작','끝']],subs:[{n,r,by,at}],notes:[..]}
+   과목은 이름으로 맞춤(examKey: 공백 빼고 Ⅰ/I/1 같게). 과목마다 시험 날·교시·범위와 그 과목 듣는 사람(skipOf). 범위는 누구나 고칠 수 있음(by, at).
+   EXAM_PRESET은 2학기 2차 시험(2학년). 방 과목 이름이 3개 이상 맞으면 한 번만 넣음(examMig, cfg.migExam2) ---------- */
+var EXAM_PRESET={t:'2학기 2차 시험',
+  times:[[1,'08:40','09:30'],[2,'09:50','10:40'],[3,'11:00','11:50']],
+  days:[
+    {d:'2026-12-03',ps:[[1,['확률과 통계','세계 문화와 영어']],[2,['생물의 유전','현대 세계의 변화']],[3,['화학 반응의 세계','서양의 철학과 사상']]]},
+    {d:'2026-12-04',ps:[[1,['영어 비평적 읽기와 쓰기']],[2,['전자기와 양자','지정학과 글로벌 이슈']],[3,['세포와 물질대사','행성우주과학']]]},
+    {d:'2026-12-07',ps:[[1,['미적분Ⅰ']],[2,['물리학 실험','화학 실험','생명과학 실험','데이터 과학','일본 문화']]]},
+    {d:'2026-12-08',ps:[[1,['화법과 언어']],[2,['지구시스템과학','기업과 경영']]]}],
+  subs:[
+    {n:'화법과 언어',r:'교과서 pp.42~85, pp.150~239, 수업 시간에 다뤄진 모든 자료'},
+    {n:'미적분Ⅰ',r:'교과서 pp.87~165, 부교재 pp.105~239'},
+    {n:'확률과 통계',r:'교과서 pp.63~143, 부교재 pp.34~77'},
+    {n:'세계 문화와 영어',r:'수업시간에 다뤄진 모든 자료'},
+    {n:'영어 비평적 읽기와 쓰기',r:'수업시간에 다뤄진 모든 자료, 부교재 pp.89~끝, 10월 전국연합, 수특영어 26, 27강'},
+    {n:'기업과 경영',r:'Ⅲ. 기업의 부문별 활동 ~ Ⅳ. 글로벌 경영'},
+    {n:'현대 세계의 변화',r:'교과서 pp.113~153, pp.161~169, p.186, p.191'},
+    {n:'서양의 철학과 사상',r:'배부 유인물 pp.94~159'},
+    {n:'지정학과 글로벌 이슈',r:'수업시간에 다뤄진 모든 자료'},
+    {n:'전자기와 양자',r:'Ⅱ. 빛과 정보 통신 ~ Ⅲ. 양자와 미시세계, 교과서 및 모든 유인물'},
+    {n:'화학 반응의 세계',r:'Ⅱ. 산화환원 반응 ~ Ⅲ. 탄소화합물과 반응, 수업시간에 제공된 모든 자료와 구글 클래스룸 과제 전체'},
+    {n:'세포와 물질대사',r:'Ⅲ. 세포호흡과 광합성 (교과서 pp.82~127, 부교재 pp.130~227, 수업시간에 제공된 모든 자료와 구글 클래스룸 과제 전체)'},
+    {n:'생물의 유전',r:'Ⅰ.1. 유전의 기본 원리 ~ Ⅰ.3. 사람의 유전병, Ⅱ. 유전자의 발현 전체(Ⅱ.1.~Ⅱ.3.), 수업 시간에 제공된 모든 자료와 구글 클래스룸 과제 전체'},
+    {n:'지구시스템과학',r:'교과서 pp.54~121, 부교재 pp.90~207'},
+    {n:'행성우주과학',r:'교과서 pp.22~111, 부교재 pp.32~207'},
+    {n:'물리학 실험',r:'측정의 오차와 유효 숫자, 빗면을 내려가는 물체의 운동, 원운동 실험, 운동량 보존, 전기 회로 설계, 등전위선, 클래스룸 제출 과제 포함 수업시간에 진행한 모든 학습자료'},
+    {n:'화학 실험',r:'중화적정, 비타민C 함량분석, 흡광도 분석, 은거울 반응, 수업시간에 제공한 모든 학습자료 포함'},
+    {n:'생명과학 실험',r:'교과서 pp.120~125, pp.132~259 및 모든 교과서 범위 관련 유인물 및 실험보고서'},
+    {n:'데이터 과학',r:'수업자체자료(파이썬 문법, numpy, pandas 실습)'},
+    {n:'일본 문화',r:'교과서 pp.1~145'}],
+  notes:['한 교시에 과목이 여럿이면 선택 과목입니다. 그 교시 시험이 없는 사람은 다른 교실로 이동하거나 귀가합니다.','성적 이의 신청 기간: 12월 9일 ~ 12월 10일','일정과 범위는 시험 전까지 바뀔 수 있습니다. 바뀌면 범위를 고쳐 주세요.']};
+function examKey(n){return String(n||'').replace(/\s+/g,'').replace(/[ⅠI1]$/,'1').replace(/Ⅱ$/,'2').toLowerCase();}
+function examOf(V){var e=obj(obj(V.cfg).exam);return arr(e.days).length?e:null;}
+/* 과목 이름 -> {d,p,s,e,r,by,at,i} */
+function examMap(E){
+  var m={},tm={};arr(E.times).forEach(function(t){t=arr(t);tm[t[0]]=t;});
+  arr(E.days).forEach(function(dy){dy=obj(dy);arr(dy.ps).forEach(function(pp){pp=arr(pp);var t=tm[pp[0]]||[];arr(pp[1]).forEach(function(n){m[examKey(n)]={n:n,d:dy.d,p:+pp[0],s:t[1]||'',e:t[2]||'',sel:arr(pp[1]).length>1};});});});
+  arr(E.subs).forEach(function(x,i){x=obj(x);var k=examKey(x.n);m[k]=Object.assign(m[k]||{n:x.n},{r:x.r||'',by:x.by||'',at:x.at||0,i:i});});
+  return m;
+}
+function examForSub(V,sid){var E=examOf(V);if(!E||!V.subName[sid])return null;return examMap(E)[examKey(V.subName[sid])]||null;}
+function examTakers(V,name){var sid=null;V.subs.forEach(function(s){if(examKey(s.name)===examKey(name))sid=s.id;});if(!sid)return null;return V.roster.filter(function(m){return !skipOf(V,m.id)[sid];});}
+function examDate(d){var x=pd(d);return (x.getMonth()+1)+'/'+x.getDate()+'('+DOW[x.getDay()]+')';}
+function examMine(V){var E=examOf(V);if(!E)return [];var mp=examMap(E),out=[];mySubs(V).forEach(function(s){var x=mp[examKey(s.name)];if(x&&x.d)out.push(Object.assign({sid:s.id},x));});return out.sort(function(a,b){return a.d<b.d?-1:a.d>b.d?1:a.p-b.p;});}
+/* 진도 화면 맨 위 카드: 다음 시험 날과 내 과목 */
+function examCard(V){
+  var E=examOf(V);if(!E)return '';var t=today(),last=arr(E.days).map(function(x){return obj(x).d;}).sort().pop();if(!last||last<t)return '';
+  var mine=examMine(V),next=mine.filter(function(x){return x.d>=t;})[0],h='<section class="card excard" id="c-exam" style="--k:0"><div class="ct"><h2>'+esc(E.t||'시험 안내')+'<small>'+(next?dlabel(next.d):'')+'</small></h2><button class="btn small primary" data-act="open" data-modal="exam">범위·일정 보기</button></div>';
+  if(mine.length){h+='<div class="exchips">'+mine.map(function(x){return '<button class="exchip'+(x.d<t?' past':'')+'" data-act="open" data-modal="exam" data-id="'+esc(x.sid)+'" style="--sc:'+subCol(V,x.sid)+'"><i></i><b>'+esc(V.subName[x.sid])+'</b><small>'+examDate(x.d)+' '+x.p+'교시</small></button>';}).join('')+'</div>';}
+  else h+='<p class="hint">내 과목 중 시험 일정에 있는 과목이 없습니다.</p>';
+  return h+'</section>';
+}
+function modalExam(V){
+  var E=examOf(V);if(!E)return dlg('wide',{id:'exam',t:'시험 안내'},'<p class="empty">아직 시험 안내가 없습니다.</p>','');
+  var X=S.ex||{},mp=examMap(E),mine={},t=today(),tm={};mySubs(V).forEach(function(s){mine[examKey(s.name)]=s.id;});arr(E.times).forEach(function(x){x=arr(x);tm[x[0]]=x;});
+  var b='<div class="seg mini exseg" role="group" style="grid-template-columns:repeat(2,minmax(0,1fr))"><button data-act="ex-all" data-v="" aria-pressed="'+(X.all?'false':'true')+'">내 과목</button><button data-act="ex-all" data-v="1" aria-pressed="'+(X.all?'true':'false')+'">모든 과목</button></div>';
+  arr(E.days).forEach(function(dy,di){
+    dy=obj(dy);var rows='';
+    arr(dy.ps).forEach(function(pp){pp=arr(pp);var tt=tm[pp[0]]||[];
+      arr(pp[1]).forEach(function(n){
+        var k=examKey(n),sid=mine[k],x=mp[k]||{n:n};if(!X.all&&!sid)return;
+        var tk=examTakers(V,n),open=X.open===k,col=sid?subCol(V,sid):SGRAY;
+        rows+='<div class="exrow'+(sid?' mine':'')+(X.focus&&X.focus===sid?' focus':'')+'" id="ex-'+esc(k)+'" style="--sc:'+col+'"><div class="exh"><span class="exp">'+pp[0]+'교시<small>'+esc(tt[1]||'')+(tt[2]?'~'+esc(tt[2]):'')+'</small></span><b class="exn"><i></i>'+esc(n)+(arr(pp[1]).length>1?'<em class="tag">선택</em>':'')+'</b>'+(tk?'<button class="linkbtn" data-act="ex-who" data-v="'+esc(k)+'">'+tk.length+'명 들음</button>':'')+'</div>';
+        if(X.who===k&&tk)rows+='<p class="exwho">'+tk.map(function(m){return esc(m.id===V.me?'나':V.byId[m.id].name);}).join(', ')+'</p>';
+        if(X.edit===k)rows+='<div class="exedit"><textarea data-draft="exR:'+esc(k)+'" rows="3" maxlength="400" aria-label="'+esc(n)+' 시험 범위"></textarea><div class="row"><button class="btn small primary" data-act="ex-save" data-v="'+esc(k)+'" data-n="'+esc(n)+'">저장</button><button class="btn small" data-act="ex-edit" data-v="">취소</button></div></div>';
+        else rows+='<p class="exr">'+(x.r?esc(x.r):'<span class="hint">범위가 아직 없습니다.</span>')+'</p><div class="exft">'+(x.by&&V.byId[x.by]?'<small>'+esc(V.byId[x.by].name)+'이(가) 고침</small>':'<small></small>')+'<button class="del" data-act="ex-edit" data-v="'+esc(k)+'">범위 고치기</button></div>';
+        rows+='</div>';
+      });
+    });
+    if(!rows)return;
+    b+='<section class="exday'+(dy.d<t?' past':'')+'"><h3>'+(di+1)+'일차 <b>'+examDate(dy.d)+'</b><small>'+dlabel(dy.d)+'</small></h3>'+rows+'</section>';
+  });
+  if(!X.all&&!examMine(V).length)b+='<p class="empty">내 과목 중 시험 일정에 있는 과목이 없습니다. \'모든 과목\'을 눌러 보세요.</p>';
+  b+='<div class="exnotes"><h3>시험 시간</h3><p>'+arr(E.times).map(function(x){x=arr(x);return x[0]+'교시 '+esc(x[1])+'~'+esc(x[2]);}).join(' · ')+'</p>'+arr(E.notes).map(function(n){return '<p class="hint">'+esc(n)+'</p>';}).join('')+'</div>';
+  return dlg('wide',{id:'exam',t:esc(E.t||'시험 안내')},b,'<div class="df"><span class="hint">과목 이름이 같으면 그 과목을 듣는 사람 모두에게 같은 범위가 보입니다.</span></div>');
+}
+var EXAM_MIG=false;
+function examMig(){
+  if(EXAM_MIG||!netFresh())return;var V=view();if(!S.ready||!V||!V.me||!canWrite())return;
+  EXAM_MIG=true;var c=obj(V.cfg);if(c.migExam2||c.exam)return;
+  var have={};V.subs.forEach(function(s){have[examKey(s.name)]=1;});
+  var hit=EXAM_PRESET.subs.filter(function(x){return have[examKey(x.n)];}).length;if(hit<3)return;
+  editCfg(function(cc){cc.exam=clone(EXAM_PRESET);cc.migExam2=1;});
+}
+
 /* ---------- 방: 참여 코드, 새 방, 방 바꾸기 (웹 판) ---------- */
 // 참여 링크: 사이트주소#join=<저장소 이름>  -> 참여 코드 6자리 -> 이름 고르기
 // 코드 연결: rooms/joincode-<코드> = {r:방 id, n:방 이름, at}
@@ -8294,7 +8417,7 @@ function modalSettings(V){
   [[22,'밤 10시'],[23,'밤 11시'],[24,'자정'],[25,'다음 날 새벽 1시'],[26,'다음 날 새벽 2시'],[27,'다음 날 새벽 3시'],[28,'다음 날 새벽 4시'],[29,'다음 날 새벽 5시']].forEach(function(o){b+='<option value="'+o[0]+'"'+(V.certHour===o[0]?' selected':'')+'>'+o[1]+'</option>';});
   b+='</select>';
   b+='</div>'+spSec()+pokeSec()+noticeSec(V)+periodSec(V)+'<div class="sec"><h3>사용법</h3><div class="row"><button class="btn small" data-act="open" data-modal="help">사용법 보기</button></div></div><div class="sec"><h3>키보드 단축키<small>키보드를 연결했을 때</small></h3><ul class="kbd">'+[['1 ~ 8','달력부터 메시지까지 화면 이동'],['N','할 일 추가'],['D','마감 있는 할 일 추가'],['L','달력, 할 일, 시간표 차례로 바꿔 보기'],['T','타이머 켜기, 끄기'],['F','타이머 크게 보기'],['Esc','창 닫기']].map(function(x){return '<li><kbd>'+x[0]+'</kbd><span>'+x[1]+'</span></li>';}).join('')+'</ul></div><div class="sec"><h3>저장 위치</h3><p class="hint">'+esc(S.net?({claude:'Claude 공유 저장소에 연결되어 있습니다. Claude에 로그인한 참여 인원끼리 실시간으로 같이 봅니다.',firebase:'공유 저장소에 연결되어 있습니다. 참여 코드로 들어온 사람 모두가 실시간으로 같이 봅니다.',local:'지금은 이 기기에만 저장됩니다. 다른 사람과 같이 보려면 공유 저장소 연결이 필요합니다.'}[S.net.mode]):'연결 중입니다.')+'</p>'+(S.net&&S.net.mode==='firebase'&&S.remote?'<div class="row" style="margin-top:10px"><button class="btn small" data-act="import-pick">기록 가져오기</button><button class="btn small" data-act="export-data">기록 파일로 저장</button><button class="del" data-act="setup-reset">'+(S.confirm==='disc'?'한 번 더 누르면 이 방에서 나갑니다':'이 기기에서 이 방 나가기')+'</button></div><p class="hint" style="margin-top:8px">'+esc(S.importMsg||'친구와 내 다른 기기는 위의 친구 초대하기로 들어옵니다. 기록 가져오기는 처음 연결한 뒤 한 번만 하면 됩니다.')+'</p>':'')+'</div>';
-  b+='<p class="hint appver">앱 버전 11월 15일 00:20</p>';
+  b+='<p class="hint appver">앱 버전 11월 15일 14:09</p>';
   return dlg('wide',{id:'settings',t:'설정'},b);
 }
 function modalCheck(V){
@@ -8333,6 +8456,7 @@ function modalHtml(V){
   if(t==='help')return modalHelp(V);
   if(t==='gorder')return modalGOrder(V);
   if(t==='gall')return modalGAll(V);
+  if(t==='exam')return modalExam(V);
   if(t==='lotnew'&&S.lot)return modalLotNew(V,inkOf(V));
   if(t==='lot')return modalLot(V);
   if(t==='gg')return modalGG(V);
@@ -8490,6 +8614,7 @@ function shopGo(id){var it=shopItem(id);S.shopNext=it?{cat:it.cat,focus:it.id}:n
 function openModal(type,el){
   var V=view();S.ttPend=null;
   if(type==='compose'&&V.me){var cdt=(el&&el.getAttribute('data-date'))||today();if(dayLocked(V,cdt)){flash('인증 마감이 지나 이 날에는 새 할 일을 더할 수 없습니다.');return;}}
+  if(type==='exam'){var exid=el&&el.getAttribute&&el.getAttribute('data-id');S.ex={all:false,focus:exid||null};}
   if(type==='gall'){S.ga={f:'all',hid:false,old:false,nod:!!(S.ga&&S.ga.nod),sid:(S.ga&&S.ga.sid)||''};S.draft.gaText='';if(!S.draft.gaDate||S.draft.gaDate<today())S.draft.gaDate=today();}
   if(type==='inbox'){S.ib={sel:{},week:wkStart(today()),sid:''};S.draft.ibText='';S.ibEdit=null;}
   if(type==='shop'){S.giftOpen=false;S.admOpen=false;S.draft.admCode='';S.walLinkOpen=false;S.walCode=null;}
@@ -8637,6 +8762,7 @@ function tick(){
   try{lotTick();}catch(e){}
   try{humMig();}catch(e){}
   try{itemMig();}catch(e){}
+  try{examMig();}catch(e){}
   try{stkRevealTick();}catch(e){}
   try{shopGf();}catch(e){}
   try{walTick();}catch(e){}
@@ -9052,6 +9178,10 @@ function act(name,el){
     case 'ga-f':if(S.ga)S.ga.f=el.getAttribute('data-v');break;
     case 'ga-nod':if(S.ga)S.ga.nod=!S.ga.nod;break;
     case 'ga-ibdone':{if(!need())break;var gib=id;editInbox(function(d){var it=d.items[gib];if(it){if(it.done)delete it.done;else it.done=true;}});break;}
+    case 'ex-all':if(S.ex)S.ex.all=!!el.getAttribute('data-v');break;
+    case 'ex-who':if(S.ex)S.ex.who=S.ex.who===el.getAttribute('data-v')?null:el.getAttribute('data-v');break;
+    case 'ex-edit':{if(!S.ex)break;var exk=el.getAttribute('data-v')||null;S.ex.edit=exk;if(exk){var Vx=view(),ex0=obj(examMap(examOf(Vx)||{})[exk]);S.draft['exR:'+exk]=ex0.r||'';}break;}
+    case 'ex-save':{var Ve=view(),E0=examOf(Ve),ek=el.getAttribute('data-v'),en=el.getAttribute('data-n'),er=String(S.draft['exR:'+ek]||'').trim().slice(0,400);if(!E0||!need())break;editCfg(function(c){var e=c.exam;e.subs=arr(e.subs);var i=-1;e.subs.forEach(function(x,j){if(examKey(obj(x).n)===ek)i=j;});var nx={n:en,r:er,by:Ve.me,at:Date.now()};if(i<0)e.subs.push(nx);else e.subs[i]=Object.assign({},obj(e.subs[i]),nx);});S.ex.edit=null;flash(en+' 시험 범위를 고쳤습니다.');break;}
     case 'ga-old':if(S.ga)S.ga.old=!S.ga.old;break;
     case 'ga-hid':if(S.ga)S.ga.hid=!S.ga.hid;break;
     case 'ga-sid':if(S.ga)S.ga.sid=S.ga.sid===el.getAttribute('data-v')?'':el.getAttribute('data-v');break;

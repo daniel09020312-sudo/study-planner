@@ -125,3 +125,38 @@ html.gdragging,html.gdragging *{cursor:grabbing !important;user-select:none;-web
 #dlg-gall .gadate:focus{outline:0;box-shadow:inset 0 0 0 1.5px var(--accent)}
 .ibrow.ibdone .ibpick b{text-decoration:line-through;color:var(--ink-3)}
 #dlg-gall .ganod{flex:0 0 auto;min-height:46px}
+/* v92 시험 안내 */
+.pillbtn{cursor:pointer;font:inherit;border:0}
+.excard .ct{align-items:center}
+.exchips{display:flex;flex-wrap:wrap;gap:6px}
+.exchip{display:inline-flex;align-items:center;gap:6px;border:0;border-radius:12px;background:var(--fill);padding:7px 10px;font:inherit;cursor:pointer;color:var(--ink)}
+.exchip i{width:8px;height:8px;border-radius:50%;background:var(--sc)}
+.exchip b{font-size:13px}
+.exchip small{font-size:12px;color:var(--ink-3)}
+.exchip.past{opacity:.5}
+.uexam{display:grid;gap:2px;width:100%;text-align:left;border:0;border-radius:12px;background:var(--fill);padding:8px 10px;margin:8px 0 4px;font:inherit;color:var(--ink);cursor:pointer}
+.uexam b{font-size:12px;color:var(--accent-ink)}
+.uexam span{font-size:13px;color:var(--ink-2);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.exseg{margin-bottom:12px}
+.exday{margin:0 0 16px}
+.exday h3{display:flex;align-items:baseline;gap:8px;margin:0 0 8px;font-size:14px}
+.exday h3 small{color:var(--ink-3);font-weight:600}
+.exday.past{opacity:.55}
+.exrow{border-radius:14px;background:var(--fill);padding:10px 12px;margin-bottom:6px;box-shadow:inset 3px 0 0 var(--sc)}
+.exrow.focus{box-shadow:inset 3px 0 0 var(--sc),0 0 0 2px var(--accent)}
+.exh{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.exp{display:grid;font-size:12px;font-weight:800;color:var(--accent-ink);min-width:62px}
+.exp small{font-weight:500;color:var(--ink-3);font-size:11px}
+.exn{display:flex;align-items:center;gap:6px;flex:1;min-width:0;font-size:15px}
+.exn i{width:8px;height:8px;border-radius:50%;background:var(--sc);flex:none}
+.exh .linkbtn{border:0;background:none;padding:0;font:inherit;font-size:12px;font-weight:700;color:var(--accent-ink);cursor:pointer}
+.exwho{margin:6px 0 0;font-size:12px;color:var(--ink-2)}
+.exr{margin:6px 0 0;font-size:14px;line-height:1.5;white-space:pre-wrap}
+.exft{display:flex;align-items:center;justify-content:space-between;margin-top:4px}
+.exft small{font-size:11px;color:var(--ink-3)}
+.exft .del{height:26px;font-size:12px}
+.exedit{display:grid;gap:6px;margin-top:6px}
+.exedit textarea{width:100%;min-height:72px}
+.exnotes{border-top:1px solid var(--line);padding-top:10px}
+.exnotes h3{font-size:13px;margin:0 0 4px}
+.exnotes p{margin:2px 0;font-size:13px}
