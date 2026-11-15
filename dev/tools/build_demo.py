@@ -21,5 +21,5 @@ if(location.hash==='#rec')setTimeout(function(){go(true);},300);
 </script></body></html>'''
 os.makedirs(BASE+'/web-light',exist_ok=True)
 open(BASE+'/web-light/final-demo.html','w',encoding='utf-8').write(html)
-import shutil;os.makedirs(BASE+'/web-light/vendor',exist_ok=True);shutil.copy(BASE+'/vendor/three-r128.min.js',BASE+'/web-light/vendor/three-r128.min.js')
+import shutil;os.makedirs(BASE+'/web-light/vendor',exist_ok=True);[shutil.copy(BASE+'/vendor/'+f,BASE+'/web-light/vendor/'+f) for f in ('three-r128.min.js','PretendardVariable.woff2')]
 print('demo',len(html))

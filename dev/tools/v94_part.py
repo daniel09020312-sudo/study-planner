@@ -12,12 +12,8 @@ sub("    L+='<section class=\"card fin\" id=\"c-fin\" style=\"--k:0\"><div class
     "    L+='<section class=\"card fin\" id=\"c-fin\" style=\"--k:0\"><div class=\"ct\"><h2>최종 결과<small>'+esc(shortDate(TALLY)+' ~ '+shortDate(END))+'</small></h2><button class=\"btn small soft\" data-act=\"fr-replay\">공개 연출 다시 보기</button></div>';\n    var cutL=fs.filter(function(x){return x.total>=FIN_CUT;});L+='<div class=\"fincut\"><b>'+FIN_CUT+'점 넘긴 사람 '+cutL.length+'명</b><span>'+cutL.map(function(x){return esc(x.p.name);}).join(', ')+'</span></div>';")
 sub("'2차 시험이 끝난 다음 날 최종 결과와 함께 1·2·3등이 정해집니다.'", "'2차 시험이 끝나고 방장이 승인하면 최종 결과와 함께 1·2·3등이 공개됩니다.'")
 sub("['최종 결과','2차 시험이 끝난 다음 날 공개. 1등, 2등, 3등은 미리 정해 둔 상품']", "['최종 결과','2차 시험이 끝나고 방장이 승인하면 공개 연출과 함께 공개. 100점 넘긴 사람 명단, 4등부터, 3·2·1등 순서. 1등, 2등, 3등은 미리 정해 둔 상품']")
-sub("  if(t==='gall')return modalGAll(V);", "  if(t==='gall')return modalGAll(V);\n  if(t==='finrev'){if(!finalOpen()){S.modal=null;return '';}return modalFinRev(V);}")
 sub("try{songDock();}catch(e){}", "try{songDock();}catch(e){}\n  try{finRevTick(V);}catch(e){}")
 sub("    case 'ga-old':", r"""    case 'song-adm':S.songAdm=!S.songAdm;break;
     case 'fin-ok':{var Vf=view();if(adminId(Vf)!==Vf.me||today()<=END)break;if(prev!=='finok'){S.confirm='finok';break;}editCfg(function(c){c.finalOk={at:Date.now(),by:Vf.me};});flash('최종 결과를 공개했습니다.');break;}
-    case 'fr-next':if(S.fr){S.fr.s=Math.min(FR_STEPS.length-1,S.fr.s+1);}break;
-    case 'fr-skip':if(S.fr)S.fr.s=FR_STEPS.length-1;break;
-    case 'fr-close':closeModal();return;
-    case 'fr-replay':S.fr={s:0};openModal('finrev');return;
+    case 'fr-replay':finPlay(view());return;
     case 'ga-old':""")

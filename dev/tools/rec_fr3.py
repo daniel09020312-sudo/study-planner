@@ -30,5 +30,5 @@ with sync_playwright() as pw:
         if n%240==0:print('frames',n,s,flush=True)
     b.close()
 srv.shutdown()
-subprocess.run(['ffmpeg','-y','-loglevel','error','-framerate',str(FPS),'-i',FR+'/%05d.jpg','-c:v','libx264','-pix_fmt','yuv420p','-crf','23','-preset','medium','-movflags','+faststart',OUT],check=True)
+subprocess.run(['ffmpeg','-y','-loglevel','error','-framerate',str(FPS),'-i',FR+'/%05d.jpg','-vf','scale=trunc(iw/2)*2:trunc(ih/2)*2','-c:v','libx264','-pix_fmt','yuv420p','-crf','23','-preset','medium','-movflags','+faststart',OUT],check=True)
 print('video',OUT,n,'frames')
