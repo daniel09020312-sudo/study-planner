@@ -20,7 +20,7 @@ for d,(c,er) in zip(['11/16','11/23','11/30','12/07'],w):print(d,c,er)
 check('9 cells each week',all(len(c)==9 for c,_ in w) and len(a)==9,[len(c) for c,_ in w])
 check('weeks differ',len(set(tuple(c) for c,_ in w))==4)
 check('no every-day cells in new weeks',not any('7일' in t for c,_ in w for t in c))
-pairs=[('이번 주 공부 25시간','이번 주 공부 18시간'),('할 일 25개 완료','할 일 15개 완료'),('100점 넘긴 날 3일','120점 넘긴 날 2일')]
+pairs=[('이번 주 공부 35시간','이번 주 공부 28시간'),('할 일 40개 완료','할 일 30개 완료'),('100점 넘긴 날 5일','150점 넘긴 날 3일')]
 check('no same-kind pairs',not any(a in c and b in c for c,_ in w for a,b in pairs))
 check('this week unchanged',a==['타이머로만 20시간', '할 일 30개 완료', '주말에 10시간 공부', '120점 넘긴 날 2일', '2시간 넘게 공부한 날 7일', '하루 순위 1등 2번', '할 일을 모두 끝낸 날 5일', '한 과목 8시간', '인증 7일'])
 check('no errors',not e and not any(er for _,er in w))

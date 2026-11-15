@@ -4738,7 +4738,7 @@ document.addEventListener('change',function(e){
 
 /* ---------- 처음 화면 ---------- */
 // 앱이 준비되면 알린다. 그림이 아직이면 다 그린 뒤에 열리고, 그림이 먼저 끝났으면 바로 열린다
-var APP_BUILD='1794732987';
+var APP_BUILD='1794739240';
 function splashDone(){
   var sp=document.getElementById('splash'),st=window.__sp;if(!sp||sp.getAttribute('data-out'))return;
   sp.setAttribute('data-out','1');
@@ -8140,32 +8140,32 @@ function prog(c,v){v=Math.min(v,c.max);return c.u==='m'?fmtMins(v)+' / '+fmtMins
 var BINGO_NEW='2026-11-16';
 var BINGO_CAP={time:4,plan:3,day:2,board:2};
 var BINGO_POOL2=[
-  {g:'mins',c:'time',t:'이번 주 공부 25시간',max:1500,u:'m',f:function(o){return o.mins;}},
-  {g:'mins',c:'time',t:'이번 주 공부 18시간',max:1080,u:'m',f:function(o){return o.mins;}},
-  {c:'time',t:'6시간 넘게 공부한 날 2일',max:2,f:function(o){return o.daily.filter(function(x){return x>=360;}).length;}},
-  {c:'time',t:'4시간 넘게 공부한 날 4일',max:4,f:function(o){return o.daily.filter(function(x){return x>=240;}).length;}},
-  {c:'time',t:'3시간 넘게 공부한 날 5일',max:5,f:function(o){return o.daily.filter(function(x){return x>=180;}).length;}},
-  {c:'time',t:'한 과목 6시간',max:360,u:'m',f:function(o){var m=0;for(var k in o.subj)m=Math.max(m,o.subj[k]);return m;}},
-  {g:'subn',c:'time',t:'과목 4개를 2시간씩',max:4,f:function(o){var n=0;for(var k in o.subj)if(o.subj[k]>=120)n++;return n;}},
-  {g:'subn',c:'time',t:'과목 6개를 1시간씩',max:6,f:function(o){var n=0;for(var k in o.subj)if(o.subj[k]>=60)n++;return n;}},
-  {c:'time',t:'타이머로만 15시간',max:900,u:'m',f:function(o){return o.tmins;}},
-  {c:'time',t:'주말에 8시간 공부',max:480,u:'m',f:function(o){return (o.daily[5]||0)+(o.daily[6]||0);}},
-  {c:'time',t:'월·화·수 합쳐 10시간',max:600,u:'m',f:function(o){return (o.daily[0]||0)+(o.daily[1]||0)+(o.daily[2]||0);}},
-  {c:'time',t:'목·금 합쳐 6시간',max:360,u:'m',f:function(o){return (o.daily[3]||0)+(o.daily[4]||0);}},
-  {g:'done',c:'plan',t:'할 일 25개 완료',max:25,f:function(o){return o.done;}},
-  {g:'done',c:'plan',t:'할 일 15개 완료',max:15,f:function(o){return o.done;}},
-  {c:'plan',t:'할 일을 모두 끝낸 날 3일',max:3,f:function(o){var n=0;o.dn.forEach(function(x,i){if(x>=3&&o.ddone[i]===x)n++;});return n;}},
-  {c:'plan',t:'할 일 4개 넘게 적은 날 5일',max:5,f:function(o){return o.dn.filter(function(x){return x>=4;}).length;}},
-  {c:'plan',t:'하루에 할 일 8개 끝낸 날 1일',max:1,f:function(o){return o.ddone.filter(function(x){return x>=8;}).length;}},
-  {c:'day',t:'출석 5일',max:5,f:function(o){return o.att;}},
-  {c:'day',t:'인증 5일',max:5,f:function(o){return o.cert;}},
-  {c:'day',t:'아침 8시 전 출석 2번',max:2,f:function(o){return o.early8;}},
-  {g:'dpts',c:'day',t:'100점 넘긴 날 3일',max:3,f:function(o){return o.dpts.filter(function(x){return x>=100;}).length;}},
-  {g:'dpts',c:'day',t:'120점 넘긴 날 2일',max:2,f:function(o){return o.dpts.filter(function(x){return x>=120;}).length;}},
-  {c:'day',t:'하루 순위 1등 1번',max:1,f:function(o){return o.wins;}},
-  {c:'board',t:'문제 3개 내기',max:3,f:function(o){return o.posts;}},
-  {c:'board',t:'풀이나 답변 4개',max:4,f:function(o){return o.helps;}},
-  {c:'board',t:'노동요 1곡 올리기',max:1,f:function(o){return o.songs;}}
+  {g:'mins',c:'time',t:'이번 주 공부 35시간',max:2100,u:'m',f:function(o){return o.mins;}},
+  {g:'mins',c:'time',t:'이번 주 공부 28시간',max:1680,u:'m',f:function(o){return o.mins;}},
+  {c:'time',t:'7시간 넘게 공부한 날 3일',max:3,f:function(o){return o.daily.filter(function(x){return x>=420;}).length;}},
+  {c:'time',t:'5시간 넘게 공부한 날 5일',max:5,f:function(o){return o.daily.filter(function(x){return x>=300;}).length;}},
+  {c:'time',t:'4시간 넘게 공부한 날 6일',max:6,f:function(o){return o.daily.filter(function(x){return x>=240;}).length;}},
+  {c:'time',t:'한 과목 10시간',max:600,u:'m',f:function(o){var m=0;for(var k in o.subj)m=Math.max(m,o.subj[k]);return m;}},
+  {g:'subn',c:'time',t:'과목 5개를 3시간씩',max:5,f:function(o){var n=0;for(var k in o.subj)if(o.subj[k]>=180)n++;return n;}},
+  {g:'subn',c:'time',t:'과목 7개를 2시간씩',max:7,f:function(o){var n=0;for(var k in o.subj)if(o.subj[k]>=120)n++;return n;}},
+  {c:'time',t:'타이머로만 25시간',max:1500,u:'m',f:function(o){return o.tmins;}},
+  {c:'time',t:'주말에 14시간 공부',max:840,u:'m',f:function(o){return (o.daily[5]||0)+(o.daily[6]||0);}},
+  {c:'time',t:'월·화·수 합쳐 16시간',max:960,u:'m',f:function(o){return (o.daily[0]||0)+(o.daily[1]||0)+(o.daily[2]||0);}},
+  {c:'time',t:'목·금 합쳐 11시간',max:660,u:'m',f:function(o){return (o.daily[3]||0)+(o.daily[4]||0);}},
+  {g:'done',c:'plan',t:'할 일 40개 완료',max:40,f:function(o){return o.done;}},
+  {g:'done',c:'plan',t:'할 일 30개 완료',max:30,f:function(o){return o.done;}},
+  {c:'plan',t:'할 일을 모두 끝낸 날 5일',max:5,f:function(o){var n=0;o.dn.forEach(function(x,i){if(x>=3&&o.ddone[i]===x)n++;});return n;}},
+  {c:'plan',t:'할 일 6개 넘게 끝낸 날 5일',max:5,f:function(o){return o.ddone.filter(function(x){return x>=6;}).length;}},
+  {c:'plan',t:'하루에 할 일 12개 끝낸 날 2일',max:2,f:function(o){return o.ddone.filter(function(x){return x>=12;}).length;}},
+  {c:'day',t:'출석 6일',max:6,f:function(o){return o.att;}},
+  {c:'day',t:'인증 6일',max:6,f:function(o){return o.cert;}},
+  {c:'day',t:'아침 7시 전 출석 3번',max:3,f:function(o){return o.early7;}},
+  {g:'dpts',c:'day',t:'100점 넘긴 날 5일',max:5,f:function(o){return o.dpts.filter(function(x){return x>=100;}).length;}},
+  {g:'dpts',c:'day',t:'150점 넘긴 날 3일',max:3,f:function(o){return o.dpts.filter(function(x){return x>=150;}).length;}},
+  {c:'day',t:'하루 순위 1등 2번',max:2,f:function(o){return o.wins;}},
+  {c:'board',t:'문제 5개 내기',max:5,f:function(o){return o.posts;}},
+  {c:'board',t:'풀이나 답변 7개',max:7,f:function(o){return o.helps;}},
+  {c:'board',t:'노동요 2곡 올리기',max:2,f:function(o){return o.songs;}}
 ];
 function bingoCells(mon){
   if(mon<BINGO_NEW)return bingoCells0(mon);
@@ -8194,7 +8194,7 @@ function bingo(V,mon){
     o.posts=V.posts.filter(function(q){return q.mid===m.id&&q.kind!=='ask'&&q.kind!=='lapse'&&inW(+q.at);}).length;
     o.helps=helpIds(V,m.id,inW);
     o.songs=Object.keys(V.songs).filter(function(k){var s=obj(V.songs[k]);return s.mid===m.id&&inW(+s.at);}).length;
-    o.tmins=0;o.wins=0;o.early8=0;Wk.days.forEach(function(d){var dx=dayOf(V,m.id,d);if(dx.in&&new Date(dx.in).getHours()<8)o.early8++;o.tmins+=sumMins(dx.mins);var r=V.sc[m.id]&&V.sc[m.id][d];if(r&&r.place===1)o.wins++;});
+    o.tmins=0;o.wins=0;o.early8=0;o.early7=0;Wk.days.forEach(function(d){var dx=dayOf(V,m.id,d);if(dx.in&&new Date(dx.in).getHours()<8)o.early8++;if(dx.in&&new Date(dx.in).getHours()<7)o.early7++;o.tmins+=sumMins(dx.mins);var r=V.sc[m.id]&&V.sc[m.id][d];if(r&&r.place===1)o.wins++;});
     var vals=cells.map(function(c){return Math.max(0,+c.f(o)||0);}),done=vals.map(function(v,i){return v>=cells[i].max;});
     var lines=LINES.filter(function(l){return done[l[0]]&&done[l[1]]&&done[l[2]];}).length,pts=lines*bingoLine(mon),rs=obj(obj(V.progress[m.id]).reset);
     if(rs.date){var rm=mondayOf(String(rs.date));if(mon<rm)pts=0;else if(mon===rm)pts=Math.max(0,pts-(+rs.bg||0));}
@@ -8454,7 +8454,7 @@ function modalSettings(V){
   [[22,'밤 10시'],[23,'밤 11시'],[24,'자정'],[25,'다음 날 새벽 1시'],[26,'다음 날 새벽 2시'],[27,'다음 날 새벽 3시'],[28,'다음 날 새벽 4시'],[29,'다음 날 새벽 5시']].forEach(function(o){b+='<option value="'+o[0]+'"'+(V.certHour===o[0]?' selected':'')+'>'+o[1]+'</option>';});
   b+='</select>';
   b+='</div>'+spSec()+pokeSec()+noticeSec(V)+periodSec(V)+'<div class="sec"><h3>사용법</h3><div class="row"><button class="btn small" data-act="open" data-modal="help">사용법 보기</button></div></div><div class="sec"><h3>키보드 단축키<small>키보드를 연결했을 때</small></h3><ul class="kbd">'+[['1 ~ 8','달력부터 메시지까지 화면 이동'],['N','할 일 추가'],['D','마감 있는 할 일 추가'],['L','달력, 할 일, 시간표 차례로 바꿔 보기'],['T','타이머 켜기, 끄기'],['F','타이머 크게 보기'],['Esc','창 닫기']].map(function(x){return '<li><kbd>'+x[0]+'</kbd><span>'+x[1]+'</span></li>';}).join('')+'</ul></div><div class="sec"><h3>저장 위치</h3><p class="hint">'+esc(S.net?({claude:'Claude 공유 저장소에 연결되어 있습니다. Claude에 로그인한 참여 인원끼리 실시간으로 같이 봅니다.',firebase:'공유 저장소에 연결되어 있습니다. 참여 코드로 들어온 사람 모두가 실시간으로 같이 봅니다.',local:'지금은 이 기기에만 저장됩니다. 다른 사람과 같이 보려면 공유 저장소 연결이 필요합니다.'}[S.net.mode]):'연결 중입니다.')+'</p>'+(S.net&&S.net.mode==='firebase'&&S.remote?'<div class="row" style="margin-top:10px"><button class="btn small" data-act="import-pick">기록 가져오기</button><button class="btn small" data-act="export-data">기록 파일로 저장</button><button class="del" data-act="setup-reset">'+(S.confirm==='disc'?'한 번 더 누르면 이 방에서 나갑니다':'이 기기에서 이 방 나가기')+'</button></div><p class="hint" style="margin-top:8px">'+esc(S.importMsg||'친구와 내 다른 기기는 위의 친구 초대하기로 들어옵니다. 기록 가져오기는 처음 연결한 뒤 한 번만 하면 됩니다.')+'</p>':'')+'</div>';
-  b+='<p class="hint appver">앱 버전 11월 15일 17:56</p>';
+  b+='<p class="hint appver">앱 버전 11월 15일 19:40</p>';
   return dlg('wide',{id:'settings',t:'설정'},b);
 }
 function modalCheck(V){
