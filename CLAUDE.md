@@ -52,7 +52,7 @@ Cloudflare Pages가 로그 없이 실패하면(Deploy failed) 대개 Cloudflare 
 - 바뀐 것만 받기(`src/sync.js`, `web_sync_part.py`가 firebaseNet 전체를 바꿈): 쓸 때는 `rooms/<방>.json`에 PATCH 한 번으로 `d/<자리>`와 `x/<자리의 /를 |로>`=표(시각36진수.무작위)를 함께 쓴다(400이면 예전처럼 PUT). 읽을 때는 기기 저장(gbb_cache@방: t 기록, x 표, full 마지막 전체 받기, sy)으로 바로 열고 x만 실시간으로 받아 표가 다른 자리만 GET. 저장이 없거나 x가 없는 예전 저장, 이틀 넘게 못 받음, 마지막 전체 받기가 48시간(2026-10-26 전에는 1시간) 지났으면 d 전체를 한 번 받는다. 3일 지난 표는 지운다. 날마다 기록의 mid, date는 빼고 저장. 설정 > 방에 이 방 기록 크기와 이 기기의 이번 달 받은 양(gbb_dl). 테스트 t_sync.py, 가짜 Firebase는 PATCH(여러 자리)를 받는다. 테스트에서 STORE를 직접 고치면 x에도 표를 넣어야 새 판이 받는다
 - 새 판 다시 읽기: 보는 중에는 다시 읽지 않고 다른 앱에서 돌아온 직후(20초 안)에 다시 읽는다. `FORCE=1 python3 tools/build_web.py --light`로 만들면 version.txt에 force가 붙어 예전처럼 쉬는 틈에 바로 다시 읽는다
 - 테스트: `LIGHT=1 python3 tools/t_rooms.py` (먼저 `cp web-light/index.html site/index.html`).
-- 오프라인: 받은 기록은 `gbb_cache@방`에 저장해 두고 다음에 열 때 먼저 보여 준다. 연결이 없을 때의 쓰기는 `gbb_outbox@방`에 모았다가 연결되면 올린다(사진, 영상은 막음). 테스트는 `t_offline.py`.
+- 오프라인: 받은 기록은 `gbb_cache@방`에 저장해 두고 다음에 열 때 먼저 보여 준다. 연결이 없을 때의 쓰기는 `gbb_outbox@방`에 모았다가 연결되면 올린다(사진, 영상은 막음). 위 오프라인 안내 줄은 '닫기'(off-x, S.offX)로 닫으면 다시 연결될 때까지 안 보임. 테스트는 `t_offline.py`.
 
 ## 기능별 원본 위치
 - v16 wkdrag.js: 할 일 주간 달력 끌기 / v17 lapse.js: 게시판 타임랩스(영상을 장면 묶음으로 줄여 pics/<id>_c0.. 에 저장)

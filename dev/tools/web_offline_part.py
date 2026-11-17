@@ -23,11 +23,12 @@ sub("    S.remote=rc;S.net=firebaseNet(rc.url,rc.room);\n    try{syncAddr();}cat
 sub("      es.onerror=function(){if(!S.ready){S.ready=true;flash('공유 저장소에 연결하지 못했습니다. 인터넷 연결을 확인하세요.');render();}};",
     "      es.onopen=function(){clearTimeout(S.sseT);S.sseT=null;if(S.sseDown){S.sseDown=false;paintBanner();}obFlush();};\n"
     "      es.onerror=function(){if(!S.sseT)S.sseT=setTimeout(function(){S.sseT=null;if(!es||es.readyState!==1){S.sseDown=true;paintBanner();}},4000);if(!S.ready){S.ready=true;if(navigator.onLine!==false)flash('공유 저장소에 연결하지 못했습니다. 인터넷 연결을 확인하세요.');render();}};")
-sub("function paintBanner(){\n  var b='';", "function paintBanner(){\n  var b='';\n  if(S.net&&S.net.mode==='firebase'&&isOffline()){var obn=obCount();b+='<div class=\"notice offn\"><b>오프라인</b> 내 일정과 할 일은 지금처럼 쓰면 됩니다. 이 기기에 모아 두었다가 연결되면 올립니다'+(obn?' (올릴 기록 '+obn+'개)':'')+'. 친구들 기록은 연결된 뒤에 새로 보입니다.</div>';}")
+sub("function paintBanner(){\n  var b='';", "function paintBanner(){\n  var b='';\n  if(S.net&&S.net.mode==='firebase'&&isOffline()){if(!S.offX){var obn=obCount();b+='<div class=\"notice offn\"><span><b>오프라인</b> 내 일정과 할 일은 지금처럼 쓰면 됩니다. 이 기기에 모아 두었다가 연결되면 올립니다'+(obn?' (올릴 기록 '+obn+'개)':'')+'. 친구들 기록은 연결된 뒤에 새로 보입니다.</span><button class=\"bnx\" data-act=\"off-x\" aria-label=\"오프라인 안내 닫기\">닫기</button></div>';}}else S.offX=false;")
 # 앱 화면 저장
 assert s.count("init();\n})();") == 1
 s = s.replace("init();\n})();", "init();\nif('serviceWorker' in navigator&&location.protocol==='https:'){try{navigator.serviceWorker.register('sw.js').catch(function(){});}catch(e){}}\n})();")
-sub("</style>", ".notice.offn{background:color-mix(in srgb,var(--ink) 88%,transparent);color:var(--bg)}\n.notice.offn b{margin-right:6px}\n</style>")
+sub("    case 'notice-x':", "    case 'off-x':S.offX=true;paintBanner();break;\n    case 'notice-x':")
+sub("</style>", ".notice.offn{display:flex;align-items:center;gap:4px 10px}\n.notice.offn{background:color-mix(in srgb,var(--ink) 88%,transparent);color:var(--bg)}\n.notice.offn b{margin-right:6px}\n</style>")
 # 새 판이 올라오면 저절로 다시 읽기: 홈 화면 앱은 껐다 켜지 않으면 예전 화면이 계속 돌아가서
 # version.txt(빌드할 때 같이 만듦)의 번호가 지금 화면의 APP_BUILD와 다르면, 창이나 입력 중이 아닐 때 다시 읽는다
 assert s.count("init();\nif('serviceWorker' in navigator") == 1

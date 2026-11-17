@@ -209,6 +209,8 @@ A.evaluate("()=>{const b=document.querySelector('#dlg-compose [data-act=\"cmp-ad
 print('local goals    :', ev(A, "[...document.querySelectorAll('#c-goals .goal .gt span:last-child, .goal .gt > span')].map(e=>e.textContent).slice(-2).join(' | ')"))
 print('outbox         :', ev(A, "(()=>{const k=Object.keys(localStorage).find(k=>k.startsWith('gbb_outbox'));return k?JSON.parse(localStorage.getItem(k)).map(x=>x.p).join(','):'none'})()"), '| banner', ev(A, "(document.querySelector('.notice.offn')||{}).textContent||''")[-40:])
 print('server before  :', goals('m1', T))
+A.evaluate("()=>{const b=document.querySelector('.notice.offn [data-act=\"off-x\"]');if(b)b.click();}"); A.wait_for_timeout(400)
+print('banner closed  :', ev(A, "!document.querySelector('.notice.offn')"))
 # 2) 다시 연결
 ca.set_offline(False); A.wait_for_timeout(2500)
 print('server after   :', goals('m1', T), '| banner gone', ev(A, "!document.querySelector('.notice.offn')"), '| flash', ev(A, "(document.querySelector('.flash span')||{}).textContent||''"))
