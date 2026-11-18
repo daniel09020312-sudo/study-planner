@@ -1,0 +1,23 @@
+/* v98 숨은 칭호 */
+:root{--th:#2F6BFF}
+.bdg.t-h{--tc:var(--th)}
+.bdg.t-h.on{background:linear-gradient(135deg,color-mix(in srgb,#0d1430 10%,var(--surface)),color-mix(in srgb,var(--th) 12%,var(--surface)))}
+.bdg.t-h.on .bmd{background:radial-gradient(circle at 35% 30%,#7fa6ff,#1b2a66 70%)}
+.tag.tt-h{color:#e9eeff;background:linear-gradient(90deg,#16204a,#2a3f8f);box-shadow:inset 0 0 0 1px rgba(160,185,255,.35)}
+.dialog.h18{max-width:360px;text-align:center;padding:26px 22px 22px;overflow:hidden;position:relative;background:linear-gradient(180deg,#0b1026,#070a17);color:#e6ebff;border:1px solid rgba(140,170,255,.35)}
+.h18sky{position:absolute;inset:0;pointer-events:none}
+.h18sky i{position:absolute;left:var(--x);top:var(--y);width:2px;height:2px;border-radius:50%;background:#fff;opacity:.2;animation:h18tw 3s var(--d) ease-in-out infinite}
+@keyframes h18tw{50%{opacity:.9}}
+.h18h{position:relative;font-size:12px;letter-spacing:.24em;color:#9fb3ff;margin-bottom:14px}
+.h18clock{position:relative;width:150px;height:150px;margin:0 auto 14px}
+.h18clock b{position:absolute;left:50%;top:50%;width:4px;height:14px;margin:-7px 0 0 -2px;border-radius:2px;background:rgba(255,255,255,.12);transform:rotate(calc(var(--j)*15deg)) translateY(-62px)}
+.h18clock b.on{background:#8fb0ff;box-shadow:0 0 8px #5f86ff;animation:h18on .25s calc(.3s + var(--j)*.07s) both}
+@keyframes h18on{from{background:rgba(255,255,255,.12);box-shadow:none}}
+.h18clock span{position:absolute;inset:0;display:grid;place-content:center;font-size:44px;font-weight:700;letter-spacing:-.03em;color:#fff;animation:h18pop .7s 1.6s both}
+.h18clock span small{font-size:12px;font-weight:500;color:#9fb3ff;letter-spacing:.1em}
+@keyframes h18pop{from{opacity:0;transform:scale(.8)}}
+.h18t{position:relative;margin:0 0 6px;font-size:26px;letter-spacing:-.02em;color:#fff;animation:h18pop .7s 2s both}
+.h18p{position:relative;margin:0 0 18px;font-size:14px;line-height:1.6;color:#b9c4ea;animation:h18pop .7s 2.2s both}
+.h18b{position:relative;display:flex;gap:8px;justify-content:center;animation:h18pop .6s 2.4s both}
+.dialog.h18 .btn:not(.primary){background:transparent;color:#cdd6ff;border-color:rgba(160,185,255,.35)}
+@media (prefers-reduced-motion:reduce){.h18sky i,.h18clock b.on,.h18clock span,.h18t,.h18p,.h18b{animation:none}}

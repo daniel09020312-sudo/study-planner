@@ -2348,6 +2348,29 @@ html.f3on,html.f3on body{overflow:hidden}
 }
 .f3q h1{font-size:clamp(56px,10vw,110px);font-weight:500;letter-spacing:-.04em}
 .f3q small{font-size:12px;letter-spacing:.2em;color:rgba(255,255,255,.4)}
+/* v98 숨은 칭호 */
+:root{--th:#2F6BFF}
+.bdg.t-h{--tc:var(--th)}
+.bdg.t-h.on{background:linear-gradient(135deg,color-mix(in srgb,#0d1430 10%,var(--surface)),color-mix(in srgb,var(--th) 12%,var(--surface)))}
+.bdg.t-h.on .bmd{background:radial-gradient(circle at 35% 30%,#7fa6ff,#1b2a66 70%)}
+.tag.tt-h{color:#e9eeff;background:linear-gradient(90deg,#16204a,#2a3f8f);box-shadow:inset 0 0 0 1px rgba(160,185,255,.35)}
+.dialog.h18{max-width:360px;text-align:center;padding:26px 22px 22px;overflow:hidden;position:relative;background:linear-gradient(180deg,#0b1026,#070a17);color:#e6ebff;border:1px solid rgba(140,170,255,.35)}
+.h18sky{position:absolute;inset:0;pointer-events:none}
+.h18sky i{position:absolute;left:var(--x);top:var(--y);width:2px;height:2px;border-radius:50%;background:#fff;opacity:.2;animation:h18tw 3s var(--d) ease-in-out infinite}
+@keyframes h18tw{50%{opacity:.9}}
+.h18h{position:relative;font-size:12px;letter-spacing:.24em;color:#9fb3ff;margin-bottom:14px}
+.h18clock{position:relative;width:150px;height:150px;margin:0 auto 14px}
+.h18clock b{position:absolute;left:50%;top:50%;width:4px;height:14px;margin:-7px 0 0 -2px;border-radius:2px;background:rgba(255,255,255,.12);transform:rotate(calc(var(--j)*15deg)) translateY(-62px)}
+.h18clock b.on{background:#8fb0ff;box-shadow:0 0 8px #5f86ff;animation:h18on .25s calc(.3s + var(--j)*.07s) both}
+@keyframes h18on{from{background:rgba(255,255,255,.12);box-shadow:none}}
+.h18clock span{position:absolute;inset:0;display:grid;place-content:center;font-size:44px;font-weight:700;letter-spacing:-.03em;color:#fff;animation:h18pop .7s 1.6s both}
+.h18clock span small{font-size:12px;font-weight:500;color:#9fb3ff;letter-spacing:.1em}
+@keyframes h18pop{from{opacity:0;transform:scale(.8)}}
+.h18t{position:relative;margin:0 0 6px;font-size:26px;letter-spacing:-.02em;color:#fff;animation:h18pop .7s 2s both}
+.h18p{position:relative;margin:0 0 18px;font-size:14px;line-height:1.6;color:#b9c4ea;animation:h18pop .7s 2.2s both}
+.h18b{position:relative;display:flex;gap:8px;justify-content:center;animation:h18pop .6s 2.4s both}
+.dialog.h18 .btn:not(.primary){background:transparent;color:#cdd6ff;border-color:rgba(160,185,255,.35)}
+@media (prefers-reduced-motion:reduce){.h18sky i,.h18clock b.on,.h18clock span,.h18t,.h18p,.h18b{animation:none}}
 #c-setup .row input{min-width:0}
 #c-setup .lb{margin-top:0}
 .serr{color:var(--red);margin-top:8px}
@@ -4559,7 +4582,7 @@ function viewEvents(V){
 }
 
 /* ---------- 배지(등급과 점수), 주간 우승 점수, 최종 결과, 1·2·3등 상품 ---------- */
-var TIERS={b:['동',10],s:['은',30],g:['금',60],l:['전설',100]};
+var TIERS={b:['동',10],s:['은',30],g:['금',60],l:['전설',100],h:['히든',0]};
 var WEEK_BONUS=[100,60,30];
 var BADGE_ICONS={
   att:'<rect x="4.5" y="5.5" width="15" height="14" rx="3"/><path d="M4.5 10h15M9 3.5v4M15 3.5v4M9.2 14.6l2 2 3.8-3.9"/>',
@@ -4835,7 +4858,7 @@ document.addEventListener('change',function(e){
 
 /* ---------- 처음 화면 ---------- */
 // 앱이 준비되면 알린다. 그림이 아직이면 다 그린 뒤에 열리고, 그림이 먼저 끝났으면 바로 열린다
-var APP_BUILD='1795035923';
+var APP_BUILD='1795041105';
 function splashDone(){
   var sp=document.getElementById('splash'),st=window.__sp;if(!sp||sp.getAttribute('data-out'))return;
   sp.setAttribute('data-out','1');
@@ -7324,6 +7347,34 @@ function finPlay(V){
   FR3_ON=true;
   FR3.play(data,{onClose:function(){FR3_ON=false;render();},onFail:function(){FR3_ON=false;old();},onReplay:function(){setTimeout(function(){finPlay(view());},500);}});
 }
+/* ---------- v98: 숨은 칭호 '잠들지 않는 자' (하루 18시간 넘게 공부한 날이 있으면). 받기 전에는 배지 목록에 안 보임 ---------- */
+var H18_MIN=1080;
+function h18Day(V,mid){
+  var t=today(),last=t<END?t:END,res='';
+  for(var d=TALLY;d<=last;d=addDays(d,1)){var x=dayOf(V,mid,d);if(sumMins(x.mins)+sumMins(x.manual)>=H18_MIN){res=d;break;}}
+  return res;
+}
+function h18Tick(V){
+  if(!V||!V.me||!S.ready||S.modal||S.check||S.missed||!canWrite()||!netFresh())return;
+  var b=badgeList(V,V.me).filter(function(x){return x.id==='d18'&&x.on;})[0];if(!b)return;
+  var d=h18Day(V,V.me)||'1';if(lsGet('gbb_h18')===d)return;
+  S.modal={type:'h18',id:d};S.closing=false;render();
+}
+function h18Close(use){
+  var m=S.modal;if(m&&m.type==='h18'){lsSet('gbb_h18',m.id);if(use){try{editProg(function(p){p.title='d18';});}catch(x){}}}
+  closeModal();
+}
+function modalH18(V){
+  var st='';for(var i=0;i<24;i++)st+='<i style="--x:'+((i*37)%100)+'%;--y:'+((i*61)%70)+'%;--d:'+((i*13)%30)/10+'s"></i>';
+  var ring='';for(var j=0;j<24;j++)ring+='<b class="'+(j<18?'on':'')+'" style="--j:'+j+'"></b>';
+  return '<div class="scrim" data-act="h18-x"></div><div class="dialog h18" id="dlg-h18" role="dialog" aria-modal="true" aria-label="숨은 칭호" tabindex="-1"><div class="h18sky" aria-hidden="true">'+st+'</div>'+
+    '<div class="h18h">숨은 칭호</div><div class="h18clock" aria-hidden="true">'+ring+'<span>18<small>시간</small></span></div>'+
+    '<h2 class="h18t">잠들지 않는 자</h2><p class="h18p">하루에 18시간 넘게 공부했습니다.<br>목록에 없던 칭호가 열렸습니다.</p>'+
+    '<div class="h18b"><button class="btn primary" data-act="h18-use">칭호 달기</button><button class="btn" data-act="h18-x">닫기</button></div></div>';
+}
+/* 화면을 그린 뒤 도는 eggTick에 붙여 확인 */
+eggTick=(function(f){return function(V){f(V);try{h18Tick(V);}catch(e){}};})(eggTick);
+
 /* ---------- 방: 참여 코드, 새 방, 방 바꾸기 (웹 판) ---------- */
 // 참여 링크: 사이트주소#join=<저장소 이름>  -> 참여 코드 6자리 -> 이름 고르기
 // 코드 연결: rooms/joincode-<코드> = {r:방 id, n:방 이름, at}
@@ -8637,6 +8688,7 @@ var BADGES=[
   {id:'d8',cat:'time',tier:'s',name:'8시간 넘은 날 4일',title:'몰입 장인',desc:'하루 8시간 넘게 공부한 날 4일',max:4,f:function(s){return s.d8;}},
   {id:'d10',cat:'time',tier:'g',name:'10시간 넘은 날 2일',title:'한계 돌파',desc:'하루 10시간 넘게 공부한 날 2일',max:2,f:function(s){return s.d10;}},
   {id:'d12',cat:'time',tier:'l',name:'하루 12시간',title:'시간의 지배자',desc:'하루 12시간 넘게 공부하기',max:1,f:function(s){return s.d12;}},
+  {id:'d18',cat:'time',tier:'h',hid:1,name:'하루 18시간',title:'잠들지 않는 자',desc:'하루 18시간 넘게 공부하기',max:1,f:function(s){return s.d18;}},
   {id:'bal5',cat:'time',tier:'s',name:'전 과목 3시간씩',title:'균형 잡힌',desc:'내 과목 모두 각각 3시간 넘게',max:180,u:'m',f:function(s){return s.balMin;}},
   {id:'bal15',cat:'time',tier:'g',name:'전 과목 8시간씩',title:'빈틈 없음',desc:'내 과목 모두 각각 8시간 넘게',max:480,u:'m',f:function(s){return s.balMin;}},
   {id:'clr7',cat:'plan',tier:'b',name:'모두 끝내고 인증 5일',title:'약속 지킴이',desc:'할 일 3개 이상을 모두 끝내고 인증한 날 5일',max:5,f:function(s){return s.clrCert;}},
@@ -8751,12 +8803,12 @@ function duelList(V){
 function memberStats(V,mid){
   V._ms=V._ms||{};if(V._ms[mid])return V._ms[mid];
   var t=today(),last=t<END?t:END,rows=V.sc[mid]||{},skip=skipOf(V,mid),subj={},k;
-  var s={maxStreak:0,mins:0,clear:0,clrCert:0,dayWins:0,weekWins:0,posts:0,helps:0,lines:0,duelWins:0,early:0,win:0,d6:0,d8:0,d10:0,d12:0,perfect:0,lapses:0,balMin:0};
+  var s={maxStreak:0,mins:0,clear:0,clrCert:0,dayWins:0,weekWins:0,posts:0,helps:0,lines:0,duelWins:0,early:0,win:0,d6:0,d8:0,d10:0,d12:0,d18:0,perfect:0,lapses:0,balMin:0};
   var cs0=0;for(var d=TALLY;d<=last;d=addDays(d,1)){
     var x=dayOf(V,mid,d),r=rows[d],g=x.goals.filter(function(q){return !(q&&q.mv);}),dm=sumMins(x.mins)+sumMins(x.manual),all=x.goals.filter(Boolean).length>=3&&g.filter(isDone).length===g.length;
     s.mins+=dm;for(k in x.mins)subj[k]=(subj[k]||0)+(+x.mins[k]||0);for(k in x.manual)subj[k]=(subj[k]||0)+(+x.manual[k]||0);
     if(all)s.clear++;if(all&&x.certAt)s.clrCert++;
-    if(dm>=360)s.d6++;if(dm>=480)s.d8++;if(dm>=600)s.d10++;if(dm>=720)s.d12++;
+    if(dm>=360)s.d6++;if(dm>=480)s.d8++;if(dm>=600)s.d10++;if(dm>=720)s.d12++;if(dm>=1080)s.d18++;
     cs0=x.in?cs0+1:0;if(cs0>s.maxStreak)s.maxStreak=cs0;if(r&&r.place===1)s.dayWins++;
     if(x.in&&new Date(x.in).getHours()<7)s.early++;
     if(x.in&&r&&!r.cut&&d>='2026-11-02'&&d<='2026-12-02')s.win++;
@@ -8780,7 +8832,7 @@ function memberStats(V,mid){
 function badgeList(V,mid){
   V._bl=V._bl||{};if(V._bl[mid])return V._bl[mid];
   var s=memberStats(V,mid);
-  return V._bl[mid]=BADGES.map(function(b){var v=Math.max(0,+b.f(s)||0),tr=TIERS[b.tier];return {id:b.id,name:b.name,title:b.title,desc:b.desc,on:v>=b.max,v:v,max:b.max,u:b.u,tier:b.tier,tname:tr[0],pts:tr[1],cat:b.cat};});
+  return V._bl[mid]=BADGES.filter(function(b){return !b.hid||(Math.max(0,+b.f(s)||0)>=b.max);}).map(function(b){var v=Math.max(0,+b.f(s)||0),tr=TIERS[b.tier];return {id:b.id,name:b.name,title:b.title,desc:b.desc,on:v>=b.max,v:v,max:b.max,u:b.u,tier:b.tier,tname:tr[0],pts:tr[1],cat:b.cat};});
 }
 function titleOf(V,mid){
   var id=obj(V.progress[mid]).title;if(!id)return '';
@@ -8823,7 +8875,7 @@ function afterPlay(V){
   if(now!==lsGet('gbb_ahead'))lsSet('gbb_ahead',now);
   var earned=badgeList(V,V.me).filter(function(b){return b.on;});
   try{pb=JSON.parse(lsGet('gbb_badges')||'null');}catch(e){}
-  if(pb&&pb.v===2&&pb.me===V.me&&Array.isArray(pb.ids))earned.forEach(function(b){if(pb.ids.indexOf(b.id)<0)addNote({id:'bd'+b.id,key:'bd'+b.id,title:'새 배지: '+b.name+' ('+b.tname+')',sub:'최종 점수에 '+b.pts+'점이 더해집니다. 칭호: '+b.title,tab:'play'});});
+  if(pb&&pb.v===2&&pb.me===V.me&&Array.isArray(pb.ids))earned.forEach(function(b){if(b.tier!=='h'&&pb.ids.indexOf(b.id)<0)addNote({id:'bd'+b.id,key:'bd'+b.id,title:'새 배지: '+b.name+' ('+b.tname+')',sub:'최종 점수에 '+b.pts+'점이 더해집니다. 칭호: '+b.title,tab:'play'});});
   var nb=JSON.stringify({v:2,me:V.me,ids:earned.map(function(b){return b.id;})});
   if(nb!==lsGet('gbb_badges'))lsSet('gbb_badges',nb);
 }
@@ -8977,7 +9029,7 @@ function modalSettings(V){
   [[22,'밤 10시'],[23,'밤 11시'],[24,'자정'],[25,'다음 날 새벽 1시'],[26,'다음 날 새벽 2시'],[27,'다음 날 새벽 3시'],[28,'다음 날 새벽 4시'],[29,'다음 날 새벽 5시']].forEach(function(o){b+='<option value="'+o[0]+'"'+(V.certHour===o[0]?' selected':'')+'>'+o[1]+'</option>';});
   b+='</select>';
   b+='</div>'+spSec()+pokeSec()+noticeSec(V)+periodSec(V)+'<div class="sec"><h3>사용법</h3><div class="row"><button class="btn small" data-act="open" data-modal="help">사용법 보기</button></div></div><div class="sec"><h3>키보드 단축키<small>키보드를 연결했을 때</small></h3><ul class="kbd">'+[['1 ~ 8','달력부터 메시지까지 화면 이동'],['N','할 일 추가'],['D','마감 있는 할 일 추가'],['L','달력, 할 일, 시간표 차례로 바꿔 보기'],['T','타이머 켜기, 끄기'],['F','타이머 크게 보기'],['Esc','창 닫기']].map(function(x){return '<li><kbd>'+x[0]+'</kbd><span>'+x[1]+'</span></li>';}).join('')+'</ul></div><div class="sec"><h3>저장 위치</h3><p class="hint">'+esc(S.net?({claude:'Claude 공유 저장소에 연결되어 있습니다. Claude에 로그인한 참여 인원끼리 실시간으로 같이 봅니다.',firebase:'공유 저장소에 연결되어 있습니다. 참여 코드로 들어온 사람 모두가 실시간으로 같이 봅니다.',local:'지금은 이 기기에만 저장됩니다. 다른 사람과 같이 보려면 공유 저장소 연결이 필요합니다.'}[S.net.mode]):'연결 중입니다.')+'</p>'+(S.net&&S.net.mode==='firebase'&&S.remote?'<div class="row" style="margin-top:10px"><button class="btn small" data-act="import-pick">기록 가져오기</button><button class="btn small" data-act="export-data">기록 파일로 저장</button><button class="del" data-act="setup-reset">'+(S.confirm==='disc'?'한 번 더 누르면 이 방에서 나갑니다':'이 기기에서 이 방 나가기')+'</button></div><p class="hint" style="margin-top:8px">'+esc(S.importMsg||'친구와 내 다른 기기는 위의 친구 초대하기로 들어옵니다. 기록 가져오기는 처음 연결한 뒤 한 번만 하면 됩니다.')+'</p>':'')+'</div>';
-  b+='<p class="hint appver">앱 버전 11월 19일 06:05</p>';
+  b+='<p class="hint appver">앱 버전 11월 19일 07:31</p>';
   return dlg('wide',{id:'settings',t:'설정'},b);
 }
 function modalCheck(V){
@@ -9021,6 +9073,7 @@ function modalHtml(V){
   if(t==='lot')return modalLot(V);
   if(t==='gg')return modalGG(V);
   if(t==='egg7')return modalEgg(V);
+  if(t==='h18')return modalH18(V);
   if(t==='trim'&&S.trim)return modalTrim(V);
   if(t==='shop')return modalShop(V);
   if(t==='inbox'&&S.ib)return modalInbox(V);
@@ -10006,6 +10059,8 @@ function act(name,el){
     }
     case 'trim-go':trimGo();break;
     case 'egg-x':eggClose();break;
+    case 'h18-x':h18Close(false);break;
+    case 'h18-use':h18Close(true);flash('칭호 \'잠들지 않는 자\'를 달았습니다.');break;
     case 'more-list':{var mk=el.getAttribute('data-k');S.more=S.more||{};S.more[mk]=!S.more[mk];break;}
     case 'duel-cheer':{
       var Vc=view(),dc=Vc.duels[id],side=el.getAttribute('data-side');
