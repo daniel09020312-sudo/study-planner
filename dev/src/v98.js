@@ -1,4 +1,4 @@
-/* ---------- v98: 숨은 칭호 '잠들지 않는 자' (하루 18시간 넘게 공부한 날이 있으면). 받기 전에는 배지 목록에 안 보임 ---------- */
+/* ---------- v98: 히든 칭호 '인간 아님' (하루 18시간 넘게 공부한 날이 있으면). 받기 전에는 배지 목록에 안 보임 ---------- */
 var H18_MIN=1080;
 function h18Day(V,mid){
   var t=today(),last=t<END?t:END,res='';
@@ -18,9 +18,9 @@ function h18Close(use){
 function modalH18(V){
   var st='';for(var i=0;i<24;i++)st+='<i style="--x:'+((i*37)%100)+'%;--y:'+((i*61)%70)+'%;--d:'+((i*13)%30)/10+'s"></i>';
   var ring='';for(var j=0;j<24;j++)ring+='<b class="'+(j<18?'on':'')+'" style="--j:'+j+'"></b>';
-  return '<div class="scrim" data-act="h18-x"></div><div class="dialog h18" id="dlg-h18" role="dialog" aria-modal="true" aria-label="숨은 칭호" tabindex="-1"><div class="h18sky" aria-hidden="true">'+st+'</div>'+
-    '<div class="h18h">숨은 칭호</div><div class="h18clock" aria-hidden="true">'+ring+'<span>18<small>시간</small></span></div>'+
-    '<h2 class="h18t">잠들지 않는 자</h2><p class="h18p">하루에 18시간 넘게 공부했습니다.<br>목록에 없던 칭호가 열렸습니다.</p>'+
+  return '<div class="scrim" data-act="h18-x"></div><div class="dialog h18" id="dlg-h18" role="dialog" aria-modal="true" aria-label="히든 칭호" tabindex="-1"><div class="h18sky" aria-hidden="true">'+st+'</div>'+
+    '<div class="h18h">히든 칭호</div><div class="h18clock" aria-hidden="true">'+ring+'<span>18<small>시간</small></span></div>'+
+    '<h2 class="h18t">인간 아님</h2><p class="h18p">하루에 18시간 넘게 공부했습니다.<br>목록에 없던 칭호가 열렸습니다.</p>'+
     '<div class="h18b"><button class="btn primary" data-act="h18-use">칭호 달기</button><button class="btn" data-act="h18-x">닫기</button></div></div>';
 }
 /* 화면을 그린 뒤 도는 eggTick에 붙여 확인 */
