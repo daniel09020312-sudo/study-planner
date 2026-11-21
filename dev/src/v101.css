@@ -1,0 +1,62 @@
+/* v101 노동요 정리 */
+#c-songs .sghd{gap:6px;flex-wrap:wrap;justify-content:flex-end}
+#c-songs .sglist{margin-top:6px;border-top:1px solid var(--line)}
+#c-songs .song.sg2{display:block;padding:0;margin:0;border-top:0;border-bottom:1px solid var(--line);border-radius:0;background:none}
+#c-songs .song.sg2 .sgrow{display:grid;grid-template-columns:36px minmax(0,1fr) auto;gap:10px;align-items:center;padding:9px 2px}
+#c-songs .song.sg2.on .sgrow,#c-songs .song.sg2.pick .sgrow{background:color-mix(in srgb,var(--accent) 7%,transparent);border-radius:10px}
+#c-songs .sgp{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;border:1px solid var(--line);background:var(--surface);color:var(--accent);cursor:pointer;padding:0;text-decoration:none}
+#c-songs .sgp svg{width:16px;height:16px}
+#c-songs .sgp[aria-pressed="true"]{background:var(--accent);color:#fff;border-color:var(--accent)}
+#c-songs .sgp.out{color:var(--ink-2)}
+#c-songs .sgp.none{color:var(--ink-3);opacity:.35;cursor:default}
+#c-songs .sg2 .sinfo{min-width:0}
+#c-songs .sg2 .st{display:block;font-weight:600;font-size:14px;line-height:1.35;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%;text-align:left;background:none;border:0;padding:0;color:var(--ink);font-family:inherit;cursor:pointer}
+#c-songs .sg2.open .st{white-space:normal}
+#c-songs .sg2 .smeta{display:flex;flex-wrap:wrap;gap:3px 5px;align-items:center;margin-top:3px}
+#c-songs .sg2 .smeta .tag{font-size:10.5px;padding:1px 6px}
+#c-songs .sg2 .smeta small{font-size:11.5px;color:var(--ink-3)}
+#c-songs .sg2 .snote.one{margin:3px 0 0;font-size:12px;color:var(--ink-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#c-songs .sg2 .snow{margin-top:3px;font-size:11.5px}
+#c-songs .sg2 .acts{display:flex;gap:2px;align-items:center;flex-wrap:nowrap}
+#c-songs .sgl,#c-songs .sgc{display:inline-flex;align-items:center;gap:4px;min-width:44px;height:36px;padding:0 8px;border:0;border-radius:10px;background:none;color:var(--ink-3);font:inherit;font-size:12.5px;font-variant-numeric:tabular-nums;cursor:pointer}
+#c-songs .sgl svg,#c-songs .sgc svg{width:17px;height:17px}
+#c-songs .sgl svg path{fill:none;stroke:currentColor;stroke-width:2}
+#c-songs .sgl.on{color:#e0457b}
+#c-songs .sgl.on svg path{fill:currentColor;stroke:none}
+#c-songs .sgl:hover,#c-songs .sgc:hover{background:color-mix(in srgb,var(--ink) 6%,transparent)}
+#c-songs .sgc[aria-expanded="true"]{color:var(--accent);background:color-mix(in srgb,var(--accent) 10%,transparent)}
+#c-songs .sdet{padding:2px 4px 12px 48px;display:grid;gap:8px}
+#c-songs .sdet .snote{margin:0}
+#c-songs .sgcm{display:grid;gap:6px;padding:10px 12px;border-radius:12px;background:color-mix(in srgb,var(--ink) 4%,transparent)}
+#c-songs .sgch{font-size:12.5px}
+#c-songs .sgci{display:grid;grid-template-columns:auto minmax(0,1fr) auto auto;gap:4px 8px;align-items:baseline;font-size:13px}
+#c-songs .sgci b{font-weight:600}
+#c-songs .sgci span{word-break:break-word}
+#c-songs .sgci time{font-size:11px;color:var(--ink-3);white-space:nowrap}
+#c-songs .sgci .del{font-size:11.5px;padding:2px 4px}
+#c-songs .sgcin{display:flex;gap:6px;margin-top:2px}
+#c-songs .sgcin input{flex:1;min-width:0}
+#c-songs .sgmore{gap:4px 10px;flex-wrap:wrap;align-items:center}
+#c-songs .sgmore small{margin-left:auto;font-size:11.5px;color:var(--ink-3)}
+#c-songs .sgpage{justify-content:center;gap:8px;margin-top:10px}
+#c-songs .sgpage small{color:var(--ink-3);margin-left:4px}
+@media (max-width:699px){#c-songs .sdet{padding-left:4px}#c-songs .sgci{grid-template-columns:auto minmax(0,1fr) auto}#c-songs .sgci time{display:none}}
+/* 방장 노동요 기록 창 */
+.sadmtbl{display:grid;gap:2px}
+.sadmth,.sadmtr{display:grid;grid-template-columns:minmax(0,1.6fr) repeat(4,minmax(44px,.6fr));gap:8px;align-items:center;padding:8px 10px;text-align:right;font-variant-numeric:tabular-nums}
+.sadmth{font-size:11.5px;color:var(--ink-3);border-bottom:1px solid var(--line)}
+.sadmth span:first-child,.sadmtr span:first-child{text-align:left}
+.sadmtr{width:100%;border:0;background:none;border-radius:10px;font:inherit;font-size:13.5px;color:var(--ink);cursor:pointer}
+.sadmtr:hover,.sadmtr.on{background:color-mix(in srgb,var(--accent) 8%,transparent)}
+.sadmtr span:first-child{display:flex;gap:6px;align-items:center;min-width:0}
+.sadmtr span:first-child b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sadmdet{padding:6px 12px 14px;display:grid;gap:6px}
+.sadmdet h4{margin:6px 0 0;font-size:12px;color:var(--ink-3);font-weight:600}
+.sadml{margin:0;padding:0;list-style:none;display:grid;gap:2px}
+.sadml li{display:flex;justify-content:space-between;gap:10px;font-size:13px;padding:4px 0;border-bottom:1px dashed var(--line)}
+.sadml li em{font-style:normal;color:var(--ink-3);font-variant-numeric:tabular-nums}
+.sadms{padding:10px 2px;border-bottom:1px solid var(--line)}
+.sadmsh{display:flex;flex-wrap:wrap;gap:2px 10px;align-items:baseline}
+.sadmsh small{color:var(--ink-3);font-size:11.5px}
+.sadms p{margin:4px 0 0;font-size:12.5px;color:var(--ink-2)}
+.sadms p em{font-style:normal;color:var(--accent);font-weight:600}

@@ -31,6 +31,7 @@ check('max 3',ev(p,"document.querySelectorAll('#songNew [data-act=\"song-mood\"]
 p.focus('#songIn');p.keyboard.press('Enter');p.wait_for_timeout(500)
 nw=json.loads(ev(p,"JSON.stringify(Object.values(window.__store).filter(x=>x&&x.title==='새 곡')[0])"))
 check('saved custom tags',sorted(nw.get('tags',{}).keys())==sorted(['영어 듣기','밤','집중']) and nw['mood']=='집중',nw)
+click(p,'#sg-n2 [data-act="song-x"]',400)
 click(p,'#sg-n2 [data-act="song-tagedit"]',400)
 click(p,'#sg-n2 [data-act="song-tagset"][data-v="수학"]',400)
 p.fill('#sg-n2 .stagin input','새벽 공부');p.keyboard.press('Enter');p.wait_for_timeout(400)
