@@ -1,0 +1,2 @@
+# ---------------------------------------------------------------- v103: 하루 할 일 도구 줄의 '적은 순서·과목별·마감별' 묶음이 좁아져 글자가 겹치던 것(다른 단추에 밀려 줄어듦)
+sub("</style>", ".gtools{flex-wrap:wrap!important;row-gap:8px}\n.gtools>.seg.mini{flex:none!important;max-width:100%}\n.gtools .seg.mini{grid-template-columns:repeat(3,auto)!important}\n.gtools .seg.mini button{white-space:nowrap;padding-left:12px;padding-right:12px}\n</style>")
