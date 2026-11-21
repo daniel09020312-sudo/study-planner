@@ -51,7 +51,7 @@ function songsCard(V,k){
     else h+='<span class="sgp none" aria-hidden="true">'+SG_ICON.play+'</span>';
     h+='<div class="sinfo">';
     h+=ok?'<a class="st" href="'+esc(x.url)+'" target="_blank" rel="noopener noreferrer" data-act="song-open" data-id="'+esc(x.id)+'">'+esc(x.title)+'</a>':'<button class="st" data-act="song-now" data-id="'+esc(x.id)+'" aria-pressed="'+(on?'true':'false')+'">'+esc(x.title)+'</button>';
-    h+='<div class="smeta">'+(roll&&S.songRoll.done?'<em class="tag a">오늘은 이 곡</em>':'')+(top===x.id?'<em class="tag a">좋아요 1위</em>':'')+(Date.now()-(+x.at||0)<3*86400000?'<em class="tag snew">새 곡</em>':'')+tg.slice(0,op?3:2).map(function(m){return '<em class="tag stg">#'+esc(m)+'</em>';}).join('')+(!op&&tg.length>2?'<em class="tag stg">+'+(tg.length-2)+'</em>':'')+'<small>'+esc(w?shortName(w.name):'나간 인원')+(pls[x.id]?' · '+pls[x.id]+'번 들음':'')+'</small></div>';
+    h+='<div class="smeta">'+(roll&&S.songRoll.done?'<em class="tag a">오늘은 이 곡</em>':'')+(top===x.id?'<em class="tag a">좋아요 1위</em>':'')+(Date.now()-(+x.at||0)<3*86400000?'<em class="tag snew">새 곡</em>':'')+tg.slice(0,op?3:2).map(function(m){return '<em class="tag stg">#'+esc(m)+'</em>';}).join('')+(!op&&tg.length>2?'<em class="tag stg">+'+(tg.length-2)+'</em>':'')+'<small>'+esc(w?shortName(w.name):'나간 인원')+(pls[x.id]?' · 모두 '+pls[x.id]+'번 들음':'')+'</small></div>';
     if(x.note&&!op)h+='<p class="snote one">'+esc(x.note)+'</p>';
     if(hs.length)h+='<div class="snow"><span>듣는 중: '+esc(hs.join(', '))+'</span>'+(on?'<button class="del" data-act="song-stop">그만 듣기</button>':'')+'</div>';
     h+='</div><div class="acts">';
@@ -67,7 +67,7 @@ function songsCard(V,k){
       if(!cs.length)h+='<p class="hint">아직 댓글이 없습니다. 이 곡 어땠는지 남겨 보세요.</p>';
       cs.forEach(function(c){var cw=V.byId[c.mid];h+='<div class="sgci"><b>'+esc(cw?shortName(cw.name):'나간 인원')+'</b><span>'+esc(c.t)+'</span><time>'+esc(songAgo(c.at))+'</time>'+(c.mid===V.me||adminId(V)===V.me?'<button class="del" data-act="song-cdel" data-id="'+esc(c.mid+'|'+c.id)+'">'+(S.confirm==='scm:'+c.id?'한 번 더':'지우기')+'</button>':'')+'</div>';});
       if(V.me)h+='<div class="sgcin"><input type="text" data-draft="scm:'+esc(x.id)+'" data-enter="song-cadd" data-id="'+esc(x.id)+'" maxlength="'+SCM_LEN+'" placeholder="댓글 달기" aria-label="댓글 달기"><button class="btn small primary" data-act="song-cadd" data-id="'+esc(x.id)+'">남기기</button></div>';
-      h+='</div><div class="row sgmore">'+(ok?'<button class="del" data-act="song-copy" data-id="'+esc(x.id)+'">링크 복사</button>':'')+(x.mid===V.me?'<button class="del" data-act="song-tagedit" data-id="'+esc(x.id)+'">태그 고치기</button><button class="del" data-act="song-del" data-id="'+esc(x.id)+'">'+(S.confirm==='song:'+x.id?'한 번 더':'곡 삭제')+'</button>':'')+'<small>'+esc(w?w.name:'나간 인원')+' · '+esc(songAgo(+x.at||0))+' 올림</small></div>';
+      h+='</div><div class="row sgmore">'+(ok?'<button class="del" data-act="song-copy" data-id="'+esc(x.id)+'">링크 복사</button>':'')+(x.mid===V.me?'<button class="del" data-act="song-tagedit" data-id="'+esc(x.id)+'">태그 고치기</button><button class="del" data-act="song-del" data-id="'+esc(x.id)+'">'+(S.confirm==='song:'+x.id?'한 번 더':'곡 삭제')+'</button>':'')+'<small>'+(+obj(obj(V.progress[V.me]).sp)[x.id]?'내가 '+(+obj(obj(V.progress[V.me]).sp)[x.id])+'번 들음 · ':'')+esc(w?w.name:'나간 인원')+' · '+esc(songAgo(+x.at||0))+' 올림</small></div>';
       h+='</div>';
     }
     h+='</div>';

@@ -1,0 +1,51 @@
+/* v102 반 전체 목표 단계 */
+.cgbar2{position:relative;height:12px;border-radius:999px;background:var(--fill);margin:4px 0 22px}
+.cgbar2>i{position:absolute;left:0;top:0;bottom:0;border-radius:inherit;background:linear-gradient(90deg,var(--accent),color-mix(in srgb,var(--accent) 55%,#F2C14E));transition:width .6s var(--ease)}
+.cgbar2>b{position:absolute;top:-3px;width:2px;height:18px;margin-left:-1px;background:color-mix(in srgb,var(--ink) 22%,transparent);border-radius:2px}
+.cgbar2>b.g{background:color-mix(in srgb,var(--ink) 45%,transparent)}
+.cgbar2>b.on{background:#E0A800}
+.cgbar2>b span{position:absolute;top:20px;left:50%;transform:translateX(-50%);font-size:10.5px;font-weight:700;color:var(--ink-3);white-space:nowrap;font-variant-numeric:tabular-nums}
+.cgbar2>b.on span{color:#B98900}
+.cgbar2>b:last-child span{transform:translateX(-80%)}
+.cg2 .cgsub b{color:var(--ink)}
+.cgtier{font-size:11.5px;margin-top:2px}
+/* 프로필 테두리: 마스크로 고리만 남긴 ::after */
+.av.rg{position:relative;overflow:visible}
+.av.rg::after{content:"";position:absolute;inset:-4px;border-radius:50%;pointer-events:none;-webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 3px),#000 calc(100% - 2.5px));mask:radial-gradient(farthest-side,transparent calc(100% - 3px),#000 calc(100% - 2.5px));background:var(--rg,#999)}
+.av.rg-dash::after{background:none;-webkit-mask:none;mask:none;border:2px dashed color-mix(in srgb,var(--ink) 45%,transparent);inset:-4px}
+.av.rg-mint{--rg:#3CC8A8}.av.rg-rose{--rg:#E87A97}
+.av.rg-double::after{background:none;-webkit-mask:none;mask:none;inset:-5px;box-shadow:0 0 0 1.5px var(--accent),inset 0 0 0 1.5px var(--accent);border:2px solid transparent}
+.av.rg-gold{--rg:conic-gradient(from 30deg,#B8860B,#F7E08A,#C9971C,#FFF3B8,#B8860B)}
+.av.rg-neon{--rg:conic-gradient(#00E5FF,#7C4DFF,#FF2E88,#00E5FF)}.av.rg-neon::after{filter:drop-shadow(0 0 3px #7C4DFF);animation:rgSpin 6s linear infinite}
+.av.rg-sakura{--rg:conic-gradient(#FFC1D6,#FF8FB1,#FFE4EE,#F7A1C4,#FFC1D6)}
+.av.rg-rainbow{--rg:conic-gradient(#FF5A5A,#FFB13B,#FFE14D,#4CD964,#3FA9F5,#6B5BFF,#C45BFF,#FF5A5A)}.av.rg-rainbow::after{animation:rgSpin 10s linear infinite}
+.av.rg-dawn{--rg:conic-gradient(from 200deg,#2B3A67,#FF9E7A,#FFD3A5,#7BA7E1,#2B3A67)}
+.av.rg-crown{--rg:conic-gradient(#C9971C,#FFE9A3,#8A5A00,#FFE9A3,#C9971C)}.av.rg-crown::before{content:"";position:absolute;left:50%;top:-11px;width:16px;height:9px;margin-left:-8px;background:#E0A800;clip-path:polygon(0 100%,0 20%,25% 60%,50% 0,75% 60%,100% 20%,100% 100%);pointer-events:none}
+.av.rg-blaze{--rg:conic-gradient(#FF3D00,#FFB300,#FF6D00,#FFEA00,#FF3D00)}.av.rg-blaze::after{filter:drop-shadow(0 0 4px #FF6D00);animation:rgSpin 3s linear infinite}
+.av.rg-galaxy{--rg:conic-gradient(#1A0B3D,#5B2EFF,#00C2FF,#FF5AD9,#1A0B3D)}.av.rg-galaxy::after{filter:drop-shadow(0 0 3px #5B2EFF);animation:rgSpin 14s linear infinite}
+.av.rg-seven{--rg:repeating-conic-gradient(#E0A800 0 18deg,#C8102E 18deg 36deg)}
+.av.rg-void{--rg:conic-gradient(#000,#3A3A3A,#000,#6F00FF,#000)}.av.rg-void::after{filter:drop-shadow(0 0 4px #6F00FF);animation:rgSpin 5s linear infinite reverse}
+.av.rg-prism{--rg:conic-gradient(#FFFFFF,#A0E9FF,#FFC8F0,#FFF6A0,#B7FFC8,#FFFFFF)}.av.rg-prism::after{filter:drop-shadow(0 0 3px rgba(160,233,255,.9));animation:rgSpin 7s linear infinite}
+@keyframes rgSpin{to{transform:rotate(360deg)}}
+/* 칭호 장식 */
+.tag.tg-outline{background:none!important;box-shadow:inset 0 0 0 1.5px currentColor}
+.tag.tg-ink{background:#111!important;color:#fff!important}
+.tag.tg-glow{box-shadow:0 0 10px color-mix(in srgb,currentColor 55%,transparent)}
+.tag.tg-grad{background:linear-gradient(90deg,var(--accent),color-mix(in srgb,var(--accent) 40%,#FF6FB1))!important;color:#fff!important}
+.tag.tg-shine,.tag.tg-gold,.tag.tg-holo{position:relative;overflow:hidden}
+.tag.tg-shine::after,.tag.tg-gold::after,.tag.tg-holo::after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 30%,rgba(255,255,255,.75) 48%,transparent 66%);transform:translateX(-120%);animation:tgShine 3.2s ease-in-out infinite}
+.tag.tg-gold{background:linear-gradient(135deg,#8A5A00,#F7E08A 45%,#C9971C 70%,#FFF3B8)!important;color:#3D2800!important}
+.tag.tg-fire{background:linear-gradient(90deg,#FF3D00,#FF9100,#FFD600)!important;color:#fff!important;text-shadow:0 1px 2px rgba(120,20,0,.5)}
+.tag.tg-holo{background:linear-gradient(120deg,#A0E9FF,#FFC8F0,#FFF6A0,#B7FFC8,#A0E9FF)!important;background-size:300% 100%!important;color:#28204A!important;animation:tgHolo 6s linear infinite}
+@keyframes tgShine{60%,100%{transform:translateX(120%)}}
+@keyframes tgHolo{to{background-position:300% 0}}
+@media (prefers-reduced-motion:reduce){.av.rg::after,.tag.tg2::after,.tag.tg-holo{animation:none!important}}
+/* 상점 미리 보기 */
+.shi .shpv.shring,.shi .shpv.shttag,.shi .shpv.shq2{display:flex;align-items:center;justify-content:center;background:var(--fill);overflow:visible}
+.shring .av{width:48px;height:48px;font-size:14px;background:var(--surface)}
+.shttag .tag{font-size:12px}
+.shi .shpv.shq2{font-size:30px;overflow:hidden;font-weight:800;color:var(--ink-3);background:repeating-linear-gradient(45deg,var(--fill) 0 8px,transparent 8px 16px)}
+.shi.hid2 .shn b{letter-spacing:.02em}
+.shdeco{margin:-4px 0 10px}
+.shcats button{font-size:12.5px}
+@media (max-width:520px){.shcats button{font-size:11.5px;padding:0 2px}}
