@@ -1,0 +1,19 @@
+/* v105 병맛 히든 */
+.shi.hid2.bm .shq2{background:repeating-linear-gradient(-45deg,#FFF3A8 0 8px,#FFE066 8px 16px);color:#8A6A00}
+.av.rg-potato::after{background:none;-webkit-mask:none;mask:none;inset:-5px;border:3px solid #B5874E;border-radius:46% 54% 42% 58%/55% 45% 58% 42%;box-shadow:inset 0 0 0 1px #8C6230}
+.av.rg-potato::before{content:"";position:absolute;right:-3px;top:4px;width:5px;height:5px;border-radius:50%;background:#8C6230;box-shadow:-30px 14px 0 -1px #8C6230,-8px 28px 0 0 #8C6230;pointer-events:none}
+.av.rg-zzz{--rg:repeating-conic-gradient(#8C7BD8 0 10deg,transparent 10deg 20deg)}
+.av.rg-zzz::before{content:"z z";position:absolute;right:-12px;top:-12px;font-size:10px;font-weight:800;color:#8C7BD8;letter-spacing:-1px;pointer-events:none;animation:zzz 2.4s ease-in-out infinite}
+@keyframes zzz{50%{transform:translate(2px,-3px);opacity:.5}}
+.tag.tg-gungseo{font-family:"Gungsuh","궁서","GungSeo","Batang",serif!important;font-weight:900!important;background:#fff!important;color:#B00000!important;box-shadow:inset 0 0 0 1px #B00000;letter-spacing:.05em}
+.tag.tg-upside{display:inline-block;transform:rotate(180deg)}
+:root[data-concept="banana"]{--bg:#FFF6B8;--surface:#FFFBE0;--fill:rgba(180,140,0,.1);--line:rgba(180,140,0,.25)}
+[data-concept="banana"] body{background:radial-gradient(circle at 20px 20px,rgba(255,220,60,.5) 6px,transparent 7px) 0 0/48px 48px,#FFF6B8}
+[data-concept="banana"] :is(.card,.tile,.note){border:3px solid #F5C400;border-radius:28px;box-shadow:0 6px 0 #E0B000}
+[data-concept="banana"] .btn.primary{box-shadow:0 4px 0 rgba(0,0,0,.18)}
+.cvp.cvp-banana{--pb:#FFF6B8;--pc:#FFFBE0;--pe:#F5C400;--pr:10px}
+.tf.tv-wobble .tt{display:inline-block;animation:wob .7s ease-in-out infinite}
+.tf.tv-wobble small{display:inline-block;animation:wob 1.1s ease-in-out infinite reverse}
+@keyframes wob{0%,100%{transform:rotate(-3deg) translateY(0)}50%{transform:rotate(3deg) translateY(-3px)}}
+.tsv-wobble{animation:wob 1s ease-in-out infinite}
+@media (prefers-reduced-motion:reduce){.tf.tv-wobble .tt,.tf.tv-wobble small,.tsv-wobble,.av.rg-zzz::before{animation:none}}

@@ -2529,6 +2529,25 @@ html.f3on,html.f3on body{overflow:hidden}
 .shn .hidc{display:block;margin-top:3px;font-size:11.5px;font-weight:600;color:#9A6B00}
 .shn .hidc.met{color:#2E8B57}
 [data-mode="dark"] .shn .hidc{color:#E8C259}[data-mode="dark"] .shn .hidc.met{color:#6FD39A}
+/* v105 병맛 히든 */
+.shi.hid2.bm .shq2{background:repeating-linear-gradient(-45deg,#FFF3A8 0 8px,#FFE066 8px 16px);color:#8A6A00}
+.av.rg-potato::after{background:none;-webkit-mask:none;mask:none;inset:-5px;border:3px solid #B5874E;border-radius:46% 54% 42% 58%/55% 45% 58% 42%;box-shadow:inset 0 0 0 1px #8C6230}
+.av.rg-potato::before{content:"";position:absolute;right:-3px;top:4px;width:5px;height:5px;border-radius:50%;background:#8C6230;box-shadow:-30px 14px 0 -1px #8C6230,-8px 28px 0 0 #8C6230;pointer-events:none}
+.av.rg-zzz{--rg:repeating-conic-gradient(#8C7BD8 0 10deg,transparent 10deg 20deg)}
+.av.rg-zzz::before{content:"z z";position:absolute;right:-12px;top:-12px;font-size:10px;font-weight:800;color:#8C7BD8;letter-spacing:-1px;pointer-events:none;animation:zzz 2.4s ease-in-out infinite}
+@keyframes zzz{50%{transform:translate(2px,-3px);opacity:.5}}
+.tag.tg-gungseo{font-family:"Gungsuh","궁서","GungSeo","Batang",serif!important;font-weight:900!important;background:#fff!important;color:#B00000!important;box-shadow:inset 0 0 0 1px #B00000;letter-spacing:.05em}
+.tag.tg-upside{display:inline-block;transform:rotate(180deg)}
+:root[data-concept="banana"]{--bg:#FFF6B8;--surface:#FFFBE0;--fill:rgba(180,140,0,.1);--line:rgba(180,140,0,.25)}
+[data-concept="banana"] body{background:radial-gradient(circle at 20px 20px,rgba(255,220,60,.5) 6px,transparent 7px) 0 0/48px 48px,#FFF6B8}
+[data-concept="banana"] :is(.card,.tile,.note){border:3px solid #F5C400;border-radius:28px;box-shadow:0 6px 0 #E0B000}
+[data-concept="banana"] .btn.primary{box-shadow:0 4px 0 rgba(0,0,0,.18)}
+.cvp.cvp-banana{--pb:#FFF6B8;--pc:#FFFBE0;--pe:#F5C400;--pr:10px}
+.tf.tv-wobble .tt{display:inline-block;animation:wob .7s ease-in-out infinite}
+.tf.tv-wobble small{display:inline-block;animation:wob 1.1s ease-in-out infinite reverse}
+@keyframes wob{0%,100%{transform:rotate(-3deg) translateY(0)}50%{transform:rotate(3deg) translateY(-3px)}}
+.tsv-wobble{animation:wob 1s ease-in-out infinite}
+@media (prefers-reduced-motion:reduce){.tf.tv-wobble .tt,.tf.tv-wobble small,.tsv-wobble,.av.rg-zzz::before{animation:none}}
 #c-setup .row input{min-width:0}
 #c-setup .lb{margin-top:0}
 .serr{color:var(--red);margin-top:8px}
@@ -5019,7 +5038,7 @@ document.addEventListener('change',function(e){
 
 /* ---------- 처음 화면 ---------- */
 // 앱이 준비되면 알린다. 그림이 아직이면 다 그린 뒤에 열리고, 그림이 먼저 끝났으면 바로 열린다
-var APP_BUILD='1795342896';
+var APP_BUILD='1795348522';
 function splashDone(){
   var sp=document.getElementById('splash'),st=window.__sp;if(!sp||sp.getAttribute('data-out'))return;
   sp.setAttribute('data-out','1');
@@ -7809,6 +7828,43 @@ function hidAdm(V){return !!(V&&V.me&&adminId(V)===V.me);}
 function shopShown(V,id){var it=shopItem(id);if(it&&it.hid)return shopOwns(V,id)||hidAdm(V)||decoOk(V,it);return shopShown0(V,id);}
 function hidLine(V,it){if(!it.hid)return '';var met=decoOk(V,it);return '<small class="hidc'+(met?' met':'')+'">히든 · 조건: '+esc(it.hid)+(met?' (채움)':hidAdm(V)?' (방장이라 열림)':'')+'</small>';}
 
+/* ---------- v105: 병맛 히든. 엉뚱한 조건으로 열리는 꾸미기 ---------- */
+function bmStats(V){
+  var g=gcSync(V),k='bm';if(g[k])return g[k];
+  var o={z0:0,lateIn:0,plan30:0,zeroDone:0,m71:0,lateCert:0,songs:0},t=today(),last=t<END?t:END;
+  for(var d=TALLY;d<=last;d=addDays(d,1)){
+    var x=dayOf(V,V.me,d),m=sumMins(x.mins)+sumMins(x.manual),gl=x.goals.filter(function(q){return q&&!q.mv;});
+    if(x.in&&m===0&&d<t)o.z0++;
+    if(x.in){var h=new Date(x.in).getHours();if(h>=23||h<DAY_H)o.lateIn++;}
+    if(x.goals.length>=30)o.plan30++;
+    if(d<t&&gl.length>=3&&gl.filter(isDone).length===0)o.zeroDone++;
+    if(m===71)o.m71++;
+    if(x.certAt&&isLate(V,d,x.certAt))o.lateCert++;
+  }
+  for(var id in V.songs)if(obj(V.songs[id]).mid===V.me)o.songs++;
+  return g[k]=o;
+}
+/* 병맛 테두리·칭호 장식 */
+[
+  ['r','potato','감자',30,'출석만 하고 공부 0분인 날 3번',function(s,V){return bmStats(V).z0>=3;}],
+  ['r','zzz','쿨쿨',30,'밤 11시 넘어서 출석 3번',function(s,V){return bmStats(V).lateIn>=3;}],
+  ['g','gungseo','궁서체',40,'하루에 할 일 30개 넘게 적기',function(s,V){return bmStats(V).plan30>=1;}],
+  ['g','upside','뒤집힌 칭호',40,'할 일 3개 이상 적고 하나도 안 끝낸 날 3번',function(s,V){return bmStats(V).zeroDone>=3;}]
+].forEach(function(x){DECO_ITEMS.push({id:x[0]+':'+x[1],v:x[1],cat:x[0]==='r'?'ring':'ttag',name:x[2],price:x[3],desc:'병맛 히든',hid:x[4],cond:x[5],bm:1});});
+/* 병맛 방 꾸미기·색·타이머 */
+CONCEPTS.push({id:'banana',name:'바나나 우유',soft:[.3,'#FFF3A8'],font:'Jua',face:'Jua',w:400,hid:1});
+ACCENTS.push({id:'hlime',name:'형광 연두',g:'h',l:{a:'#5BC800',on:'#102000',soft:'#EDFFD6',ink:'#3C8A00',mark:'#5BC800'},d:{a:'#A6FF3D',on:'#102000',soft:'#22340F',ink:'#A6FF3D',mark:'#A6FF3D'}});
+TVAR.wobble='digits';TSTYLES.push(['wobble','흔들 숫자']);TSPREV.wobble=TSPREV.digits;
+SHOP_LOOK.banana=[60,'노랗고 동글동글한 바나나 우유 갑'];SHOP_TIMER.wobble=[40,'숫자가 혼자 춤을 춥니다'];
+HID_EXTRA['c:banana']=['딱 1시간 11분 공부한 날',function(s,V){return bmStats(V).m71>=1;}];
+HID_EXTRA['a:hlime']=['노동요 5곡 올리기',function(s,V){return bmStats(V).songs>=5;},20];
+HID_EXTRA['t:wobble']=['인증 마감 지나서 인증 5번',function(s,V){return bmStats(V).lateCert>=5;}];
+['c:banana','a:hlime','t:wobble'].forEach(function(k){HID_EXTRA[k].bm=1;});
+var hidExtraMark0=hidExtraMark;hidExtraMark=function(a){hidExtraMark0(a);a.forEach(function(x){if(HID_EXTRA[x.id]&&HID_EXTRA[x.id].bm){x.bm=1;x.desc='병맛 히든 · '+x.desc;}});};
+var hidLine0=hidLine;hidLine=function(V,it){var h=hidLine0(V,it);return it.bm&&h?h.replace('히든 · 조건','병맛 히든 · 조건'):h;};
+var decoHidCard0=decoHidCard;decoHidCard=function(V,it,foc){var h=decoHidCard0(V,it,foc);return it.bm?h.replace('class="shi hid hid2','class="shi hid hid2 bm').replace('<b>히든 ','<b>병맛 히든 '):h;};
+try{applyLook();}catch(e){}
+
 /* ---------- 방: 참여 코드, 새 방, 방 바꾸기 (웹 판) ---------- */
 // 참여 링크: 사이트주소#join=<저장소 이름>  -> 참여 코드 6자리 -> 이름 고르기
 // 코드 연결: rooms/joincode-<코드> = {r:방 id, n:방 이름, at}
@@ -9463,7 +9519,7 @@ function modalSettings(V){
   [[22,'밤 10시'],[23,'밤 11시'],[24,'자정'],[25,'다음 날 새벽 1시'],[26,'다음 날 새벽 2시'],[27,'다음 날 새벽 3시'],[28,'다음 날 새벽 4시'],[29,'다음 날 새벽 5시']].forEach(function(o){b+='<option value="'+o[0]+'"'+(V.certHour===o[0]?' selected':'')+'>'+o[1]+'</option>';});
   b+='</select>';
   b+='</div>'+spSec()+pokeSec()+noticeSec(V)+periodSec(V)+'<div class="sec"><h3>사용법</h3><div class="row"><button class="btn small" data-act="open" data-modal="help">사용법 보기</button></div></div><div class="sec"><h3>키보드 단축키<small>키보드를 연결했을 때</small></h3><ul class="kbd">'+[['1 ~ 8','달력부터 메시지까지 화면 이동'],['N','할 일 추가'],['D','마감 있는 할 일 추가'],['L','달력, 할 일, 시간표 차례로 바꿔 보기'],['T','타이머 켜기, 끄기'],['F','타이머 크게 보기'],['Esc','창 닫기']].map(function(x){return '<li><kbd>'+x[0]+'</kbd><span>'+x[1]+'</span></li>';}).join('')+'</ul></div><div class="sec"><h3>저장 위치</h3><p class="hint">'+esc(S.net?({claude:'Claude 공유 저장소에 연결되어 있습니다. Claude에 로그인한 참여 인원끼리 실시간으로 같이 봅니다.',firebase:'공유 저장소에 연결되어 있습니다. 참여 코드로 들어온 사람 모두가 실시간으로 같이 봅니다.',local:'지금은 이 기기에만 저장됩니다. 다른 사람과 같이 보려면 공유 저장소 연결이 필요합니다.'}[S.net.mode]):'연결 중입니다.')+'</p>'+(S.net&&S.net.mode==='firebase'&&S.remote?'<div class="row" style="margin-top:10px"><button class="btn small" data-act="import-pick">기록 가져오기</button><button class="btn small" data-act="export-data">기록 파일로 저장</button><button class="del" data-act="setup-reset">'+(S.confirm==='disc'?'한 번 더 누르면 이 방에서 나갑니다':'이 기기에서 이 방 나가기')+'</button></div><p class="hint" style="margin-top:8px">'+esc(S.importMsg||'친구와 내 다른 기기는 위의 친구 초대하기로 들어옵니다. 기록 가져오기는 처음 연결한 뒤 한 번만 하면 됩니다.')+'</p>':'')+'</div>';
-  b+='<p class="hint appver">앱 버전 11월 22일 19:21</p>';
+  b+='<p class="hint appver">앱 버전 11월 22일 20:55</p>';
   return dlg('wide',{id:'settings',t:'설정'},b);
 }
 function modalCheck(V){
