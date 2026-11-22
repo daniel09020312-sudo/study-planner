@@ -261,7 +261,7 @@
 [data-concept="news"] .dialog:not(.pic){border-radius:4px;border-top:4px double var(--ink)}
 [data-concept="news"] .vhead h1{border-bottom:3px double var(--ink);padding-bottom:6px}
 [data-concept="news"] :is(.btn,.chip,.seg,.pill,.ib,.tag){border-radius:2px}
-/* 노을: 하늘빛 그러데이션 위에 흐린 면 */
+/* 노을: 하늘빛 그라데이션 위에 흐린 면 */
 :root[data-concept="sunset"]{--bg:#FFF3EC;--surface:#FFFFFF;--fill:rgba(140,90,120,.09);--line:rgba(140,90,120,.18)}
 :root[data-concept="sunset"][data-mode="dark"]{--bg:#1A1324;--surface:#231A30;--fill:rgba(255,220,240,.08);--line:rgba(255,220,240,.14)}
 [data-concept="sunset"] body{background:linear-gradient(170deg,#FFE9DC 0%,#FDE0EA 38%,#EAE2FB 72%,#DCE8FC 100%) fixed}

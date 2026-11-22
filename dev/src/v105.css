@@ -46,3 +46,7 @@
 .tf.tv-headstand{transform:rotate(180deg)}
 .tsv-headstand{transform:rotate(180deg)}
 @media (prefers-reduced-motion:reduce){.av.rg-googly::after,.av.rg-stache::after,.av.rg-tornado,.av.rg-flame::after,.tag.tg-blink,[data-concept="glitch"] :is(h1,h2),.tf.tv-drunk .tt,.tf.tv-drunk small,.tf.tv-drunk span,.tsv-drunk,.shi.hid2.bm .shq2{animation:none!important}}
+.av.rg-zzz{--rg:repeating-conic-gradient(#8C7BD8 0 10deg,transparent 10deg 20deg)}
+.av.rg-zzz::before{content:"z z";position:absolute;right:-12px;top:-12px;font-size:10px;font-weight:800;color:#8C7BD8;letter-spacing:-1px;pointer-events:none;animation:zzz 2.4s ease-in-out infinite}
+@keyframes zzz{50%{transform:translate(2px,-3px);opacity:.5}}
+@media (prefers-reduced-motion:reduce){.av.rg-zzz::before{animation:none}}

@@ -1869,7 +1869,7 @@ html.alsnap #wkScroll *{transition:none !important;animation:none !important}
 [data-concept="news"] .dialog:not(.pic){border-radius:4px;border-top:4px double var(--ink)}
 [data-concept="news"] .vhead h1{border-bottom:3px double var(--ink);padding-bottom:6px}
 [data-concept="news"] :is(.btn,.chip,.seg,.pill,.ib,.tag){border-radius:2px}
-/* 노을: 하늘빛 그러데이션 위에 흐린 면 */
+/* 노을: 하늘빛 그라데이션 위에 흐린 면 */
 :root[data-concept="sunset"]{--bg:#FFF3EC;--surface:#FFFFFF;--fill:rgba(140,90,120,.09);--line:rgba(140,90,120,.18)}
 :root[data-concept="sunset"][data-mode="dark"]{--bg:#1A1324;--surface:#231A30;--fill:rgba(255,220,240,.08);--line:rgba(255,220,240,.14)}
 [data-concept="sunset"] body{background:linear-gradient(170deg,#FFE9DC 0%,#FDE0EA 38%,#EAE2FB 72%,#DCE8FC 100%) fixed}
@@ -2577,6 +2577,10 @@ html.f3on,html.f3on body{overflow:hidden}
 .tf.tv-headstand{transform:rotate(180deg)}
 .tsv-headstand{transform:rotate(180deg)}
 @media (prefers-reduced-motion:reduce){.av.rg-googly::after,.av.rg-stache::after,.av.rg-tornado,.av.rg-flame::after,.tag.tg-blink,[data-concept="glitch"] :is(h1,h2),.tf.tv-drunk .tt,.tf.tv-drunk small,.tf.tv-drunk span,.tsv-drunk,.shi.hid2.bm .shq2{animation:none!important}}
+.av.rg-zzz{--rg:repeating-conic-gradient(#8C7BD8 0 10deg,transparent 10deg 20deg)}
+.av.rg-zzz::before{content:"z z";position:absolute;right:-12px;top:-12px;font-size:10px;font-weight:800;color:#8C7BD8;letter-spacing:-1px;pointer-events:none;animation:zzz 2.4s ease-in-out infinite}
+@keyframes zzz{50%{transform:translate(2px,-3px);opacity:.5}}
+@media (prefers-reduced-motion:reduce){.av.rg-zzz::before{animation:none}}
 #c-setup .row input{min-width:0}
 #c-setup .lb{margin-top:0}
 .serr{color:var(--red);margin-top:8px}
@@ -5067,7 +5071,7 @@ document.addEventListener('change',function(e){
 
 /* ---------- 처음 화면 ---------- */
 // 앱이 준비되면 알린다. 그림이 아직이면 다 그린 뒤에 열리고, 그림이 먼저 끝났으면 바로 열린다
-var APP_BUILD='1795349240';
+var APP_BUILD='1795356725';
 function splashDone(){
   var sp=document.getElementById('splash'),st=window.__sp;if(!sp||sp.getAttribute('data-out'))return;
   sp.setAttribute('data-out','1');
@@ -5299,7 +5303,7 @@ function lockRow(L){
 // 이모티콘은 기본만 처음부터 쓰고, 장난과 감정은 팩으로 산다. 모양은 이 기기에 저장되고(예전과 같음), 산 것만 고를 수 있다.
 var INK_MIN=10;
 var SHOP_CATS=[['look','방 꾸미기'],['color','대표 색'],['timer','타이머'],['stk','이모티콘'],['ring','테두리'],['ttag','칭호']];
-var SHOP_LOOK={grid:[100,'공책 모눈 위에 손글씨'],board:[100,'초록 칠판과 분필 글씨'],pop:[100,'동글동글 말랑한 버튼'],line:[100,'얇은 검은 선으로 또렷하게'],glass:[100,'뒤가 비치는 유리 카드'],night:[100,'별이 뜬 밤하늘'],paper:[100,'따뜻한 크라프트 종이와 스티치'],news:[100,'흑백 신문 지면과 명조 제목'],sunset:[100,'노을빛 그러데이션 하늘']};
+var SHOP_LOOK={grid:[100,'공책 모눈 위에 손글씨'],board:[100,'초록 칠판과 분필 글씨'],pop:[100,'동글동글 말랑한 버튼'],line:[100,'얇은 검은 선으로 또렷하게'],glass:[100,'뒤가 비치는 유리 카드'],night:[100,'별이 뜬 밤하늘'],paper:[100,'따뜻한 크라프트 종이와 스티치'],news:[100,'흑백 신문 지면과 명조 제목'],sunset:[100,'노을빛 그라데이션 하늘']};
 var SHOP_TIMER={digits:[50,'큰 숫자만 깔끔하게'],bar:[50,'숫자 아래 줄어드는 막대'],pie:[50,'시간이 줄어드는 원판'],flip:[50,'넘어가는 넘김 시계'],analog:[50,'눈금과 바늘이 있는 아날로그 시계'],orbit:[50,'분과 초가 함께 도는 두 겹 고리']};
 var SHOP_STK={playful:[50,'어쩔~, 메롱, 뇌 정지 같은 장난'],emotions:[50,'신난다!, 부끄러워, 감동이야 같은 마음'],cat:[100,'출석!, 멘탈 바사삭, 오늘도 수고했어. 움직이는 까만 고양이'],dog:[100,'개힘듦, 할 게 산더미, 간식 필요. 움직이는 하얀 강아지'],nyang:[150,'고양이와 강아지가 같이 공부합니다. 움직이는 둘']};
 // 숨은 팩: 앞의 팩을 모두 사야 무엇인지 보이고 살 수 있다
@@ -7781,8 +7785,8 @@ function cgTick(V){
 }
 
 /* 상점: 프로필 테두리(r:), 칭호 장식(g:). 고른 것은 progress.<나>.deco={r,g}에 적어 모두에게 보임 */
-var DECO_RING=[['none','테두리 없음',0,'처음 모양'],['dash','점선',30,'가볍게 두른 점선'],['mint','민트',50,'시원한 민트 고리'],['rose','장밋빛',50,'부드러운 장밋빛 고리'],['double','두 겹',60,'얇은 고리 두 줄'],['gold','금빛',80,'반짝이는 금빛 고리'],['neon','네온',100,'빛나며 천천히 도는 네온'],['sakura','벚꽃',100,'분홍 꽃잎 그러데이션'],['rainbow','무지개',120,'일곱 색이 도는 고리']];
-var DECO_TAG=[['none','기본 칭호',0,'처음 모양'],['outline','테두리',30,'선만 두른 칭호'],['ink','먹물',40,'검은 바탕 흰 글씨'],['glow','은은한 빛',50,'칭호 주위로 퍼지는 빛'],['grad','그러데이션',60,'대표 색 그러데이션'],['shine','반짝',80,'빛이 스쳐 지나가는 칭호']];
+var DECO_RING=[['none','테두리 없음',0,'처음 모양'],['dash','점선',30,'가볍게 두른 점선'],['mint','민트',50,'시원한 민트 고리'],['rose','장밋빛',50,'부드러운 장밋빛 고리'],['double','두 겹',60,'얇은 고리 두 줄'],['gold','금빛',80,'반짝이는 금빛 고리'],['neon','네온',100,'빛나며 천천히 도는 네온'],['sakura','벚꽃',100,'분홍 꽃잎 그라데이션'],['rainbow','무지개',120,'일곱 색이 도는 고리']];
+var DECO_TAG=[['none','기본 칭호',0,'처음 모양'],['outline','테두리',30,'선만 두른 칭호'],['ink','먹물',40,'검은 바탕 흰 글씨'],['glow','은은한 빛',50,'칭호 주위로 퍼지는 빛'],['grad','그라데이션',60,'대표 색 그라데이션'],['shine','반짝',80,'빛이 스쳐 지나가는 칭호']];
 /* 히든: 조건을 채워야 보이고 살 수 있음 */
 var DECO_HID=[
   ['r','dawn','새벽빛',60,'아침 7시 전 출석 10번',function(s){return s.early>=10;}],
@@ -7880,24 +7884,22 @@ function bmOk(f){return function(s,V){return f(bmStats(V));};}
   ['r','stache','콧수염',44,'딱 4시 44분에 출석하기',bmOk(function(b){return b.t444>=1;})],
   ['r','tornado','회오리',66,'하루에 할 일 30개 넘게 적기',bmOk(function(b){return b.plan30>=1;})],
   ['r','flame','불타는 머리',66,'출석만 하고 공부 0분인 날 3번',bmOk(function(b){return b.z0>=3;})],
+  ['r','zzz','쿨쿨',33,'밤 11시 넘어서 출석 3번',bmOk(function(b){return b.lateIn>=3;})],
   ['g','alien','외계어',33,'할 일 3개 이상 적고 하나도 안 끝낸 날 3번',bmOk(function(b){return b.zeroDone>=3;})],
   ['g','blink','90년대 깜빡이',33,'노동요 제목에 ㅋ 3개 넘게 넣어 올리기',bmOk(function(b){return b.kkk>=1;})],
   ['g','huge','왕 큰 칭호',55,'밤 11시 넘어서 출석 3번',bmOk(function(b){return b.lateIn>=3;})]
-].forEach(function(x){DECO_ITEMS.push({id:x[0]+':'+x[1],v:x[1],cat:x[0]==='r'?'ring':'ttag',name:x[2],price:x[3],desc:'병맛 히든',hid:x[4],cond:x[5],bm:1});});
+].forEach(function(x){DECO_ITEMS.push({id:x[0]+':'+x[1],v:x[1],cat:x[0]==='r'?'ring':'ttag',name:x[2],price:x[3],desc:'히든',hid:x[4],cond:x[5],bm:1});});
 CONCEPTS.push({id:'mini02',name:'2002년 미니홈피',soft:[.3,'#D8ECFF'],font:'Gaegu:wght@700',face:'Gaegu',w:700,hid:1},{id:'glitch',name:'고장난 화면',mode:'dark',soft:[.2,'#1A0F24'],hid:1});
-ACCENTS.push({id:'hlime',name:'눈뽕 형광',g:'h',l:{a:'#39E600',on:'#0A1A00',soft:'#EDFFD6',ink:'#2B9A00',mark:'#39E600'},d:{a:'#7CFF2E',on:'#0A1A00',soft:'#22340F',ink:'#7CFF2E',mark:'#7CFF2E'}});
 TVAR.drunk='digits';TVAR.headstand='ring';TSTYLES.push(['drunk','술 취한 숫자'],['headstand','물구나무 타이머']);TSPREV.drunk=TSPREV.digits;TSPREV.headstand=TSPREV.ring;
 SHOP_LOOK.mini02=[77,'하늘 배경, 반짝이 글씨, 그때 그 감성'];SHOP_LOOK.glitch=[77,'지지직, 화면이 계속 고장나 있습니다'];
 SHOP_TIMER.drunk=[44,'숫자가 비틀비틀 제정신이 아닙니다'];SHOP_TIMER.headstand=[44,'타이머가 거꾸로 서 있습니다'];
 HID_EXTRA['c:mini02']=['딱 1시간 11분 공부한 날',bmOk(function(b){return b.m71>=1;})];
 HID_EXTRA['c:glitch']=['인증 마감 지나서 인증 5번',bmOk(function(b){return b.lateCert>=5;})];
-HID_EXTRA['a:hlime']=['노동요 5곡 올리기',bmOk(function(b){return b.songs>=5;}),22];
 HID_EXTRA['t:drunk']=['할 일 이름에 \'공부하기 싫다\' 적기',bmOk(function(b){return b.hate>=1;})];
 HID_EXTRA['t:headstand']=['밤 11시 넘어서 출석 3번',bmOk(function(b){return b.lateIn>=3;})];
-['c:mini02','c:glitch','a:hlime','t:drunk','t:headstand'].forEach(function(k){HID_EXTRA[k].bm=1;});
-var hidExtraMark0=hidExtraMark;hidExtraMark=function(a){hidExtraMark0(a);a.forEach(function(x){if(HID_EXTRA[x.id]&&HID_EXTRA[x.id].bm){x.bm=1;x.desc='병맛 히든 · '+x.desc;}});};
-var hidLine0=hidLine;hidLine=function(V,it){var h=hidLine0(V,it);return it.bm&&h?h.replace('히든 · 조건','병맛 히든 · 조건'):h;};
-var decoHidCard0=decoHidCard;decoHidCard=function(V,it,foc){var h=decoHidCard0(V,it,foc);return it.bm?h.replace('class="shi hid hid2','class="shi hid hid2 bm').replace('<b>히든 ','<b>병맛 히든 '):h;};
+['c:mini02','c:glitch','t:drunk','t:headstand'].forEach(function(k){HID_EXTRA[k].bm=1;});
+var hidExtraMark0=hidExtraMark;hidExtraMark=function(a){hidExtraMark0(a);a.forEach(function(x){if(HID_EXTRA[x.id]&&HID_EXTRA[x.id].bm){x.bm=1;}});};
+var decoHidCard0=decoHidCard;decoHidCard=function(V,it,foc){var h=decoHidCard0(V,it,foc);return it.bm?h.replace('class="shi hid hid2','class="shi hid hid2 bm'):h;};
 try{applyLook();}catch(e){}
 
 /* ---------- 방: 참여 코드, 새 방, 방 바꾸기 (웹 판) ---------- */
@@ -9554,7 +9556,7 @@ function modalSettings(V){
   [[22,'밤 10시'],[23,'밤 11시'],[24,'자정'],[25,'다음 날 새벽 1시'],[26,'다음 날 새벽 2시'],[27,'다음 날 새벽 3시'],[28,'다음 날 새벽 4시'],[29,'다음 날 새벽 5시']].forEach(function(o){b+='<option value="'+o[0]+'"'+(V.certHour===o[0]?' selected':'')+'>'+o[1]+'</option>';});
   b+='</select>';
   b+='</div>'+spSec()+pokeSec()+noticeSec(V)+periodSec(V)+'<div class="sec"><h3>사용법</h3><div class="row"><button class="btn small" data-act="open" data-modal="help">사용법 보기</button></div></div><div class="sec"><h3>키보드 단축키<small>키보드를 연결했을 때</small></h3><ul class="kbd">'+[['1 ~ 8','달력부터 메시지까지 화면 이동'],['N','할 일 추가'],['D','마감 있는 할 일 추가'],['L','달력, 할 일, 시간표 차례로 바꿔 보기'],['T','타이머 켜기, 끄기'],['F','타이머 크게 보기'],['Esc','창 닫기']].map(function(x){return '<li><kbd>'+x[0]+'</kbd><span>'+x[1]+'</span></li>';}).join('')+'</ul></div><div class="sec"><h3>저장 위치</h3><p class="hint">'+esc(S.net?({claude:'Claude 공유 저장소에 연결되어 있습니다. Claude에 로그인한 참여 인원끼리 실시간으로 같이 봅니다.',firebase:'공유 저장소에 연결되어 있습니다. 참여 코드로 들어온 사람 모두가 실시간으로 같이 봅니다.',local:'지금은 이 기기에만 저장됩니다. 다른 사람과 같이 보려면 공유 저장소 연결이 필요합니다.'}[S.net.mode]):'연결 중입니다.')+'</p>'+(S.net&&S.net.mode==='firebase'&&S.remote?'<div class="row" style="margin-top:10px"><button class="btn small" data-act="import-pick">기록 가져오기</button><button class="btn small" data-act="export-data">기록 파일로 저장</button><button class="del" data-act="setup-reset">'+(S.confirm==='disc'?'한 번 더 누르면 이 방에서 나갑니다':'이 기기에서 이 방 나가기')+'</button></div><p class="hint" style="margin-top:8px">'+esc(S.importMsg||'친구와 내 다른 기기는 위의 친구 초대하기로 들어옵니다. 기록 가져오기는 처음 연결한 뒤 한 번만 하면 됩니다.')+'</p>':'')+'</div>';
-  b+='<p class="hint appver">앱 버전 11월 22일 21:07</p>';
+  b+='<p class="hint appver">앱 버전 11월 22일 23:12</p>';
   return dlg('wide',{id:'settings',t:'설정'},b);
 }
 function modalCheck(V){
