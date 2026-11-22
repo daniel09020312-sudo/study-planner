@@ -2530,24 +2530,53 @@ html.f3on,html.f3on body{overflow:hidden}
 .shn .hidc.met{color:#2E8B57}
 [data-mode="dark"] .shn .hidc{color:#E8C259}[data-mode="dark"] .shn .hidc.met{color:#6FD39A}
 /* v105 병맛 히든 */
-.shi.hid2.bm .shq2{background:repeating-linear-gradient(-45deg,#FFF3A8 0 8px,#FFE066 8px 16px);color:#8A6A00}
-.av.rg-potato::after{background:none;-webkit-mask:none;mask:none;inset:-5px;border:3px solid #B5874E;border-radius:46% 54% 42% 58%/55% 45% 58% 42%;box-shadow:inset 0 0 0 1px #8C6230}
-.av.rg-potato::before{content:"";position:absolute;right:-3px;top:4px;width:5px;height:5px;border-radius:50%;background:#8C6230;box-shadow:-30px 14px 0 -1px #8C6230,-8px 28px 0 0 #8C6230;pointer-events:none}
-.av.rg-zzz{--rg:repeating-conic-gradient(#8C7BD8 0 10deg,transparent 10deg 20deg)}
-.av.rg-zzz::before{content:"z z";position:absolute;right:-12px;top:-12px;font-size:10px;font-weight:800;color:#8C7BD8;letter-spacing:-1px;pointer-events:none;animation:zzz 2.4s ease-in-out infinite}
-@keyframes zzz{50%{transform:translate(2px,-3px);opacity:.5}}
-.tag.tg-gungseo{font-family:"Gungsuh","궁서","GungSeo","Batang",serif!important;font-weight:900!important;background:#fff!important;color:#B00000!important;box-shadow:inset 0 0 0 1px #B00000;letter-spacing:.05em}
-.tag.tg-upside{display:inline-block;transform:rotate(180deg)}
-:root[data-concept="banana"]{--bg:#FFF6B8;--surface:#FFFBE0;--fill:rgba(180,140,0,.1);--line:rgba(180,140,0,.25)}
-[data-concept="banana"] body{background:radial-gradient(circle at 20px 20px,rgba(255,220,60,.5) 6px,transparent 7px) 0 0/48px 48px,#FFF6B8}
-[data-concept="banana"] :is(.card,.tile,.note){border:3px solid #F5C400;border-radius:28px;box-shadow:0 6px 0 #E0B000}
-[data-concept="banana"] .btn.primary{box-shadow:0 4px 0 rgba(0,0,0,.18)}
-.cvp.cvp-banana{--pb:#FFF6B8;--pc:#FFFBE0;--pe:#F5C400;--pr:10px}
-.tf.tv-wobble .tt{display:inline-block;animation:wob .7s ease-in-out infinite}
-.tf.tv-wobble small{display:inline-block;animation:wob 1.1s ease-in-out infinite reverse}
-@keyframes wob{0%,100%{transform:rotate(-3deg) translateY(0)}50%{transform:rotate(3deg) translateY(-3px)}}
-.tsv-wobble{animation:wob 1s ease-in-out infinite}
-@media (prefers-reduced-motion:reduce){.tf.tv-wobble .tt,.tf.tv-wobble small,.tsv-wobble,.av.rg-zzz::before{animation:none}}
+.shi.hid2.bm .shq2{background:repeating-linear-gradient(-45deg,#FFF3A8 0 8px,#FF9ED8 8px 16px);color:#B0006A;animation:bmq 1s steps(2) infinite}
+@keyframes bmq{50%{transform:rotate(3deg) scale(1.03)}}
+/* 눈알: 동그라미 위에 굴러다니는 눈 두 개 */
+.av.rg-googly::after{content:"";position:absolute;inset:auto;left:50%;top:-9px;width:30px;height:15px;margin-left:-15px;-webkit-mask:none;mask:none;border-radius:0;background:radial-gradient(circle at var(--px,40%) 60%,#111 0 2.6px,transparent 3px) 0 0/15px 15px no-repeat,radial-gradient(circle at var(--px,40%) 60%,#111 0 2.6px,transparent 3px) 15px 0/15px 15px no-repeat,radial-gradient(circle,#fff 0 6.5px,#111 7px,transparent 7.5px) 0 0/15px 15px no-repeat,radial-gradient(circle,#fff 0 6.5px,#111 7px,transparent 7.5px) 15px 0/15px 15px no-repeat;animation:googly 1.3s ease-in-out infinite}
+@property --px{syntax:'<percentage>';inherits:false;initial-value:40%}
+@keyframes googly{0%{--px:25%}30%{--px:75%}55%{--px:35%}80%{--px:65%}100%{--px:25%}}
+/* 콧수염 */
+.av.rg-stache::after{content:"";position:absolute;inset:auto;left:50%;bottom:6px;width:26px;height:9px;margin-left:-13px;-webkit-mask:none;mask:none;background:#2A1A0E;border-radius:50% 50% 45% 45%/80% 80% 30% 30%;clip-path:polygon(0 60%,15% 10%,40% 25%,50% 45%,60% 25%,85% 10%,100% 60%,80% 100%,55% 70%,50% 80%,45% 70%,20% 100%);transform-origin:50% 0;animation:stache 2s ease-in-out infinite}
+@keyframes stache{50%{transform:scaleX(1.15) rotate(3deg)}}
+/* 회오리: 동그라미가 계속 돈다 */
+.av.rg-tornado{animation:tornado 2.2s linear infinite}
+.av.rg-tornado::after{--rg:conic-gradient(#7E57C2,transparent 30%,#7E57C2 50%,transparent 80%,#7E57C2)}
+@keyframes tornado{to{transform:rotate(360deg)}}
+/* 불타는 머리 */
+.av.rg-flame::after{content:"";position:absolute;inset:auto;left:50%;top:-16px;width:26px;height:22px;margin-left:-13px;-webkit-mask:none;mask:none;border-radius:50% 50% 40% 40%/70% 70% 30% 30%;background:radial-gradient(ellipse at 50% 80%,#FFF176 0 25%,#FF9800 45%,#F4511E 70%,transparent 72%);filter:drop-shadow(0 0 4px #FF6D00);transform-origin:50% 100%;animation:flame .35s ease-in-out infinite alternate}
+@keyframes flame{to{transform:scaleY(1.25) scaleX(.9) skewX(6deg)}}
+/* 칭호: 외계어(거꾸로 비친 글씨) */
+.tag.tg-alien{display:inline-block;transform:scaleX(-1);background:#0B1A0B!important;color:#5CFF5C!important;text-shadow:0 0 6px #5CFF5C;font-family:ui-monospace,Menlo,monospace!important}
+/* 90년대 깜빡이 */
+.tag.tg-blink{font-family:"Comic Sans MS","Chalkboard SE","Gaegu",cursive!important;background:linear-gradient(90deg,#f00,#ff0,#0f0,#0ff,#00f,#f0f,#f00)!important;background-size:200% 100%!important;color:#fff!important;text-shadow:1px 1px 0 #000;animation:blinkbg 1s linear infinite,blinkop .6s steps(2) infinite}
+@keyframes blinkbg{to{background-position:200% 0}}
+@keyframes blinkop{50%{opacity:.35}}
+/* 왕 큰 칭호 */
+.tag.tg-huge{font-size:1.55em!important;font-weight:900!important;background:#FFE600!important;color:#D50000!important;transform:rotate(-4deg);display:inline-block;box-shadow:3px 3px 0 #000;letter-spacing:-.02em}
+/* 2002년 미니홈피 */
+:root[data-concept="mini02"]{--bg:#D8ECFF;--surface:#FFFFFF;--fill:rgba(60,110,200,.1);--line:#9BB8E0}
+[data-concept="mini02"] body{background:linear-gradient(#ffffffaa,#ffffff00 40%),repeating-linear-gradient(45deg,#CFE6FF 0 14px,#E2F0FF 14px 28px) fixed}
+[data-concept="mini02"] :is(.card,.tile,.note){border:2px solid #7FA6D8;border-radius:6px;box-shadow:inset 1px 1px 0 #fff,inset -1px -1px 0 #9BB8E0,3px 3px 0 #9BB8E0}
+[data-concept="mini02"] h2{color:#FF5AA5!important;text-shadow:1px 1px 0 #fff,2px 2px 0 #9BB8E0}
+[data-concept="mini02"] .btn.primary{background:linear-gradient(#FF9BCB,#FF5AA5)!important;border:1px solid #D03A80;color:#fff}
+.cvp.cvp-mini02{--pb:#D8ECFF;--pc:#FFFFFF;--pe:#7FA6D8;--pr:4px;background:repeating-linear-gradient(45deg,#CFE6FF 0 6px,#E2F0FF 6px 12px)}
+/* 고장난 화면 */
+:root[data-concept="glitch"]{--bg:#0C0712;--surface:#160D20;--fill:rgba(255,0,200,.07);--line:rgba(0,255,240,.18)}
+[data-concept="glitch"] body{background:repeating-linear-gradient(0deg,rgba(255,255,255,.035) 0 1px,transparent 1px 3px),#0C0712 fixed}
+[data-concept="glitch"] h1,[data-concept="glitch"] h2{text-shadow:2px 0 #ff00c8,-2px 0 #00fff0;animation:glt 3s steps(1) infinite}
+@keyframes glt{0%,92%,100%{transform:none}93%{transform:translateX(3px) skewX(10deg)}95%{transform:translateX(-4px)}97%{transform:translateX(2px) skewX(-8deg)}}
+[data-concept="glitch"] :is(.card,.tile,.note){border:1px solid rgba(0,255,240,.2);box-shadow:3px 0 0 rgba(255,0,200,.25),-3px 0 0 rgba(0,255,240,.2)}
+.cvp.cvp-glitch{--pb:#0C0712;--pc:#160D20;--pe:rgba(0,255,240,.4);--pr:2px;background:repeating-linear-gradient(0deg,rgba(255,255,255,.06) 0 1px,transparent 1px 3px),#0C0712}
+/* 술 취한 숫자 */
+.tf.tv-drunk .tt{display:inline-block;animation:drunk 2.4s ease-in-out infinite;filter:blur(.4px)}
+.tf.tv-drunk small,.tf.tv-drunk span{display:inline-block;animation:drunk 3.1s ease-in-out infinite reverse}
+@keyframes drunk{0%,100%{transform:rotate(-9deg) translate(-6px,0) skewX(8deg)}25%{transform:rotate(7deg) translate(5px,-4px) scale(1.08)}50%{transform:rotate(-4deg) translate(-3px,5px) skewX(-10deg)}75%{transform:rotate(11deg) translate(6px,2px) scale(.94)}}
+.tsv-drunk{animation:drunk 2s ease-in-out infinite}
+/* 물구나무 타이머 */
+.tf.tv-headstand{transform:rotate(180deg)}
+.tsv-headstand{transform:rotate(180deg)}
+@media (prefers-reduced-motion:reduce){.av.rg-googly::after,.av.rg-stache::after,.av.rg-tornado,.av.rg-flame::after,.tag.tg-blink,[data-concept="glitch"] :is(h1,h2),.tf.tv-drunk .tt,.tf.tv-drunk small,.tf.tv-drunk span,.tsv-drunk,.shi.hid2.bm .shq2{animation:none!important}}
 #c-setup .row input{min-width:0}
 #c-setup .lb{margin-top:0}
 .serr{color:var(--red);margin-top:8px}
@@ -5038,7 +5067,7 @@ document.addEventListener('change',function(e){
 
 /* ---------- 처음 화면 ---------- */
 // 앱이 준비되면 알린다. 그림이 아직이면 다 그린 뒤에 열리고, 그림이 먼저 끝났으면 바로 열린다
-var APP_BUILD='1795348522';
+var APP_BUILD='1795349240';
 function splashDone(){
   var sp=document.getElementById('splash'),st=window.__sp;if(!sp||sp.getAttribute('data-out'))return;
   sp.setAttribute('data-out','1');
@@ -7828,38 +7857,44 @@ function hidAdm(V){return !!(V&&V.me&&adminId(V)===V.me);}
 function shopShown(V,id){var it=shopItem(id);if(it&&it.hid)return shopOwns(V,id)||hidAdm(V)||decoOk(V,it);return shopShown0(V,id);}
 function hidLine(V,it){if(!it.hid)return '';var met=decoOk(V,it);return '<small class="hidc'+(met?' met':'')+'">히든 · 조건: '+esc(it.hid)+(met?' (채움)':hidAdm(V)?' (방장이라 열림)':'')+'</small>';}
 
-/* ---------- v105: 병맛 히든. 엉뚱한 조건으로 열리는 꾸미기 ---------- */
+/* ---------- v105: 병맛 히든. 엉뚱한 조건으로 열리는 이상한 꾸미기 ---------- */
 function bmStats(V){
   var g=gcSync(V),k='bm';if(g[k])return g[k];
-  var o={z0:0,lateIn:0,plan30:0,zeroDone:0,m71:0,lateCert:0,songs:0},t=today(),last=t<END?t:END;
+  var o={z0:0,lateIn:0,plan30:0,zeroDone:0,m71:0,lateCert:0,songs:0,amolla:0,t444:0,kkk:0,hate:0},t=today(),last=t<END?t:END;
   for(var d=TALLY;d<=last;d=addDays(d,1)){
     var x=dayOf(V,V.me,d),m=sumMins(x.mins)+sumMins(x.manual),gl=x.goals.filter(function(q){return q&&!q.mv;});
     if(x.in&&m===0&&d<t)o.z0++;
-    if(x.in){var h=new Date(x.in).getHours();if(h>=23||h<DAY_H)o.lateIn++;}
+    if(x.in){var dt=new Date(x.in),h=dt.getHours();if(h>=23||h<DAY_H)o.lateIn++;if((h===16||h===4)&&dt.getMinutes()===44)o.t444++;}
     if(x.goals.length>=30)o.plan30++;
     if(d<t&&gl.length>=3&&gl.filter(isDone).length===0)o.zeroDone++;
     if(m===71)o.m71++;
     if(x.certAt&&isLate(V,d,x.certAt))o.lateCert++;
+    x.goals.forEach(function(q){var s=String(q&&q.text||'').replace(/\s/g,'');if(s.indexOf('아몰라')>=0)o.amolla++;if(s.indexOf('공부하기싫다')>=0)o.hate++;});
   }
-  for(var id in V.songs)if(obj(V.songs[id]).mid===V.me)o.songs++;
+  for(var id in V.songs){var so=obj(V.songs[id]);if(so.mid===V.me){o.songs++;if((String(so.title||'').match(/ㅋ/g)||[]).length>=3)o.kkk++;}}
   return g[k]=o;
 }
-/* 병맛 테두리·칭호 장식 */
+function bmOk(f){return function(s,V){return f(bmStats(V));};}
 [
-  ['r','potato','감자',30,'출석만 하고 공부 0분인 날 3번',function(s,V){return bmStats(V).z0>=3;}],
-  ['r','zzz','쿨쿨',30,'밤 11시 넘어서 출석 3번',function(s,V){return bmStats(V).lateIn>=3;}],
-  ['g','gungseo','궁서체',40,'하루에 할 일 30개 넘게 적기',function(s,V){return bmStats(V).plan30>=1;}],
-  ['g','upside','뒤집힌 칭호',40,'할 일 3개 이상 적고 하나도 안 끝낸 날 3번',function(s,V){return bmStats(V).zeroDone>=3;}]
+  ['r','googly','눈알',44,'할 일 이름에 \'아 몰라\' 적기',bmOk(function(b){return b.amolla>=1;})],
+  ['r','stache','콧수염',44,'딱 4시 44분에 출석하기',bmOk(function(b){return b.t444>=1;})],
+  ['r','tornado','회오리',66,'하루에 할 일 30개 넘게 적기',bmOk(function(b){return b.plan30>=1;})],
+  ['r','flame','불타는 머리',66,'출석만 하고 공부 0분인 날 3번',bmOk(function(b){return b.z0>=3;})],
+  ['g','alien','외계어',33,'할 일 3개 이상 적고 하나도 안 끝낸 날 3번',bmOk(function(b){return b.zeroDone>=3;})],
+  ['g','blink','90년대 깜빡이',33,'노동요 제목에 ㅋ 3개 넘게 넣어 올리기',bmOk(function(b){return b.kkk>=1;})],
+  ['g','huge','왕 큰 칭호',55,'밤 11시 넘어서 출석 3번',bmOk(function(b){return b.lateIn>=3;})]
 ].forEach(function(x){DECO_ITEMS.push({id:x[0]+':'+x[1],v:x[1],cat:x[0]==='r'?'ring':'ttag',name:x[2],price:x[3],desc:'병맛 히든',hid:x[4],cond:x[5],bm:1});});
-/* 병맛 방 꾸미기·색·타이머 */
-CONCEPTS.push({id:'banana',name:'바나나 우유',soft:[.3,'#FFF3A8'],font:'Jua',face:'Jua',w:400,hid:1});
-ACCENTS.push({id:'hlime',name:'형광 연두',g:'h',l:{a:'#5BC800',on:'#102000',soft:'#EDFFD6',ink:'#3C8A00',mark:'#5BC800'},d:{a:'#A6FF3D',on:'#102000',soft:'#22340F',ink:'#A6FF3D',mark:'#A6FF3D'}});
-TVAR.wobble='digits';TSTYLES.push(['wobble','흔들 숫자']);TSPREV.wobble=TSPREV.digits;
-SHOP_LOOK.banana=[60,'노랗고 동글동글한 바나나 우유 갑'];SHOP_TIMER.wobble=[40,'숫자가 혼자 춤을 춥니다'];
-HID_EXTRA['c:banana']=['딱 1시간 11분 공부한 날',function(s,V){return bmStats(V).m71>=1;}];
-HID_EXTRA['a:hlime']=['노동요 5곡 올리기',function(s,V){return bmStats(V).songs>=5;},20];
-HID_EXTRA['t:wobble']=['인증 마감 지나서 인증 5번',function(s,V){return bmStats(V).lateCert>=5;}];
-['c:banana','a:hlime','t:wobble'].forEach(function(k){HID_EXTRA[k].bm=1;});
+CONCEPTS.push({id:'mini02',name:'2002년 미니홈피',soft:[.3,'#D8ECFF'],font:'Gaegu:wght@700',face:'Gaegu',w:700,hid:1},{id:'glitch',name:'고장난 화면',mode:'dark',soft:[.2,'#1A0F24'],hid:1});
+ACCENTS.push({id:'hlime',name:'눈뽕 형광',g:'h',l:{a:'#39E600',on:'#0A1A00',soft:'#EDFFD6',ink:'#2B9A00',mark:'#39E600'},d:{a:'#7CFF2E',on:'#0A1A00',soft:'#22340F',ink:'#7CFF2E',mark:'#7CFF2E'}});
+TVAR.drunk='digits';TVAR.headstand='ring';TSTYLES.push(['drunk','술 취한 숫자'],['headstand','물구나무 타이머']);TSPREV.drunk=TSPREV.digits;TSPREV.headstand=TSPREV.ring;
+SHOP_LOOK.mini02=[77,'하늘 배경, 반짝이 글씨, 그때 그 감성'];SHOP_LOOK.glitch=[77,'지지직, 화면이 계속 고장나 있습니다'];
+SHOP_TIMER.drunk=[44,'숫자가 비틀비틀 제정신이 아닙니다'];SHOP_TIMER.headstand=[44,'타이머가 거꾸로 서 있습니다'];
+HID_EXTRA['c:mini02']=['딱 1시간 11분 공부한 날',bmOk(function(b){return b.m71>=1;})];
+HID_EXTRA['c:glitch']=['인증 마감 지나서 인증 5번',bmOk(function(b){return b.lateCert>=5;})];
+HID_EXTRA['a:hlime']=['노동요 5곡 올리기',bmOk(function(b){return b.songs>=5;}),22];
+HID_EXTRA['t:drunk']=['할 일 이름에 \'공부하기 싫다\' 적기',bmOk(function(b){return b.hate>=1;})];
+HID_EXTRA['t:headstand']=['밤 11시 넘어서 출석 3번',bmOk(function(b){return b.lateIn>=3;})];
+['c:mini02','c:glitch','a:hlime','t:drunk','t:headstand'].forEach(function(k){HID_EXTRA[k].bm=1;});
 var hidExtraMark0=hidExtraMark;hidExtraMark=function(a){hidExtraMark0(a);a.forEach(function(x){if(HID_EXTRA[x.id]&&HID_EXTRA[x.id].bm){x.bm=1;x.desc='병맛 히든 · '+x.desc;}});};
 var hidLine0=hidLine;hidLine=function(V,it){var h=hidLine0(V,it);return it.bm&&h?h.replace('히든 · 조건','병맛 히든 · 조건'):h;};
 var decoHidCard0=decoHidCard;decoHidCard=function(V,it,foc){var h=decoHidCard0(V,it,foc);return it.bm?h.replace('class="shi hid hid2','class="shi hid hid2 bm').replace('<b>히든 ','<b>병맛 히든 '):h;};
@@ -9519,7 +9554,7 @@ function modalSettings(V){
   [[22,'밤 10시'],[23,'밤 11시'],[24,'자정'],[25,'다음 날 새벽 1시'],[26,'다음 날 새벽 2시'],[27,'다음 날 새벽 3시'],[28,'다음 날 새벽 4시'],[29,'다음 날 새벽 5시']].forEach(function(o){b+='<option value="'+o[0]+'"'+(V.certHour===o[0]?' selected':'')+'>'+o[1]+'</option>';});
   b+='</select>';
   b+='</div>'+spSec()+pokeSec()+noticeSec(V)+periodSec(V)+'<div class="sec"><h3>사용법</h3><div class="row"><button class="btn small" data-act="open" data-modal="help">사용법 보기</button></div></div><div class="sec"><h3>키보드 단축키<small>키보드를 연결했을 때</small></h3><ul class="kbd">'+[['1 ~ 8','달력부터 메시지까지 화면 이동'],['N','할 일 추가'],['D','마감 있는 할 일 추가'],['L','달력, 할 일, 시간표 차례로 바꿔 보기'],['T','타이머 켜기, 끄기'],['F','타이머 크게 보기'],['Esc','창 닫기']].map(function(x){return '<li><kbd>'+x[0]+'</kbd><span>'+x[1]+'</span></li>';}).join('')+'</ul></div><div class="sec"><h3>저장 위치</h3><p class="hint">'+esc(S.net?({claude:'Claude 공유 저장소에 연결되어 있습니다. Claude에 로그인한 참여 인원끼리 실시간으로 같이 봅니다.',firebase:'공유 저장소에 연결되어 있습니다. 참여 코드로 들어온 사람 모두가 실시간으로 같이 봅니다.',local:'지금은 이 기기에만 저장됩니다. 다른 사람과 같이 보려면 공유 저장소 연결이 필요합니다.'}[S.net.mode]):'연결 중입니다.')+'</p>'+(S.net&&S.net.mode==='firebase'&&S.remote?'<div class="row" style="margin-top:10px"><button class="btn small" data-act="import-pick">기록 가져오기</button><button class="btn small" data-act="export-data">기록 파일로 저장</button><button class="del" data-act="setup-reset">'+(S.confirm==='disc'?'한 번 더 누르면 이 방에서 나갑니다':'이 기기에서 이 방 나가기')+'</button></div><p class="hint" style="margin-top:8px">'+esc(S.importMsg||'친구와 내 다른 기기는 위의 친구 초대하기로 들어옵니다. 기록 가져오기는 처음 연결한 뒤 한 번만 하면 됩니다.')+'</p>':'')+'</div>';
-  b+='<p class="hint appver">앱 버전 11월 22일 20:55</p>';
+  b+='<p class="hint appver">앱 버전 11월 22일 21:07</p>';
   return dlg('wide',{id:'settings',t:'설정'},b);
 }
 function modalCheck(V){

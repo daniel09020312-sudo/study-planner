@@ -17,7 +17,7 @@ p=R.open(1280,1000,ls={'gbb_note':'9999999999999','gbb_me':'m2'},now=NOW,pre=pre
 shop(p,'look');check('look hidden locked',ev(p,"!!document.querySelector('#shi-c-aurora.hid2')"))
 click(p,'[data-act="shop-cat"][data-v="color"]',400);check('color hidden locked',ev(p,"!!document.querySelector('#shi-a-hgold.hid2')"))
 click(p,'[data-act="shop-cat"][data-v="timer"]',400);check('timer hidden locked',ev(p,"!!document.querySelector('#shi-t-neon.hid2')"))
-check('hint count',ev(p,"(document.querySelector('.shdeco')||{}).textContent||''").startswith('히든 0 / 5'))
+check('hint count',ev(p,"(document.querySelector('.shdeco')||{}).textContent||''").startswith('히든 0 / 6'))
 R.close()
 # 방장(m1)은 조건 없이 모든 히든이 보이고 살 수 있음
 R=Rig();p=R.open(1280,1000,ls={'gbb_note':'9999999999999'},now=NOW,pre=pre());close_dlg(p);p.wait_for_timeout(400)
