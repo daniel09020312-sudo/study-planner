@@ -13,15 +13,22 @@ NOW=datetime.datetime(2026,11,22,15,0,0)
 def pre(extra=''):return "(function(){var t=setInterval(function(){var S=window.__store;if(!S)return;%sclearInterval(t);},5);})();"%extra
 def shop(p,cat):
     click(p,'#shopBtn',600);click(p,'[data-act="shop-cat"][data-v="%s"]'%cat,500)
-p=R.open(1280,1000,ls={'gbb_note':'9999999999999'},now=NOW,pre=pre());close_dlg(p);p.wait_for_timeout(400)
+p=R.open(1280,1000,ls={'gbb_note':'9999999999999','gbb_me':'m2'},now=NOW,pre=pre());close_dlg(p);p.wait_for_timeout(400)
 shop(p,'look');check('look hidden locked',ev(p,"!!document.querySelector('#shi-c-aurora.hid2')"))
 click(p,'[data-act="shop-cat"][data-v="color"]',400);check('color hidden locked',ev(p,"!!document.querySelector('#shi-a-hgold.hid2')"))
 click(p,'[data-act="shop-cat"][data-v="timer"]',400);check('timer hidden locked',ev(p,"!!document.querySelector('#shi-t-neon.hid2')"))
 check('hint count',ev(p,"(document.querySelector('.shdeco')||{}).textContent||''").startswith('히든 0 / 4'))
 R.close()
+# 방장(m1)은 조건 없이 모든 히든이 보이고 살 수 있음
+R=Rig();p=R.open(1280,1000,ls={'gbb_note':'9999999999999'},now=NOW,pre=pre());close_dlg(p);p.wait_for_timeout(400)
+shop(p,'look')
+check('admin sees hidden',ev(p,"!!document.querySelector('#shi-c-ocean')&&!document.querySelector('#shi-c-ocean.hid2')"))
+check('admin line',('방장이라 열림' in ev(p,"(document.querySelector('#shi-c-ocean .hidc')||{}).textContent||''")))
+check('admin can buy (button present)',ev(p,"!!document.querySelector('#shi-c-ocean .shbuy')"))
+R.close()
 # 하루 10시간 -> 네온 링 열림, 산 것으로 두고 쓰기
-seed="S['days/m1_2026-11-18']={mins:{s1:400,s2:250},in:'2026-11-18T09:00:00+09:00',goals:[]};var p=S['progress/m1']||{};p.shop={own:{'t:neon':80},gf:1};S['progress/m1']=p;"
-R=Rig();p=R.open(1280,1000,ls={'gbb_note':'9999999999999'},now=NOW,pre=pre(seed));close_dlg(p);p.wait_for_timeout(400)
+seed="S['days/m2_2026-11-18']={mins:{s1:400,s2:250},in:'2026-11-18T09:00:00+09:00',goals:[]};var p=S['progress/m2']||{};p.shop={own:{'t:neon':80},gf:1};S['progress/m2']=p;"
+R=Rig();p=R.open(1280,1000,ls={'gbb_note':'9999999999999','gbb_me':'m2'},now=NOW,pre=pre(seed));close_dlg(p);p.wait_for_timeout(400)
 shop(p,'timer')
 check('neon opened',ev(p,"!!document.querySelector('#shi-t-neon')&&!document.querySelector('#shi-t-neon.hid2')"))
 click(p,'#shi-t-neon [data-act="shop-use"]',500);click(p,'[data-act="modal-close"]',400)

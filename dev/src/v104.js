@@ -30,8 +30,12 @@ var HID_EXTRA={
   't:goldan':['완벽한 한 주',function(s){return s.perfect>=1;}],
   't:pixel':['모두 끝내고 인증 14일',function(s){return s.clrCert>=14;}]
 };
-function hidExtraMark(a){a.forEach(function(x){var h=HID_EXTRA[x.id];if(!h)return;x.hid=h[0];x.cond=h[1];x.free=false;if(h[2])x.price=h[2];x.desc='히든 · '+x.desc.replace(/, 무료$/,'');});}
+function hidExtraMark(a){a.forEach(function(x){var h=HID_EXTRA[x.id];if(!h)return;x.hid=h[0];x.cond=h[1];x.free=false;if(h[2])x.price=h[2];x.desc=x.desc.replace(/, 무료$/,'');});}
 function faceHtml(st,mid,o,f){var b=TVAR[st];if(!b)return faceHtml0(st,mid,o,f);return faceHtml0(b,mid,o,f).replace('<div class="tf ','<div class="tf tv-'+st+' ');}
 function hidCatName(cat){return {ring:'테두리',ttag:'칭호 장식',look:'방 꾸미기',color:'대표 색',timer:'타이머'}[cat]||'상품';}
 try{applyLook();}catch(e){}
 function decoHidCount(V,cat){var l=shopItems().filter(function(x){return x.hid&&x.cat===cat;});return [l.filter(function(x){return shopShown(V,x.id);}).length,l.length];}
+/* 열린 히든은 조건을 계속 보여 주고, 방장은 조건과 상관없이 모든 히든을 볼 수 있고 살 수 있음 */
+function hidAdm(V){return !!(V&&V.me&&adminId(V)===V.me);}
+function shopShown(V,id){var it=shopItem(id);if(it&&it.hid)return shopOwns(V,id)||hidAdm(V)||decoOk(V,it);return shopShown0(V,id);}
+function hidLine(V,it){if(!it.hid)return '';var met=decoOk(V,it);return '<small class="hidc'+(met?' met':'')+'">히든 · 조건: '+esc(it.hid)+(met?' (채움)':hidAdm(V)?' (방장이라 열림)':'')+'</small>';}

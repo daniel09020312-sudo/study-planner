@@ -43,17 +43,18 @@ check('tier tag shows ink',tag.startswith('지금 +'),tag)
 check('tier markers',ev(p,"document.querySelectorAll('#c-cg .cgbar2 b.on').length")>=2,ev(p,"document.getElementById('c-cg').textContent")[:200])
 R.close()
 # 상점: 테두리 쓰기, 히든 열림
-own="var p=S['progress/m1']||{};p.shop={own:{'r:mint':50},gf:1};S['progress/m1']=p;"
-R=Rig();p=R.open(1280,1000,ls={'gbb_note':'9999999999999'},now=NOW,pre=pre(own));close_dlg(p);p.wait_for_timeout(400)
+own="var p=S['progress/m2']||{};p.shop={own:{'r:mint':50},gf:1};S['progress/m2']=p;"
+R=Rig();p=R.open(1280,1000,ls={'gbb_note':'9999999999999','gbb_me':'m2'},now=NOW,pre=pre(own));close_dlg(p);p.wait_for_timeout(400)
 click(p,'#shopBtn',600);click(p,'[data-act="shop-cat"][data-v="ring"]',500)
 check('hidden locked',ev(p,"!!document.querySelector('#shi-r-blaze.hid2')"))
 click(p,'#shi-r-mint [data-act="shop-use"]',500)
-check('deco saved',ev(p,"((window.__store['progress/m1']||{}).deco||{}).r")=='mint')
+check('deco saved',ev(p,"((window.__store['progress/m2']||{}).deco||{}).r")=='mint')
 check('my avatar ring',ev(p,"!!document.querySelector('.av.rg-mint')"))
 R.close()
-d12="S['days/m1_2026-11-18']={mins:{s1:400,s2:400},in:'2026-11-18T09:00:00+09:00',goals:[]};"
-R=Rig();p=R.open(1280,1000,ls={'gbb_note':'9999999999999'},now=NOW,pre=pre(d12));close_dlg(p);p.wait_for_timeout(400)
+d12="S['days/m2_2026-11-18']={mins:{s1:400,s2:400},in:'2026-11-18T09:00:00+09:00',goals:[]};"
+R=Rig();p=R.open(1280,1000,ls={'gbb_note':'9999999999999','gbb_me':'m2'},now=NOW,pre=pre(d12));close_dlg(p);p.wait_for_timeout(400)
 click(p,'#shopBtn',600);click(p,'[data-act="shop-cat"][data-v="ring"]',500)
+check('condition line shown',ev(p,"(document.querySelector('#shi-r-blaze .hidc')||{}).textContent||''").startswith('히든 · 조건: 하루 12시간'))
 check('hidden opens after 12h day',ev(p,"!!document.querySelector('#shi-r-blaze')&&!document.querySelector('#shi-r-blaze.hid2')"))
 print('errors',R.errors);check('no errors',not R.errors,R.errors)
 R.close();print('ALL OK' if ok else 'SOME FAILED')

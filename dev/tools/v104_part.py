@@ -11,3 +11,6 @@ sub("<span class=\"tsp tsp-'+x[0]+'\" aria-hidden=\"true\">'+TSPREV[x[0]]", "<sp
 sub("CONCEPTS.map(function(x){return (function(lk){", "CONCEPTS.filter(function(x){return !x.hid||shopShown(V,'c:'+x.id);}).map(function(x){return (function(lk){")
 sub("TSTYLES.map(function(x){return (function(lk){", "TSTYLES.filter(function(x){return !TVAR[x[0]]||shopShown(V,'t:'+x[0]);}).map(function(x){return (function(lk){")
 sub("\n  b+='<div class=\"shgrid'+(cat==='stk'?' wide':'')", "\n  if(cat==='look'||cat==='color'||cat==='timer'){var dhx=decoHidCount(V,cat);if(dhx[1])b+='<p class=\"hint shdeco\">히든 '+dhx[0]+' / '+dhx[1]+' 열림. 조건을 채우면 열리고 살 수 있습니다.</p>';}\n  b+='<div class=\"shgrid'+(cat==='stk'?' wide':'')")
+# 열린 히든에 조건 줄
+sub("'<div class=\"shn\"><b>'+esc(it.name)+(fresh?'<em class=\"shnew\">새로 열림</em>':'')+'</b><small>'+esc(it.desc)+'</small></div>", "'<div class=\"shn\"><b>'+esc(it.name)+(fresh?'<em class=\"shnew\">새로 열림</em>':'')+'</b><small>'+esc(it.desc)+'</small>'+hidLine(V,it)+'</div>")
+sub("</style>", ".shn .hidc{display:block;margin-top:3px;font-size:11.5px;font-weight:600;color:#9A6B00}\n.shn .hidc.met{color:#2E8B57}\n[data-mode=\"dark\"] .shn .hidc{color:#E8C259}[data-mode=\"dark\"] .shn .hidc.met{color:#6FD39A}\n</style>")

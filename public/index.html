@@ -2526,6 +2526,9 @@ html.f3on,html.f3on body{overflow:hidden}
 .tsv-aurora svg circle{stroke:#3CFFB0}
 .tsv-goldan svg .f{fill:#F3D27A}
 .tsv-pixel{background:#08110A;color:#39FF14;border-radius:8px}
+.shn .hidc{display:block;margin-top:3px;font-size:11.5px;font-weight:600;color:#9A6B00}
+.shn .hidc.met{color:#2E8B57}
+[data-mode="dark"] .shn .hidc{color:#E8C259}[data-mode="dark"] .shn .hidc.met{color:#6FD39A}
 #c-setup .row input{min-width:0}
 #c-setup .lb{margin-top:0}
 .serr{color:var(--red);margin-top:8px}
@@ -5016,7 +5019,7 @@ document.addEventListener('change',function(e){
 
 /* ---------- 처음 화면 ---------- */
 // 앱이 준비되면 알린다. 그림이 아직이면 다 그린 뒤에 열리고, 그림이 먼저 끝났으면 바로 열린다
-var APP_BUILD='1795338572';
+var APP_BUILD='1795342896';
 function splashDone(){
   var sp=document.getElementById('splash'),st=window.__sp;if(!sp||sp.getAttribute('data-out'))return;
   sp.setAttribute('data-out','1');
@@ -5373,7 +5376,7 @@ function modalShop(V){
       return;
     }
     var fresh=(it.hid||SHOP_HIDE[it.v])&&!shopOwns(V,it.id);
-    b+='<div class="shi'+(foc?' foc':'')+(shopOwns(V,it.id)?' own':'')+'" id="shi-'+esc(it.id.replace(':','-'))+'">'+shopPrev(it)+'<div class="shn"><b>'+esc(it.name)+(fresh?'<em class="shnew">새로 열림</em>':'')+'</b><small>'+esc(it.desc)+'</small></div><div class="sha">'+shopBtn(V,it,ink)+'</div>';
+    b+='<div class="shi'+(foc?' foc':'')+(shopOwns(V,it.id)?' own':'')+'" id="shi-'+esc(it.id.replace(':','-'))+'">'+shopPrev(it)+'<div class="shn"><b>'+esc(it.name)+(fresh?'<em class="shnew">새로 열림</em>':'')+'</b><small>'+esc(it.desc)+'</small>'+hidLine(V,it)+'</div><div class="sha">'+shopBtn(V,it,ink)+'</div>';
     if(cat==='stk'){
       b+='<button class="shpeek" data-act="shop-peek" data-id="'+esc(it.id)+'" aria-expanded="'+(peek?'true':'false')+'">'+(peek?'미리 보기 접기':'전체 미리 보기')+'</button>';
       if(peek)b+='<div class="shall">'+STK.filter(function(x){return x[0].indexOf(it.v+'-')===0;}).map(function(x){return '<span class="stk" data-m="'+esc(x[2])+'">'+stkImg(x[0])+'<small>'+esc(x[1])+'</small></span>';}).join('')+'</div>';
@@ -7748,7 +7751,7 @@ var DECO_HID=[
 var DECO_ITEMS=(function(){var a=[];
   DECO_RING.forEach(function(x){a.push({id:'r:'+x[0],v:x[0],cat:'ring',name:x[1],price:x[2],desc:x[3],free:x[2]===0});});
   DECO_TAG.forEach(function(x){a.push({id:'g:'+x[0],v:x[0],cat:'ttag',name:x[1],price:x[2],desc:x[3],free:x[2]===0});});
-  DECO_HID.forEach(function(x){a.push({id:x[0]+':'+x[1],v:x[1],cat:x[0]==='r'?'ring':'ttag',name:x[2],price:x[3],desc:'히든 · '+x[4],hid:x[4],cond:x[5]});});
+  DECO_HID.forEach(function(x){a.push({id:x[0]+':'+x[1],v:x[1],cat:x[0]==='r'?'ring':'ttag',name:x[2],price:x[3],desc:x[0]==='r'?'히든 테두리':'히든 칭호 장식',hid:x[4],cond:x[5]});});
   return a;})();
 function decoOk(V,it){if(!it||!it.hid)return true;if(!V||!V.me)return false;try{return !!it.cond(memberStats(V,V.me),V);}catch(e){return false;}}
 function shopShown(V,id){var it=shopItem(id);if(it&&it.hid)return shopOwns(V,id)||decoOk(V,it);return shopShown0(V,id);}
@@ -7796,11 +7799,15 @@ var HID_EXTRA={
   't:goldan':['완벽한 한 주',function(s){return s.perfect>=1;}],
   't:pixel':['모두 끝내고 인증 14일',function(s){return s.clrCert>=14;}]
 };
-function hidExtraMark(a){a.forEach(function(x){var h=HID_EXTRA[x.id];if(!h)return;x.hid=h[0];x.cond=h[1];x.free=false;if(h[2])x.price=h[2];x.desc='히든 · '+x.desc.replace(/, 무료$/,'');});}
+function hidExtraMark(a){a.forEach(function(x){var h=HID_EXTRA[x.id];if(!h)return;x.hid=h[0];x.cond=h[1];x.free=false;if(h[2])x.price=h[2];x.desc=x.desc.replace(/, 무료$/,'');});}
 function faceHtml(st,mid,o,f){var b=TVAR[st];if(!b)return faceHtml0(st,mid,o,f);return faceHtml0(b,mid,o,f).replace('<div class="tf ','<div class="tf tv-'+st+' ');}
 function hidCatName(cat){return {ring:'테두리',ttag:'칭호 장식',look:'방 꾸미기',color:'대표 색',timer:'타이머'}[cat]||'상품';}
 try{applyLook();}catch(e){}
 function decoHidCount(V,cat){var l=shopItems().filter(function(x){return x.hid&&x.cat===cat;});return [l.filter(function(x){return shopShown(V,x.id);}).length,l.length];}
+/* 열린 히든은 조건을 계속 보여 주고, 방장은 조건과 상관없이 모든 히든을 볼 수 있고 살 수 있음 */
+function hidAdm(V){return !!(V&&V.me&&adminId(V)===V.me);}
+function shopShown(V,id){var it=shopItem(id);if(it&&it.hid)return shopOwns(V,id)||hidAdm(V)||decoOk(V,it);return shopShown0(V,id);}
+function hidLine(V,it){if(!it.hid)return '';var met=decoOk(V,it);return '<small class="hidc'+(met?' met':'')+'">히든 · 조건: '+esc(it.hid)+(met?' (채움)':hidAdm(V)?' (방장이라 열림)':'')+'</small>';}
 
 /* ---------- 방: 참여 코드, 새 방, 방 바꾸기 (웹 판) ---------- */
 // 참여 링크: 사이트주소#join=<저장소 이름>  -> 참여 코드 6자리 -> 이름 고르기
@@ -9456,7 +9463,7 @@ function modalSettings(V){
   [[22,'밤 10시'],[23,'밤 11시'],[24,'자정'],[25,'다음 날 새벽 1시'],[26,'다음 날 새벽 2시'],[27,'다음 날 새벽 3시'],[28,'다음 날 새벽 4시'],[29,'다음 날 새벽 5시']].forEach(function(o){b+='<option value="'+o[0]+'"'+(V.certHour===o[0]?' selected':'')+'>'+o[1]+'</option>';});
   b+='</select>';
   b+='</div>'+spSec()+pokeSec()+noticeSec(V)+periodSec(V)+'<div class="sec"><h3>사용법</h3><div class="row"><button class="btn small" data-act="open" data-modal="help">사용법 보기</button></div></div><div class="sec"><h3>키보드 단축키<small>키보드를 연결했을 때</small></h3><ul class="kbd">'+[['1 ~ 8','달력부터 메시지까지 화면 이동'],['N','할 일 추가'],['D','마감 있는 할 일 추가'],['L','달력, 할 일, 시간표 차례로 바꿔 보기'],['T','타이머 켜기, 끄기'],['F','타이머 크게 보기'],['Esc','창 닫기']].map(function(x){return '<li><kbd>'+x[0]+'</kbd><span>'+x[1]+'</span></li>';}).join('')+'</ul></div><div class="sec"><h3>저장 위치</h3><p class="hint">'+esc(S.net?({claude:'Claude 공유 저장소에 연결되어 있습니다. Claude에 로그인한 참여 인원끼리 실시간으로 같이 봅니다.',firebase:'공유 저장소에 연결되어 있습니다. 참여 코드로 들어온 사람 모두가 실시간으로 같이 봅니다.',local:'지금은 이 기기에만 저장됩니다. 다른 사람과 같이 보려면 공유 저장소 연결이 필요합니다.'}[S.net.mode]):'연결 중입니다.')+'</p>'+(S.net&&S.net.mode==='firebase'&&S.remote?'<div class="row" style="margin-top:10px"><button class="btn small" data-act="import-pick">기록 가져오기</button><button class="btn small" data-act="export-data">기록 파일로 저장</button><button class="del" data-act="setup-reset">'+(S.confirm==='disc'?'한 번 더 누르면 이 방에서 나갑니다':'이 기기에서 이 방 나가기')+'</button></div><p class="hint" style="margin-top:8px">'+esc(S.importMsg||'친구와 내 다른 기기는 위의 친구 초대하기로 들어옵니다. 기록 가져오기는 처음 연결한 뒤 한 번만 하면 됩니다.')+'</p>':'')+'</div>';
-  b+='<p class="hint appver">앱 버전 11월 22일 18:09</p>';
+  b+='<p class="hint appver">앱 버전 11월 22일 19:21</p>';
   return dlg('wide',{id:'settings',t:'설정'},b);
 }
 function modalCheck(V){

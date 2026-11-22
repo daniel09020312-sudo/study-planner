@@ -78,7 +78,7 @@ var DECO_HID=[
 var DECO_ITEMS=(function(){var a=[];
   DECO_RING.forEach(function(x){a.push({id:'r:'+x[0],v:x[0],cat:'ring',name:x[1],price:x[2],desc:x[3],free:x[2]===0});});
   DECO_TAG.forEach(function(x){a.push({id:'g:'+x[0],v:x[0],cat:'ttag',name:x[1],price:x[2],desc:x[3],free:x[2]===0});});
-  DECO_HID.forEach(function(x){a.push({id:x[0]+':'+x[1],v:x[1],cat:x[0]==='r'?'ring':'ttag',name:x[2],price:x[3],desc:'히든 · '+x[4],hid:x[4],cond:x[5]});});
+  DECO_HID.forEach(function(x){a.push({id:x[0]+':'+x[1],v:x[1],cat:x[0]==='r'?'ring':'ttag',name:x[2],price:x[3],desc:x[0]==='r'?'히든 테두리':'히든 칭호 장식',hid:x[4],cond:x[5]});});
   return a;})();
 function decoOk(V,it){if(!it||!it.hid)return true;if(!V||!V.me)return false;try{return !!it.cond(memberStats(V,V.me),V);}catch(e){return false;}}
 function shopShown(V,id){var it=shopItem(id);if(it&&it.hid)return shopOwns(V,id)||decoOk(V,it);return shopShown0(V,id);}
