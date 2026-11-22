@@ -62,7 +62,7 @@ check('all unread = roster-2',st(p,"(document.querySelector('#m-y2 .urd')||{}).t
 # 6) 상점: 색 무료, 새 꾸미기
 click(p,'#shopBtn',800)
 click(p,'[data-act="shop-cat"][data-v="color"]',500)
-check('colors free',st(p,"document.querySelectorAll('#shg-color .shbuy').length")==0)
+check('colors free (히든 색 빼고)',st(p,"[...document.querySelectorAll('#shg-color .shi')].filter(e=>e.querySelector('.shbuy')&&!e.querySelector('.hidc')).length")==0)
 click(p,'[data-act="shop-cat"][data-v="look"]',500)
 names=st(p,"[...document.querySelectorAll('#shg-look .shn b')].map(e=>e.textContent)")
 check('new looks',all(n in ' '.join(names) for n in ['크라프트지','신문','노을']),names)
