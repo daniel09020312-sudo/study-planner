@@ -3,7 +3,7 @@ CONCEPTS.push(
   {id:'aurora',name:'오로라',mode:'dark',soft:[.2,'#10243A'],hid:1},
   {id:'library',name:'밤의 도서관',mode:'dark',soft:[.2,'#2A2019'],font:'Gowun+Batang:wght@700',face:'Gowun Batang',w:700,hid:1},
   {id:'ocean',name:'깊은 바다',mode:'dark',soft:[.2,'#0A2233'],hid:1},
-  {id:'royal',name:'황금 서재',soft:[.25,'#F3E6C4'],font:'Gowun+Batang:wght@700',face:'Gowun Batang',w:700,hid:1}
+  {id:'royal',name:'황금 서재',mode:'light',soft:[.25,'#F3E6C4'],font:'Gowun+Batang:wght@700',face:'Gowun Batang',w:700,hid:1}
 );
 ACCENTS.push(
   {id:'hgold',name:'금',g:'h',l:{a:'#B8860B',on:'#FFFFFF',soft:'#FBF1D6',ink:'#946C08',mark:'#B8860B'},d:{a:'#E8C259',on:'#2A1E00',soft:'#3A2F12',ink:'#E8C259',mark:'#E8C259'}},
