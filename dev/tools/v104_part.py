@@ -1,0 +1,13 @@
+# ---------------------------------------------------------------- v104: 기존 꾸미기(방 꾸미기·대표 색·타이머)에 히든 상품 (src/v104.js, v104.css)
+V104_JS = open(BASE + '/src/v104.js', encoding='utf-8').read()
+sub("function faceHtml(st,mid,o,f){", "function faceHtml0(st,mid,o,f){")
+sub("/* ---------- 공부방 ---------- */", V104_JS + "\n/* ---------- 공부방 ---------- */")
+sub("</style>", open(BASE + '/src/v104.css', encoding='utf-8').read() + "</style>")
+sub("  DECO_ITEMS.forEach(function(x){a.push(x);});\n  return shopItems.c=a;", "  hidExtraMark(a);\n  DECO_ITEMS.forEach(function(x){a.push(x);});\n  return shopItems.c=a;")
+sub("<b>히든 '+(it.cat==='ring'?'테두리':'칭호 장식')+'</b>", "<b>히든 '+hidCatName(it.cat)+'</b>")
+sub("if(it.cat==='timer')return '<span class=\"tsp tsp-'+it.v+' shpv\"", "if(it.cat==='timer')return '<span class=\"tsp tsp-'+(TVAR[it.v]||it.v)+' tsv-'+it.v+' shpv\"")
+sub("<span class=\"tsp tsp-'+x[0]+'\" aria-hidden=\"true\">'+TSPREV[x[0]]", "<span class=\"tsp tsp-'+(TVAR[x[0]]||x[0])+' tsv-'+x[0]+'\" aria-hidden=\"true\">'+TSPREV[x[0]]")
+# 설정 화면 목록에서는 열리지 않은 히든은 안 보임
+sub("CONCEPTS.map(function(x){return (function(lk){", "CONCEPTS.filter(function(x){return !x.hid||shopShown(V,'c:'+x.id);}).map(function(x){return (function(lk){")
+sub("TSTYLES.map(function(x){return (function(lk){", "TSTYLES.filter(function(x){return !TVAR[x[0]]||shopShown(V,'t:'+x[0]);}).map(function(x){return (function(lk){")
+sub("\n  b+='<div class=\"shgrid'+(cat==='stk'?' wide':'')", "\n  if(cat==='look'||cat==='color'||cat==='timer'){var dhx=decoHidCount(V,cat);if(dhx[1])b+='<p class=\"hint shdeco\">히든 '+dhx[0]+' / '+dhx[1]+' 열림. 조건을 채우면 열리고 살 수 있습니다.</p>';}\n  b+='<div class=\"shgrid'+(cat==='stk'?' wide':'')")

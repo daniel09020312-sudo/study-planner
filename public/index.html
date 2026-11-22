@@ -2488,6 +2488,44 @@ html.f3on,html.f3on body{overflow:hidden}
 .gtools>.seg.mini{flex:none!important;max-width:100%}
 .gtools .seg.mini{grid-template-columns:repeat(3,auto)!important}
 .gtools .seg.mini button{white-space:nowrap;padding-left:12px;padding-right:12px}
+/* v104 히든 방 꾸미기 */
+:root[data-concept="aurora"]{--bg:#0A1020;--surface:#111A2E;--fill:rgba(170,255,225,.07);--line:rgba(170,255,225,.13)}
+[data-concept="aurora"] body{background:radial-gradient(120% 60% at 20% 0%,rgba(60,255,176,.22),transparent 60%),radial-gradient(90% 60% at 90% 10%,rgba(181,124,255,.25),transparent 60%),#0A1020 fixed}
+[data-concept="aurora"] :is(.card,.tile,.note){background:color-mix(in srgb,var(--surface) 82%,transparent);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);border:1px solid rgba(170,255,225,.1);border-radius:22px}
+[data-concept="aurora"] .rail{background:color-mix(in srgb,var(--surface) 70%,transparent);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px)}
+:root[data-concept="library"]{--bg:#1B140F;--surface:#271D16;--fill:rgba(255,220,170,.08);--line:rgba(255,220,170,.14)}
+[data-concept="library"] body{background:radial-gradient(70% 40% at 50% 0%,rgba(255,190,110,.16),transparent 70%),repeating-linear-gradient(90deg,#1B140F 0 46px,#1F1712 46px 48px) fixed}
+[data-concept="library"] :is(.card,.tile,.note){border:1px solid rgba(255,210,150,.14);box-shadow:0 18px 36px -24px rgba(0,0,0,.7),inset 0 1px 0 rgba(255,220,170,.06)}
+:root[data-concept="ocean"]{--bg:#03101C;--surface:#0A1E2E;--fill:rgba(140,220,255,.08);--line:rgba(140,220,255,.13)}
+[data-concept="ocean"] body{background:linear-gradient(180deg,#0E3A55 0%,#062236 35%,#03101C 100%) fixed}
+[data-concept="ocean"] :is(.card,.tile,.note){background:color-mix(in srgb,var(--surface) 84%,transparent);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border:1px solid rgba(140,220,255,.1);border-radius:20px}
+:root[data-concept="royal"]{--bg:#F8F1E0;--surface:#FFFCF4;--fill:rgba(150,110,20,.08);--line:rgba(150,110,20,.2)}
+[data-concept="royal"] body{background:#F8F1E0}
+[data-concept="royal"] :is(.card,.tile,.note){border:1px solid rgba(184,134,11,.35);box-shadow:inset 0 0 0 3px #FFFCF4,inset 0 0 0 4px rgba(184,134,11,.22),0 16px 30px -22px rgba(120,80,0,.35)}
+.cvp.cvp-aurora{--pb:#0A1020;--pc:rgba(17,26,46,.85);--pe:rgba(170,255,225,.18);--pr:6px;background:radial-gradient(120% 70% at 20% 0%,rgba(60,255,176,.35),transparent 60%),radial-gradient(90% 70% at 90% 10%,rgba(181,124,255,.4),transparent 60%),#0A1020}
+.cvp.cvp-library{--pb:#1B140F;--pc:#271D16;--pe:rgba(255,210,150,.25);--pr:4px;background:repeating-linear-gradient(90deg,#1B140F 0 10px,#211812 10px 11px)}
+.cvp.cvp-ocean{--pb:#03101C;--pc:rgba(10,30,46,.85);--pe:rgba(140,220,255,.2);--pr:6px;background:linear-gradient(180deg,#0E3A55,#03101C)}
+.cvp.cvp-royal{--pb:#F8F1E0;--pc:#FFFCF4;--pe:rgba(184,134,11,.5);--pr:3px}
+/* 히든 타이머 변형 */
+.tf.tv-neon .rg-t{stroke:rgba(0,229,255,.14)}
+.tf.tv-neon .rg-p{stroke:#00D8F0;filter:drop-shadow(0 0 6px rgba(0,229,255,.8))}
+.tf.tv-neon .tt{color:#00B8D4;text-shadow:0 0 14px rgba(0,229,255,.45)}
+.tf.tv-aurora .rg-p{stroke:#3CFFB0;filter:drop-shadow(0 0 5px rgba(60,255,176,.7))}
+.tf.tv-aurora .ob-p{stroke:#B57CFF;filter:drop-shadow(0 0 5px rgba(181,124,255,.7))}
+.tf.tv-aurora .rg-t,.tf.tv-aurora .ob-t{stroke:rgba(150,200,255,.12)}
+.tf.tv-goldan .anb{fill:#B8860B}
+.tf.tv-goldan .anf{fill:#FFF7E0}
+.tf.tv-goldan .ans{fill:rgba(184,134,11,.22)}
+.tf.tv-goldan :is(.anm,.anh){stroke:#6B4A00}
+.tf.tv-goldan .ansec{stroke:#C8102E}
+.tf.tv-goldan .anc{fill:#B8860B}
+.tf.tv-pixel{background:#08110A;border-radius:18px;padding:22px 16px;box-shadow:inset 0 0 0 2px #1E3B22}
+.tf.tv-pixel .tt{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;letter-spacing:.08em;color:#39FF14;text-shadow:0 0 10px rgba(57,255,20,.55)}
+.tf.tv-pixel small,.tf.tv-pixel span{color:#7BD97B}
+.tsv-neon svg .rg-p,.tsv-neon svg circle:last-child{stroke:#00D8F0}
+.tsv-aurora svg circle{stroke:#3CFFB0}
+.tsv-goldan svg .f{fill:#F3D27A}
+.tsv-pixel{background:#08110A;color:#39FF14;border-radius:8px}
 #c-setup .row input{min-width:0}
 #c-setup .lb{margin-top:0}
 .serr{color:var(--red);margin-top:8px}
@@ -3027,7 +3065,7 @@ function faceIdle(m,p,g){
   if(m==='goal')return {idle:true,text:fmtLeft(g*60000),top:'목표 '+fmtMins(g),sub:'시작 전',pie:g/Math.max(60,g)};
   return {idle:true,text:'00:00:00',top:'스톱워치',sub:'시작 전',pie:0};
 }
-function faceHtml(st,mid,o,f){
+function faceHtml0(st,mid,o,f){
   var a=mid?' data-lv="'+esc(mid)+'"':'',pa=mid?' data-lvp="'+esc(mid)+'"':'',cls=(o.rest?' rest':'')+(f.idle?' idle':'')+(o.mode==='sw'?' swm':'');
   var show=f.idle?(o.mode==='sw'?0:1):lvShow(o),lg=f.text.length>=7?' long':'',lab='<small>'+f.top+'</small>',sub='<span>'+f.sub+'</span>';
   var txt=st==='flip'?'<b class="tt flip'+lg+'"'+(mid?' data-lvf="'+esc(mid)+'"':'')+' data-t="'+esc(f.text)+'">'+flipHtml(f.text)+'</b>':'<b class="tt'+lg+'"'+a+'>'+f.text+'</b>';
@@ -4978,7 +5016,7 @@ document.addEventListener('change',function(e){
 
 /* ---------- 처음 화면 ---------- */
 // 앱이 준비되면 알린다. 그림이 아직이면 다 그린 뒤에 열리고, 그림이 먼저 끝났으면 바로 열린다
-var APP_BUILD='1795248912';
+var APP_BUILD='1795338572';
 function splashDone(){
   var sp=document.getElementById('splash'),st=window.__sp;if(!sp||sp.getAttribute('data-out'))return;
   sp.setAttribute('data-out','1');
@@ -5226,6 +5264,7 @@ function shopItems(){
   ACCENTS.forEach(function(x){a.push({id:'a:'+x.id,v:x.id,cat:'color',name:x.name,price:0,desc:x.g==='p'?'파스텔, 무료':'대표 색, 무료',free:true,ac:x});});
   TSTYLES.forEach(function(x){var m=SHOP_TIMER[x[0]];a.push({id:'t:'+x[0],v:x[0],cat:'timer',name:x[1],price:m?m[0]:0,desc:m?m[1]:'처음 모양',free:x[0]==='ring'});});
   STK_PACKS.forEach(function(x){var m=SHOP_STK[x[0]];a.push({id:'k:'+x[0],v:x[0],cat:'stk',name:x[1]+' 팩',price:m?m[0]:120,desc:m?m[1]:(x[0]==='basic'?'처음부터 쓰는 이모티콘':'새 이모티콘'),free:x[0]==='basic'});});
+  hidExtraMark(a);
   DECO_ITEMS.forEach(function(x){a.push(x);});
   return shopItems.c=a;
 }
@@ -5301,7 +5340,7 @@ function shopPrev(it){
   if(it.cat==='ring'||it.cat==='ttag')return decoPrev(it);
   if(it.cat==='look')return '<span class="cvp cvp-'+it.v+' shpv" aria-hidden="true"><i></i><i></i><i></i></span>';
   if(it.cat==='color')return '<span class="shpv shcol" style="--a:'+it.ac.l.a+';--b:'+it.ac.d.a+';--s:'+it.ac.l.soft+'" aria-hidden="true"><i></i><u>공부 시작</u></span>';
-  if(it.cat==='timer')return '<span class="tsp tsp-'+it.v+' shpv" aria-hidden="true">'+TSPREV[it.v]+'</span>';
+  if(it.cat==='timer')return '<span class="tsp tsp-'+(TVAR[it.v]||it.v)+' tsv-'+it.v+' shpv" aria-hidden="true">'+TSPREV[it.v]+'</span>';
   var ids=STK.filter(function(x){return x[0].indexOf(it.v+'-')===0;}).slice(0,4);
   return '<span class="shpv shstk" aria-hidden="true">'+ids.map(function(x){return stkImg(x[0]);}).join('')+'</span>';
 }
@@ -5323,6 +5362,7 @@ function modalShop(V){
   if(S.giftOpen)b+=giftPanel(V,ink);
   b+='<div class="seg mini shcats" style="--i:'+SHOP_CATS.map(function(x){return x[0];}).indexOf(cat)+';--n:'+SHOP_CATS.length+'" role="group" aria-label="상품 종류">'+SHOP_CATS.map(function(x){return '<button data-act="shop-cat" data-v="'+x[0]+'" aria-pressed="'+(cat===x[0]?'true':'false')+'">'+x[1]+'</button>';}).join('')+'</div>';
   if(cat==='ring'||cat==='ttag'){var dhc=decoHidCount(V,cat);b+='<p class="hint shdeco">'+(cat==='ring'?'내 이름 동그라미에 두르는 테두리입니다.':'배지 칭호를 꾸밉니다.')+' 모든 사람에게 보입니다. 히든 '+dhc[0]+' / '+dhc[1]+' 열림</p>';}
+  if(cat==='look'||cat==='color'||cat==='timer'){var dhx=decoHidCount(V,cat);if(dhx[1])b+='<p class="hint shdeco">히든 '+dhx[0]+' / '+dhx[1]+' 열림. 조건을 채우면 열리고 살 수 있습니다.</p>';}
   b+='<div class="shgrid'+(cat==='stk'?' wide':'')+'" id="shg-'+cat+'">';
   items.forEach(function(it){
     var foc=S.shopFocus===it.id,peek=cat==='stk'&&S.shopPeek===it.id;
@@ -7720,9 +7760,47 @@ function decoPrev(it){
   return '<span class="shpv shttag" aria-hidden="true"><em class="tag tt-g'+(it.v==='none'?'':' tg2 tg-'+it.v)+'">공부 기계</em></span>';
 }
 function decoHidCard(V,it,foc){
-  return '<div class="shi hid hid2'+(foc?' foc':'')+'" id="shi-'+esc(it.id.replace(':','-'))+'"><span class="shpv shq2" aria-hidden="true"><i>?</i></span><div class="shn"><b>히든 '+(it.cat==='ring'?'테두리':'칭호 장식')+'</b><small>열리는 조건: '+esc(it.hid)+'</small></div><div class="sha"><span class="shst"><svg class="lki" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2.5"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5"/></svg>잠김</span></div></div>';
+  return '<div class="shi hid hid2'+(foc?' foc':'')+'" id="shi-'+esc(it.id.replace(':','-'))+'"><span class="shpv shq2" aria-hidden="true"><i>?</i></span><div class="shn"><b>히든 '+hidCatName(it.cat)+'</b><small>열리는 조건: '+esc(it.hid)+'</small></div><div class="sha"><span class="shst"><svg class="lki" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2.5"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5"/></svg>잠김</span></div></div>';
 }
 function decoHidCount(V,cat){var l=DECO_ITEMS.filter(function(x){return x.hid&&x.cat===cat;});return [l.filter(function(x){return shopShown(V,x.id);}).length,l.length];}
+
+/* ---------- v104: 기존 꾸미기(방 꾸미기·대표 색·타이머)에도 히든 상품. 조건을 채워야 상점에 보이고 살 수 있음 ---------- */
+CONCEPTS.push(
+  {id:'aurora',name:'오로라',mode:'dark',soft:[.2,'#10243A'],hid:1},
+  {id:'library',name:'밤의 도서관',mode:'dark',soft:[.2,'#2A2019'],font:'Gowun+Batang:wght@700',face:'Gowun Batang',w:700,hid:1},
+  {id:'ocean',name:'깊은 바다',mode:'dark',soft:[.2,'#0A2233'],hid:1},
+  {id:'royal',name:'황금 서재',soft:[.25,'#F3E6C4'],font:'Gowun+Batang:wght@700',face:'Gowun Batang',w:700,hid:1}
+);
+ACCENTS.push(
+  {id:'hgold',name:'금',g:'h',l:{a:'#B8860B',on:'#FFFFFF',soft:'#FBF1D6',ink:'#946C08',mark:'#B8860B'},d:{a:'#E8C259',on:'#2A1E00',soft:'#3A2F12',ink:'#E8C259',mark:'#E8C259'}},
+  {id:'hneon',name:'네온 핑크',g:'h',l:{a:'#E0168A',on:'#FFFFFF',soft:'#FDE4F2',ink:'#C21277',mark:'#E0168A'},d:{a:'#FF4FB8',on:'#2A0019',soft:'#3D1530',ink:'#FF4FB8',mark:'#FF4FB8'}},
+  {id:'hink',name:'먹',g:'h',l:{a:'#1C1C1E',on:'#FFFFFF',soft:'#ECECEE',ink:'#1C1C1E',mark:'#1C1C1E'},d:{a:'#E8E8EA',on:'#111113',soft:'#2A2A2E',ink:'#E8E8EA',mark:'#E8E8EA'}}
+);
+/* 타이머 변형: 바탕 모양(TVAR)을 그대로 그리고 색만 바꿈 */
+var TVAR={neon:'ring',aurora:'orbit',goldan:'analog',pixel:'digits'};
+TSTYLES.push(['neon','네온 링'],['aurora','오로라 고리'],['goldan','황금 시계'],['pixel','픽셀 숫자']);
+for(var tv in TVAR)TSPREV[tv]=TSPREV[TVAR[tv]];
+SHOP_LOOK.aurora=[150,'초록과 보라 빛이 흐르는 밤'];SHOP_LOOK.library=[150,'나무 책장과 따뜻한 등불'];SHOP_LOOK.ocean=[150,'빛이 내려오는 깊은 바다'];SHOP_LOOK.royal=[150,'크림색 종이와 금빛 테두리'];
+SHOP_TIMER.neon=[80,'빛나는 네온 고리'];SHOP_TIMER.aurora=[100,'두 겹 고리에 오로라 빛'];SHOP_TIMER.goldan=[100,'금빛 아날로그 시계'];SHOP_TIMER.pixel=[80,'오래된 게임기 같은 초록 숫자'];
+/* id: [조건 글, 조건 함수, 값(색은 따로)] */
+var HID_EXTRA={
+  'c:aurora':['누적 공부 60시간',function(s){return s.mins>=3600;}],
+  'c:library':['14일 연속 출석',function(s){return s.maxStreak>=14;}],
+  'c:ocean':['1:1 대결 3승',function(s){return s.duelWins>=3;}],
+  'c:royal':['배지 8개 모으기',function(s,V){return badgeList(V,V.me).filter(function(b){return b.on;}).length>=8;}],
+  'a:hgold':['하루 1등 6번',function(s){return s.dayWins>=6;},40],
+  'a:hneon':['아침 7시 전 출석 15번',function(s){return s.early>=15;},40],
+  'a:hink':['문제 10개 올리기',function(s){return s.posts>=10;},40],
+  't:neon':['하루 10시간 넘게 공부',function(s){return s.d10>=1;}],
+  't:aurora':['빙고 5줄',function(s){return s.lines>=5;}],
+  't:goldan':['완벽한 한 주',function(s){return s.perfect>=1;}],
+  't:pixel':['모두 끝내고 인증 14일',function(s){return s.clrCert>=14;}]
+};
+function hidExtraMark(a){a.forEach(function(x){var h=HID_EXTRA[x.id];if(!h)return;x.hid=h[0];x.cond=h[1];x.free=false;if(h[2])x.price=h[2];x.desc='히든 · '+x.desc.replace(/, 무료$/,'');});}
+function faceHtml(st,mid,o,f){var b=TVAR[st];if(!b)return faceHtml0(st,mid,o,f);return faceHtml0(b,mid,o,f).replace('<div class="tf ','<div class="tf tv-'+st+' ');}
+function hidCatName(cat){return {ring:'테두리',ttag:'칭호 장식',look:'방 꾸미기',color:'대표 색',timer:'타이머'}[cat]||'상품';}
+try{applyLook();}catch(e){}
+function decoHidCount(V,cat){var l=shopItems().filter(function(x){return x.hid&&x.cat===cat;});return [l.filter(function(x){return shopShown(V,x.id);}).length,l.length];}
 
 /* ---------- 방: 참여 코드, 새 방, 방 바꾸기 (웹 판) ---------- */
 // 참여 링크: 사이트주소#join=<저장소 이름>  -> 참여 코드 6자리 -> 이름 고르기
@@ -9360,9 +9438,9 @@ function modalSettings(V){
   if(V.me){var hg=!!obj(V.progress[V.me]).hideGoals;b+='<div class="fld"><h3>내 할 일 공개<small>다른 사람이 볼 수 있는 범위</small></h3><div class="chips"><button class="chip" data-act="hide-goals" data-v="0" aria-pressed="'+(hg?'false':'true')+'">내용까지 보이기</button><button class="chip" data-act="hide-goals" data-v="1" aria-pressed="'+(hg?'true':'false')+'">개수만 보이기</button></div><p class="hint" style="margin-top:6px">'+(hg?'다른 사람에게는 할 일 개수와 끝낸 개수만 보입니다.':'참여 인원 목록에서 내 할 일 내용이 보입니다.')+'</p></div>';}
   if(V.me)b+='<div class="fld"><h3>학교 시간표<small>수업 전에 과목과 장소를 알려 줌</small></h3><div class="row"><button class="btn small" data-act="open" data-modal="school">'+(schOf(V,V.me).has?'고치기':'넣기')+'</button></div></div>';
   if(V.me)b+='<div class="fld"><h3>과목 색과 줄임말<small>나에게만 적용</small></h3><div class="row"><button class="btn small" data-act="abbr-open">바꾸기</button></div></div>';
-  b+='<div class="sec"><h3>화면<small>이 기기에만 적용</small></h3><div class="shrow"><span>'+INK_SVG+'자물쇠가 있는 것은 상점에서 잉크로 삽니다</span><button class="btn small" data-act="open" data-modal="shop">상점</button></div><h4 class="lb" style="margin-top:0">컨셉</h4><div class="cvs" role="group" aria-label="컨셉 디자인">'+CONCEPTS.map(function(x){return (function(lk){return '<button class="cv'+(lk?' lk':'')+'" data-act="'+(lk?'shop-open':'concept')+'" data-v="'+(lk?'c:':'')+x.id+'" aria-pressed="'+(cNow.id===x.id?'true':'false')+'"'+(lk?' aria-label="'+esc(x.name)+', 상점에서 잉크 '+lk.price+'방울"':'')+'><span class="cvp cvp-'+x.id+'" aria-hidden="true"><i></i><i></i><i></i></span><span>'+x.name+'</span>'+(lk?shopLockTag(lk):'')+'</button>';})(shopLock(V,'c:'+x.id));}).join('')+'</div>';
+  b+='<div class="sec"><h3>화면<small>이 기기에만 적용</small></h3><div class="shrow"><span>'+INK_SVG+'자물쇠가 있는 것은 상점에서 잉크로 삽니다</span><button class="btn small" data-act="open" data-modal="shop">상점</button></div><h4 class="lb" style="margin-top:0">컨셉</h4><div class="cvs" role="group" aria-label="컨셉 디자인">'+CONCEPTS.filter(function(x){return !x.hid||shopShown(V,'c:'+x.id);}).map(function(x){return (function(lk){return '<button class="cv'+(lk?' lk':'')+'" data-act="'+(lk?'shop-open':'concept')+'" data-v="'+(lk?'c:':'')+x.id+'" aria-pressed="'+(cNow.id===x.id?'true':'false')+'"'+(lk?' aria-label="'+esc(x.name)+', 상점에서 잉크 '+lk.price+'방울"':'')+'><span class="cvp cvp-'+x.id+'" aria-hidden="true"><i></i><i></i><i></i></span><span>'+x.name+'</span>'+(lk?shopLockTag(lk):'')+'</button>';})(shopLock(V,'c:'+x.id));}).join('')+'</div>';
   b+='<h4 class="lb">밝기</h4>'+(cNow.mode?'<p class="hint">'+cNow.name+' 컨셉은 항상 어둡게 보입니다.</p>':'<div class="chips">'+[['auto','기기 설정에 맞춤'],['light','밝게'],['dark','어둡게']].map(function(x){return '<button class="chip" data-act="theme" data-v="'+x[0]+'" aria-pressed="'+(tp===x[0]?'true':'false')+'">'+x[1]+'</button>';}).join('')+'</div>');
-  b+='<h4 class="lb">대표 색</h4><div class="sws" role="group" aria-label="대표 색">'+sws('b')+'</div><h4 class="lb">파스텔</h4><div class="sws" role="group" aria-label="파스텔 대표 색">'+sws('p')+'</div><h4 class="lb">타이머 모양</h4><div class="cvs tsv" role="group" aria-label="타이머 모양">'+TSTYLES.map(function(x){return (function(lk){return '<button class="cv'+(lk?' lk':'')+'" data-act="'+(lk?'shop-open':'tstyle')+'" data-v="'+(lk?'t:':'')+x[0]+'" aria-pressed="'+(tstyle()===x[0]?'true':'false')+'"><span class="tsp tsp-'+x[0]+'" aria-hidden="true">'+TSPREV[x[0]]+'</span>'+x[1]+(lk?shopLockTag(lk):'')+'</button>';})(shopLock(V,'t:'+x[0]));}).join('')+'</div><h4 class="lb">글자 크기</h4><div class="chips">'+[['s','작게'],['m','보통'],['l','크게']].map(function(x){var zn=lsGet('gbb_zoom')||'m';return chipBtn('zoom','z',x[0],x[1],zn===x[0]);}).join('')+'</div></div>';
+  b+='<h4 class="lb">대표 색</h4><div class="sws" role="group" aria-label="대표 색">'+sws('b')+'</div><h4 class="lb">파스텔</h4><div class="sws" role="group" aria-label="파스텔 대표 색">'+sws('p')+'</div><h4 class="lb">타이머 모양</h4><div class="cvs tsv" role="group" aria-label="타이머 모양">'+TSTYLES.filter(function(x){return !TVAR[x[0]]||shopShown(V,'t:'+x[0]);}).map(function(x){return (function(lk){return '<button class="cv'+(lk?' lk':'')+'" data-act="'+(lk?'shop-open':'tstyle')+'" data-v="'+(lk?'t:':'')+x[0]+'" aria-pressed="'+(tstyle()===x[0]?'true':'false')+'"><span class="tsp tsp-'+(TVAR[x[0]]||x[0])+' tsv-'+x[0]+'" aria-hidden="true">'+TSPREV[x[0]]+'</span>'+x[1]+(lk?shopLockTag(lk):'')+'</button>';})(shopLock(V,'t:'+x[0]));}).join('')+'</div><h4 class="lb">글자 크기</h4><div class="chips">'+[['s','작게'],['m','보통'],['l','크게']].map(function(x){var zn=lsGet('gbb_zoom')||'m';return chipBtn('zoom','z',x[0],x[1],zn===x[0]);}).join('')+'</div></div>';
   if(V.me){var gmS=+obj(V.progress[V.me]).goalMins||0;b+='<div class="sec"><h3>하루 공부 목표<small>나만 보입니다</small></h3><div class="amt"><button data-act="sgoal" data-d="-30" aria-label="30분 줄이기">-30</button><b>'+(gmS?fmtMins(gmS):'없음')+'</b><button data-act="sgoal" data-d="30" aria-label="30분 늘리기">+30</button></div><p class="hint">정하면 공부방 타이머와 오늘 점수 칸에 얼마나 채웠는지 보입니다.</p></div>';}
   if(V.me)b+='<div class="sec"><h3>내 점수 초기화<small>'+esc(V.byId[V.me].name)+'</small></h3><p class="hint">지금까지 쌓인 내 점수만 0점으로 돌립니다. 할 일과 공부 시간 기록은 그대로 남고, 다른 사람 점수는 바뀌지 않습니다.</p><div class="row" style="margin-top:10px"><button class="btn" data-act="score-reset"'+dis+'>'+(S.confirm==='reset'?'한 번 더 누르면 초기화됩니다':'내 점수 초기화')+'</button></div></div>';
   var adm=adminId(V),isAdm=!!V.me&&adm===V.me,myLock=V.me&&lockOf(V,V.me);
@@ -9378,7 +9456,7 @@ function modalSettings(V){
   [[22,'밤 10시'],[23,'밤 11시'],[24,'자정'],[25,'다음 날 새벽 1시'],[26,'다음 날 새벽 2시'],[27,'다음 날 새벽 3시'],[28,'다음 날 새벽 4시'],[29,'다음 날 새벽 5시']].forEach(function(o){b+='<option value="'+o[0]+'"'+(V.certHour===o[0]?' selected':'')+'>'+o[1]+'</option>';});
   b+='</select>';
   b+='</div>'+spSec()+pokeSec()+noticeSec(V)+periodSec(V)+'<div class="sec"><h3>사용법</h3><div class="row"><button class="btn small" data-act="open" data-modal="help">사용법 보기</button></div></div><div class="sec"><h3>키보드 단축키<small>키보드를 연결했을 때</small></h3><ul class="kbd">'+[['1 ~ 8','달력부터 메시지까지 화면 이동'],['N','할 일 추가'],['D','마감 있는 할 일 추가'],['L','달력, 할 일, 시간표 차례로 바꿔 보기'],['T','타이머 켜기, 끄기'],['F','타이머 크게 보기'],['Esc','창 닫기']].map(function(x){return '<li><kbd>'+x[0]+'</kbd><span>'+x[1]+'</span></li>';}).join('')+'</ul></div><div class="sec"><h3>저장 위치</h3><p class="hint">'+esc(S.net?({claude:'Claude 공유 저장소에 연결되어 있습니다. Claude에 로그인한 참여 인원끼리 실시간으로 같이 봅니다.',firebase:'공유 저장소에 연결되어 있습니다. 참여 코드로 들어온 사람 모두가 실시간으로 같이 봅니다.',local:'지금은 이 기기에만 저장됩니다. 다른 사람과 같이 보려면 공유 저장소 연결이 필요합니다.'}[S.net.mode]):'연결 중입니다.')+'</p>'+(S.net&&S.net.mode==='firebase'&&S.remote?'<div class="row" style="margin-top:10px"><button class="btn small" data-act="import-pick">기록 가져오기</button><button class="btn small" data-act="export-data">기록 파일로 저장</button><button class="del" data-act="setup-reset">'+(S.confirm==='disc'?'한 번 더 누르면 이 방에서 나갑니다':'이 기기에서 이 방 나가기')+'</button></div><p class="hint" style="margin-top:8px">'+esc(S.importMsg||'친구와 내 다른 기기는 위의 친구 초대하기로 들어옵니다. 기록 가져오기는 처음 연결한 뒤 한 번만 하면 됩니다.')+'</p>':'')+'</div>';
-  b+='<p class="hint appver">앱 버전 11월 21일 17:15</p>';
+  b+='<p class="hint appver">앱 버전 11월 22일 18:09</p>';
   return dlg('wide',{id:'settings',t:'설정'},b);
 }
 function modalCheck(V){
