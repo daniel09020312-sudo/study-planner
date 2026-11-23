@@ -2583,6 +2583,18 @@ html.f3on,html.f3on body{overflow:hidden}
 .av.rg-zzz::before{content:"z z";position:absolute;right:-12px;top:-12px;font-size:10px;font-weight:800;color:#8C7BD8;letter-spacing:-1px;pointer-events:none;animation:zzz 2.4s ease-in-out infinite}
 @keyframes zzz{50%{transform:translate(2px,-3px);opacity:.5}}
 @media (prefers-reduced-motion:reduce){.av.rg-zzz::before{animation:none}}
+.fanh,.fanr{display:grid;grid-template-columns:44px minmax(0,1fr) auto 96px;gap:10px;align-items:center;padding:7px 10px;font-variant-numeric:tabular-nums}
+.fanh{font-size:11.5px;color:var(--ink-3);border-bottom:1px solid var(--line)}
+.fanh span:nth-child(3),.fanh span:nth-child(4),.fanr strong,.fanr .fant{text-align:right}
+.fanl{max-height:420px;overflow:auto}
+.fanr{border-radius:10px;font-size:14px}
+.fanr b{font-size:13px;color:var(--ink-2)}
+.fanr i{display:block;height:8px;width:62%;border-radius:4px;background:repeating-linear-gradient(90deg,var(--fill) 0 10px,transparent 10px 14px)}
+.fanr strong{font-weight:700}
+.fanr strong small{font-size:11px;font-weight:500;color:var(--ink-3);margin-left:2px}
+.fanr .fant{color:var(--ink-2);font-size:13px}
+.fanr.me{background:color-mix(in srgb,var(--accent) 12%,transparent)}
+.fanr:nth-child(-n+3) b{color:var(--accent-ink)}
 #c-setup .row input{min-width:0}
 #c-setup .lb{margin-top:0}
 .serr{color:var(--red);margin-top:8px}
@@ -4870,6 +4882,7 @@ function finalBody(V){
     fs.forEach(function(x,i){L+='<div class="rk fr2'+(x.p.me?' me':'')+'" id="fn-'+esc(x.p.id)+'"><div class="n">'+(i+1)+'</div>'+av(x.p)+'<div><div class="line"><b>'+esc(x.p.name)+'</b>'+titleTag(V,x.p.id)+(i<PRIZE_N&&x.total>0?'<span class="tag a">'+(i+1)+'등</span>':'')+'</div>'+finBreak(x)+'</div></div>';});
     L+='</section>';
   }
+  L+=finAnonCard(V);
   L+='<section class="card" id="c-weeks" style="--k:1"><div class="ct"><h2>주간 우승 기록<small>기록만, 점수 없음</small></h2></div>';
   if(!wr.length)L+='<p class="empty">아직 끝난 주가 없습니다.</p>';
   wr.slice().reverse().forEach(function(r){
@@ -5076,7 +5089,7 @@ document.addEventListener('change',function(e){
 
 /* ---------- 처음 화면 ---------- */
 // 앱이 준비되면 알린다. 그림이 아직이면 다 그린 뒤에 열리고, 그림이 먼저 끝났으면 바로 열린다
-var APP_BUILD='1795395356';
+var APP_BUILD='1795412326';
 function splashDone(){
   var sp=document.getElementById('splash'),st=window.__sp;if(!sp||sp.getAttribute('data-out'))return;
   sp.setAttribute('data-out','1');
@@ -7907,6 +7920,15 @@ var hidExtraMark0=hidExtraMark;hidExtraMark=function(a){hidExtraMark0(a);a.forEa
 var decoHidCard0=decoHidCard;decoHidCard=function(V,it,foc){var h=decoHidCard0(V,it,foc);return it.bm?h.replace('class="shi hid hid2','class="shi hid hid2 bm'):h;};
 try{applyLook();}catch(e){}
 
+function finAnonCard(V){
+  if(finalOpen()||!V.me)return '';
+  var fs=finalStandings(V),n=fs.length;if(!n)return '';
+  var h='<section class="card fin fanon" id="c-fin-anon" style="--k:1"><div class="ct"><h2>전체 순위<small>이름은 가려집니다</small></h2><span class="tag">'+n+'명</span></div><p class="hint">'+esc(shortDate(TALLY))+'부터 오늘까지의 최종 점수(배지 점수 포함)와 공부 시간입니다. 내 줄만 표시됩니다.</p>';
+  h+='<div class="fanh"><span>순위</span><span></span><span>점수</span><span>공부 시간</span></div><div class="fanl">';
+  var rk=0,prev=null;
+  fs.forEach(function(x,i){if(prev===null||x.total!==prev)rk=i+1;prev=x.total;var me=x.p.id===V.me;h+='<div class="fanr'+(me?' me':'')+'"'+(me?' id="fan-me"':'')+'><b>'+rk+'</b><span>'+(me?'<em class="tag a">나</em>':'<i aria-hidden="true"></i>')+'</span><strong>'+fmtN(x.total)+'<small>점</small></strong><span class="fant">'+fmtMins(x.mins)+'</span></div>';});
+  return h+'</div></section>';
+}
 /* ---------- 방: 참여 코드, 새 방, 방 바꾸기 (웹 판) ---------- */
 // 참여 링크: 사이트주소#join=<저장소 이름>  -> 참여 코드 6자리 -> 이름 고르기
 // 코드 연결: rooms/joincode-<코드> = {r:방 id, n:방 이름, at}
@@ -9561,7 +9583,7 @@ function modalSettings(V){
   [[22,'밤 10시'],[23,'밤 11시'],[24,'자정'],[25,'다음 날 새벽 1시'],[26,'다음 날 새벽 2시'],[27,'다음 날 새벽 3시'],[28,'다음 날 새벽 4시'],[29,'다음 날 새벽 5시']].forEach(function(o){b+='<option value="'+o[0]+'"'+(V.certHour===o[0]?' selected':'')+'>'+o[1]+'</option>';});
   b+='</select>';
   b+='</div>'+spSec()+pokeSec()+noticeSec(V)+periodSec(V)+'<div class="sec"><h3>사용법</h3><div class="row"><button class="btn small" data-act="open" data-modal="help">사용법 보기</button></div></div><div class="sec"><h3>키보드 단축키<small>키보드를 연결했을 때</small></h3><ul class="kbd">'+[['1 ~ 8','달력부터 메시지까지 화면 이동'],['N','할 일 추가'],['D','마감 있는 할 일 추가'],['L','달력, 할 일, 시간표 차례로 바꿔 보기'],['T','타이머 켜기, 끄기'],['F','타이머 크게 보기'],['Esc','창 닫기']].map(function(x){return '<li><kbd>'+x[0]+'</kbd><span>'+x[1]+'</span></li>';}).join('')+'</ul></div><div class="sec"><h3>저장 위치</h3><p class="hint">'+esc(S.net?({claude:'Claude 공유 저장소에 연결되어 있습니다. Claude에 로그인한 참여 인원끼리 실시간으로 같이 봅니다.',firebase:'공유 저장소에 연결되어 있습니다. 참여 코드로 들어온 사람 모두가 실시간으로 같이 봅니다.',local:'지금은 이 기기에만 저장됩니다. 다른 사람과 같이 보려면 공유 저장소 연결이 필요합니다.'}[S.net.mode]):'연결 중입니다.')+'</p>'+(S.net&&S.net.mode==='firebase'&&S.remote?'<div class="row" style="margin-top:10px"><button class="btn small" data-act="import-pick">기록 가져오기</button><button class="btn small" data-act="export-data">기록 파일로 저장</button><button class="del" data-act="setup-reset">'+(S.confirm==='disc'?'한 번 더 누르면 이 방에서 나갑니다':'이 기기에서 이 방 나가기')+'</button></div><p class="hint" style="margin-top:8px">'+esc(S.importMsg||'친구와 내 다른 기기는 위의 친구 초대하기로 들어옵니다. 기록 가져오기는 처음 연결한 뒤 한 번만 하면 됩니다.')+'</p>':'')+'</div>';
-  b+='<p class="hint appver">앱 버전 11월 23일 09:55</p>';
+  b+='<p class="hint appver">앱 버전 11월 23일 14:38</p>';
   return dlg('wide',{id:'settings',t:'설정'},b);
 }
 function modalCheck(V){
