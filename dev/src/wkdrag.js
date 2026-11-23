@@ -118,8 +118,11 @@ function wdMove(){
 }
 function wdAuto(){
   if(!WD||!WD.on)return;
-  var E=70,dy=0,dx=0,H=window.innerHeight||800;
-  if(WD.y<E)dy=-Math.min(18,Math.ceil((E-WD.y)/4));else if(WD.y>H-E)dy=Math.min(18,Math.ceil((WD.y-(H-E))/4));
+  /* 꾹 누른 채 손가락을 움직이기 전에는 저절로 스크롤하지 않음(화면 아래쪽 할 일을 누르면 바로 내려가던 것) */
+  if(!WD.mv&&Math.abs(WD.x-WD.x0)+Math.abs(WD.y-WD.y0)>24)WD.mv=true;
+  if(!WD.mv){wdEdgeUpdate();WD.raf=requestAnimationFrame(wdAuto);return;}
+  var E=60,dy=0,dx=0,H=window.innerHeight||800,mr=main&&main.getBoundingClientRect?main.getBoundingClientRect():{top:0,bottom:H},top=Math.max(0,mr.top),bot=Math.min(H,mr.bottom);
+  if(WD.y<top+E)dy=-Math.min(18,Math.ceil((top+E-WD.y)/4));else if(WD.y>bot-E)dy=Math.min(18,Math.ceil((WD.y-(bot-E))/4));
   if(dy&&main){var y0=main.scrollTop;main.scrollTop+=dy;if(main.scrollTop!==y0)wdMove();}
   var sc=WD.sc;
   if(sc&&sc.scrollWidth>sc.clientWidth+2){var r=sc.getBoundingClientRect();

@@ -1059,3 +1059,5 @@ html.alsnap #wkScroll *{transition:none !important;animation:none !important}
 .stagin{display:inline-flex;gap:4px;align-items:center}
 .stagin input{min-height:32px;width:130px;padding:4px 10px;font-size:13px;border-radius:999px}
 .stagin .btn{min-height:32px}
+/* v107: 할 일을 꾹 누를 때 글자 고르기·돋보기 막기 */
+.wki,.wki *{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
