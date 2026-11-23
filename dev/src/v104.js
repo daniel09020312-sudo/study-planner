@@ -36,6 +36,8 @@ function hidCatName(cat){return {ring:'테두리',ttag:'칭호 장식',look:'방
 try{applyLook();}catch(e){}
 function decoHidCount(V,cat){var l=shopItems().filter(function(x){return x.hid&&x.cat===cat;});return [l.filter(function(x){return shopShown(V,x.id);}).length,l.length];}
 /* 열린 히든은 조건을 계속 보여 주고, 방장은 조건과 상관없이 모든 히든을 볼 수 있고 살 수 있음 */
-function hidAdm(V){return !!(V&&V.me&&adminId(V)===V.me);}
+function admCodeOn(){var a=false;try{a=!!localStorage.getItem('gbb_adm');}catch(e){}return a||!!(typeof WAL!=='undefined'&&WAL.unl);}
+/* 관리자 코드를 넣은 기기만 히든이 조건 없이 보임(방장이라고 보이지 않음) */
+function hidAdm(V){return !!(V&&V.me&&admCodeOn());}
 function shopShown(V,id){var it=shopItem(id);if(it&&it.hid)return shopOwns(V,id)||hidAdm(V)||decoOk(V,it);return shopShown0(V,id);}
-function hidLine(V,it){if(!it.hid)return '';var met=decoOk(V,it);return '<small class="hidc'+(met?' met':'')+'">히든 · 조건: '+esc(it.hid)+(met?' (채움)':hidAdm(V)?' (방장이라 열림)':'')+'</small>';}
+function hidLine(V,it){if(!it.hid)return '';var met=decoOk(V,it);return '<small class="hidc'+(met?' met':'')+'">히든 · 조건: '+esc(it.hid)+(met?' (채움)':hidAdm(V)?' (관리자라 열림)':'')+'</small>';}

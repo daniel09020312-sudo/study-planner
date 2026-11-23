@@ -19,11 +19,16 @@ click(p,'[data-act="shop-cat"][data-v="color"]',400);check('color hidden locked'
 click(p,'[data-act="shop-cat"][data-v="timer"]',400);check('timer hidden locked',ev(p,"!!document.querySelector('#shi-t-neon.hid2')"))
 check('hint count',ev(p,"(document.querySelector('.shdeco')||{}).textContent||''").startswith('히든 0 / 6'))
 R.close()
-# 방장(m1)은 조건 없이 모든 히든이 보이고 살 수 있음
+# 방장(m1)이라도 관리자 코드가 없으면 잠김
 R=Rig();p=R.open(1280,1000,ls={'gbb_note':'9999999999999'},now=NOW,pre=pre());close_dlg(p);p.wait_for_timeout(400)
 shop(p,'look')
+check('owner without code locked',ev(p,"!!document.querySelector('#shi-c-ocean.hid2')"))
+R.close()
+# 관리자 코드가 있는 기기는 조건 없이 모든 히든이 보이고 살 수 있음
+R=Rig();p=R.open(1280,1000,ls={'gbb_note':'9999999999999','gbb_me':'m2','gbb_adm':'x'},now=NOW,pre=pre());close_dlg(p);p.wait_for_timeout(400)
+shop(p,'look')
 check('admin sees hidden',ev(p,"!!document.querySelector('#shi-c-ocean')&&!document.querySelector('#shi-c-ocean.hid2')"))
-check('admin line',('방장이라 열림' in ev(p,"(document.querySelector('#shi-c-ocean .hidc')||{}).textContent||''")))
+check('admin line',('관리자라 열림' in ev(p,"(document.querySelector('#shi-c-ocean .hidc')||{}).textContent||''")))
 check('admin can buy (button present)',ev(p,"!!document.querySelector('#shi-c-ocean .shbuy')"))
 R.close()
 # 하루 10시간 -> 네온 링 열림, 산 것으로 두고 쓰기
