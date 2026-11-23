@@ -38,6 +38,7 @@
 [data-concept="glitch"] :is(.card,.tile,.note){border:1px solid rgba(0,255,240,.2);box-shadow:3px 0 0 rgba(255,0,200,.25),-3px 0 0 rgba(0,255,240,.2)}
 .cvp.cvp-glitch{--pb:#0C0712;--pc:#160D20;--pe:rgba(0,255,240,.4);--pr:2px;background:repeating-linear-gradient(0deg,rgba(255,255,255,.06) 0 1px,transparent 1px 3px),#0C0712}
 /* 술 취한 숫자 */
+.tf.tv-drunk,.tsv-drunk,.av.rg-tornado{overflow-anchor:none}
 .tf.tv-drunk .tt{display:inline-block;animation:drunk 2.4s ease-in-out infinite;filter:blur(.4px)}
 .tf.tv-drunk small,.tf.tv-drunk span{display:inline-block;animation:drunk 3.1s ease-in-out infinite reverse}
 @keyframes drunk{0%,100%{transform:rotate(-9deg) translate(-6px,0) skewX(8deg)}25%{transform:rotate(7deg) translate(5px,-4px) scale(1.08)}50%{transform:rotate(-4deg) translate(-3px,5px) skewX(-10deg)}75%{transform:rotate(11deg) translate(6px,2px) scale(.94)}}
