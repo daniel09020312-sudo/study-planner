@@ -31,7 +31,7 @@ def open_dev(me, w=390):
 
 ca, A = open_dev('m1', 1180)
 cb, B = open_dev('m2')
-click(A, '[data-act="tab"][data-tab="room"]', 600)
+click(A, '[data-act="tab"][data-tab="board"]', 600)
 click(A, '#c-wb .btn[data-act="wb-open"]', 700)
 st = A.query_selector('#wbStage').bounding_box()
 A.mouse.move(st['x']+200, st['y']+200); A.mouse.down()
@@ -39,7 +39,7 @@ for i in range(1, 11): A.mouse.move(st['x']+200+30*i, st['y']+200+10*i)
 A.mouse.up(); A.wait_for_timeout(2500)
 wb = get_at('/rooms/' + R + '/d/wb') or {}
 print('A wrote stroke:', len(wb))
-click(B, '[data-act="tab"][data-tab="room"]', 600)
+B.evaluate("()=>document.querySelector('[data-act=\"tab\"][data-tab=\"board\"]').click()"); B.wait_for_timeout(600)
 B.evaluate("()=>document.getElementById('c-wb').scrollIntoView()"); B.wait_for_timeout(300)
 print('B sees:', ev(B, "!!document.querySelector('#c-wb .wbprev img')"), ev(B, "document.getElementById('c-wb').textContent.includes('민준')"))
 click(B, '#c-wb .btn[data-act="wb-open"]', 700)

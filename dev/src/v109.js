@@ -22,7 +22,7 @@ function wbStroke(ctx,s,z,tr){
   if(s.k==='h'){ctx.globalAlpha=.32;ctx.lineCap='butt';ctx.lineWidth=Math.max(1,s.w*2.6*z);}else ctx.lineWidth=Math.max(.6,s.w*z);
   wbPath(ctx,pts,tr);ctx.stroke();ctx.restore();
 }
-/* 공부방 카드: 작은 미리 보기(바뀔 때만 다시 그린 그림) */
+/* 게시판 카드: 작은 미리 보기(바뀔 때만 다시 그린 그림) */
 var WBP={key:'',url:''};
 function wbPreview(V){
   var l=wbList(V),key=l.length+'|'+(l.length?l[l.length-1].id+l[0].id:'');

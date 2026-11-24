@@ -11,7 +11,7 @@ def ev(p,js):return p.evaluate('()=>'+js)
 SC='/tmp/claude-0/-home-user/e7c3557b-cbdd-5867-afb0-e8d2fce386ea/scratchpad/'
 NOW=datetime.datetime(2026,11,24,15,0,0)
 R=Rig();p=R.open(1180,900,ls={'gbb_note':'9999999999999'},now=NOW);close_dlg(p);p.wait_for_timeout(500)
-click(p,'[data-act="tab"][data-tab="room"]',700)
+click(p,'[data-act="tab"][data-tab="board"]',700)
 check('card',ev(p,"!!document.getElementById('c-wb')"))
 click(p,'#c-wb .btn[data-act="wb-open"]',600)
 check('dock open',ev(p,"!!document.getElementById('wbDock')"))
@@ -39,7 +39,7 @@ z0=ev(p,"document.getElementById('wbZ').textContent");click(p,'[data-w="zin"]',3
 check('zoom in',ev(p,"document.getElementById('wbZ').textContent")!=z0)
 click(p,'[data-w="fit"]',200);check('fit 100',ev(p,"document.getElementById('wbZ').textContent")=='100%')
 # 숫자 키가 탭을 바꾸지 않음
-p.keyboard.press("Digit1");p.wait_for_timeout(300);check("keys blocked",ev(p,"!!document.getElementById('wbDock')&&!!document.querySelector('[data-tab=room][aria-current]')"))
+p.keyboard.press("Digit1");p.wait_for_timeout(300);check("keys blocked",ev(p,"!!document.getElementById('wbDock')&&!!document.querySelector('[data-tab=board][aria-current]')"))
 # 방장 모두 지우기(두 번)
 click(p,'[data-w="clear"]',200);check('clear needs twice',cnt()==2)
 click(p,'[data-w="clear"]',600);check('cleared',cnt()==0,cnt())
@@ -49,7 +49,7 @@ R.close()
 # 다른 사람(m2) 판에 m1이 쓴 획이 보이고, m2는 모두 지우기 없음, 지우개로 지움
 pre="(function(){var t=setInterval(function(){var S=window.__store;if(!S)return;S['wb/wa1']={by:'m1',c:'#0090FF',w:6,k:'p',p:'200,200,900,600,1500,300',at:Date.now()-5000};clearInterval(t);},2);})();"
 R=Rig();p=R.open(390,844,ls={'gbb_note':'9999999999999','gbb_me':'m2'},now=NOW,pre=pre);close_dlg(p);p.wait_for_timeout(600)
-click(p,'[data-act="tab"][data-tab="room"]',700)
+click(p,'[data-act="tab"][data-tab="board"]',700)
 p.evaluate("()=>document.getElementById('c-wb').scrollIntoView()");p.wait_for_timeout(300)
 check('preview img',ev(p,"!!document.querySelector('#c-wb .wbprev img')"))
 check('card names drawer',ev(p,"document.getElementById('c-wb').textContent.includes('마지막')"))

@@ -2592,7 +2592,7 @@ html.f3on,html.f3on body{overflow:hidden}
 .fanr .fant{color:var(--ink-2);font-size:12.5px;text-align:right}
 .fanr:nth-child(-n+3) b{color:var(--accent-ink)}
 /* v109 화이트보드 */
-.wbc .wbprev{display:block;position:relative;width:100%;aspect-ratio:16/10;padding:0;border:1px solid var(--line);border-radius:14px;background:#fff;overflow:hidden;cursor:pointer}
+.wbc .wbprev{display:block;position:relative;width:100%;aspect-ratio:16/10;max-height:260px;padding:0;border:1px solid var(--line);border-radius:14px;background:#fff;overflow:hidden;cursor:pointer}
 .wbc .wbprev img{display:block;width:100%;height:100%;object-fit:cover}
 .wbc .wbprev span{position:absolute;inset:0;display:grid;place-items:center;padding:12px;font-size:13px;color:#6b7280;text-align:center}
 .wbc .wbrow{justify-content:space-between;align-items:center;gap:8px;margin-top:8px}
@@ -5117,7 +5117,7 @@ document.addEventListener('change',function(e){
 
 /* ---------- 처음 화면 ---------- */
 // 앱이 준비되면 알린다. 그림이 아직이면 다 그린 뒤에 열리고, 그림이 먼저 끝났으면 바로 열린다
-var APP_BUILD='1795502209';
+var APP_BUILD='1795502565';
 function splashDone(){
   var sp=document.getElementById('splash'),st=window.__sp;if(!sp||sp.getAttribute('data-out'))return;
   sp.setAttribute('data-out','1');
@@ -7983,7 +7983,7 @@ function wbStroke(ctx,s,z,tr){
   if(s.k==='h'){ctx.globalAlpha=.32;ctx.lineCap='butt';ctx.lineWidth=Math.max(1,s.w*2.6*z);}else ctx.lineWidth=Math.max(.6,s.w*z);
   wbPath(ctx,pts,tr);ctx.stroke();ctx.restore();
 }
-/* 공부방 카드: 작은 미리 보기(바뀔 때만 다시 그린 그림) */
+/* 게시판 카드: 작은 미리 보기(바뀔 때만 다시 그린 그림) */
 var WBP={key:'',url:''};
 function wbPreview(V){
   var l=wbList(V),key=l.length+'|'+(l.length?l[l.length-1].id+l[0].id:'');
@@ -9099,7 +9099,7 @@ function viewRoom(V){
     keys.forEach(function(x){var a=+day.mins[x]||0,b=+day.manual[x]||0;h+='<li id="tm-'+esc(x)+'"><span>'+esc(subLabel(V,x))+(b?'<small>직접 입력 '+fmtMins(b)+'</small>':'')+'</span><span><b>'+fmtMins(a+b)+'</b></span></li>';});
     h+='</ul></div>';
   }
-  return h+'</section>'+cgCard(V,1)+togetherCard(V,2)+'</div><div class="stack">'+songsCard(V,1)+wbCard(V,1)+peopleCard(V,t,2)+flagCard(V,3)+quietCard(V,4)+'</div></div></div>';
+  return h+'</section>'+cgCard(V,1)+togetherCard(V,2)+'</div><div class="stack">'+songsCard(V,1)+peopleCard(V,t,2)+flagCard(V,3)+quietCard(V,4)+'</div></div></div>';
 }
 
 /* ---------- 진도 ---------- */
@@ -9215,7 +9215,7 @@ function viewBoard(V){
   var list=V.posts.filter(boardShow),monT=pd(mondayOf(today())).getTime();
   var h='<div class="view" id="view-board"><header class="vhead"><div><h1>게시판</h1><p>문제를 내거나 모르는 것을 물어보세요. 사진을 찍어 올릴 수 있습니다.</p></div><div class="vacts"><div class="seg" role="group" aria-label="글 종류">';
   [['all','전체'],['quiz','문제'],['ask','질문']].forEach(function(r){h+='<button data-act="filter" data-id="'+r[0]+'" aria-pressed="'+(S.filter===r[0]?'true':'false')+'">'+r[1]+'</button>';});
-  h+='</div><button class="btn small primary" data-act="open" data-modal="post" data-kind="quiz">문제 내기</button><button class="btn small soft" data-act="open" data-modal="post" data-kind="ask">질문하기</button></div></header><div class="cols"><div class="stack">';
+  h+='</div><button class="btn small primary" data-act="open" data-modal="post" data-kind="quiz">문제 내기</button><button class="btn small soft" data-act="open" data-modal="post" data-kind="ask">질문하기</button></div></header><div class="cols"><div class="stack">'+wbCard(V,0);
   if(!list.length)h+='<section class="card" id="c-qempty" style="--k:0"><p class="empty">'+(S.filter==='lapse'?'아직 올라온 타임랩스가 없습니다. 휴대폰 카메라의 타임랩스로 공부하는 모습을 찍어 올려 보세요.':S.filter==='ask'?'아직 질문이 없습니다.':S.filter==='quiz'?'아직 올라온 문제가 없습니다.':'아직 글이 없습니다. 자신 있는 과목에서 한 문제를 내보세요.')+'</p></section>';
   list.forEach(function(q,i){h+=postCard(V,q,Math.min(i,5));});
   h+='</div><div class="stack"><section class="card" id="c-wkq" style="--k:1"><div class="ct"><h2>이번 주 활동</h2></div><ul class="wkq">';
@@ -9840,7 +9840,7 @@ function modalSettings(V){
   [[22,'밤 10시'],[23,'밤 11시'],[24,'자정'],[25,'다음 날 새벽 1시'],[26,'다음 날 새벽 2시'],[27,'다음 날 새벽 3시'],[28,'다음 날 새벽 4시'],[29,'다음 날 새벽 5시']].forEach(function(o){b+='<option value="'+o[0]+'"'+(V.certHour===o[0]?' selected':'')+'>'+o[1]+'</option>';});
   b+='</select>';
   b+='</div>'+spSec()+pokeSec()+noticeSec(V)+periodSec(V)+'<div class="sec"><h3>사용법</h3><div class="row"><button class="btn small" data-act="open" data-modal="help">사용법 보기</button></div></div><div class="sec"><h3>키보드 단축키<small>키보드를 연결했을 때</small></h3><ul class="kbd">'+[['1 ~ 8','달력부터 메시지까지 화면 이동'],['N','할 일 추가'],['D','마감 있는 할 일 추가'],['L','달력, 할 일, 시간표 차례로 바꿔 보기'],['T','타이머 켜기, 끄기'],['F','타이머 크게 보기'],['Esc','창 닫기']].map(function(x){return '<li><kbd>'+x[0]+'</kbd><span>'+x[1]+'</span></li>';}).join('')+'</ul></div><div class="sec"><h3>저장 위치</h3><p class="hint">'+esc(S.net?({claude:'Claude 공유 저장소에 연결되어 있습니다. Claude에 로그인한 참여 인원끼리 실시간으로 같이 봅니다.',firebase:'공유 저장소에 연결되어 있습니다. 참여 코드로 들어온 사람 모두가 실시간으로 같이 봅니다.',local:'지금은 이 기기에만 저장됩니다. 다른 사람과 같이 보려면 공유 저장소 연결이 필요합니다.'}[S.net.mode]):'연결 중입니다.')+'</p>'+(S.net&&S.net.mode==='firebase'&&S.remote?'<div class="row" style="margin-top:10px"><button class="btn small" data-act="import-pick">기록 가져오기</button><button class="btn small" data-act="export-data">기록 파일로 저장</button><button class="del" data-act="setup-reset">'+(S.confirm==='disc'?'한 번 더 누르면 이 방에서 나갑니다':'이 기기에서 이 방 나가기')+'</button></div><p class="hint" style="margin-top:8px">'+esc(S.importMsg||'친구와 내 다른 기기는 위의 친구 초대하기로 들어옵니다. 기록 가져오기는 처음 연결한 뒤 한 번만 하면 됩니다.')+'</p>':'')+'</div>';
-  b+='<p class="hint appver">앱 버전 11월 24일 15:36</p>';
+  b+='<p class="hint appver">앱 버전 11월 24일 15:42</p>';
   return dlg('wide',{id:'settings',t:'설정'},b);
 }
 function modalCheck(V){
