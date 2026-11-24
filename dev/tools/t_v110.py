@@ -37,7 +37,8 @@ click(p,'[data-w="undo"]',500);check('undo erase restores',cnt()==2,cnt())
 # 확대, 전체 보기
 z0=ev(p,"document.getElementById('wbZ').textContent");click(p,'[data-w="zin"]',300)
 check('zoom in',ev(p,"document.getElementById('wbZ').textContent")!=z0)
-click(p,'[data-w="fit"]',200);check('fit 100',ev(p,"document.getElementById('wbZ').textContent")=='100%')
+click(p,'[data-w="all"]',200);za=ev(p,"document.getElementById('wbZ').textContent");check('whole board small',int(za[:-1])<20,za)
+click(p,'[data-w="fit"]',200);check('fit content',ev(p,"document.getElementById('wbZ').textContent")!=za)
 # 숫자 키가 탭을 바꾸지 않음
 p.keyboard.press("Digit1");p.wait_for_timeout(300);check("keys blocked",ev(p,"!!document.getElementById('wbDock')&&!!document.querySelector('[data-tab=board][aria-current]')"))
 # 방장 모두 지우기(두 번)

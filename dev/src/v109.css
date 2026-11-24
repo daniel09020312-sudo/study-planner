@@ -29,4 +29,4 @@ html.wbon,html.wbon body{overflow:hidden}
 #wbDock .wbsz{width:40px;height:40px;display:grid;place-items:center;border:0;border-radius:10px;background:none;cursor:pointer;padding:0}
 #wbDock .wbsz i{display:block;border-radius:50%;background:var(--ink)}
 #wbDock .wbsz[aria-pressed="true"]{background:color-mix(in srgb,var(--accent) 14%,transparent)}
-@media (max-width:699px){#wbDock .wbtop{padding:6px 10px}#wbDock .wbtop small#wbInfo{display:none}#wbDock .wbzoom{display:none}#wbDock .wbtop{flex-wrap:nowrap}#wbDock .wbtop .btn{padding-inline:10px}#wbDock .wbt span{display:none}#wbDock .wbt{min-width:44px}}
+@media (max-width:699px){#wbDock .wbtop{padding:6px 10px}#wbDock .wbtop small#wbInfo{display:none}#wbDock .wbzoom{display:none}#wbDock .wball{display:none}#wbDock .wbtop{flex-wrap:nowrap}#wbDock .wbtop .btn{padding-inline:10px}#wbDock .wbt span{display:none}#wbDock .wbt{min-width:44px}}
