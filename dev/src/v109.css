@@ -1,0 +1,32 @@
+/* v109 화이트보드 */
+.wbc .wbprev{display:block;position:relative;width:100%;aspect-ratio:16/10;padding:0;border:1px solid var(--line);border-radius:14px;background:#fff;overflow:hidden;cursor:pointer}
+.wbc .wbprev img{display:block;width:100%;height:100%;object-fit:cover}
+.wbc .wbprev span{position:absolute;inset:0;display:grid;place-items:center;padding:12px;font-size:13px;color:#6b7280;text-align:center}
+.wbc .wbrow{justify-content:space-between;align-items:center;gap:8px;margin-top:8px}
+html.wbon,html.wbon body{overflow:hidden}
+#wbDock{position:fixed;inset:0;z-index:120;display:flex;flex-direction:column;background:var(--bg,#f4f5f7);color:var(--ink);padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}
+#wbDock .wbtop{display:flex;align-items:center;gap:6px;padding:8px 12px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+#wbDock .wbtop b{font-size:16px}
+#wbDock .wbtop small{color:var(--ink-3)}
+#wbDock .wbsp{flex:1}
+#wbDock .wbzoom{display:inline-flex;align-items:center;gap:4px}
+#wbDock .wbzoom small{min-width:44px;text-align:center;font-variant-numeric:tabular-nums}
+#wbDock .wbstage{position:relative;flex:1;min-height:0;overflow:hidden;touch-action:none;cursor:crosshair;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+#wbDock.move .wbstage{cursor:grab}
+#wbDock.erase .wbstage{cursor:cell}
+#wbDock canvas{position:absolute;left:0;top:0}
+#wbTags{position:absolute;inset:0;pointer-events:none}
+.wbtag{position:absolute;transform:translate(8px,-130%);padding:2px 8px;border-radius:999px;background:var(--c);color:#fff;font-size:12px;font-weight:600;white-space:nowrap;box-shadow:0 2px 6px rgba(0,0,0,.2);transition:opacity .5s}
+.wbtag.out{opacity:0}
+#wbDock .wbbar{display:flex;align-items:center;gap:14px;padding:8px 12px;border-top:1px solid var(--line);overflow-x:auto;scrollbar-width:none}
+#wbDock .wbbar::-webkit-scrollbar{display:none}
+#wbDock .wbtools,#wbDock .wbcols,#wbDock .wbsizes{display:flex;gap:4px;align-items:center;flex:none}
+#wbDock .wbt{display:flex;flex-direction:column;align-items:center;gap:1px;min-width:48px;min-height:44px;padding:4px 6px;border:0;border-radius:10px;background:none;color:var(--ink-2);font:inherit;font-size:11px;cursor:pointer}
+#wbDock .wbt svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+#wbDock .wbt[aria-pressed="true"]{background:color-mix(in srgb,var(--accent) 14%,transparent);color:var(--accent)}
+#wbDock .wbsw{width:30px;height:30px;border-radius:50%;border:2px solid var(--surface,#fff);background:var(--c);box-shadow:0 0 0 1px var(--line);cursor:pointer;padding:0;flex:none}
+#wbDock .wbsw[aria-pressed="true"]{box-shadow:0 0 0 2px var(--ink)}
+#wbDock .wbsz{width:40px;height:40px;display:grid;place-items:center;border:0;border-radius:10px;background:none;cursor:pointer;padding:0}
+#wbDock .wbsz i{display:block;border-radius:50%;background:var(--ink)}
+#wbDock .wbsz[aria-pressed="true"]{background:color-mix(in srgb,var(--accent) 14%,transparent)}
+@media (max-width:699px){#wbDock .wbtop{padding:6px 10px}#wbDock .wbtop small#wbInfo{display:none}#wbDock .wbzoom{display:none}#wbDock .wbtop{flex-wrap:nowrap}#wbDock .wbtop .btn{padding-inline:10px}#wbDock .wbt span{display:none}#wbDock .wbt{min-width:44px}}

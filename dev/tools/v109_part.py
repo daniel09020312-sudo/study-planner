@@ -1,0 +1,11 @@
+# ---------------------------------------------------------------- v109: 다 같이 쓰는 손글씨 화이트보드(wb/<획 id>, 공부방 카드 + 화면 가득 판 #wbDock) (src/v109.js)
+s = s.replace("'plans','gifts','inbox','reads'];", "'plans','gifts','inbox','reads','wb'];")
+assert s.count("'plans','gifts','inbox','reads','wb'];") == 1
+sub("inbox:merged('inbox'),reads:merged('reads'),", "inbox:merged('inbox'),reads:merged('reads'),wb:merged('wb'),")
+sub("S.inbox={};S.reads={};", "S.inbox={};S.reads={};S.wb={};")
+sub("c!=='inbox'&&c!=='x'", "c!=='inbox'&&c!=='wb'&&c!=='x'")
+sub("/* ---------- 공부방 ---------- */", open(BASE + '/src/v109.js', encoding='utf-8').read() + "\n/* ---------- 공부방 ---------- */")
+sub("'</div><div class=\"stack\">'+songsCard(V,1)+", "'</div><div class=\"stack\">'+songsCard(V,1)+wbCard(V,1)+")
+sub("  try{songDock();}catch(e){}", "  try{songDock();}catch(e){}\n  try{wbSync();}catch(e){}")
+sub("    case 'song-adm':", "    case 'wb-open':wbOpen();break;\n    case 'song-adm':")
+sub("</style>", open(BASE + '/src/v109.css', encoding='utf-8').read() + "</style>")
