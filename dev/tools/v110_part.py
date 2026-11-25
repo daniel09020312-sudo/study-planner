@@ -18,3 +18,5 @@ sub("    case 'g-donelast':", """    case 'g-num':if(!need())break;S.gNum=date;S
     case 'g-numoff':{var sno=snap(['days/'+view().me+'_'+date]);editDay(date,function(d){delete d.ord;});S.gNum=null;S.gNumPick=[];flash('할 순서 번호를 없앴습니다.',sno);break;}
     case 'g-donelast':""")
 sub("</style>", open(BASE + '/src/v110.css', encoding='utf-8').read() + "</style>")
+# 할 일 목록(달력 화면 '할 일' 보기)에도 할 순서 번호
+sub("<span class=\"t\">'+esc(x.text)+'</span>'+(meta.length||late?", "<span class=\"t\">'+(function(n){return n?'<b class=\"gno'+(n===1?' n1':'')+'\" title=\"할 순서\">'+n+'</b>':'';})(gSortOn()?0:gOrdNo(dayOf(V,V.me,d),x))+esc(x.text)+'</span>'+(meta.length||late?")
