@@ -1,0 +1,14 @@
+/* v110 할 순서 정하기 */
+.gnbar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;margin:6px 0 4px;padding:10px 12px;border-radius:12px;background:color-mix(in srgb,var(--accent) 9%,transparent)}
+.gnbar>div:first-child{display:grid;gap:2px}
+.gnbar small{color:var(--ink-2);font-size:12px}
+.gnbar .row{gap:6px;flex-wrap:wrap}
+.goal.gnrow{cursor:pointer}
+.goal.gnrow.on{background:color-mix(in srgb,var(--accent) 7%,transparent)}
+.gnb{width:32px;height:32px;margin:6px;border-radius:50%;border:2px dashed color-mix(in srgb,var(--ink) 30%,transparent);background:none;color:var(--accent-ink,var(--accent));font:inherit;font-weight:800;font-size:14px;cursor:pointer;padding:0;font-variant-numeric:tabular-nums}
+.gnb.on{border:0;background:var(--accent);color:#fff;animation:gnPop .25s var(--ease,ease)}
+.gnt{background:none;border:0;padding:8px 0;text-align:left;font:inherit;color:inherit;cursor:pointer;min-height:44px}
+@keyframes gnPop{0%{transform:scale(.6)}70%{transform:scale(1.12)}100%{transform:scale(1)}}
+.gno{display:inline-grid;place-items:center;min-width:20px;height:20px;padding:0 5px;margin-right:6px;border-radius:999px;background:color-mix(in srgb,var(--ink) 9%,transparent);color:var(--ink-2);font-size:11.5px;font-weight:800;font-variant-numeric:tabular-nums;flex:none;vertical-align:1px}
+.gno.n1{background:var(--accent);color:#fff}
+@media (prefers-reduced-motion:reduce){.gnb.on{animation:none}}

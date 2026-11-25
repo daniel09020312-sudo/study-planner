@@ -2623,6 +2623,20 @@ html.wbon,html.wbon body{overflow:hidden}
 #wbDock .wbsz i{display:block;border-radius:50%;background:var(--ink)}
 #wbDock .wbsz[aria-pressed="true"]{background:color-mix(in srgb,var(--accent) 14%,transparent)}
 @media (max-width:699px){#wbDock .wbtop{padding:6px 10px}#wbDock .wbtop small#wbInfo{display:none}#wbDock .wbzoom{display:none}#wbDock .wball{display:none}#wbDock .wbtop{flex-wrap:nowrap}#wbDock .wbtop .btn{padding-inline:10px}#wbDock .wbt span{display:none}#wbDock .wbt{min-width:44px}}
+/* v110 할 순서 정하기 */
+.gnbar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;margin:6px 0 4px;padding:10px 12px;border-radius:12px;background:color-mix(in srgb,var(--accent) 9%,transparent)}
+.gnbar>div:first-child{display:grid;gap:2px}
+.gnbar small{color:var(--ink-2);font-size:12px}
+.gnbar .row{gap:6px;flex-wrap:wrap}
+.goal.gnrow{cursor:pointer}
+.goal.gnrow.on{background:color-mix(in srgb,var(--accent) 7%,transparent)}
+.gnb{width:32px;height:32px;margin:6px;border-radius:50%;border:2px dashed color-mix(in srgb,var(--ink) 30%,transparent);background:none;color:var(--accent-ink,var(--accent));font:inherit;font-weight:800;font-size:14px;cursor:pointer;padding:0;font-variant-numeric:tabular-nums}
+.gnb.on{border:0;background:var(--accent);color:#fff;animation:gnPop .25s var(--ease,ease)}
+.gnt{background:none;border:0;padding:8px 0;text-align:left;font:inherit;color:inherit;cursor:pointer;min-height:44px}
+@keyframes gnPop{0%{transform:scale(.6)}70%{transform:scale(1.12)}100%{transform:scale(1)}}
+.gno{display:inline-grid;place-items:center;min-width:20px;height:20px;padding:0 5px;margin-right:6px;border-radius:999px;background:color-mix(in srgb,var(--ink) 9%,transparent);color:var(--ink-2);font-size:11.5px;font-weight:800;font-variant-numeric:tabular-nums;flex:none;vertical-align:1px}
+.gno.n1{background:var(--accent);color:#fff}
+@media (prefers-reduced-motion:reduce){.gnb.on{animation:none}}
 #c-setup .row input{min-width:0}
 #c-setup .lb{margin-top:0}
 .serr{color:var(--red);margin-top:8px}
@@ -3088,6 +3102,7 @@ function dayOf(V,mid,date){
   var d=obj(V.days[mid+'_'+date]);
   var r0={mid:mid,date:date,goals:arr(d.goals),mins:obj(d.mins),manual:obj(d.manual),certAt:d.certAt||null,in:d.in||null,focus:d.focus||null};
   if(d.hh)r0.hh=obj(d.hh);
+  if(d.ord)r0.ord=1;
   return r0;
 }
 function skipOf(V,mid){
@@ -3528,12 +3543,13 @@ function guardDay(path,data){
   return Object.assign({},data,{goals:out});
 }
 function goalRow(V,date,mode,day,x,isT){
+  if(S.gNum===date)return goalRowNum(V,date,day,x);
   if(x.mv&&date<addDays(today(),-2))return '';
   if(x.mv)return '<li class="goal mv" id="g-'+esc(x.id)+'-mv"><span class="chk ghost" aria-hidden="true"><span></span></span><div class="gt">'+(x.sid&&V.subName[x.sid]&&S.gGroup!=='sub'?subTag(V,x):'')+'<span>'+esc(x.text)+'</span><em class="tag">다른 날로 옮김</em></div><button class="btn small soft" data-act="mv-back" data-date="'+esc(date)+'" data-id="'+esc(x.id)+'">되돌리기</button></li>';
   var key=date+'|'+x.id,f=isT&&day.focus===x.id&&!x.done,sub=x.sid&&V.subName[x.sid],p=x.pid&&V.plans[x.pid]?obj(V.plans[x.pid]):null,sel=S.gSel===key,ed=S.gEdit===key;
   var h='<li class="goal'+(x.done?' done':'')+(f?' focus':'')+(sel?' sel':'')+'" id="g-'+esc(x.id)+'"><button class="chk'+(x.done?' on':'')+'" data-act="goal-toggle" data-date="'+date+'" data-id="'+esc(x.id)+'" aria-pressed="'+(x.done?'true':'false')+'" aria-label="'+esc(x.text)+' 완료 표시"'+(mode==='plan'||doneLocked(V,date)?' disabled':'')+'><span></span></button>';
   if(ed)h+='<div class="gt gedit"><input type="text" id="gEditIn" data-draft="gEdit" data-enter="g-save" data-date="'+date+'" data-id="'+esc(x.id)+'" maxlength="90" aria-label="할 일 고치기"><button class="btn small primary" data-act="g-save" data-date="'+date+'" data-id="'+esc(x.id)+'">저장</button><button class="btn small" data-act="g-sel" data-date="'+date+'" data-id="'+esc(x.id)+'">취소</button></div>';
-  else h+='<div class="gt">'+(sub&&S.gGroup!=='sub'?subTag(V,x):'')+'<span>'+esc(x.text)+'</span>'+(placed(x)?'<em class="tag">'+fmtHM(x.ts)+'</em>':'')+(p?'<em class="tag due">'+esc(shortDate(p.due))+' 마감'+(x.part?', '+esc(x.part):'')+'</em>':'')+(f?'<em class="tag a">지금 하는 중</em>':'')+'</div>';
+  else h+='<div class="gt">'+(function(n){return n&&S.gGroup==='none'&&!gSortOn()?'<b class="gno'+(n===1?' n1':'')+'" title="할 순서">'+n+'</b>':'';})(gOrdNo(day,x))+(sub&&S.gGroup!=='sub'?subTag(V,x):'')+'<span>'+esc(x.text)+'</span>'+(placed(x)?'<em class="tag">'+fmtHM(x.ts)+'</em>':'')+(p?'<em class="tag due">'+esc(shortDate(p.due))+' 마감'+(x.part?', '+esc(x.part):'')+'</em>':'')+(f?'<em class="tag a">지금 하는 중</em>':'')+'</div>';
   var canAct=mode!=='view'||!x.done;
   h+=(canAct&&!ed?'<button class="gmore" data-act="g-sel" data-date="'+date+'" data-id="'+esc(x.id)+'" aria-expanded="'+(sel?'true':'false')+'" aria-label="'+esc(x.text)+' 편집">'+(sel?'닫기':'편집')+'</button>':'<span></span>')+'</li>';
   if(sel&&!ed){
@@ -3563,10 +3579,11 @@ function goalsCard(V,date,k){
   if(canAddTo(V,date)&&g.length<GMAX)h+=quickAddRow(V,date);
   else if(mode!=='view'&&dayLocked(V,date))h+='<p class="hint">인증 마감이 지나 새 할 일을 더할 수 없습니다. 완료 표시와 인증은 할 수 있습니다.</p>';
   if(g.length){
-    if(g.length>1)h+='<div class="gtools"><div class="seg mini" style="grid-template-columns:repeat(3,minmax(0,1fr))" role="group" aria-label="할 일 묶어 보기">'+[['none','적은 순서'],['sub','과목별'],['plan','마감별']].map(function(x){return '<button data-act="g-group" data-id="'+x[0]+'" aria-pressed="'+(S.gGroup===x[0]?'true':'false')+'">'+x[1]+'</button>';}).join('')+'</div><button class="chip" data-act="open" data-modal="gall">전체 할 일</button><button class="chip" data-act="open" data-modal="gorder">순서 정리</button><button class="chip" data-act="g-donelast" aria-pressed="'+(S.gDoneLast?'true':'false')+'">끝낸 일 아래로</button></div>';
-    var gl=gSortSub(V,S.gDoneLast?g.filter(function(x){return !x.done;}).concat(g.filter(isDone)):g);
+    if(g.length>1)h+='<div class="gtools"><div class="seg mini" style="grid-template-columns:repeat(3,minmax(0,1fr))" role="group" aria-label="할 일 묶어 보기">'+[['none','적은 순서'],['sub','과목별'],['plan','마감별']].map(function(x){return '<button data-act="g-group" data-id="'+x[0]+'" aria-pressed="'+(S.gGroup===x[0]?'true':'false')+'">'+x[1]+'</button>';}).join('')+'</div>'+(mode!=='view'&&!doneLocked(V,date)&&undone>=2&&S.gNum!==date?'<button class="chip" data-act="g-num" data-date="'+date+'">'+(day.ord?'할 순서 다시 정하기':'할 순서 정하기')+'</button>':'')+'<button class="chip" data-act="open" data-modal="gall">전체 할 일</button><button class="chip" data-act="open" data-modal="gorder">순서 정리</button><button class="chip" data-act="g-donelast" aria-pressed="'+(S.gDoneLast?'true':'false')+'">끝낸 일 아래로</button></div>';
+    var gl=S.gNum===date?g:gSortSub(V,S.gDoneLast?g.filter(function(x){return !x.done;}).concat(g.filter(isDone)):g);
+    if(S.gNum===date)h+=gNumBar(V,date,day);
     h+='<ul>';
-    if(S.gGroup==='none'||g.length<2)gl.forEach(function(x){h+=goalRow(V,date,mode,day,x,isT);});
+    if(S.gGroup==='none'||g.length<2||S.gNum===date)gl.forEach(function(x){h+=goalRow(V,date,mode,day,x,isT);});
     else{
       var gs={},order=[];
       gl.forEach(function(x){var key;if(S.gGroup==='sub')key=x.sid&&V.subName[x.sid]?x.sid:'';else key=x.pid&&V.plans[x.pid]?x.pid:'';if(!gs[key]){gs[key]=[];order.push(key);}gs[key].push(x);});
@@ -5117,7 +5134,7 @@ document.addEventListener('change',function(e){
 
 /* ---------- 처음 화면 ---------- */
 // 앱이 준비되면 알린다. 그림이 아직이면 다 그린 뒤에 열리고, 그림이 먼저 끝났으면 바로 열린다
-var APP_BUILD='1795502764';
+var APP_BUILD='1795585722';
 function splashDone(){
   var sp=document.getElementById('splash'),st=window.__sp;if(!sp||sp.getAttribute('data-out'))return;
   sp.setAttribute('data-out','1');
@@ -8194,6 +8211,35 @@ function wbWheel(e){
   var c=WB.cam;c.x+=(e.shiftKey?e.deltaY:e.deltaX)/c.z;if(!e.shiftKey)c.y+=e.deltaY/c.z;wbClamp();wbDraw();
 }
 
+/* ---------- v110: 할 순서 정하기. 하루 할 일 카드에서 '할 순서 정하기'를 켜고 하고 싶은 순서대로 누르면 그 순서로 줄을 바꾸고(day.ord=1), 남은 할 일 앞에 1, 2, 3 번호 ---------- */
+S.gNum=null;S.gNumPick=[];
+function gNumList(day){return day.goals.filter(function(x){return x&&!x.done&&!x.mv;});}
+/* 번호: 남은 할 일 중 몇 번째 */
+function gOrdNo(day,x){if(!day.ord||x.done||x.mv)return 0;var l=gNumList(day);for(var i=0;i<l.length;i++)if(l[i].id===x.id)return i+1;return 0;}
+function goalRowNum(V,date,day,x){
+  if(x.done||x.mv)return '';
+  var i=S.gNumPick.indexOf(x.id),sub=x.sid&&V.subName[x.sid];
+  return '<li class="goal gnrow'+(i>=0?' on':'')+'" id="g-'+esc(x.id)+'"><button class="gnb'+(i>=0?' on':'')+'" data-act="g-numpick" data-date="'+date+'" data-id="'+esc(x.id)+'" aria-label="'+esc(x.text)+(i>=0?' '+(i+1)+'번째, 누르면 빼기':' 다음 순서로')+'">'+(i>=0?(i+1):'')+'</button><button class="gt gnt" data-act="g-numpick" data-date="'+date+'" data-id="'+esc(x.id)+'" tabindex="-1">'+(sub?subTag(V,x):'')+'<span>'+esc(x.text)+'</span></button><span></span></li>';
+}
+function gNumBar(V,date,day){
+  var n=gNumList(day).length,k=S.gNumPick.length;
+  return '<div class="gnbar"><div><b>할 순서 정하기</b><small>'+(k?k+' / '+n+'개 골랐습니다. 남은 것은 그 뒤로 갑니다.':'먼저 할 일부터 차례로 누르세요.')+'</small></div><div class="row"><button class="btn small" data-act="g-numx">취소</button>'+(k?'<button class="btn small" data-act="g-numreset">다시</button>':'')+(day.ord&&!k?'<button class="btn small" data-act="g-numoff">번호 없애기</button>':'')+'<button class="btn small primary" data-act="g-numsave"'+(k?'':' disabled')+'>저장</button></div></div>';
+}
+function gNumSave(date){
+  var V=view(),day=dayOf(V,V.me,date),pick=S.gNumPick.slice();
+  if(!pick.length){S.gNum=null;return;}
+  var sn=snap(['days/'+V.me+'_'+date]);
+  editDay(date,function(d){
+    var by={};d.goals.forEach(function(x){if(x&&x.id)by[x.id]=x;});
+    var first=pick.map(function(id){return by[id];}).filter(function(x){return x&&!x.done&&!x.mv;}),used={};first.forEach(function(x){used[x.id]=1;});
+    var rest=d.goals.filter(function(x){return !(x&&used[x.id])&&x&&!x.done&&!x.mv;}),tail=d.goals.filter(function(x){return !(x&&used[x.id])&&!(x&&!x.done&&!x.mv);});
+    d.goals=first.concat(rest,tail);d.ord=1;
+  });
+  var gs=gSortOn();if(gs)lsSet('gbb_gsort',null);
+  S.gNum=null;S.gNumPick=[];
+  flash('할 순서를 정했습니다.'+(gs?' 과목순 자동 정렬은 껐습니다.':''),sn);
+}
+
 /* ---------- 방: 참여 코드, 새 방, 방 바꾸기 (웹 판) ---------- */
 // 참여 링크: 사이트주소#join=<저장소 이름>  -> 참여 코드 6자리 -> 이름 고르기
 // 코드 연결: rooms/joincode-<코드> = {r:방 id, n:방 이름, at}
@@ -9848,7 +9894,7 @@ function modalSettings(V){
   [[22,'밤 10시'],[23,'밤 11시'],[24,'자정'],[25,'다음 날 새벽 1시'],[26,'다음 날 새벽 2시'],[27,'다음 날 새벽 3시'],[28,'다음 날 새벽 4시'],[29,'다음 날 새벽 5시']].forEach(function(o){b+='<option value="'+o[0]+'"'+(V.certHour===o[0]?' selected':'')+'>'+o[1]+'</option>';});
   b+='</select>';
   b+='</div>'+spSec()+pokeSec()+noticeSec(V)+periodSec(V)+'<div class="sec"><h3>사용법</h3><div class="row"><button class="btn small" data-act="open" data-modal="help">사용법 보기</button></div></div><div class="sec"><h3>키보드 단축키<small>키보드를 연결했을 때</small></h3><ul class="kbd">'+[['1 ~ 8','달력부터 메시지까지 화면 이동'],['N','할 일 추가'],['D','마감 있는 할 일 추가'],['L','달력, 할 일, 시간표 차례로 바꿔 보기'],['T','타이머 켜기, 끄기'],['F','타이머 크게 보기'],['Esc','창 닫기']].map(function(x){return '<li><kbd>'+x[0]+'</kbd><span>'+x[1]+'</span></li>';}).join('')+'</ul></div><div class="sec"><h3>저장 위치</h3><p class="hint">'+esc(S.net?({claude:'Claude 공유 저장소에 연결되어 있습니다. Claude에 로그인한 참여 인원끼리 실시간으로 같이 봅니다.',firebase:'공유 저장소에 연결되어 있습니다. 참여 코드로 들어온 사람 모두가 실시간으로 같이 봅니다.',local:'지금은 이 기기에만 저장됩니다. 다른 사람과 같이 보려면 공유 저장소 연결이 필요합니다.'}[S.net.mode]):'연결 중입니다.')+'</p>'+(S.net&&S.net.mode==='firebase'&&S.remote?'<div class="row" style="margin-top:10px"><button class="btn small" data-act="import-pick">기록 가져오기</button><button class="btn small" data-act="export-data">기록 파일로 저장</button><button class="del" data-act="setup-reset">'+(S.confirm==='disc'?'한 번 더 누르면 이 방에서 나갑니다':'이 기기에서 이 방 나가기')+'</button></div><p class="hint" style="margin-top:8px">'+esc(S.importMsg||'친구와 내 다른 기기는 위의 친구 초대하기로 들어옵니다. 기록 가져오기는 처음 연결한 뒤 한 번만 하면 됩니다.')+'</p>':'')+'</div>';
-  b+='<p class="hint appver">앱 버전 11월 24일 15:46</p>';
+  b+='<p class="hint appver">앱 버전 11월 25일 14:48</p>';
   return dlg('wide',{id:'settings',t:'설정'},b);
 }
 function modalCheck(V){
@@ -11197,6 +11243,13 @@ function act(name,el){
       S.crRaw=!!(S.crUndo&&u===S.crUndo);try{Object.keys(u).forEach(function(p){queueWrite(p,u[p]);});}finally{S.crRaw=false;}
       S.undo=null;S.gSel=null;flash('되돌렸습니다.');break;
     }
+    case 'g-num':if(!need())break;S.gNum=date;S.gNumPick=[];S.gSel=null;S.gEdit=null;break;
+    case 'g-numx':S.gNum=null;S.gNumPick=[];break;
+    case 'g-numreset':S.gNumPick=[];break;
+    case 'g-numpick':{var pi=S.gNumPick.indexOf(id);if(pi>=0)S.gNumPick.splice(pi,1);else S.gNumPick.push(id);
+      var Vp=view(),dp=dayOf(Vp,Vp.me,date);if(S.gNumPick.length>=gNumList(dp).length)gNumSave(date);break;}
+    case 'g-numsave':gNumSave(S.gNum||date);break;
+    case 'g-numoff':{var sno=snap(['days/'+view().me+'_'+date]);editDay(date,function(d){delete d.ord;});S.gNum=null;S.gNumPick=[];flash('할 순서 번호를 없앴습니다.',sno);break;}
     case 'g-donelast':S.gDoneLast=!S.gDoneLast;lsSet('gbb_donelast',S.gDoneLast?'1':null);break;
     case 'sgoal':{var sgd2=+el.getAttribute('data-d')||0;editProg(function(p){p.goalMins=Math.max(0,Math.min(720,(+p.goalMins||0)+sgd2));});break;}
     case 'askdone-yes':editDay(today(),function(d){d.goals.forEach(function(x){if(x.id===id)x.done=true;});if(d.focus===id)d.focus=null;});closeModal();return;
