@@ -300,7 +300,7 @@
     var sub = due ? '복습할 문제 ' + due + '개가 기다려요' : unseen ? '새 문제 ' + unseen + '개 남았어요' : '모두 외웠어요. 그래도 복습은 계속!';
     var bite = biteOfDay();
     var h = '';
-    h += '<header class="hhead"><div class="brand"><span class="logo">' + logoSvg() + '</span><div><b>한 입 화학</b><small>틈날 때 한 입씩, 화학 반응의 세계</small></div></div>' +
+    h += '<header class="hhead"><div class="brand"><span class="logo">' + logoSvg() + '</span><div><b>한 입 화학</b><small>통합과학 화학 반응의 세계</small></div></div>' +
       '<div class="hbtns"><button class="ibtn" data-act="sound" aria-label="소리">' + ic(S.set.sound ? 'snd' : 'mute') + '</button><button class="ibtn" data-act="settings" aria-label="설정">' + ic('gear') + '</button></div></header>';
     h += scopeChips();
     h += '<section class="hero card">' +
@@ -1241,12 +1241,35 @@
   var first = history.state && history.state.name && history.state.name !== 'quiz' && history.state.name !== 'result' && history.state.name !== 'boltrun' && history.state.name !== 'boltres' ? history.state : { name: 'home' };
   try { history.replaceState(first, ''); } catch (e) { }
   show(first);
-  // 홈 화면 앱 시작 표지: 잠깐 보여 주고 사라짐, 누르면 바로 넘어감
+  // 홈 화면 앱 시작 표지: 앱이 준비될 때까지 숨 쉬듯 기다렸다가, 마스코트가 왼쪽 위 로고로 쏙 들어가며 열림
   (function () {
-    var cv = document.getElementById('cover'); if (!cv || !document.documentElement.classList.contains('cov')) return;
-    function hide() { if (cv.classList.contains('out')) return; cv.classList.add('out'); setTimeout(function () { document.documentElement.classList.remove('cov'); }, 360); }
-    cv.addEventListener('click', hide);
-    setTimeout(hide, reduced ? 250 : 1150);
+    var root = document.documentElement, cv = document.getElementById('cover');
+    if (!cv || !root.classList.contains('cov')) return;
+    var t0 = performance.now(), gone = false;
+    function finish() { root.classList.remove('cov', 'cov-out'); cv.style.cssText = ''; }
+    function open() {
+      if (gone) return; gone = true;
+      var m = cv.querySelector('.mascot'), logo = document.querySelector('.hhead .logo'), view = document.querySelector('#app .view');
+      if (reduced || !m || !m.animate) { cv.style.transition = 'opacity .2s'; cv.style.opacity = '0'; setTimeout(finish, 220); return; }
+      root.classList.add('cov-out');
+      var a = m.getBoundingClientRect(), D = 520, ease = 'cubic-bezier(.65,0,.25,1)';
+      if (logo) {
+        var b = logo.getBoundingClientRect(), s = b.width / a.width;
+        var dx = (b.left + b.width / 2) - (a.left + a.width / 2), dy = (b.top + b.height / 2) - (a.top + a.height / 2);
+        m.animate([{ transform: 'none' }, { transform: 'translate(0,-3%) scale(1.06)', offset: .18 }, { transform: 'translate(' + dx + 'px,' + dy + 'px) scale(' + s + ')' }], { duration: D, easing: ease, fill: 'forwards' });
+        logo.animate([{ opacity: 0 }, { opacity: 0, offset: .8 }, { opacity: 1 }], { duration: D, fill: 'backwards' });
+      } else m.animate([{ transform: 'none', opacity: 1 }, { transform: 'scale(.6)', opacity: 0 }], { duration: D * .7, easing: ease, fill: 'forwards' });
+      cv.animate([{ backgroundColor: getComputedStyle(cv).backgroundColor }, { backgroundColor: 'rgba(243,239,230,0)' }], { duration: D * .8, delay: D * .2, easing: 'ease-out', fill: 'forwards' });
+      if (view) view.animate([{ opacity: 0, transform: 'scale(.97)' }, { opacity: 1, transform: 'none' }], { duration: D * .8, delay: D * .2, easing: 'cubic-bezier(.2,.8,.2,1)', fill: 'backwards' });
+      setTimeout(finish, D + 40);
+    }
+    var ready = (document.fonts && document.fonts.ready) ? document.fonts.ready : Promise.resolve();
+    ready.then(function () {
+      var wait = Math.max(0, 750 - (performance.now() - t0));
+      setTimeout(function () { requestAnimationFrame(function () { requestAnimationFrame(open); }); }, wait);
+    });
+    setTimeout(open, 2600);
+    cv.addEventListener('click', open);
   })();
   if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
     window.addEventListener('load', function () {
