@@ -65,6 +65,13 @@ Cloudflare Pages가 로그 없이 실패하면(Deploy failed) 대개 Cloudflare 
 - 테스트는 Playwright(`tools/rig.py`가 가짜 저장소를 붙인다). 요일에 따라 결과가 달라지는 테스트는 `R.open(..., now=날짜)`로 날짜를 고정한다.
 - t_site.py, t_web.py의 기록 가져오기 시험은 실제 기록이 든 파일(tools/test-data-nolock.json)을 쓰므로 저장소에는 없다. 필요하면 가짜 데이터로 만든다.
 
+## 한 입 화학 (public/chem/, 사이트의 /chem/)
+- 통합과학 PPT(Ⅱ-05 생활 속 산화·환원, Ⅲ-1~4 탄소 화합물·고분자)로 만든 따로 된 퀴즈 앱. 빌드 없이 `public/chem/`이 그대로 원본이다.
+- 파일: `data.js`(단원·주제·노트·문제·이야기 줄), `mol.js`(글자 그림이나 좌표로 적은 구조식을 SVG로), `fig.js`(노트 그림), `app.js`(화면·채점·간격 반복), `app.css`, `sw.js`(오프라인, 캐시 이름 V), `font.woff2`(Pretendard에서 앱에 쓰는 글자만 뽑음, OFL).
+- 문제 종류 mc·ox·sq(순서)·mt(짝)·pk(모두 고르기). 문제 id는 내용의 해시라 문제 글을 고치면 그 문제 기록은 새로 시작한다. 기록은 기기 localStorage `hanip-chem-v1`.
+- 고치면: index.html의 `?v=`와 sw.js의 V·FILES를 함께 올리고, 글자를 새로 썼으면 font.woff2를 다시 뽑는다(pyftsubset, 앱 파일의 모든 글자). 시험 `node dev/tools/t_chem.js`(모든 문제를 정답으로 풀어 채점·넘침·오프라인 확인).
+- 플래너 sw.js는 `/chem/`을 건드리지 않는다(같은 사이트라서).
+
 ## 올리면 안 되는 것 (공개 저장소)
 - 기록 파일(planner-data*.json)과 실제 기록을 담은 테스트 데이터
 - 친구들의 실제 이름, Firebase 주소, 초대 링크(#db=...&room=...)
