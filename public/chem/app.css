@@ -1,18 +1,18 @@
 @font-face{font-family:"Pretendard";src:url(font.woff2) format("woff2");font-weight:300 900;font-display:swap}
 :root{
   --logo:#F5A3A0;
-  --bg:#F3EFE6;--bg2:#EBE5D8;--card:#FFFDF8;--ink:#1D1B17;--ink2:#5D574C;--ink3:#948C7D;--line:#E3DCCD;--line2:#D2C9B6;--dot:#D9D1C0;
+  --bg:var(--t-bg-l,#F3EFE6);--bg2:var(--t-bg2-l,#EBE5D8);--card:#FFFDF8;--ink:#1D1B17;--ink2:#5D574C;--ink3:#948C7D;--line:#E3DCCD;--line2:#D2C9B6;--dot:var(--t-dot-l,#D9D1C0);--accd:var(--t-accd-l,#8C4A40);--accs:var(--t-accs-l,#FBE3DF);--acc-on:var(--t-on-l,#fff);
   --red:#D23F27;--red-s:#F8DED6;--blue:#2B58C9;--blue-s:#DEE6FA;--green:#1C8452;--green-s:#D5EEDD;--amber:#B97C06;--amber-s:#F6E8C6;--hl:#FFE27Acc;
   --mol:#1D1B17;--shadow:0 1px 0 rgba(29,27,23,.04),0 10px 28px -16px rgba(29,27,23,.28);
   --r:18px;--ease:cubic-bezier(.2,.8,.2,1);--safe-b:env(safe-area-inset-bottom,0px);
   color-scheme:light;
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --bg:#131215;--bg2:#1A191C;--card:#1E1D21;--ink:#EEE9DF;--ink2:#B6AFA2;--ink3:#7D776D;--line:#2C2A30;--line2:#3A3740;--dot:#252329;
+  --bg:var(--t-bg-d,#131215);--bg2:var(--t-bg2-d,#1A191C);--card:#1E1D21;--ink:#EEE9DF;--ink2:#B6AFA2;--ink3:#7D776D;--line:#2C2A30;--line2:#3A3740;--dot:var(--t-dot-d,#252329);--accd:var(--t-accd-d,#F7C1BA);--accs:var(--t-accs-d,#3A2A2A);--acc-on:var(--t-on-d,#1D1B17);
   --red:#FF6E58;--red-s:#3B201B;--blue:#82A3FF;--blue-s:#1C2542;--green:#52CC8D;--green-s:#15301F;--amber:#F0B443;--amber-s:#3A2D12;--hl:#8A6F12aa;
   --mol:#EEE9DF;--shadow:0 1px 0 rgba(0,0,0,.3),0 12px 28px -16px rgba(0,0,0,.7);color-scheme:dark}}
 :root[data-theme="dark"]{
-  --bg:#131215;--bg2:#1A191C;--card:#1E1D21;--ink:#EEE9DF;--ink2:#B6AFA2;--ink3:#7D776D;--line:#2C2A30;--line2:#3A3740;--dot:#252329;
+  --bg:var(--t-bg-d,#131215);--bg2:var(--t-bg2-d,#1A191C);--card:#1E1D21;--ink:#EEE9DF;--ink2:#B6AFA2;--ink3:#7D776D;--line:#2C2A30;--line2:#3A3740;--dot:var(--t-dot-d,#252329);--accd:var(--t-accd-d,#F7C1BA);--accs:var(--t-accs-d,#3A2A2A);--acc-on:var(--t-on-d,#1D1B17);
   --red:#FF6E58;--red-s:#3B201B;--blue:#82A3FF;--blue-s:#1C2542;--green:#52CC8D;--green-s:#15301F;--amber:#F0B443;--amber-s:#3A2D12;--hl:#8A6F12aa;
   --mol:#EEE9DF;--shadow:0 1px 0 rgba(0,0,0,.3),0 12px 28px -16px rgba(0,0,0,.7);color-scheme:dark}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -646,3 +646,34 @@ html.cov-out .m-body,html.cov-out .m-eyes,html.cov-out .m-at,html.cov-out .m-cru
 .sw-c span{font-size:.72rem;font-weight:600;color:var(--ink3)}
 .sw-c.on i{transform:scale(1.12);box-shadow:0 0 0 3px var(--card),0 0 0 5px var(--c)}
 .sw-c.on span{color:var(--ink);font-weight:800}
+
+/* 테마 색 */
+.big.primary{background:var(--accd);color:var(--acc-on)}
+.chip.on{background:var(--accd);color:var(--acc-on);border-color:var(--accd)}
+.ring.hr .rfg{stroke:var(--accd)}
+.tripcta .tck,.bitek{color:var(--accd)}
+.bite::before{background:var(--acc)}
+.tripcta.first{border-color:var(--acc);background:linear-gradient(135deg,var(--card) 55%,var(--accs))}
+.tripcta .tgo{background:var(--accd);color:var(--acc-on)}
+.tripcta.first .tgo{background:var(--acc);color:#2C1A14}
+.keybox{border-left-color:var(--acc)}
+.keybox b{color:var(--accd)}
+.qprog i.cur{background:var(--accd)}
+.qtag.trip{background:var(--accs);color:var(--accd)}
+.combo,.combo .ic{color:var(--accd);fill:var(--accd)}
+.seg button.on,.sob button.on{background:var(--accd);color:var(--acc-on)}
+.sob button.on{background:var(--accd)}
+.wsn{background:var(--accs);color:var(--accd)}
+.cnum{background:var(--accd);color:var(--acc-on)}
+.lkeys li::before{background:var(--accd);color:var(--acc-on)}
+.slots li.filled .sn{background:var(--accd);color:var(--acc-on)}
+.choices.pk .ch.sel{border-color:var(--accd)}
+.choices.pk .ch.sel .box{background:var(--accd);border-color:var(--accd);color:var(--acc-on)}
+.mi.sel{border-color:var(--accd)}
+.tbk.on{border-color:var(--accd);box-shadow:0 0 0 3px var(--accs)}
+.mol .bka.on rect{stroke:var(--accd);fill:var(--accs)}
+.mol line.bkl.on{stroke:var(--accd)}
+.toast{background:var(--accd);color:var(--acc-on)}
+.mode:first-child .mic{background:var(--accs);color:var(--accd)}
+.srow input:checked+.sw{background:var(--accd)}
+.ring.sm .rfg{stroke:var(--c)}

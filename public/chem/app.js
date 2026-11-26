@@ -300,7 +300,7 @@
     var sub = due ? '복습할 문제 ' + due + '개가 기다려요' : unseen ? '새 문제 ' + unseen + '개 남았어요' : '모두 외웠어요. 그래도 복습은 계속!';
     var bite = biteOfDay();
     var h = '';
-    h += '<header class="hhead"><div class="brand"><span class="logo">' + logoSvg() + '</span><div><b>한 입 화학</b><small>통합과학 화학 반응의 세계</small></div></div>' +
+    h += '<header class="hhead"><div class="brand"><span class="logo">' + logoSvg() + '</span><div><b>한 입 화학</b><small>화학 반응의 세계</small></div></div>' +
       '<div class="hbtns"><button class="ibtn" data-act="sound" aria-label="소리">' + ic(S.set.sound ? 'snd' : 'mute') + '</button><button class="ibtn" data-act="settings" aria-label="설정">' + ic('gear') + '</button></div></header>';
     h += scopeChips();
     h += '<section class="hero card">' +
@@ -359,10 +359,12 @@
   function logoSvg() {
     return '<svg viewBox="0 0 512 512" aria-hidden="true"><defs><mask id="lgb"><rect width="512" height="512" fill="#fff"/><circle cx="470" cy="58" r="92" fill="#000"/><circle cx="372" cy="14" r="52" fill="#000"/><circle cx="500" cy="160" r="52" fill="#000"/></mask></defs><rect width="512" height="512" rx="120" style="fill:var(--logo)" mask="url(#lgb)"/><path d="M256 96l138.6 80v160L256 416l-138.6-80V176z" fill="#FFFDF8" stroke="#FFFDF8" stroke-width="34" stroke-linejoin="round"/><ellipse cx="180" cy="300" rx="26" ry="15" fill="#F0717A" fill-opacity=".4"/><ellipse cx="332" cy="300" rx="26" ry="15" fill="#F0717A" fill-opacity=".4"/><circle cx="208" cy="262" r="22" fill="#2C1A14"/><circle cx="304" cy="262" r="22" fill="#2C1A14"/><path d="M230 302q26 28 52 0" fill="none" stroke="#2C1A14" stroke-width="14" stroke-linecap="round"/></svg>';
   }
+  function applyThemeColor() { try { var m = $('meta[name="theme-color"]:not([media])'); if (m) m.content = getComputedStyle(document.documentElement).getPropertyValue('--bg').trim(); } catch (e) { } }
   function applyLogo() {
     var k = S.set.logo || 'red', c = LOGO[0][2];
     LOGO.forEach(function (x) { if (x[0] === k) c = x[2]; });
-    document.documentElement.style.setProperty('--logo', c);
+    if (window.__theme) window.__theme(c); else document.documentElement.style.setProperty('--logo', c);
+    applyThemeColor();
     // 홈 화면에 추가할 때 쓰는 아이콘도 같은 색으로
     var l = document.querySelector('link[rel="apple-touch-icon"]'); if (l) l.href = 'icon-180-' + k + '.png';
   }
@@ -1135,7 +1137,7 @@
       sw('vib', '진동', '안드로이드에서 정답·오답 진동') +
       sw('auto', '맞히면 자동으로 넘기기', '해설은 잠깐 보여 주고 넘어가요') +
       sw('big', '글자 크게', '차에서 볼 때 편하게') +
-      '<div class="srow logo-row"><span><b>로고 색</b><small>무지개 파스텔 중에서 골라요. 홈 화면 아이콘은 새로 추가할 때 바뀌어요.</small></span><span class="logo-pv">' + logoSvg() + '</span></div><div class="swatches">' + LOGO.map(function (x) { return '<button class="sw-c' + ((S.set.logo || 'red') === x[0] ? ' on' : '') + '" data-act="logo" data-v="' + x[0] + '" style="--c:' + x[2] + '" aria-label="' + x[1] + '"><i></i><span>' + x[1] + '</span></button>'; }).join('') + '</div>' +
+      '<div class="srow logo-row"><span><b>테마 색</b><small>로고와 앱 색이 함께 바뀌어요. 홈 화면 아이콘은 새로 추가할 때 바뀌어요.</small></span><span class="logo-pv">' + logoSvg() + '</span></div><div class="swatches">' + LOGO.map(function (x) { return '<button class="sw-c' + ((S.set.logo || 'red') === x[0] ? ' on' : '') + '" data-act="logo" data-v="' + x[0] + '" style="--c:' + x[2] + '" aria-label="' + x[1] + '"><i></i><span>' + x[1] + '</span></button>'; }).join('') + '</div>' +
       '<div class="srow"><span><b>화면</b><small>밝게, 어둡게, 기기 따라</small></span><div class="seg">' + ['auto', 'light', 'dark'].map(function (v) { return '<button data-act="theme" data-v="' + v + '" class="' + (S.set.theme === v ? 'on' : '') + '">' + { auto: '기기', light: '밝게', dark: '어둡게' }[v] + '</button>'; }).join('') + '</div></div>' +
       '</div><div class="sets card"><div class="srow"><span><b>내 기록</b><small>푼 문제 ' + total + '개 · 이 기기에만 저장</small></span></div>' +
       '<button class="srow danger" data-act="reset"><span><b>전체 초기화</b><small>푼 기록, 오답 노트, 외운 정도, 탐험 별, 번개 최고 기록을 모두 지워요. 설정은 그대로.</small></span></button></div>' +
@@ -1150,7 +1152,7 @@
     var dark = S.set.theme === 'dark' || (S.set.theme === 'auto' && matchMedia('(prefers-color-scheme: dark)').matches);
     var m = $('meta[name="theme-color"]:not([media])');
     if (!m) { m = document.createElement('meta'); m.name = 'theme-color'; document.head.appendChild(m); }
-    m.content = dark ? '#141316' : '#F3EFE6';
+    m.content = getComputedStyle(document.documentElement).getPropertyValue('--bg').trim() || (dark ? '#141316' : '#F3EFE6');
   }
   applyTheme();
   applyLogo();
