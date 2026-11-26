@@ -297,7 +297,7 @@
     var sub = due ? '복습할 문제 ' + due + '개가 기다려요' : unseen ? '새 문제 ' + unseen + '개 남았어요' : '모두 외웠어요. 그래도 복습은 계속!';
     var bite = biteOfDay();
     var h = '';
-    h += '<header class="hhead"><div class="brand"><span class="logo">' + logoSvg() + '</span><div><b>한 입 화학</b><small>틈날 때 한 입씩, 통합과학 Ⅱ·Ⅲ</small></div></div>' +
+    h += '<header class="hhead"><div class="brand"><span class="logo">' + logoSvg() + '</span><div><b>한 입 화학</b><small>틈날 때 한 입씩, 화학 반응의 세계</small></div></div>' +
       '<div class="hbtns"><button class="ibtn" data-act="sound" aria-label="소리">' + ic(S.set.sound ? 'snd' : 'mute') + '</button><button class="ibtn" data-act="settings" aria-label="설정">' + ic('gear') + '</button></div></header>';
     h += scopeChips();
     h += '<section class="hero card">' +
@@ -330,7 +330,7 @@
         }).join('') + '</div>';
     }).join('') + '</section>';
     h += installTip();
-    h += '<footer class="foot">모든 내용은 수업 PPT(Ⅱ-05, Ⅲ-1~4)에서 가져왔어요. 기록은 이 기기에만 저장돼요.</footer>';
+    h += '<footer class="foot">모든 내용은 화학 반응의 세계 수업 PPT(Ⅱ-05, Ⅲ-1~4)와 탐구활동지에서 가져왔어요. 기록은 이 기기에만 저장돼요.</footer>';
     return h;
   };
   function tripsDone() { S.trip = S.trip || {}; return TRIPS.filter(function (t) { return S.trip[t.id]; }).length; }

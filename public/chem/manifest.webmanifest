@@ -1,7 +1,7 @@
 {
   "name": "한 입 화학",
   "short_name": "한 입 화학",
-  "description": "틈날 때 한 입씩 푸는 통합과학 화학 퀴즈",
+  "description": "틈날 때 한 입씩 푸는 화학 반응의 세계 퀴즈",
   "lang": "ko",
   "start_url": "./",
   "scope": "./",
