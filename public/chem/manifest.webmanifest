@@ -3,15 +3,15 @@
   "short_name": "한 입 화학",
   "description": "틈날 때 한 입씩 푸는 화학 반응의 세계 퀴즈",
   "lang": "ko",
-  "start_url": "./",
-  "scope": "./",
+  "start_url": "/chem/",
+  "scope": "/chem/",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#F3EFE6",
   "theme_color": "#F3EFE6",
   "icons": [
-    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
-    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
-    { "src": "icon-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+    { "src": "/chem/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/chem/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/chem/icon-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
   ]
 }

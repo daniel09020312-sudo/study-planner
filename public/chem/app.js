@@ -366,7 +366,7 @@
     if (window.__theme) window.__theme(c); else document.documentElement.style.setProperty('--logo', c);
     applyThemeColor();
     // 홈 화면에 추가할 때 쓰는 아이콘도 같은 색으로
-    var l = document.querySelector('link[rel="apple-touch-icon"]'); if (l) l.href = 'icon-180-' + k + '.png';
+    var l = document.querySelector('link[rel="apple-touch-icon"]'), base = /^\/chem(\/|$)/.test(location.pathname) ? '/chem/' : location.pathname.replace(/[^/]*$/, ''); if (l) l.href = location.origin + base + 'icon-180-' + k + '.png';
   }
   function installTip() {
     var standalone = document.documentElement.classList.contains('standalone') || window.navigator.standalone || (window.matchMedia && matchMedia('(display-mode: standalone)').matches);
