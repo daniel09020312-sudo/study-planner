@@ -74,7 +74,7 @@ Cloudflare Pages가 로그 없이 실패하면(Deploy failed) 대개 Cloudflare 
 - 고치면: index.html의 `?v=`와 sw.js의 V·FILES를 함께 올리고, 글자를 새로 썼으면 font.woff2를 다시 뽑는다(pyftsubset, 앱 파일의 모든 글자). 시험 `node dev/tools/t_chem.js`(모든 문제를 정답으로 풀어 채점·넘침·오프라인 확인).
 - 플래너 sw.js는 `/chem/`을 건드리지 않는다(같은 사이트라서).
 - 헷갈리는 문제: 문제 위·해설의 '헷갈려요'(S.mark={id:시각}, 문제 목록 QI에 있는 문제만), 홈 '헷갈리는 문제' 화면(marks)에서 보기·저장 풀기·모아 풀기(startRound('marks')).
-- Claude에게 물어보기: 해설의 단추와 홈 타일 -> 아래에서 올라오는 창(#askp). 문제 정보(qContext: 문제·보기·정답·해설·고른 답)와 대화를 `functions/api/ask.js`(사이트의 /api/ask, Pages 함수, `@anthropic-ai/sdk`는 저장소 맨 앞 package.json)로 보내 글로 흘려 받음. 열쇠는 Cloudflare Pages 비밀 값 ANTHROPIC_API_KEY에만. ASK_CODE를 두면 앱 설정 'Claude 질문 코드'(S.set.askCode, 헤더 x-ask-code)가 같은 기기만. 열쇠가 없거나(503 no-key) 실패하면 claude.ai/new?q= 로 여는 링크. 오프라인이면 입력 막음. 답 말풍선은 기기 글꼴.
+- Claude에게 물어보기: 해설의 단추와 홈 타일 -> 아래에서 올라오는 창(#askp). 문제 정보(qContext: 문제·보기·정답·해설·고른 답)와 대화를 `functions/api/ask.js`(사이트의 /api/ask, Pages 함수, `@anthropic-ai/sdk`는 저장소 맨 앞 package.json, SDK가 Node 모듈을 써서 `wrangler.toml`의 nodejs_compat 필요. wrangler.toml이 있으면 Pages 설정은 이 파일이 기준, 비밀 값만 대시보드)로 보내 글로 흘려 받음. 열쇠는 Cloudflare Pages 비밀 값 ANTHROPIC_API_KEY에만. ASK_CODE를 두면 앱 설정 'Claude 질문 코드'(S.set.askCode, 헤더 x-ask-code)가 같은 기기만. 열쇠가 없거나(503 no-key) 실패하면 claude.ai/new?q= 로 여는 링크. 오프라인이면 입력 막음. 답 말풍선은 기기 글꼴.
 - 넓은 화면(740px 이상, 아이패드): 홈은 두 칸(.hgrid: 왼쪽 .hcl 한 판·모드, 오른쪽 .hcr 한 입·단원), 홈 밖 화면은 홈 위에 뜨는 창(#win > .win-box > .win-in, show()가 나눔). 창 바깥·Esc는 winClose(문제 중이면 그만하기 확인). .win-box는 transform이 있어서 해설 시트(position:fixed)가 창 안에 붙는다.
 - 홈 화면 아이콘: iOS 26~27의 '홈 화면에 추가'는 인터넷 주소의 아이콘을 못 받아 글자 아이콘을 만든다. 그래서 index.html의 apple-touch-icon은 data URI(테마 색 7가지를 줄인 PNG, head의 document.write가 고른 색 하나만 씀)로 넣고, 나중에 JS로 바꾸지 않는다. 사이트 맨 앞 /apple-touch-icon*.png 는 플래너 아이콘(Pages가 없는 파일에 HTML을 돌려주면 안 돼서).
 
