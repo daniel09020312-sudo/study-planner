@@ -356,10 +356,10 @@
     return lines[seed % lines.length];
   }
   function logoSvg() {
-    return '<svg viewBox="0 0 48 48" aria-hidden="true"><defs><mask id="bite"><rect width="48" height="48" fill="#fff"/><circle cx="44" cy="6" r="9" fill="#000"/><circle cx="35" cy="2" r="5" fill="#000"/><circle cx="47" cy="15" r="5" fill="#000"/></mask></defs><rect width="48" height="48" rx="12" class="lg-bg" mask="url(#bite)"/><path class="lg-hex" d="M24 10l12.1 7v14L24 38l-12.1-7V17z"/><path class="lg-in" d="M17 19.3v9.4M24 34.2l8.1-4.7M24 13.8l8.1 4.7"/></svg>';
+    return '<svg viewBox="0 0 512 512" aria-hidden="true"><defs><mask id="lgb"><rect width="512" height="512" fill="#fff"/><circle cx="470" cy="58" r="92" fill="#000"/><circle cx="372" cy="14" r="52" fill="#000"/><circle cx="500" cy="160" r="52" fill="#000"/></mask></defs><rect width="512" height="512" rx="120" fill="#D23F27" mask="url(#lgb)"/><path d="M256 96l138.6 80v160L256 416l-138.6-80V176z" fill="#FFF6EA" stroke="#FFF6EA" stroke-width="34" stroke-linejoin="round"/><ellipse cx="180" cy="300" rx="26" ry="15" fill="#FFB3A3"/><ellipse cx="332" cy="300" rx="26" ry="15" fill="#FFB3A3"/><circle cx="208" cy="262" r="22" fill="#2C1A14"/><circle cx="304" cy="262" r="22" fill="#2C1A14"/><path d="M230 302q26 28 52 0" fill="none" stroke="#2C1A14" stroke-width="14" stroke-linecap="round"/></svg>';
   }
   function installTip() {
-    var standalone = window.navigator.standalone || (window.matchMedia && matchMedia('(display-mode: standalone)').matches);
+    var standalone = document.documentElement.classList.contains('standalone') || window.navigator.standalone || (window.matchMedia && matchMedia('(display-mode: standalone)').matches);
     if (standalone || S.tip >= 2) return '';
     var ios = /iphone|ipad|ipod/i.test(navigator.userAgent);
     return '<section class="tipcard card"><b>앱처럼 쓰기</b><p>' + (ios ? 'Safari 아래 공유 단추 → <b>홈 화면에 추가</b>를 누르면 인터넷이 없어도 열려요.' : '브라우저 메뉴에서 <b>홈 화면에 추가</b>(앱 설치)를 누르면 인터넷이 없어도 열려요.') + '</p><button class="tbtn" data-act="tipx">알겠어요</button></section>';
@@ -1241,6 +1241,13 @@
   var first = history.state && history.state.name && history.state.name !== 'quiz' && history.state.name !== 'result' && history.state.name !== 'boltrun' && history.state.name !== 'boltres' ? history.state : { name: 'home' };
   try { history.replaceState(first, ''); } catch (e) { }
   show(first);
+  // 홈 화면 앱 시작 표지: 잠깐 보여 주고 사라짐, 누르면 바로 넘어감
+  (function () {
+    var cv = document.getElementById('cover'); if (!cv || !document.documentElement.classList.contains('cov')) return;
+    function hide() { if (cv.classList.contains('out')) return; cv.classList.add('out'); setTimeout(function () { document.documentElement.classList.remove('cov'); }, 480); }
+    cv.addEventListener('click', hide);
+    setTimeout(hide, reduced ? 500 : 1500);
+  })();
   if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
     window.addEventListener('load', function () {
       // 같은 사이트의 플래너 서비스 워커가 이 화면을 대신 저장했으면 플래너 화면을 다시 받아 둔다(예전 판 플래너)

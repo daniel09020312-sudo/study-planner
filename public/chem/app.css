@@ -605,3 +605,23 @@ sub,sup{font-size:.68em;line-height:0}
 .qws.ppt{background:var(--amber-s);color:var(--amber)}
 .resetlink{display:flex;align-items:center;gap:6px;margin:18px auto 0;min-height:44px;padding:0 14px;color:var(--ink3);font-size:.84rem;font-weight:600}
 .resetlink .ic{width:16px;height:16px}
+
+/* 홈 화면 앱: 시작 표지, 아래 설명 숨김 */
+html.standalone .foot,html.standalone .tipcard{display:none}
+#cover{display:none}
+html.cov #cover{display:flex;position:fixed;inset:0;z-index:200;align-items:center;justify-content:center;background:#F3EFE6;background-image:radial-gradient(#E2D9C6 1.4px,transparent 1.6px);background-size:26px 26px;transition:opacity .45s ease,transform .45s ease}
+html.cov #cover.out{opacity:0;transform:scale(1.04);pointer-events:none}
+.cv-in{display:flex;flex-direction:column;align-items:center;transform:translateY(-4%)}
+.cv-in .mascot{width:46vw;max-width:260px;height:auto;overflow:visible}
+.cv-in b{margin-top:6vw;font-size:min(9vw,46px);letter-spacing:-.04em;color:#1D1B17;font-weight:800}
+.cv-in small{margin-top:1.6vw;font-size:min(4vw,20px);color:#8A8273;font-weight:600}
+html.cov .m-body{transform-origin:120px 200px;animation:cvpop .7s cubic-bezier(.3,1.6,.5,1) both}
+html.cov .m-eyes{transform-origin:120px 122px;animation:cvblink 1.6s .5s ease-in-out}
+html.cov .m-at{transform-box:fill-box;transform-origin:center;animation:cvat .6s cubic-bezier(.3,1.6,.5,1) both}
+html.cov .a1{animation-delay:.25s}html.cov .a2{animation-delay:.35s}html.cov .a3{animation-delay:.45s}
+html.cov .m-crumbs circle{animation:cvcrumb .8s .55s ease-out both}
+html.cov .cv-in b,html.cov .cv-in small{animation:lin .6s .35s var(--ease) both}
+@keyframes cvpop{from{transform:scale(.4) translateY(20px);opacity:0}}
+@keyframes cvblink{0%,40%,50%,100%{transform:scaleY(1)}45%{transform:scaleY(.1)}}
+@keyframes cvat{from{transform:scale(0)}}
+@keyframes cvcrumb{from{transform:translate(-14px,14px);opacity:0}}
