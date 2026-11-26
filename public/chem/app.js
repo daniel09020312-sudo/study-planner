@@ -44,6 +44,12 @@
     t.qs.forEach(function (q) { if (q.fig && !MOLT[q.fig]) MOLT[q.fig] = t.id; });
   });
   ['fgOH', 'fgCOOH', 'fgCHO', 'fgCOO'].forEach(function (k) { MOLT[k] = 'fg'; });
+  var TRIPS = C.TRIPS || [], TRI = {};
+  TRIPS.forEach(function (tr, ti) {
+    tr.order = ti; TRI[tr.id] = tr;
+    tr.steps.forEach(function (q, i) { q.id = 'T-' + tr.id + '-' + i; q.les = tr.id; q.topic = TI[tr.t[0]]; q.t = tr.t[0]; q.u = tr.u; });
+  });
+  var WSA = C.WS || [];
 
   /* ---------- 글 ---------- */
   function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
@@ -301,11 +307,16 @@
       '<div><b>' + stk + '<small>일</small></b><span>연속</span></div></div>' +
       '<button class="big primary" data-act="play" data-mode="mix">' + ic('play') + '<span><b>한 판 하기</b><small>10문제 · 약 2분</small></span></button>' +
       '<p class="hsub">' + esc(sub) + '</p></section>';
+    var nt = nextTrip(), beginner = Object.keys(S.q).length < 25;
+    if (nt && beginner) h = h.replace('<section class="hero card">', tripCta(nt, true) + '<section class="hero card">');
+    else if (nt) h += tripCta(nt, false);
     h += '<section class="modes">' +
+      mode('trips', 'route', '탐험', '몰라도 OK, 퍼즐로 시작', tripsDone() + '/' + TRIPS.length) +
+      mode('wsl', 'book', '탐구활동지', '프린트 1~18 그대로', '') +
       mode('bolt', 'bolt', '번개 O/X', '60초 동안 몇 개?', S.best[S.scope] ? '최고 ' + S.best[S.scope] : '') +
       mode('mol', 'hex', '구조식', '보고 이름, 이름 보고 모양', '') +
       mode('link', 'link', '순서·짝 맞추기', '반응 순서, 짝 잇기', '') +
-      mode('chains', 'route', '이야기 줄', '개념을 이어서 보기', '') +
+      mode('chains', 'chain', '이야기 줄', '개념을 이어서 보기', '') +
       mode('wrong', 'redo', '오답 노트', wrongQs(qs).length ? wrongQs(qs).length + '개' : '틀린 문제 다시', wrongQs(qs).length ? 'hot' : '') +
       mode('notes', 'book', '개념 노트', 'PPT 내용 전부', '') +
       '</section>';
@@ -322,6 +333,14 @@
     h += '<footer class="foot">모든 내용은 수업 PPT(Ⅱ-05, Ⅲ-1~4)에서 가져왔어요. 기록은 이 기기에만 저장돼요.</footer>';
     return h;
   };
+  function tripsDone() { S.trip = S.trip || {}; return TRIPS.filter(function (t) { return S.trip[t.id]; }).length; }
+  function nextTrip() { S.trip = S.trip || {}; for (var i = 0; i < TRIPS.length; i++) if (!S.trip[TRIPS[i].id] && (S.scope === 'all' || TRIPS[i].u === S.scope)) return TRIPS[i]; return null; }
+  function tripCta(t, big) {
+    var i = TRIPS.indexOf(t);
+    return '<button class="tripcta card' + (big ? ' first' : '') + '" data-act="trip" data-id="' + t.id + '">' +
+      (big ? '<span class="tck">처음이라면 여기부터</span>' : '<span class="tck">다음 탐험</span>') +
+      '<b>' + (i + 1) + '. ' + esc(t.name) + '</b><small>' + esc(t.sub) + ' · ' + t.steps.length + '걸음 · 몰라도 풀 수 있어요</small><span class="tgo">' + ic('play') + '</span></button>';
+  }
   function mode(act, icon, name, desc, badge) {
     return '<button class="mode card" data-act="' + act + '"><span class="mic">' + ic(icon) + '</span><b>' + name + '</b><small>' + desc + '</small>' + (badge ? '<em class="' + (badge === 'hot' ? 'hot' : '') + '">' + (badge === 'hot' ? '' : esc(badge)) + '</em>' : '') + '</button>';
   }
@@ -415,7 +434,7 @@
     return N[k] || '';
   }
   function buildMol(size) {
-    var fixed = Q.filter(function (q) { return inScope(q) && !q.topic.hidden && (q.fig || (typeof q.a === 'string' && q.a[0] === '@')); });
+    var fixed = Q.filter(function (q) { return inScope(q) && !q.topic.hidden && (q.fig || q.k === 'bd' || (typeof q.a === 'string' && q.a[0] === '@')); });
     var keys = MOLPOOL.filter(molInScope), gen = [];
     keys.forEach(function (k) { gen.push(genMol('name', k)); gen.push(genMol('pick', k)); });
     var all = fixed.concat(gen);
@@ -465,18 +484,22 @@
     return out;
   }
 
+  function wsCmp(a, b) { var A = String(a).match(/\d+/g).map(Number), Bb = String(b).match(/\d+/g).map(Number); for (var i = 0; i < Math.max(A.length, Bb.length); i++) { var d = (A[i] || 0) - (Bb[i] || 0); if (d) return d; } return 0; }
   function startRound(mode, p) {
     p = p || {};
     var list, title;
     if (mode === 'mix') { list = withLearn(buildMix(10)); title = '한 판'; }
     else if (mode === 'mol') { list = buildMol(10); title = '구조식'; }
-    else if (mode === 'link') { list = buildKinds(['sq', 'mt', 'pk'], 8); title = '순서·짝 맞추기'; }
+    else if (mode === 'link') { list = buildKinds(['sq', 'mt', 'pk', 'so', 'tb'], 8); title = '순서·짝 맞추기'; }
     else if (mode === 'topic') { list = buildTopic(p.t); if (!seenTopic(p.t)) list.unshift({ learn: p.t }); title = TI[p.t].name; }
     else if (mode === 'wrong') { var w = wrongQs(Q.filter(inScope)).concat(Q.filter(function (q) { var s = S.q[q.id]; return inScope(q) && s && s.b > 0 && s.w > 0 && s.b < 3; })); list = shuffle(w).slice(0, 10); title = '오답 다시'; }
     else if (mode === 'chain') { list = shuffle(chainQuestions(p.c)).slice(0, 8); title = '이야기 줄'; }
+    else if (mode === 'trip') { var tr = TRI[p.id]; list = tr.steps.slice(); title = tr.name; tr.steps.forEach(function (q) { q._o = q._l = q._r = q._bank = null; }); }
+    else if (mode === 'ws') { list = Q.filter(function (q) { return q.wa === p.a; }).sort(function (a, b) { return wsCmp(a.ws, b.ws); }); title = '탐구활동 ' + p.a; }
+    else if (mode === 'bg') { list = shuffle(Q.filter(function (q) { return q.k === 'bg' && inScope(q); })).slice(0, 8); title = '보기 문제'; }
     else list = [];
     if (!list.length) { toast('이 범위에는 아직 문제가 없어요'); return; }
-    R = { mode: mode, p: p, title: title, list: list, i: 0, ok: 0, total: 0, combo: 0, maxc: 0, learned: 0, wrong: [], retried: {}, firstNew: 0, t0: Date.now(), mols: [] };
+    R = { mode: mode, p: p, title: title, list: list, i: 0, ok: 0, total: 0, combo: 0, maxc: 0, learned: 0, wrong: [], retried: {}, firstNew: 0, t0: Date.now(), mols: [], trip: mode === 'trip' ? TRI[p.id] : null };
     go('quiz', {});
   }
 
@@ -491,8 +514,8 @@
   function progHtml() {
     var n = R.list.length, h = '';
     for (var i = 0; i < n; i++) {
-      var it = R.list[i], c = i < R.i ? (it._r === 1 ? 'ok' : it._r === 0 ? 'no' : 'done') : i === R.i ? 'cur' : '';
-      if (it.learn) c += ' lr';
+      var it = R.list[i], c = i < R.i ? (it._res === 1 ? 'ok' : it._res === 0 ? 'no' : 'done') : i === R.i ? 'cur' : '';
+      if (it.learn || it.k === 'say') c += ' lr';
       h += '<i class="' + c + '"></i>';
     }
     return h;
@@ -504,7 +527,8 @@
     sh.className = 'sheet'; sh.innerHTML = '';
     if (!it) return finishRound();
     if (it.learn) { main.innerHTML = learnCard(TI[it.learn]); main.className = 'qmain enter'; return; }
-    R.cur = { q: it.q ? it : it, picked: [], done: false, mtSel: null, mtDone: {}, mtMiss: 0, sqPlaced: [] };
+    if (it.k === 'say') { main.innerHTML = sayCard(it); main.className = 'qmain enter'; R.cur = { done: true }; return; }
+    R.cur = { q: it, picked: [], done: false, mtSel: null, mtDone: {}, mtMiss: 0, sqPlaced: [], vals: [], sel: 0, bgv: [], sov: [] };
     main.innerHTML = questionHtml(it);
     main.className = 'qmain enter';
     void main.offsetWidth;
@@ -517,10 +541,58 @@
       '<ol class="lkeys">' + t.key.map(function (l, i) { return '<li style="--d:' + i + '">' + fmt(l) + '</li>'; }).join('') + '</ol>' +
       '<div class="lbtns"><button class="big primary" data-act="learned" data-t="' + t.id + '">알겠어요, 풀어 볼게요' + ic('arrow') + '</button><button class="tbtn" data-act="peek" data-t="' + t.id + '">노트 자세히 보기</button></div></div>';
   }
-  function kindLabel(k) { return { mc: '고르기', ox: 'O / X', sq: '순서대로', mt: '짝 맞추기', pk: '모두 고르기' }[k]; }
+  function sayCard(it) {
+    var trip = R.trip, n = R.list.slice(0, R.i + 1).filter(function (x) { return x.k === 'say'; }).length;
+    return '<div class="say card">' + (trip ? '<div class="tape c-' + UI[trip.u].color + '">탐험 · ' + esc(trip.name) + '</div>' : '') +
+      '<h2>' + fmt(it.h) + '</h2><p>' + fmt(it.tx) + '</p>' + figHtml(it.fig) +
+      '<button class="big primary" data-act="sayok">' + pick(['다음', '오, 그렇구나', '좋아요, 계속']) + ic('arrow') + '</button></div>';
+  }
+  function figHtml(f) {
+    if (!f) return '';
+    if (f.indexOf('fig:') === 0) return FIG[f.slice(4)] ? '<figure class="nfig fig">' + FIG[f.slice(4)]() + '</figure>' : '';
+    return '<figure class="qfig">' + MOL.svg(f, { anim: true, scale: 1.2 }) + '</figure>';
+  }
+  function kindLabel(k) { return { mc: '고르기', ox: 'O / X', sq: '순서대로', mt: '짝 맞추기', pk: '모두 고르기', tb: '빈 칸 채우기', bd: '구조식 완성', bg: '보기 고르기', so: '분류하기' }[k]; }
+  function bankOf(q) {
+    if (q._bank) return q._bank;
+    var seen = {}, out = [];
+    function addv(v) { var k = v.trim(); if (!seen[k]) { seen[k] = 1; out.push(k); } }
+    q.rows.forEach(function (r) { r.forEach(function (c) { if (c[0] === '?') addv(c.slice(1)); }); });
+    (q.bank || []).forEach(addv);
+    return (q._bank = shuffle(out));
+  }
+  function tbBlanks(q) { var a = []; q.rows.forEach(function (r) { r.forEach(function (c) { if (c[0] === '?') a.push(c.slice(1).trim()); }); }); return a; }
+  function tbHtml(q, cur) {
+    var b = 0, done = cur.done, h = '<div class="tscroll tbq"><table>';
+    q.rows.forEach(function (r, ri) {
+      h += '<tr>' + r.map(function (c) {
+        if (c[0] === '!') return '<th>' + fmt(c.slice(1)) + '</th>';
+        if (c[0] !== '?') return '<td class="tgiven">' + fmt(c) + '</td>';
+        var i = b++, v = cur.vals[i], ans = c.slice(1).trim(), cls = 'tbk' + (v != null ? ' full' : '') + (!done && cur.sel === i ? ' on' : '');
+        if (done) cls += v === ans ? ' right' : ' wrongc';
+        var inner = v != null ? fmt(v) : '<span class="qmk">?</span>';
+        if (done && v !== ans) inner = (v != null ? '<s>' + fmt(v) + '</s>' : '') + '<b>' + fmt(ans) + '</b>';
+        return '<td><button class="' + cls + '" data-act="tbc" data-b="' + i + '">' + inner + '</button></td>';
+      }).join('') + '</tr>';
+    });
+    return h + '</table></div>';
+  }
+  function tileLabel(t) { return t === '-' ? '<span class="bt">─</span> 단일 결합' : t === '=' ? '<span class="bt">═</span> 이중 결합' : t === '≡' ? '<span class="bt">≡</span> 삼중 결합' : chem(t); }
+  function isBond(v) { return v === '-' || v === '=' || v === '≡'; }
+  function bdSvg(q, cur) {
+    var bad = {}, good = {};
+    if (cur.done) q.a.forEach(function (a, i) { if (cur.vals[i] === a) good[i] = 1; else bad[i] = 1; });
+    return MOL.ascii(q.src, { vals: cur.done ? q.a.map(function (a, i) { return cur.vals[i] === a ? a : a; }) : cur.vals, sel: cur.done ? -1 : cur.sel, bad: bad, good: good, scale: 1.45 });
+  }
+  function extrasHtml(q) {
+    var h = '';
+    if (q.box) h += '<div class="qbox">' + String(q.box).split('\n').map(fmt).join('<br>') + '</div>';
+    if (q.figs) h += '<div class="qfigs">' + q.figs.map(function (f) { return '<figure>' + MOL.svg(f[0], { anim: true }) + '<figcaption>' + esc(f[1]) + '</figcaption></figure>'; }).join('') + '</div>';
+    return h;
+  }
   function questionHtml(q) {
-    var t = q.topic, h = '<div class="qhead"><span class="qtag">' + esc(t.hidden ? '연결' : t.name) + '</span><span class="qkind">' + kindLabel(q.k) + '</span>' + (S.q[q.id] ? '' : '<span class="qnew">처음</span>') + '</div>';
-    h += '<h2 class="qq">' + fmt(q.q) + '</h2>';
+    var t = q.topic, h = '<div class="qhead">' + (q.les ? '<span class="qtag trip">탐험 · ' + esc(R && R.trip ? R.trip.name : '') + '</span>' : q.ws ? '<span class="qws">탐구활동 ' + esc(q.ws) + '</span>' : '<span class="qtag">' + esc(t.hidden ? '연결' : t.name) + '</span>') + '<span class="qkind">' + kindLabel(q.k) + '</span>' + (q.les || S.q[q.id] ? '' : '<span class="qnew">처음</span>') + '</div>';
+    h += '<h2 class="qq' + (q.q.length > 70 ? ' long' : '') + '">' + fmt(q.q) + '</h2>' + extrasHtml(q);
     if (q.fig) h += '<figure class="qfig">' + MOL.svg(q.fig, { anim: true, scale: 1.3 }) + '</figure>';
     var opts;
     if (q.k === 'mc') {
@@ -548,6 +620,22 @@
       h += '<p class="qhint">왼쪽 하나, 오른쪽 하나를 차례로 눌러 이어요.</p><div class="mt">' +
         '<div class="mcol">' + q._l.map(function (i) { return '<button class="mi" data-act="mtl" data-i="' + i + '">' + fmt(q.p[i][0]) + '</button>'; }).join('') + '</div>' +
         '<div class="mcol">' + q._r.map(function (i) { return '<button class="mi" data-act="mtr" data-i="' + i + '">' + fmt(q.p[i][1]) + '</button>'; }).join('') + '</div></div>';
+    } else if (q.k === 'tb') {
+      h += '<p class="qhint">빈 칸을 누르고 아래 낱말 카드를 골라요. 같은 카드를 여러 번 써도 돼요.</p><div id="tbw">' + tbHtml(q, { vals: [], sel: 0 }) + '</div>';
+      h += '<div class="tiles" id="tiles">' + bankOf(q).map(function (v, i) { return '<button class="tile" data-act="tbt" data-v="' + i + '">' + fmt(v) + '</button>'; }).join('') + '</div><button class="big primary" data-act="chk" id="chk" disabled>확인</button>';
+    } else if (q.k === 'bd') {
+      h += '<p class="qhint">물음표(?)나 점선을 누르고 아래 카드로 채워요. 탄소는 결합 4개!</p><div class="bdwrap" id="bdw">' + bdSvg(q, { vals: [], sel: 0 }) + '</div>';
+      h += '<div class="tiles" id="tiles">' + q.tiles.map(function (v, i) { return '<button class="tile' + (isBond(v) ? ' bond' : ' atom') + '" data-act="bdt" data-v="' + i + '">' + tileLabel(v) + '</button>'; }).join('') + '</div><button class="big primary" data-act="chk" id="chk" disabled>확인</button>';
+    } else if (q.k === 'bg') {
+      var L = 'ㄱㄴㄷㄹ';
+      h += '<div class="bgbox"><span class="bgt">보기</span>' + q.items.map(function (it, i) {
+        return '<div class="bgi" data-i="' + i + '"><p><b>' + L[i] + '.</b> ' + fmt(it[0]) + '</p><div class="bgb"><button data-act="bgv" data-i="' + i + '" data-v="1" aria-label="옳다">' + 'O' + '</button><button data-act="bgv" data-i="' + i + '" data-v="0" aria-label="옳지 않다">' + 'X' + '</button></div></div>';
+      }).join('') + '</div><p class="qhint">ㄱ, ㄴ, ㄷ이 각각 옳은지 판단해요. 옳은 것만 모으면 답이에요.</p><button class="big primary" data-act="chk" id="chk" disabled>확인</button>';
+    } else if (q.k === 'so') {
+      if (!q._o) q._o = shuffle(q.items.map(function (x, i) { return i; }));
+      h += '<div class="solist">' + q._o.map(function (i) {
+        return '<div class="soi" data-i="' + i + '"><span class="sot">' + fmt(q.items[i][0]) + '</span><div class="seg sob">' + q.buckets.map(function (b, j) { return '<button data-act="sov" data-i="' + i + '" data-b="' + j + '">' + fmt(b) + '</button>'; }).join('') + '</div></div>';
+      }).join('') + '</div><button class="big primary" data-act="chk" id="chk" disabled>확인</button>';
     }
     return h;
   }
@@ -556,8 +644,8 @@
     if (cur.done) return;
     cur.done = true;
     var retry = !!q._retry;
-    var res = record(q, ok, retry);
-    q._r = ok ? 1 : 0;
+    var res = q.les ? {} : record(q, ok, retry);
+    q._res = ok ? 1 : 0;
     if (!retry) { R.total++; if (ok) R.ok++; }
     if (ok) {
       R.combo++; R.maxc = Math.max(R.maxc, R.combo);
@@ -568,10 +656,10 @@
       R.combo = 0; var cb2 = $('#combo'); if (cb2) cb2.className = 'combo';
       SND.no(); vib([30, 50, 30]); shake(el && el.closest ? (el.closest('.choices,.oxrow,.mt,.slots') || el) : el);
       R.wrong.push(q);
-      if (!retry && !R.retried[q.id] && R.list.length < 18) { R.retried[q.id] = 1; var copy = Object.create(q); copy._retry = 1; copy._r = undefined; copy.cur = null; R.list.push(copy); }
+      if (!retry && !R.retried[q.id] && R.list.length < 18) { R.retried[q.id] = 1; var copy = Object.create(q); copy._retry = 1; copy._res = undefined; copy.cur = null; R.list.push(copy); }
     }
     if (q.fig) R.mols.push(q.fig);
-    var tdone = topicDone(q.topic);
+    var tdone = !q.les && topicDone(q.topic);
     $('#qprog').innerHTML = progHtml();
     showSheet(q, ok, detail);
     if (tdone) setTimeout(function () { toast(ic('star') + '<span><b>' + esc(q.topic.name) + '</b> 전부 외웠어요</span>', 'gold'); }, 500);
@@ -588,6 +676,10 @@
     if (q.k === 'pk') return q.a.map(fmt).join(' · ');
     if (q.k === 'sq') return q.s.map(fmt).join(' → ');
     if (q.k === 'mt') return q.p.map(function (p) { return fmt(p[0]) + ' – ' + fmt(p[1]); }).join('<br>');
+    if (q.k === 'tb') return tbBlanks(q).map(fmt).join(' · ');
+    if (q.k === 'bd') return MOL.ascii(q.src, { vals: q.a });
+    if (q.k === 'bg') return q.items.map(function (it, i) { return 'ㄱㄴㄷㄹ'[i] + ' ' + (it[1] ? 'O' : 'X'); }).join(' · ');
+    if (q.k === 'so') return q.buckets.map(function (b, j) { return '<b>' + fmt(b) + '</b>: ' + q.items.filter(function (x) { return x[1] === j; }).map(function (x) { return fmt(x[0]); }).join(', '); }).join('<br>');
     return '';
   }
   function showSheet(q, ok, detail) {
@@ -595,7 +687,8 @@
     var head = ok ? '<div class="sh-h ok">' + ic('check') + '<b>' + pick(['정답', '좋아요', '맞아요', '정확해요']) + '</b>' + (q._retry ? '<small>다시 풀어 맞혔어요</small>' : '') + '</div>'
       : '<div class="sh-h no">' + ic('x') + '<b>' + pick(['아쉬워요', '다시 볼게요', '이건 헷갈리죠']) + '</b><small>이번 판 끝에 한 번 더 나와요</small></div>';
     var body = '';
-    var showAns = !ok || q.k === 'mt' || q.k === 'sq';
+    var showAns = (!ok || q.k === 'mt' || q.k === 'sq') && q.k !== 'tb' && q.k !== 'bd' && q.k !== 'bg';
+    if (q.k === 'bg') body += '<div class="bgwhy">' + q.items.map(function (it, i) { return '<p><b class="' + (it[1] ? 'o' : 'x') + '">' + 'ㄱㄴㄷㄹ'[i] + ' ' + (it[1] ? 'O' : 'X') + '</b> ' + fmt(it[2]) + '</p>'; }).join('') + '</div>';
     if (showAns && q.k !== 'mc') body += '<div class="sh-ans"><span>정답</span><div>' + correctText(q) + '</div></div>';
     if (!ok && q.k === 'mc' && !(typeof q.a === 'string' && q.a[0] === '@')) body += '<div class="sh-ans"><span>정답</span><div>' + fmt(q.a) + '</div></div>' + (detail && detail.mine ? '<div class="sh-ans mine"><span>내 답</span><div>' + fmt(detail.mine) + '</div></div>' : '');
     if (!ok && q.k === 'mc' && typeof q.a === 'string' && q.a[0] === '@') body += '<div class="sh-ans"><span>정답</span><div>' + MOL.svg(q.a.slice(1)) + '<p>' + esc(MOL.db[q.a.slice(1)].name) + '</p></div></div>';
@@ -703,15 +796,83 @@
     }
   }
 
+  /* 새 문제 종류 처리 */
+  function nextEmpty(n, vals, from, okType) {
+    for (var k = 1; k <= n; k++) { var j = (from + k) % n; if (vals[j] == null && (!okType || okType(j))) return j; }
+    return -1;
+  }
+  function refreshChk() {
+    var cur = R.cur, q = R.list[R.i], n = q.k === 'tb' ? tbBlanks(q).length : q.k === 'bd' ? q.a.length : q.items.length;
+    var arr = q.k === 'bg' ? cur.bgv : q.k === 'so' ? cur.sov : cur.vals, c = 0;
+    for (var i = 0; i < n; i++) if (arr[i] != null) c++;
+    var b = $('#chk'); if (b) b.disabled = c < n;
+  }
+  function onTbCell(i) { var cur = R.cur; if (cur.done) return; cur.sel = i; paintTb(); SND.tap(); }
+  function onTbTile(vi) {
+    var cur = R.cur, q = R.list[R.i]; if (cur.done) return;
+    var n = tbBlanks(q).length;
+    if (cur.sel < 0 || cur.sel >= n) cur.sel = nextEmpty(n, cur.vals, -1);
+    if (cur.sel < 0) return;
+    cur.vals[cur.sel] = bankOf(q)[vi];
+    var nx = nextEmpty(n, cur.vals, cur.sel); cur.sel = nx < 0 ? cur.sel : nx;
+    SND.tap(); vib(6); paintTb(); refreshChk();
+  }
+  function paintTb() { var w = $('#tbw'), q = R.list[R.i]; if (w) w.innerHTML = tbHtml(q, R.cur); }
+  function onBdBlank(i) { var cur = R.cur; if (cur.done) return; cur.sel = i; paintBd(); SND.tap(); }
+  function onBdTile(vi) {
+    var cur = R.cur, q = R.list[R.i]; if (cur.done) return;
+    var v = q.tiles[vi], bond = isBond(v), n = q.a.length;
+    var okT = function (j) { return isBond(q.a[j]) === bond; };
+    if (cur.sel < 0 || cur.sel >= n || !okT(cur.sel)) {
+      var e = nextEmpty(n, cur.vals, -1, okT);
+      if (e < 0) { toast(bond ? '결합 자리가 다 찼어요. 바꿀 자리를 눌러요' : '원자 자리가 다 찼어요. 바꿀 자리를 눌러요'); return; }
+      cur.sel = e;
+    }
+    cur.vals[cur.sel] = v;
+    var nx = nextEmpty(n, cur.vals, cur.sel); if (nx >= 0) cur.sel = nx;
+    SND.tap(); vib(6); paintBd(); refreshChk();
+  }
+  function paintBd() { var w = $('#bdw'), q = R.list[R.i]; if (w) w.innerHTML = bdSvg(q, R.cur); }
+  function onBgv(i, v) {
+    var cur = R.cur; if (cur.done) return;
+    cur.bgv[i] = v; $$('.bgi[data-i="' + i + '"] .bgb button').forEach(function (b) { b.classList.toggle('on', +b.dataset.v === v); });
+    SND.tap(); refreshChk();
+  }
+  function onSov(i, b) {
+    var cur = R.cur; if (cur.done) return;
+    cur.sov[i] = b; $$('.soi[data-i="' + i + '"] button').forEach(function (x) { x.classList.toggle('on', +x.dataset.b === b); });
+    SND.tap(); refreshChk();
+  }
+  function onChk() {
+    var cur = R.cur, q = R.list[R.i], ok = true, el = $('#chk');
+    if (cur.done) return;
+    if (q.k === 'tb') { tbBlanks(q).forEach(function (a, i) { if ((cur.vals[i] || '').trim() !== a) ok = false; }); cur.done = true; paintTb(); cur.done = false; }
+    else if (q.k === 'bd') { q.a.forEach(function (a, i) { if (cur.vals[i] !== a) ok = false; }); cur.done = true; paintBd(); cur.done = false; }
+    else if (q.k === 'bg') { q.items.forEach(function (it, i) { var r = (cur.bgv[i] === 1) === it[1]; if (!r) ok = false; $('.bgi[data-i="' + i + '"]').classList.add(r ? 'right' : 'wrongc'); }); }
+    else if (q.k === 'so') { q.items.forEach(function (it, i) { var r = cur.sov[i] === it[1]; if (!r) ok = false; var row = $('.soi[data-i="' + i + '"]'); row.classList.add(r ? 'right' : 'wrongc'); $$('button', row).forEach(function (x) { if (+x.dataset.b === it[1]) x.classList.add('ans'); }); }); }
+    $$('#tiles .tile, .bgb button, .sob button').forEach(function (b) { b.disabled = true; });
+    if (el) el.disabled = true;
+    answer(ok, q.k === 'tb' ? $('#tbw') : q.k === 'bd' ? $('#bdw') : el);
+  }
+
   /* ---------- 결과 ---------- */
   function finishRound() {
     if (!R) return;
     R.done = true;
+    if (R.trip) {
+      S.trip = S.trip || {};
+      var miss = R.total - R.ok, star = miss === 0 ? 3 : miss <= 2 ? 2 : 1, prev = S.trip[R.trip.id];
+      R.star = star; R.firstTrip = !prev;
+      S.trip[R.trip.id] = { at: Date.now(), star: Math.max(star, prev ? prev.star : 0) };
+      R.trip.t.forEach(function (t) { S.seen[t] = S.seen[t] || Date.now(); });
+      save();
+    }
     SND.done();
     go('result', {}, true);
   }
   SCREENS.result = function () {
     if (!R) return SCREENS.home();
+    if (R.trip) return tripResult();
     var pct = R.total ? R.ok / R.total : 0, sec = Math.round((Date.now() - R.t0) / 1000);
     var mk = R.mols.length ? R.mols[R.mols.length - 1] : resultMol();
     var msg = pct >= 0.9 ? '거의 다 맞혔어요' : pct >= 0.7 ? '잘하고 있어요' : pct >= 0.4 ? '반쯤 왔어요' : '처음엔 다 그래요';
@@ -731,6 +892,35 @@
   function resultMol() { var a = ['glucose', 'aspirin', 'ethylacetate', 'nylon', 'isoprene', 'dipeptide', 'pet']; return a[Math.floor(Math.random() * a.length)]; }
   function uniq(a) { var s = {}, o = []; a.forEach(function (q) { if (!s[q.id]) { s[q.id] = 1; o.push(q); } }); return o; }
   function scopeName() { return S.scope === 'all' ? '전체' : UI[S.scope].short; }
+
+  function stars(n) { var h = ''; for (var i = 0; i < 3; i++) h += '<i class="st' + (i < n ? ' on' : '') + '" style="--d:' + i + '">' + ic('star') + '</i>'; return h; }
+  function tripResult() {
+    var tr = R.trip, i = TRIPS.indexOf(tr), nx = TRIPS[i + 1], wr = uniq(R.wrong);
+    return '<div class="res">' +
+      '<div class="stars">' + stars(R.star) + '</div>' +
+      '<p class="rmsg">' + (R.star === 3 ? '완벽해요' : R.star === 2 ? '거의 다 왔어요' : '끝까지 왔어요') + '</p>' +
+      '<h2 class="trname">탐험 ' + (i + 1) + '. ' + esc(tr.name) + ' 완료</h2>' +
+      '<p class="trsub">이제 이 내용은 \'한 판\'에서 처음 보는 문제로도 나와요. 노트에서 다시 볼 수 있어요.</p>' +
+      (wr.length ? '<div class="rwrong card"><h3>다시 볼 것</h3>' + wr.map(function (q) { return '<div class="rw"><p>' + fmt(q.q) + '</p><div class="ra">' + correctText(q) + '</div></div>'; }).join('') + '</div>' : '') +
+      '<div class="rbtns">' + (nx ? '<button class="big primary" data-act="trip" data-id="' + nx.id + '">' + ic('play') + '다음 탐험: ' + esc(nx.name) + '</button>' : '<button class="big primary" data-act="play" data-mode="mix">' + ic('play') + '이제 한 판 하기</button>') +
+      '<button class="big ghost" data-act="note" data-t="' + tr.t[0] + '">' + ic('book') + '노트 보기</button><button class="tbtn" data-act="home">처음으로</button></div></div>';
+  }
+  SCREENS.trips = function () {
+    return topbar('탐험') + '<p class="lead">아무것도 몰라도 괜찮아요. 짧은 장면을 보고, 먼저 짐작해 보고, 규칙을 스스로 찾는 길이에요. 순서대로 가면 PPT 내용 전체를 한 번씩 만나요.</p><div class="trlist">' +
+      TRIPS.map(function (t, i) {
+        var d = (S.trip || {})[t.id], u = UI[t.u];
+        return '<button class="trcard card c-' + u.color + (d ? ' done' : '') + '" data-act="trip" data-id="' + t.id + '"><span class="trn">' + (i + 1) + '</span><div class="tri"><small>' + esc(u.short) + '</small><b>' + esc(t.name) + '</b><span>' + esc(t.sub) + ' · ' + t.steps.length + '걸음</span></div><div class="trs">' + (d ? stars(d.star) : ic('play')) + '</div></button>';
+      }).join('') + '</div>';
+  };
+  SCREENS.wsl = function () {
+    var bgs = Q.filter(function (q) { return q.k === 'bg'; }).length;
+    return topbar('탐구활동지') + '<p class="lead">Ⅲ. 탄소 화합물과 반응 탐구활동지의 문제를 같은 말 그대로 옮겼어요. 쓰는 대신 고르고, 채우고, 조립해요.</p>' +
+      '<button class="wsbg card" data-act="wsbg"><b>보기 ㄱㄴㄷ 문제만 모아 풀기</b><small>실전 문제 스타일 ' + bgs + '개</small>' + ic('arrow') + '</button><div class="wslist">' +
+      WSA.map(function (w) {
+        var qs = Q.filter(function (q) { return q.wa === w[0]; }), ln = learnedCount(qs), seen = qs.filter(function (q) { return S.q[q.id]; }).length;
+        return '<button class="wsc card" data-act="wsa" data-a="' + w[0] + '"><span class="wsn">' + w[0] + '</span><div><b>' + esc(w[1]) + '</b><small>' + qs.length + '문제 · 푼 것 ' + seen + '</small>' + bar(qs.length ? mastery(qs) : 0, 'c-blue') + '</div></button>';
+      }).join('') + '</div>';
+  };
 
   /* ---------- 번개 O/X ---------- */
   var B = null;
@@ -930,6 +1120,8 @@
   /* ---------- 누르기 ---------- */
   var resetArm = 0;
   document.addEventListener('click', function (e) {
+    var bk = e.target.closest && e.target.closest('#bdw [data-bk]');
+    if (bk && view.name === 'quiz' && R) { onBdBlank(+bk.getAttribute('data-bk')); return; }
     var el = e.target.closest('[data-act]'); if (!el) return;
     var a = el.dataset.act, d = el.dataset;
     switch (a) {
@@ -964,6 +1156,18 @@
       case 'mtl': onMt('l', +d.i, el); break;
       case 'mtr': onMt('r', +d.i, el); break;
       case 'next': next(); break;
+      case 'sayok': next(); break;
+      case 'tbc': onTbCell(+d.b); break;
+      case 'tbt': onTbTile(+d.v); break;
+      case 'bdt': onBdTile(+d.v); break;
+      case 'bgv': onBgv(+d.i, +d.v); break;
+      case 'sov': onSov(+d.i, +d.b); break;
+      case 'chk': onChk(); break;
+      case 'trips': go('trips'); break;
+      case 'trip': startRound('trip', { id: d.id }); break;
+      case 'wsl': go('wsl'); break;
+      case 'wsa': startRound('ws', { a: +d.a }); break;
+      case 'wsbg': startRound('bg'); break;
       case 'tipx': S.tip = 2; save(); el.closest('.tipcard').remove(); break;
       case 'theme': S.set.theme = d.v; save(); applyTheme(); show(view); break;
       case 'reset':
@@ -1005,7 +1209,7 @@
       navigator.serviceWorker.register('sw.js', { scope: './' }).catch(function () { });
     });
   }
-  window.__chem = { S: S, Q: Q, start: startRound, go: go, R: function () { return R; },
+  window.__chem = { S: S, Q: Q, TRIPS: TRIPS, start: startRound, go: go, R: function () { return R; },
     play: function (list) { R = { mode: 'mix', p: {}, title: 'test', list: list, i: 0, ok: 0, total: 0, combo: 0, maxc: 0, learned: 0, wrong: [], retried: {}, t0: Date.now(), mols: [] }; go('quiz', {}); },
     gen: function () { return MOLPOOL.map(function (k) { return [genMol('name', k), genMol('pick', k)]; }).reduce(function (a, b) { return a.concat(b); }, []).concat(chainQuestions(null)); } };
 })();

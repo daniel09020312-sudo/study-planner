@@ -5,7 +5,7 @@
 (function () {
   'use strict';
   var CW = 11, RH = 16, U = 34, FS = 15;
-  var BONDS = { '-': [1, 'h'], '=': [2, 'h'], '≡': [3, 'h'], '|': [1, 'v'], '‖': [2, 'v'], '/': [1, 'u'], '\\': [1, 'd'] };
+  var BONDS = { '-': [1, 'h'], '=': [2, 'h'], '≡': [3, 'h'], '|': [1, 'v'], '‖': [2, 'v'], '/': [1, 'u'], '\\': [1, 'd'], '~': [0, 'h'], '¦': [0, 'v'] };
   var DIRS = { h: [[0, -1], [0, 1]], v: [[-1, 0], [1, 0]], u: [[-1, 1], [1, -1]], d: [[-1, -1], [1, 1]] };
 
   function cw(ch, kind) {
@@ -51,7 +51,11 @@
     var rows = src.replace(/^\n+|\s+$/g, '').split('\n');
     var R = rows.length, C = 0;
     rows.forEach(function (r) { if (r.length > C) C = r.length; });
-    var cell = [], toks = [], atomRe = /[A-Za-z0-9()\[\]'^*]/;
+    var cell = [], toks = [], atomRe = /[A-Za-z0-9()\[\]'^*?]/, blanks = {}, nb = 0;
+    for (var r0 = 0; r0 < R; r0++) for (var c0 = 0; c0 < rows[r0].length; c0++) {
+      var bc = rows[r0][c0];
+      if (bc === '?' || (bc === '~' && rows[r0][c0 - 1] !== '~') || (bc === '¦' && !(rows[r0 - 1] && rows[r0 - 1][c0] === '¦'))) blanks[r0 + ',' + c0] = nb++;
+    }
     for (var r = 0; r < R; r++) {
       cell.push([]);
       var row = rows[r];
@@ -59,9 +63,11 @@
         var ch = row[c];
         if (atomRe.test(ch)) {
           var start = c, s = '';
-          while (c < row.length && (atomRe.test(row[c]) || (/[+\-]/.test(row[c]) && row[c - 1] === '^'))) { s += row[c]; c++; }
+          if (ch === '?') { s = '?'; c++; }
+          else while (c < row.length && row[c] !== '?' && (atomRe.test(row[c]) || (/[+\-]/.test(row[c]) && row[c - 1] === '^'))) { s += row[c]; c++; }
           c--;
           var t = { text: s, r: r, c0: start, c1: c, id: toks.length };
+          if (s === '?') t.blank = blanks[r + ',' + start];
           toks.push(t);
           for (var k = start; k <= c; k++) cell[r][k] = t;
         }
@@ -69,6 +75,7 @@
     }
     // 원자 글자 배치: 첫 글자 가운데를 그 칸 가운데에
     toks.forEach(function (t) {
+      if (t.blank != null) { t.chars = [{ ch: '?', kind: 'b', w: 30, x: t.c0 * CW + CW / 2, y: t.r * RH + RH / 2 }]; return; }
       if (t.text === '*') { t.chars = [{ ch: '', kind: 'v', w: 0, x: t.c0 * CW + CW / 2, y: t.r * RH + RH / 2 }]; t.vertex = true; return; }
       t.chars = layout(t.text, t.c0 * CW + CW / 2, t.r * RH + RH / 2);
     });
@@ -93,10 +100,10 @@
           }
           ends.push(hit);
         }
-        if (ends[0] && ends[1]) bonds.push({ a: ends[0], b: ends[1], o: B[0], k: B[1] });
+        if (ends[0] && ends[1]) bonds.push({ a: ends[0], b: ends[1], o: B[0], k: B[1], blank: B[0] === 0 ? blanks[r + ',' + c] : null });
       }
     }
-    return { toks: toks, bonds: bonds, ascii: true };
+    return { toks: toks, bonds: bonds, ascii: true, nb: nb };
   }
 
   /* 좌표로 만들기 */
@@ -157,6 +164,7 @@
       // 끝 줄이기
       function trim(t, ch, sgn) {
         if (t.vertex) return 0;
+        if (t.blank != null) return Math.abs(uy) < 0.2 ? 16 : 13;
         if (t.text === '[' || t.text === ']' || /^\]/.test(t.text)) return 1;
         if (Math.abs(uy) < 0.2) { // 가로: 글자 덩어리 가장자리에서 멈춤
           var bx2 = tokenBox(t.chars);
@@ -173,6 +181,14 @@
         var sg = ((cx - mx) * px + (cy - my) * py) > 0 ? 1 : -1, off = 5.2 * sg, sh = 0.16 * L;
         segs.push([x0, y0, x1, y1]);
         segs.push([x0 + ux * sh + px * off, y0 + uy * sh + py * off, x1 - ux * sh + px * off, y1 - uy * sh + py * off]);
+        return;
+      }
+      if (bd.blank != null) {
+        var bv = (opt.vals || [])[bd.blank], bo = bv === '=' ? 2 : bv === '≡' ? 3 : bv === '-' ? 1 : 0;
+        var bcls = 'bkl' + (opt.sel === bd.blank ? ' on' : '') + (opt.bad && opt.bad[bd.blank] ? ' bad' : '') + (opt.good && opt.good[bd.blank] ? ' good' : '');
+        var offs = bo === 2 ? [-2.6, 2.6] : bo === 3 ? [-4, 0, 4] : [0];
+        offs.forEach(function (k) { segs.push([x0 + px * k, y0 + py * k, x1 + px * k, y1 + py * k, bcls + (bo ? '' : ' empty')]); });
+        segs.push([x0, y0, x1, y1, 'bkhit', bd.blank]);
         return;
       }
       if (bd.o === 1) segs.push([x0, y0, x1, y1]);
@@ -202,11 +218,23 @@
     hls.forEach(function (h) { out.push('<rect class="mhl" x="' + (h[0] + ox).toFixed(1) + '" y="' + (h[1] + oy).toFixed(1) + '" width="' + (h[2] - h[0]).toFixed(1) + '" height="' + (h[3] - h[1]).toFixed(1) + '" rx="7"/>'); });
     out.push('<g class="mb">');
     segs.forEach(function (s, i) {
-      out.push('<line pathLength="1" style="--i:' + i + '" x1="' + (s[0] + ox).toFixed(1) + '" y1="' + (s[1] + oy).toFixed(1) + '" x2="' + (s[2] + ox).toFixed(1) + '" y2="' + (s[3] + oy).toFixed(1) + '"/>');
+      out.push('<line pathLength="1" style="--i:' + i + '"' + (s[4] ? ' class="' + s[4] + '"' : '') + (s[5] != null ? ' data-bk="' + s[5] + '"' : '') + ' x1="' + (s[0] + ox).toFixed(1) + '" y1="' + (s[1] + oy).toFixed(1) + '" x2="' + (s[2] + ox).toFixed(1) + '" y2="' + (s[3] + oy).toFixed(1) + '"/>');
     });
     out.push('</g><g class="ma" style="--n:' + segs.length + '">');
     toks.forEach(function (t) {
       if (t.vertex) return;
+      if (t.blank != null) {
+        var c0b = t.chars[0], v = (opt.vals || [])[t.blank], bx = c0b.x + ox, by = c0b.y + oy;
+        var cls2 = 'bka' + (opt.sel === t.blank ? ' on' : '') + (v ? ' full' : '') + (opt.bad && opt.bad[t.blank] ? ' bad' : '') + (opt.good && opt.good[t.blank] ? ' good' : '');
+        out.push('<g class="' + cls2 + '" data-bk="' + t.blank + '"><rect x="' + (bx - 15).toFixed(1) + '" y="' + (by - 12).toFixed(1) + '" width="30" height="24" rx="6"/>');
+        if (v) layout(v, 0, 0).forEach(function (o, i, arr) {
+          var tot = arr[arr.length - 1].x - arr[0].x, sx = bx - tot / 2 + o.x - arr[0].x, sy = by + 5.3 + (o.kind === 'sub' ? 4.2 : 0);
+          out.push('<text class="mt' + (o.kind === 'sub' ? ' msub' : '') + (ELCOL[o.ch] ? ' e' + ELCOL[o.ch] : '') + '" x="' + sx.toFixed(1) + '" y="' + sy.toFixed(1) + '">' + esc(o.ch) + '</text>');
+        });
+        else out.push('<text class="mt bkq" x="' + bx.toFixed(1) + '" y="' + (by + 5).toFixed(1) + '">?</text>');
+        out.push('</g>');
+        return;
+      }
       if (t.text === '[' || t.text === ']' || /^\][n]?$/.test(t.text)) {
         var c0 = t.chars[0], x = c0.x + ox, y0 = brTop + oy, y1 = brBot + oy, op = c0.ch === '[' ? 1 : -1;
         out.push('<path class="mbr" d="M' + (x + op * 4).toFixed(1) + ' ' + y0.toFixed(1) + ' Q' + (x - op * 2).toFixed(1) + ' ' + ((y0 + y1) / 2).toFixed(1) + ' ' + (x + op * 4).toFixed(1) + ' ' + y1.toFixed(1) + '"/>');
@@ -473,10 +501,25 @@ H--N--H
   B('ribose', { name: '라이보스', cat: 'sugar' }, function (b) { sugar(b, false); });
   B('deoxyribose', { name: '디옥시라이보스', cat: 'sugar' }, function (b) { sugar(b, true); });
 
+  B('nucleotide', { name: '뉴클레오타이드', cat: 'monomer' }, function (b) {
+    var R = 1.05, pts = [-90, -18, 54, 126, 198].map(function (a) { a = a * Math.PI / 180; return [R * Math.cos(a), R * Math.sin(a)]; });
+    var O = b.at(pts[0][0], pts[0][1], 'O'), c1 = b.at(pts[1][0], pts[1][1], 'C'), c2 = b.at(pts[2][0], pts[2][1], 'C'), c3 = b.at(pts[3][0], pts[3][1], 'C'), c4 = b.at(pts[4][0], pts[4][1], 'C');
+    b.b(O, c1).b(c1, c2).b(c2, c3).b(c3, c4).b(c4, O);
+    b.b(c3, b.at(pts[3][0], pts[3][1] + 1, 'OH')).b(c2, b.at(pts[2][0], pts[2][1] + 1, 'H'));
+    var ch2 = b.at(pts[4][0] - 0.2, pts[4][1] - 1.1, 'CH2'); b.b(c4, ch2);
+    var o5 = b.at(pts[4][0] - 1.3, pts[4][1] - 1.1, 'O'), p = b.at(pts[4][0] - 2.3, pts[4][1] - 1.1, 'P');
+    b.b(ch2, o5).b(o5, p).b(p, b.at(pts[4][0] - 2.3, pts[4][1] - 2.1, 'O'), 2).b(p, b.at(pts[4][0] - 3.4, pts[4][1] - 1.1, 'HO', 1)).b(p, b.at(pts[4][0] - 2.3, pts[4][1] - 0.1, 'OH'));
+    var cx = pts[1][0] + 1.95, cy = pts[1][1], ang = [180, 240, 300, 0, 60, 120], lab = ['N', 'C', 'C', 'C', 'N', 'C'], v = [];
+    ang.forEach(function (a, i) { a = a * Math.PI / 180; v.push(b.at(cx + Math.cos(a), cy + Math.sin(a), lab[i])); });
+    b.b(c1, v[0]).b(v[0], v[1]).b(v[1], v[2], 2).b(v[2], v[3]).b(v[3], v[4], 2).b(v[4], v[5]).b(v[5], v[0]);
+    b.b(v[5], b.at(cx - 0.5, cy + 1.85, 'O'), 2).b(v[3], b.at(cx + 2, cy, 'NH2'));
+    b.note(cx - 1.4, cy - 1.75, '인산', 'mnote').note(cx, cy - 1.6, '염기', 'mnote');
+  });
   window.MOL = {
     db: DB,
     svg: function (key, opt) { var m = DB[key]; if (!m) return ''; return render(m, opt); },
     ascii: function (src, opt) { var m = parseAscii(src); if (opt && opt.hl) m.hl = opt.hl; return render(m, opt); },
+    blanks: function (src) { return parseAscii(src).nb; },
     has: function (k) { return !!DB[k]; }
   };
 })();

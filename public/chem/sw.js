@@ -1,6 +1,6 @@
 /* 한 입 화학: 인터넷이 없어도 열리게. 파일을 바꾸면 V를 올린다. */
-var V = 'hanip-chem-1';
-var FILES = ['./', 'index.html', 'app.css?v=1', 'mol.js?v=1', 'fig.js?v=1', 'data.js?v=1', 'app.js?v=1', 'font.woff2', 'manifest.webmanifest', 'icon.svg', 'icon-180.png', 'icon-192.png', 'icon-512.png', 'icon-maskable.png'];
+var V = 'hanip-chem-2';
+var FILES = ['./', 'index.html', 'app.css?v=2', 'mol.js?v=2', 'fig.js?v=2', 'data.js?v=2', 'ws.js?v=2', 'trip.js?v=2', 'app.js?v=2', 'font.woff2', 'manifest.webmanifest', 'icon.svg', 'icon-180.png', 'icon-192.png', 'icon-512.png', 'icon-maskable.png'];
 self.addEventListener('install', function (e) {
   e.waitUntil(caches.open(V).then(function (c) { return c.addAll(FILES); }));
   self.skipWaiting();
