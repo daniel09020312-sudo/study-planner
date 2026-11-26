@@ -210,7 +210,26 @@
     done: function () { tone([[523, 0, 0.3], [659, 0.1, 0.3], [784, 0.2, 0.4], [1047, 0.32, 0.6]]); },
     tap: function () { tone([[880, 0, 0.04, 'sine', 0.05]]); }
   };
-  function vib(p) { if (S.set.vib && navigator.vibrate) try { navigator.vibrate(p); } catch (e) { } }
+  /* 진동: 안드로이드는 vibrate, 아이폰(iOS 18+)은 스위치 칸을 누를 때 나는 진동을 빌려 씀. 아이패드는 진동 장치가 없음 */
+  var hapL = null;
+  function hap() {
+    try {
+      if (!hapL) {
+        hapL = document.createElement('label'); hapL.setAttribute('aria-hidden', 'true');
+        hapL.style.cssText = 'position:fixed;left:-9999px;top:0;width:1px;height:1px;overflow:hidden;opacity:0';
+        var i = document.createElement('input'); i.type = 'checkbox'; i.setAttribute('switch', ''); i.tabIndex = -1;
+        hapL.appendChild(i); document.body.appendChild(hapL);
+      }
+      hapL.click();
+    } catch (e) { }
+  }
+  var canVib = typeof navigator.vibrate === 'function';
+  function vib(p) {
+    if (!S.set.vib) return;
+    if (canVib) { try { navigator.vibrate(p); } catch (e) { } return; }
+    hap();
+    if (Array.isArray(p) && p.length > 2) setTimeout(hap, 110);
+  }
   function burst(el, kind) {
     if (reduced || !el || !el.getBoundingClientRect) return;
     var r = el.getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height / 2;
@@ -1134,10 +1153,10 @@
     var total = Object.keys(S.q).length;
     return topbar('설정') + '<div class="sets card">' +
       sw('sound', '소리', '맞히거나 틀릴 때 짧은 소리') +
-      sw('vib', '진동', '안드로이드에서 정답·오답 진동') +
+      sw('vib', '진동', '맞히거나 틀릴 때 짧게 떨려요. 아이폰·안드로이드 (아이패드는 진동 장치가 없어요)') +
       sw('auto', '맞히면 자동으로 넘기기', '해설은 잠깐 보여 주고 넘어가요') +
       sw('big', '글자 크게', '차에서 볼 때 편하게') +
-      '<div class="srow logo-row"><span><b>테마 색</b><small>로고와 앱 색이 함께 바뀌어요. 홈 화면 아이콘은 앱을 다시 연 뒤 새로 추가하면 바뀌어요.</small></span><span class="logo-pv">' + logoSvg() + '</span></div><div class="swatches">' + LOGO.map(function (x) { return '<button class="sw-c' + ((S.set.logo || 'red') === x[0] ? ' on' : '') + '" data-act="logo" data-v="' + x[0] + '" style="--c:' + x[2] + '" aria-label="' + x[1] + '"><i></i><span>' + x[1] + '</span></button>'; }).join('') + '</div>' +
+      '<div class="srow logo-row"><span><b>테마 색</b><small>로고와 앱 색이 함께 바뀌어요. 홈 화면 아이콘은 추가할 때 그림이 고정돼서, 색을 바꾼 뒤 아이콘을 지우고 다시 추가해야 바뀌어요.</small></span><span class="logo-pv">' + logoSvg() + '</span></div><div class="swatches">' + LOGO.map(function (x) { return '<button class="sw-c' + ((S.set.logo || 'red') === x[0] ? ' on' : '') + '" data-act="logo" data-v="' + x[0] + '" style="--c:' + x[2] + '" aria-label="' + x[1] + '"><i></i><span>' + x[1] + '</span></button>'; }).join('') + '</div>' +
       '<div class="srow"><span><b>화면</b><small>밝게, 어둡게, 기기 따라</small></span><div class="seg">' + ['auto', 'light', 'dark'].map(function (v) { return '<button data-act="theme" data-v="' + v + '" class="' + (S.set.theme === v ? 'on' : '') + '">' + { auto: '기기', light: '밝게', dark: '어둡게' }[v] + '</button>'; }).join('') + '</div></div>' +
       '</div><div class="sets card"><div class="srow"><span><b>내 기록</b><small>푼 문제 ' + total + '개 · 이 기기에만 저장</small></span></div>' +
       '<button class="srow danger" data-act="reset"><span><b>전체 초기화</b><small>푼 기록, 오답 노트, 외운 정도, 탐험 별, 번개 최고 기록을 모두 지워요. 설정은 그대로.</small></span></button></div>' +
@@ -1223,7 +1242,7 @@
       case 'wsbg': startRound('bg'); break;
       case 'pptcz': startRound('cz'); break;
       case 'tipx': S.tip = 2; save(); el.closest('.tipcard').remove(); break;
-      case 'logo': S.set.logo = d.v; save(); applyLogo(); $$('.sw-c').forEach(function (b) { b.classList.toggle('on', b.dataset.v === d.v); }); SND.tap(); vib(8); { var pv = $('.logo-pv svg'); if (pv && !reduced) pv.animate([{ transform: 'scale(1)' }, { transform: 'scale(1.18) rotate(-6deg)' }, { transform: 'scale(1)' }], { duration: 380, easing: 'cubic-bezier(.3,1.6,.5,1)' }); } break;
+      case 'logo': S.set.logo = d.v; save(); applyLogo(); toast('앱 색이 바뀌었어요. 홈 화면 아이콘은 지우고 다시 추가하면 바뀌어요'); $$('.sw-c').forEach(function (b) { b.classList.toggle('on', b.dataset.v === d.v); }); SND.tap(); vib(8); { var pv = $('.logo-pv svg'); if (pv && !reduced) pv.animate([{ transform: 'scale(1)' }, { transform: 'scale(1.18) rotate(-6deg)' }, { transform: 'scale(1)' }], { duration: 380, easing: 'cubic-bezier(.3,1.6,.5,1)' }); } break;
       case 'theme': S.set.theme = d.v; save(); applyTheme(); show(view); break;
       case 'reset':
         if (!confirm('정말 전체 초기화할까요? 푼 기록, 오답 노트, 탐험 별이 모두 지워지고 되돌릴 수 없어요.')) break;
