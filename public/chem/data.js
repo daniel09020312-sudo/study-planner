@@ -5,10 +5,9 @@
 (function () {
   'use strict';
   var UNITS = [
-    { id: 'u1', name: '생활 속 산화·환원', short: '산화·환원', color: 'red' },
-    { id: 'u2', name: '탄소 화합물의 종류', short: '탄소 화합물', color: 'blue' },
-    { id: 'u3', name: '탄소 화합물의 반응', short: '반응', color: 'green' },
-    { id: 'u4', name: '고분자와 유용성', short: '고분자', color: 'amber' }
+    { id: 'u2', name: 'Ⅲ-1·2 탄소 화합물의 종류 · 탄소 화합물의 화학 반응', short: 'Ⅲ-1·2', color: 'blue' },
+    { id: 'u4', name: 'Ⅲ-3·4 다양한 고분자 화합물 · 탄소 화합물의 유용성', short: 'Ⅲ-3·4', color: 'green' },
+    { id: 'u1', name: 'Ⅱ-05 우리 생활 속 산화-환원 반응', short: 'Ⅱ-05 산화·환원', color: 'red' }
   ];
   var TOPICS = [], cur;
   function topic(o) { o.qs = []; TOPICS.push(o); cur = o; }
@@ -441,7 +440,7 @@
      3단원: 탄소 화합물의 반응
      ========================================================= */
   topic({
-    id: 'alc', u: 'u3', name: '알코올', icon: 'drop',
+    id: 'alc', u: 'u2', name: '알코올', icon: 'drop',
     key: [
       '알코올: 수소 대신 **-OH**. 무색, 특유의 냄새, 실온에서 **휘발성 액체**.',
       '**수소 결합** 때문에 탄소 수가 비슷한 다른 탄소 화합물보다 **끓는점이 높아요**.',
@@ -503,7 +502,7 @@
   ox('메탄올은 술의 주성분이다.', false, '술의 주성분은 에탄올. 메탄올은 독성이 있어요.');
 
   topic({
-    id: 'ald', u: 'u3', name: '알데하이드', icon: 'flask',
+    id: 'ald', u: 'u2', name: '알데하이드', icon: 'flask',
     key: [
       '알데하이드: 수소 대신 **-CHO**. **자극적인 냄새, 독성**.',
       '`HCHO`, `CH3CHO`: 플라스틱·접착제·염료 등의 **원료**, 물에 잘 녹아요.',
@@ -560,7 +559,7 @@
   ox('알데하이드를 환원하면 카복실산이 된다.', false, '환원 → 알코올, 산화 → 카복실산.');
 
   topic({
-    id: 'acid', u: 'u3', name: '카복실산과 에스터화', icon: 'apple',
+    id: 'acid', u: 'u2', name: '카복실산과 에스터화', icon: 'apple',
     key: [
       '카복실산: 수소 대신 **-COOH**. 이온화해서 **산성**(`R-COOH ⇄ R-COO^- + H^+`), 자극적인 냄새.',
       '`HCOOH`, `CH3COOH`는 물에 잘 녹고, **수소 결합** 때문에 끓는점이 높아요.',
@@ -620,7 +619,7 @@
   ox('아세트산 에틸은 사과 향에 들어 있다.', true, '');
 
   topic({
-    id: 'bio', u: 'u3', name: '유전 물질과 영양소의 작용기', icon: 'dna',
+    id: 'bio', u: 'u2', name: '유전 물질과 영양소의 작용기', icon: 'dna',
     key: [
       '**유전 물질**(DNA, RNA): **-OH, -NH2** (당의 -OH, 염기의 -NH2).',
       '**영양소**: **-OH, -CHO, -COOH**. 작용기 덕분에 **물에 잘 녹아요**.',
@@ -650,7 +649,7 @@
   ox('유전 물질의 작용기는 수소 결합을 할 수 있다.', true, '');
 
   topic({
-    id: 'ferm', u: 'u3', name: '술과 식초의 제조', icon: 'grape',
+    id: 'ferm', u: 'u2', name: '술과 식초의 제조', icon: 'grape',
     key: [
       '**발효**: 효모나 세균 같은 **미생물이 당분을 분해**해 유용한 물질을 만드는 작용 (술, 간장, 치즈, 식초).',
       '술: 곡물·과일의 **당을 효모가 분해** → 포도당 → **이산화 탄소 + 에탄올**.',
@@ -1151,6 +1150,9 @@
     ] }
   ];
 
+  // 탄소 화합물(Ⅲ)을 먼저, 산화·환원(Ⅱ-05)은 뒤로. 연결 문제는 맨 뒤
+  var UO = { u2: 0, u4: 1, u1: 2, mix: 3 };
+  TOPICS = TOPICS.map(function (t, i) { return [t, i]; }).sort(function (a, b) { return (UO[a[0].u] - UO[b[0].u]) || (a[1] - b[1]); }).map(function (x) { return x[0]; });
   function use(id) { for (var i = 0; i < TOPICS.length; i++) if (TOPICS[i].id === id) cur = TOPICS[i]; }
   function tb(q, rows, e, x) { add(ext({ k: 'tb', q: q, rows: rows, e: e }, x)); }
   function bd(q, src, a, tiles, e, x) { add(ext({ k: 'bd', q: q, src: src, a: a, tiles: tiles, e: e }, x)); }

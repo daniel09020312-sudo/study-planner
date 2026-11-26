@@ -14,6 +14,7 @@
   function fresh() { return { q: {}, days: {}, seen: {}, best: {}, set: { sound: false, vib: true, auto: false, theme: 'auto', big: false }, scope: 'all', tip: 0, made: Date.now() }; }
   try { S = JSON.parse(localStorage.getItem(KEY) || 'null'); } catch (e) { S = null; }
   if (!S || !S.q) S = fresh();
+  if (S.scope === 'u3') S.scope = 'u2';
   var dflt = fresh();
   for (var k in dflt) if (S[k] == null) S[k] = dflt[k];
   for (k in dflt.set) if (S.set[k] == null) S.set[k] = dflt.set[k];
@@ -143,10 +144,11 @@
   function seenTopic(t) { return !!S.seen[t]; }
   function inScope(q) {
     if (q.topic.hidden) return S.scope === 'all' && (!q.req || q.req.every(seenTopic));
-    return S.scope === 'all' || q.u === S.scope;
+    return uIn(q.u);
   }
-  function scopeTopics() { return C.TOPICS.filter(function (t) { return !t.hidden && (S.scope === 'all' || t.u === S.scope); }); }
-  function scopeQs() { return Q.filter(function (q) { return !q.topic.hidden && (S.scope === 'all' || q.u === S.scope); }); }
+  function uIn(u) { return S.scope === 'all' || u === S.scope || (S.scope === 'c' && u !== 'u1'); }
+  function scopeTopics() { return C.TOPICS.filter(function (t) { return !t.hidden && uIn(t.u); }); }
+  function scopeQs() { return Q.filter(function (q) { return !q.topic.hidden && uIn(q.u); }); }
   function mastery(qs) {
     if (!qs.length) return 0;
     var s = 0;
@@ -282,7 +284,7 @@
     return '<header class="top"><button class="ibtn" data-act="back" aria-label="뒤로">' + ic('back') + '</button><h1>' + title + '</h1>' + (opt.right || '<span class="ibsp"></span>') + '</header>';
   }
   function scopeChips() {
-    var items = [{ id: 'all', short: '전체' }].concat(C.UNITS);
+    var items = [{ id: 'all', short: '전체' }, { id: 'c', short: '탄소 화합물' }].concat(C.UNITS);
     return '<div class="chips" role="tablist">' + items.map(function (u) {
       return '<button class="chip' + (S.scope === u.id ? ' on' : '') + '" data-act="scope" data-v="' + u.id + '">' + esc(u.short) + '</button>';
     }).join('') + '</div>';
@@ -321,7 +323,7 @@
       mode('notes', 'book', '개념 노트', 'PPT 내용 전부', '') +
       '</section>';
     if (bite) h += '<section class="bite card" data-act="note" data-t="' + bite.t.id + '"><span class="bitek">오늘의 한 입 · ' + esc(bite.t.name) + '</span><p>' + fmt(bite.line) + '</p></section>';
-    h += '<section class="units">' + C.UNITS.filter(function (u) { return S.scope === 'all' || S.scope === u.id; }).map(function (u) {
+    h += '<section class="units">' + C.UNITS.filter(function (u) { return uIn(u.id); }).map(function (u) {
       var ts = C.TOPICS.filter(function (t) { return t.u === u.id; });
       return '<div class="unit card"><div class="uh"><span class="dot c-' + u.color + '"></span><b>' + esc(u.name) + '</b><span class="upc">' + Math.round(mastery(Q.filter(function (q) { return q.u === u.id; })) * 100) + '%</span></div>' +
         ts.map(function (t) {
@@ -334,7 +336,7 @@
     return h;
   };
   function tripsDone() { S.trip = S.trip || {}; return TRIPS.filter(function (t) { return S.trip[t.id]; }).length; }
-  function nextTrip() { S.trip = S.trip || {}; for (var i = 0; i < TRIPS.length; i++) if (!S.trip[TRIPS[i].id] && (S.scope === 'all' || TRIPS[i].u === S.scope)) return TRIPS[i]; return null; }
+  function nextTrip() { S.trip = S.trip || {}; for (var i = 0; i < TRIPS.length; i++) if (!S.trip[TRIPS[i].id] && uIn(TRIPS[i].u)) return TRIPS[i]; return null; }
   function tripCta(t, big) {
     var i = TRIPS.indexOf(t);
     return '<button class="tripcta card' + (big ? ' first' : '') + '" data-act="trip" data-id="' + t.id + '">' +
@@ -418,7 +420,7 @@
 
   /* 구조식 문제 만들기 */
   var MOLPOOL = ['methane', 'ethane', 'propane', 'butane', 'ethene', 'ethyne', 'methanol', 'ethanol', 'glycol', 'glycerol', 'formaldehyde', 'acetaldehyde', 'formic', 'acetic', 'ethylacetate', 'glucose', 'alanine', 'leucine', 'aspartic', 'serine', 'vinylchloride', 'pe', 'pvc', 'isoprene', 'chloroprene', 'rubber', 'neoprene', 'hmda', 'adipoyl', 'nylon', 'anhydride', 'terephthalic', 'pet', 'salicylic', 'aspirin', 'ribose', 'deoxyribose'];
-  function molInScope(k) { var t = TI[MOLT[k]]; return t && (S.scope === 'all' || t.u === S.scope); }
+  function molInScope(k) { var t = TI[MOLT[k]]; return t && uIn(t.u); }
   function genMol(kind, k) {
     var m = MOL.db[k], others = MOLPOOL.filter(function (x) { return x !== k; });
     var same = others.filter(function (x) { return MOL.db[x].cat === m.cat; });
@@ -444,7 +446,7 @@
   }
   function buildKinds(kinds, size) {
     var pool = Q.filter(function (q) { return inScope(q) && kinds.indexOf(q.k) >= 0; });
-    var chainQs = S.scope === 'all' ? chainQuestions(null).filter(function (q) { return q.k === 'sq'; }) : [];
+    var chainQs = S.scope === 'all' || S.scope === 'c' ? chainQuestions(null).filter(function (q) { return q.k === 'sq'; }) : [];
     pool = pool.concat(chainQs);
     pool.sort(function (a, b) { return (box(a.id) - box(b.id)) || (Math.random() - 0.5); });
     return shuffle(pool.slice(0, size * 2)).slice(0, size);
@@ -891,7 +893,7 @@
   AFTER.result = function () { countUp($('#rs'), R ? R.ok : 0, 900); if (R && R.total && R.ok / R.total >= 0.8) setTimeout(function () { burst($('.rscore'), 'ok'); }, 500); };
   function resultMol() { var a = ['glucose', 'aspirin', 'ethylacetate', 'nylon', 'isoprene', 'dipeptide', 'pet']; return a[Math.floor(Math.random() * a.length)]; }
   function uniq(a) { var s = {}, o = []; a.forEach(function (q) { if (!s[q.id]) { s[q.id] = 1; o.push(q); } }); return o; }
-  function scopeName() { return S.scope === 'all' ? '전체' : UI[S.scope].short; }
+  function scopeName() { return S.scope === 'all' ? '전체' : S.scope === 'c' ? '탄소 화합물' : UI[S.scope].short; }
 
   function stars(n) { var h = ''; for (var i = 0; i < 3; i++) h += '<i class="st' + (i < n ? ' on' : '') + '" style="--d:' + i + '">' + ic('star') + '</i>'; return h; }
   function tripResult() {
@@ -1025,7 +1027,7 @@
 
   /* ---------- 노트 ---------- */
   SCREENS.notes = function () {
-    return topbar('개념 노트') + scopeChips() + '<div class="nlist">' + C.UNITS.filter(function (u) { return S.scope === 'all' || S.scope === u.id; }).map(function (u) {
+    return topbar('개념 노트') + scopeChips() + '<div class="nlist">' + C.UNITS.filter(function (u) { return uIn(u.id); }).map(function (u) {
       return '<h2 class="uhd"><span class="dot c-' + u.color + '"></span>' + esc(u.name) + '</h2>' + C.TOPICS.filter(function (t) { return t.u === u.id; }).map(function (t) {
         var m = mastery(t.qs);
         return '<button class="ncard card" data-act="note" data-t="' + t.id + '">' + ic(t.icon, 'tic') + '<div class="nci"><b>' + esc(t.name) + '</b><small>' + fmt(t.key[0]) + '</small>' + bar(m, 'c-' + u.color) + '</div>' + ring(m, 34, 4, 'sm c-' + u.color) + '</button>';
