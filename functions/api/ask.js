@@ -1,7 +1,7 @@
 // 한 입 화학: Claude에게 물어보기 (사이트의 /api/ask)
 // 열쇠는 Cloudflare Pages 설정의 비밀 값 ANTHROPIC_API_KEY 에만 둔다(저장소·앱에는 없음).
 // ASK_CODE 를 정해 두면 앱 설정에 같은 코드를 넣은 기기만 물어볼 수 있다(남이 주소로 마구 쓰는 것 막기).
-import Anthropic from '@anthropic-ai/sdk';
+// 배포(Cloudflare Pages)에서 패키지를 설치하지 않게 SDK 없이 Messages API를 직접 부른다(스트리밍 SSE).
 
 const SYSTEM = `너는 고등학생이 쓰는 퀴즈 앱 '한 입 화학' 안의 화학 질문 도우미야.
 범위는 '화학 반응의 세계' 수업의 Ⅲ. 탄소 화합물과 반응(탄소 화합물의 종류·화학 반응, 고분자 화합물, 탄소 화합물의 유용성)과 Ⅱ-05 우리 생활 속 산화-환원 반응이야.
@@ -36,27 +36,55 @@ export async function onRequestPost({ request, env }) {
   if (!messages.length || messages[messages.length - 1].role !== 'user') return bad('no-question', 400);
   const ctx = typeof body.ctx === 'string' ? body.ctx.slice(0, MAX_CTX) : '';
 
-  const client = new Anthropic({ apiKey: env.ANTHROPIC_API_KEY });
-  const enc = new TextEncoder();
+  const enc = new TextEncoder(), dec = new TextDecoder();
   const out = new ReadableStream({
     async start(controller) {
+      const say = (t) => controller.enqueue(enc.encode(t));
       try {
-        const stream = client.beta.messages.stream({
-          model: 'claude-opus-5-5',
-          max_tokens: 4000,
-          betas: ['server-side-fallback-2026-07-01'],
-          fallbacks: 'default',
-          output_config: { effort: 'low' },
-          system: SYSTEM + (ctx ? '\n\n학생이 지금 보고 있는 문제:\n' + ctx : ''),
-          messages,
+        const res = await fetch('https://api.anthropic.com/v1/messages', {
+          method: 'POST',
+          headers: {
+            'content-type': 'application/json',
+            'x-api-key': env.ANTHROPIC_API_KEY,
+            'anthropic-version': '2023-06-01',
+            'anthropic-beta': 'server-side-fallback-2026-07-01',
+          },
+          body: JSON.stringify({
+            model: 'claude-opus-5-5',
+            max_tokens: 4000,
+            stream: true,
+            fallbacks: 'default',
+            output_config: { effort: 'low' },
+            system: SYSTEM + (ctx ? '\n\n학생이 지금 보고 있는 문제:\n' + ctx : ''),
+            messages,
+          }),
         });
-        stream.on('text', (t) => controller.enqueue(enc.encode(t)));
-        const final = await stream.finalMessage();
-        if (final.stop_reason === 'refusal') controller.enqueue(enc.encode('\n\n(이 질문에는 답할 수 없어요. 다르게 물어봐 주세요.)'));
-        else if (final.stop_reason === 'max_tokens') controller.enqueue(enc.encode('\n\n(답이 길어서 여기서 끊겼어요. "이어서"라고 물어보세요.)'));
+        if (!res.ok) {
+          say('\n\n(' + (res.status === 429 || res.status === 529 ? '질문이 많아서 잠깐 쉬어야 해요. 조금 뒤에 다시 물어봐 주세요.' : '지금은 답을 받지 못했어요. 잠시 뒤 다시 시도해 주세요.') + ')');
+        } else {
+          const rd = res.body.getReader();
+          let buf = '', stop = null, failed = false;
+          for (;;) {
+            const { done, value } = await rd.read();
+            if (done) break;
+            buf += dec.decode(value, { stream: true });
+            let i;
+            while ((i = buf.indexOf('\n\n')) >= 0) {
+              const ev = buf.slice(0, i); buf = buf.slice(i + 2);
+              const line = ev.split('\n').find((l) => l.startsWith('data:'));
+              if (!line) continue;
+              let d; try { d = JSON.parse(line.slice(5)); } catch (e) { continue; }
+              if (d.type === 'content_block_delta' && d.delta && d.delta.type === 'text_delta') say(d.delta.text);
+              else if (d.type === 'message_delta' && d.delta && d.delta.stop_reason) stop = d.delta.stop_reason;
+              else if (d.type === 'error') failed = true;
+            }
+          }
+          if (failed) say('\n\n(답을 받다가 끊겼어요. 다시 물어봐 주세요.)');
+          else if (stop === 'refusal') say('\n\n(이 질문에는 답할 수 없어요. 다르게 물어봐 주세요.)');
+          else if (stop === 'max_tokens') say('\n\n(답이 길어서 여기서 끊겼어요. "이어서"라고 물어보세요.)');
+        }
       } catch (e) {
-        const st = e && e.status;
-        controller.enqueue(enc.encode('\n\n(' + (st === 429 ? '질문이 많아서 잠깐 쉬어야 해요. 조금 뒤에 다시 물어봐 주세요.' : '지금은 답을 받지 못했어요. 잠시 뒤 다시 시도해 주세요.') + ')'));
+        say('\n\n(지금은 답을 받지 못했어요. 잠시 뒤 다시 시도해 주세요.)');
       }
       controller.close();
     },

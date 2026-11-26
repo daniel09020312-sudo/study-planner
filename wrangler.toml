@@ -1,6 +1,0 @@
-# Cloudflare Pages 설정 (study-planner). 비밀 값(ANTHROPIC_API_KEY, ASK_CODE)은 대시보드에만 둔다.
-name = "study-planner"
-pages_build_output_dir = "public"
-compatibility_date = "2026-11-01"
-# functions/api/ask.js 의 @anthropic-ai/sdk 가 Node 기본 모듈을 씀
-compatibility_flags = ["nodejs_compat"]
