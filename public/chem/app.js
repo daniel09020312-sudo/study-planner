@@ -1244,9 +1244,9 @@
   // 홈 화면 앱 시작 표지: 잠깐 보여 주고 사라짐, 누르면 바로 넘어감
   (function () {
     var cv = document.getElementById('cover'); if (!cv || !document.documentElement.classList.contains('cov')) return;
-    function hide() { if (cv.classList.contains('out')) return; cv.classList.add('out'); setTimeout(function () { document.documentElement.classList.remove('cov'); }, 480); }
+    function hide() { if (cv.classList.contains('out')) return; cv.classList.add('out'); setTimeout(function () { document.documentElement.classList.remove('cov'); }, 360); }
     cv.addEventListener('click', hide);
-    setTimeout(hide, reduced ? 500 : 1500);
+    setTimeout(hide, reduced ? 250 : 1150);
   })();
   if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
     window.addEventListener('load', function () {
