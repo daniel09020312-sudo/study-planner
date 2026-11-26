@@ -1,6 +1,6 @@
 /* 한 입 화학: 인터넷이 없어도 열리게. 파일을 바꾸면 V를 올린다. */
-var V = 'hanip-chem-13';
-var FILES = ['./', 'index.html', 'app.css?v=13', 'mol.js?v=13', 'fig.js?v=13', 'data.js?v=13', 'ws.js?v=13', 'ppt.js?v=13', 'trip.js?v=13', 'app.js?v=13', 'font.woff2', 'manifest.webmanifest', 'icon.svg', 'icon-180.png', 'icon-192.png', 'icon-512.png', 'icon-maskable.png'];
+var V = 'hanip-chem-14';
+var FILES = ['./', 'index.html', 'app.css?v=14', 'mol.js?v=14', 'fig.js?v=14', 'data.js?v=14', 'ws.js?v=14', 'ppt.js?v=14', 'trip.js?v=14', 'app.js?v=14', 'font.woff2', 'manifest.webmanifest', 'icon-180.png', 'icon-192.png', 'icon-512.png', 'icon-maskable.png'];
 self.addEventListener('install', function (e) {
   e.waitUntil(caches.open(V).then(function (c) { return c.addAll(FILES); }));
   self.skipWaiting();
@@ -17,12 +17,11 @@ self.addEventListener('fetch', function (e) {
   if (u.origin !== location.origin) return;
   if (/\/(icon|splash|apple-touch)[^/]*\.png$/.test(u.pathname)) return; // 아이콘·시작 이미지는 늘 인터넷에서(아이폰이 홈 화면에 추가할 때)
   if (r.mode === 'navigate') {
-    // 화면: 저장해 둔 것으로 바로 열고, 뒤에서 새 것을 받아 둔다
+    // 화면: 인터넷에서 새 것을 먼저(3초 넘으면 저장해 둔 것), 안 되면 저장해 둔 것
     e.respondWith(caches.open(V).then(function (c) {
-      return c.match('./').then(function (m) {
-        var net = fetch(r).then(function (res) { if (res.ok && !res.redirected) c.put('./', res.clone()); return res; }).catch(function () { return m; });
-        return m || net;
-      });
+      var net = fetch(r).then(function (res) { if (res.ok && !res.redirected) c.put('./', res.clone()); return res; });
+      var slow = new Promise(function (ok) { setTimeout(ok, 3000); }).then(function () { return c.match('./'); });
+      return Promise.race([net.catch(function () { return c.match('./'); }), slow.then(function (m) { return m || net; })]);
     }));
     return;
   }
