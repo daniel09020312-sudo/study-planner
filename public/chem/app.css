@@ -594,3 +594,7 @@ sub,sup{font-size:.68em;line-height:0}
 .seg button{text-align:center}
 .sob button.on{background:var(--ink);color:var(--bg)}
 .qtag.trip{background:var(--red-s);color:var(--red)}
+.wclr{display:flex;justify-content:space-between;align-items:center;margin:-4px 0 8px}
+.tbtn.danger{color:var(--red)}
+.tbtn.armed{background:var(--red-s);border-radius:10px;padding:0 10px}
+.wbtns{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px}

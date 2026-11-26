@@ -164,6 +164,7 @@
     while (S.days[dayKey(t)]) { n++; t -= DAY; }
     return n;
   }
+  function noteQs(qs) { return qs.filter(function (q) { var s = S.q[q.id]; return s && s.w > 0; }); }
   function dueQs(qs) { var now = Date.now(); return qs.filter(function (q) { var s = S.q[q.id]; return s && s.b > 0 && s.d <= now; }); }
   function wrongQs(qs) { return qs.filter(function (q) { var s = S.q[q.id]; return s && s.b === 0; }); }
 
@@ -319,7 +320,7 @@
       mode('mol', 'hex', '구조식', '보고 이름, 이름 보고 모양', '') +
       mode('link', 'link', '순서·짝 맞추기', '반응 순서, 짝 잇기', '') +
       mode('chains', 'chain', '이야기 줄', '개념을 이어서 보기', '') +
-      mode('wrong', 'redo', '오답 노트', wrongQs(qs).length ? wrongQs(qs).length + '개' : '틀린 문제 다시', wrongQs(qs).length ? 'hot' : '') +
+      mode('wrong', 'redo', '오답 노트', noteQs(qs).length ? noteQs(qs).length + '개' : '틀린 문제 다시', noteQs(qs).some(function (q) { return S.q[q.id].b === 0; }) ? 'hot' : '') +
       mode('notes', 'book', '개념 노트', 'PPT 내용 전부', '') +
       '</section>';
     if (bite) h += '<section class="bite card" data-act="note" data-t="' + bite.t.id + '"><span class="bitek">오늘의 한 입 · ' + esc(bite.t.name) + '</span><p>' + fmt(bite.line) + '</p></section>';
@@ -494,7 +495,7 @@
     else if (mode === 'mol') { list = buildMol(10); title = '구조식'; }
     else if (mode === 'link') { list = buildKinds(['sq', 'mt', 'pk', 'so', 'tb'], 8); title = '순서·짝 맞추기'; }
     else if (mode === 'topic') { list = buildTopic(p.t); if (!seenTopic(p.t)) list.unshift({ learn: p.t }); title = TI[p.t].name; }
-    else if (mode === 'wrong') { var w = wrongQs(Q.filter(inScope)).concat(Q.filter(function (q) { var s = S.q[q.id]; return inScope(q) && s && s.b > 0 && s.w > 0 && s.b < 3; })); list = shuffle(w).slice(0, 10); title = '오답 다시'; }
+    else if (mode === 'wrong') { var w = noteQs(Q.filter(inScope)).sort(function (a, b) { return S.q[a.id].b - S.q[b.id].b; }); list = shuffle(w.slice(0, 20)).slice(0, 10); title = '오답 다시'; }
     else if (mode === 'chain') { list = shuffle(chainQuestions(p.c)).slice(0, 8); title = '이야기 줄'; }
     else if (mode === 'trip') { var tr = TRI[p.id]; list = tr.steps.slice(); title = tr.name; tr.steps.forEach(function (q) { q._o = q._l = q._r = q._bank = null; }); }
     else if (mode === 'ws') { list = Q.filter(function (q) { return q.wa === p.a; }).sort(function (a, b) { return wsCmp(a.ws, b.ws); }); title = '탐구활동 ' + p.a; }
@@ -1079,17 +1080,22 @@
 
   /* ---------- 오답 노트 ---------- */
   SCREENS.wrong = function () {
-    var pool = Q.filter(inScope);
-    var list = pool.filter(function (q) { var s = S.q[q.id]; return s && s.w > 0; }).sort(function (a, b) { var A = S.q[a.id], Bq = S.q[b.id]; return (A.b - Bq.b) || (Bq.l - A.l); });
+    var list = noteQs(Q.filter(inScope)).sort(function (a, b) { var A = S.q[a.id], Bq = S.q[b.id]; return (A.b - Bq.b) || (Bq.l - A.l); });
     var h = topbar('오답 노트') + scopeChips();
-    if (!list.length) return h + '<div class="empty"><p>아직 틀린 문제가 없어요.<br>한 판 하고 오면 여기에 모여요.</p><button class="big primary" data-act="play" data-mode="mix">' + ic('play') + '한 판 하기</button></div>';
-    h += '<div class="wtop"><span>' + list.length + '문제 · 빨간 점은 아직 못 외운 것</span><button class="big primary sm" data-act="play" data-mode="wrong">' + ic('redo') + '다시 풀기</button></div><div class="wlist">';
+    if (!list.length) return h + '<div class="empty"><p>오답 노트가 비어 있어요.<br>한 판 하다 틀리면 여기에 모여요.</p><button class="big primary" data-act="play" data-mode="mix">' + ic('play') + '한 판 하기</button></div>';
+    var done = list.filter(function (q) { return S.q[q.id].b >= 3; }).length;
+    h += '<div class="wtop"><span>' + list.length + '문제 · 빨간 점은 아직 못 외운 것</span><button class="big primary sm" data-act="play" data-mode="wrong">' + ic('redo') + '다시 풀기</button></div>';
+    h += '<div class="wclr">' + (done ? '<button class="tbtn" data-act="wdelok">' + ic('check') + '외운 것 ' + done + '개 지우기</button>' : '<span></span>') + '<button class="tbtn danger" data-act="wdelall">' + ic('x') + '이 범위 모두 지우기</button></div><div class="wlist">';
     h += list.map(function (q) {
       var s = S.q[q.id];
-      return '<details class="wcard card"><summary><span class="wd ' + (s.b >= 3 ? 'ok' : s.b === 0 ? 'no' : 'mid') + '"></span><span class="wq">' + fmt(q.q) + '</span><span class="wn">' + s.w + '번 틀림</span></summary><div class="wa"><div class="sh-ans"><span>정답</span><div>' + correctText(q) + '</div></div>' + (q.fig ? MOL.svg(q.fig) : '') + '<p>' + fmt(q.e) + '</p><button class="tbtn" data-act="note" data-t="' + q.t + '">' + ic('book') + esc(q.topic.hidden ? '' : q.topic.name) + ' 노트</button></div></details>';
+      return '<details class="wcard card" data-id="' + q.id + '"><summary><span class="wd ' + (s.b >= 3 ? 'ok' : s.b === 0 ? 'no' : 'mid') + '"></span><span class="wq">' + fmt(q.q) + '</span><span class="wn">' + s.w + '번 틀림</span></summary><div class="wa">' + extrasHtml(q) + (q.fig ? MOL.svg(q.fig) : '') + '<div class="sh-ans"><span>정답</span><div>' + correctText(q) + '</div></div><p>' + fmt(q.e) + '</p><div class="wbtns"><button class="tbtn" data-act="note" data-t="' + q.t + '">' + ic('book') + esc(q.topic.hidden ? '' : q.topic.name) + ' 노트</button><button class="tbtn danger" data-act="wdel" data-id="' + q.id + '">' + ic('x') + '오답 노트에서 지우기</button></div></div></details>';
     }).join('');
-    return h + '</div>';
+    return h + '</div><p class="foot">지워도 복습 일정은 그대로예요. 다시 틀리면 다시 들어와요.</p>';
   };
+  function wdel(ids) {
+    ids.forEach(function (id) { if (S.q[id]) S.q[id].w = 0; });
+    save();
+  }
 
   /* ---------- 설정 ---------- */
   SCREENS.settings = function () {
@@ -1120,7 +1126,7 @@
   try { matchMedia('(prefers-color-scheme: dark)').addEventListener('change', applyTheme); } catch (e) { }
 
   /* ---------- 누르기 ---------- */
-  var resetArm = 0;
+  var resetArm = 0, wArm = 0;
   document.addEventListener('click', function (e) {
     var bk = e.target.closest && e.target.closest('#bdw [data-bk]');
     if (bk && view.name === 'quiz' && R) { onBdBlank(+bk.getAttribute('data-bk')); return; }
@@ -1165,6 +1171,18 @@
       case 'bgv': onBgv(+d.i, +d.v); break;
       case 'sov': onSov(+d.i, +d.b); break;
       case 'chk': onChk(); break;
+      case 'wdel': {
+        var card = el.closest('.wcard'); wdel([d.id]); SND.tap();
+        if (card && !reduced) { var an = card.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'translateX(40px)' }], { duration: 220, easing: 'ease-in' }); an.onfinish = function () { show(view); }; }
+        else show(view);
+        toast('오답 노트에서 지웠어요');
+        break;
+      }
+      case 'wdelok': { var ok3 = noteQs(Q.filter(inScope)).filter(function (q) { return S.q[q.id].b >= 3; }); wdel(ok3.map(function (q) { return q.id; })); toast('외운 ' + ok3.length + '문제를 지웠어요'); show(view); break; }
+      case 'wdelall':
+        if (Date.now() - (wArm) < 3000) { var all = noteQs(Q.filter(inScope)); wdel(all.map(function (q) { return q.id; })); wArm = 0; toast(all.length + '문제를 지웠어요'); show(view); }
+        else { wArm = Date.now(); el.lastChild.textContent = '한 번 더 누르면 모두 지워져요'; el.classList.add('armed'); }
+        break;
       case 'trips': go('trips'); break;
       case 'trip': startRound('trip', { id: d.id }); break;
       case 'wsl': go('wsl'); break;
