@@ -11,7 +11,7 @@
 
   /* ---------- 저장 ---------- */
   var KEY = 'hanip-chem-v1', S;
-  function fresh() { return { q: {}, days: {}, seen: {}, best: {}, set: { sound: false, vib: true, auto: false, theme: 'auto', big: false }, scope: 'all', tip: 0, made: Date.now() }; }
+  function fresh() { return { q: {}, days: {}, seen: {}, best: {}, set: { sound: false, vib: true, auto: false, theme: 'auto', big: false, logo: 'red' }, scope: 'all', tip: 0, made: Date.now() }; }
   try { S = JSON.parse(localStorage.getItem(KEY) || 'null'); } catch (e) { S = null; }
   if (!S || !S.q) S = fresh();
   if (S.scope === 'u3') S.scope = 'u2';
@@ -355,8 +355,16 @@
     ts.forEach(function (t) { t.key.forEach(function (l) { lines.push({ t: t, line: l }); }); });
     return lines[seed % lines.length];
   }
+  var LOGO = [["red", "빨강", "#F5A3A0"], ["orange", "주황", "#F7BC8C"], ["yellow", "노랑", "#F3D27C"], ["green", "초록", "#A6D8AE"], ["blue", "파랑", "#9FC8F0"], ["navy", "남색", "#A7ADE8"], ["purple", "보라", "#CDAAEC"]];
   function logoSvg() {
-    return '<svg viewBox="0 0 512 512" aria-hidden="true"><defs><mask id="lgb"><rect width="512" height="512" fill="#fff"/><circle cx="470" cy="58" r="92" fill="#000"/><circle cx="372" cy="14" r="52" fill="#000"/><circle cx="500" cy="160" r="52" fill="#000"/></mask></defs><rect width="512" height="512" rx="120" fill="#D23F27" mask="url(#lgb)"/><path d="M256 96l138.6 80v160L256 416l-138.6-80V176z" fill="#FFF6EA" stroke="#FFF6EA" stroke-width="34" stroke-linejoin="round"/><ellipse cx="180" cy="300" rx="26" ry="15" fill="#FFB3A3"/><ellipse cx="332" cy="300" rx="26" ry="15" fill="#FFB3A3"/><circle cx="208" cy="262" r="22" fill="#2C1A14"/><circle cx="304" cy="262" r="22" fill="#2C1A14"/><path d="M230 302q26 28 52 0" fill="none" stroke="#2C1A14" stroke-width="14" stroke-linecap="round"/></svg>';
+    return '<svg viewBox="0 0 512 512" aria-hidden="true"><defs><mask id="lgb"><rect width="512" height="512" fill="#fff"/><circle cx="470" cy="58" r="92" fill="#000"/><circle cx="372" cy="14" r="52" fill="#000"/><circle cx="500" cy="160" r="52" fill="#000"/></mask></defs><rect width="512" height="512" rx="120" style="fill:var(--logo)" mask="url(#lgb)"/><path d="M256 96l138.6 80v160L256 416l-138.6-80V176z" fill="#FFFDF8" stroke="#FFFDF8" stroke-width="34" stroke-linejoin="round"/><ellipse cx="180" cy="300" rx="26" ry="15" fill="#F0717A" fill-opacity=".4"/><ellipse cx="332" cy="300" rx="26" ry="15" fill="#F0717A" fill-opacity=".4"/><circle cx="208" cy="262" r="22" fill="#2C1A14"/><circle cx="304" cy="262" r="22" fill="#2C1A14"/><path d="M230 302q26 28 52 0" fill="none" stroke="#2C1A14" stroke-width="14" stroke-linecap="round"/></svg>';
+  }
+  function applyLogo() {
+    var k = S.set.logo || 'red', c = LOGO[0][2];
+    LOGO.forEach(function (x) { if (x[0] === k) c = x[2]; });
+    document.documentElement.style.setProperty('--logo', c);
+    // 홈 화면에 추가할 때 쓰는 아이콘도 같은 색으로
+    var l = document.querySelector('link[rel="apple-touch-icon"]'); if (l) l.href = 'icon-180-' + k + '.png';
   }
   function installTip() {
     var standalone = document.documentElement.classList.contains('standalone') || window.navigator.standalone || (window.matchMedia && matchMedia('(display-mode: standalone)').matches);
@@ -1127,6 +1135,7 @@
       sw('vib', '진동', '안드로이드에서 정답·오답 진동') +
       sw('auto', '맞히면 자동으로 넘기기', '해설은 잠깐 보여 주고 넘어가요') +
       sw('big', '글자 크게', '차에서 볼 때 편하게') +
+      '<div class="srow logo-row"><span><b>로고 색</b><small>무지개 파스텔 중에서 골라요. 홈 화면 아이콘은 새로 추가할 때 바뀌어요.</small></span><span class="logo-pv">' + logoSvg() + '</span></div><div class="swatches">' + LOGO.map(function (x) { return '<button class="sw-c' + ((S.set.logo || 'red') === x[0] ? ' on' : '') + '" data-act="logo" data-v="' + x[0] + '" style="--c:' + x[2] + '" aria-label="' + x[1] + '"><i></i><span>' + x[1] + '</span></button>'; }).join('') + '</div>' +
       '<div class="srow"><span><b>화면</b><small>밝게, 어둡게, 기기 따라</small></span><div class="seg">' + ['auto', 'light', 'dark'].map(function (v) { return '<button data-act="theme" data-v="' + v + '" class="' + (S.set.theme === v ? 'on' : '') + '">' + { auto: '기기', light: '밝게', dark: '어둡게' }[v] + '</button>'; }).join('') + '</div></div>' +
       '</div><div class="sets card"><div class="srow"><span><b>내 기록</b><small>푼 문제 ' + total + '개 · 이 기기에만 저장</small></span></div>' +
       '<button class="srow danger" data-act="reset"><span><b>전체 초기화</b><small>푼 기록, 오답 노트, 외운 정도, 탐험 별, 번개 최고 기록을 모두 지워요. 설정은 그대로.</small></span></button></div>' +
@@ -1144,6 +1153,7 @@
     m.content = dark ? '#141316' : '#F3EFE6';
   }
   applyTheme();
+  applyLogo();
   try { matchMedia('(prefers-color-scheme: dark)').addEventListener('change', applyTheme); } catch (e) { }
 
   /* ---------- 누르기 ---------- */
@@ -1211,6 +1221,7 @@
       case 'wsbg': startRound('bg'); break;
       case 'pptcz': startRound('cz'); break;
       case 'tipx': S.tip = 2; save(); el.closest('.tipcard').remove(); break;
+      case 'logo': S.set.logo = d.v; save(); applyLogo(); $$('.sw-c').forEach(function (b) { b.classList.toggle('on', b.dataset.v === d.v); }); SND.tap(); vib(8); { var pv = $('.logo-pv svg'); if (pv && !reduced) pv.animate([{ transform: 'scale(1)' }, { transform: 'scale(1.18) rotate(-6deg)' }, { transform: 'scale(1)' }], { duration: 380, easing: 'cubic-bezier(.3,1.6,.5,1)' }); } break;
       case 'theme': S.set.theme = d.v; save(); applyTheme(); show(view); break;
       case 'reset':
         if (!confirm('정말 전체 초기화할까요? 푼 기록, 오답 노트, 탐험 별이 모두 지워지고 되돌릴 수 없어요.')) break;
