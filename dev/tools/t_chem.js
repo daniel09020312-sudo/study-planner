@@ -60,11 +60,40 @@ const SOLVE = `window.__solve = function (q, it) {
           else if (C.S.trip[tr.id].star !== 3) bad.push('trip 별 ' + tr.id + ' ' + C.S.trip[tr.id].star);
         }
         for (const t of C.Q.map(q => q.t).filter((v, i, a) => a.indexOf(v) === i && v !== 'link')) { C.go('note', { t }); if (wide()) over.push('note:' + t); }
-        for (const s of ['home', 'trips', 'wsl', 'chains', 'notes', 'wrong', 'settings']) { C.go(s, {}); if (wide()) over.push('screen:' + s); }
+        for (const s of ['home', 'trips', 'wsl', 'chains', 'notes', 'wrong', 'marks', 'settings']) { C.go(s, {}); if (wide()) over.push('screen:' + s); }
         return { n: all.length, steps, bad, over };
       });
       console.log(scheme, '문제', res.n, '탐험 걸음', res.steps, '틀린 채점', res.bad.length, '넘침', res.over.length, '오류', errs.length);
       if (res.bad.length || res.over.length || errs.length) { fail = 1; console.log(res.bad.slice(0, 10), res.over.slice(0, 10), errs.slice(0, 5)); }
+      await ctx.close();
+    }
+    // 헷갈리는 문제 저장, Claude에게 물어보기(가짜 /api/ask)
+    {
+      const ctx = await b.newContext({ ...devices['iPhone 13'], deviceScaleFactor: 1 });
+      const p = await ctx.newPage(); const errs = []; let sent = null;
+      p.on('pageerror', e => errs.push(e.message));
+      await p.route('**/api/ask', r => { sent = JSON.parse(r.request().postData()); r.fulfill({ status: 200, contentType: 'text/plain; charset=utf-8', body: '하이드록시기가 **핵심**이에요.' }); });
+      await p.goto(`http://localhost:${PORT}/chem/`); await p.waitForTimeout(400);
+      const q = await p.evaluate(() => { const q = __chem.Q.find(x => x.k === 'mc' && !x.les); __chem.play([q]); return q.id; });
+      await p.click('.qhead .mkb');
+      await p.click('.choices .ch >> nth=0'); await p.waitForTimeout(300);
+      const m1 = await p.evaluate(id => !!__chem.S.mark[id] && document.querySelector('#sheet .mkb').classList.contains('on'), q);
+      await p.click('#sheet [data-act="askq"]'); await p.waitForTimeout(300);
+      await p.click('.asksug .chip >> nth=0'); await p.waitForTimeout(500);
+      const ans = await p.evaluate(() => (document.querySelector('.amsg.assistant') || {}).textContent || '');
+      await p.click('.askp .pk-h [data-act="askx"]'); await p.waitForTimeout(300);
+      await p.evaluate(() => __chem.go('marks', {}));
+      const n1 = await p.evaluate(() => document.querySelectorAll('.v-marks .wcard').length);
+      await p.evaluate(() => { document.querySelector('.v-marks details').open = true; });
+      await p.click('.v-marks [data-act="mark"][data-rm]'); await p.waitForTimeout(200);
+      const n2 = await p.evaluate(() => document.querySelectorAll('.v-marks .wcard').length);
+      await p.route('**/api/ask', r => r.fulfill({ status: 503, contentType: 'application/json', body: '{"error":"no-key"}' }));
+      await p.evaluate(() => document.querySelector('[data-act="ask"]') ? null : __chem.go('home', {}));
+      await p.click('.mode[data-act="ask"]'); await p.fill('#askin', '에스터 냄새?'); await p.click('[data-act="asksend"]'); await p.waitForTimeout(400);
+      const fb = await p.evaluate(() => (document.querySelector('.askerr a') || {}).href || '');
+      const ok = m1 && ans.includes('핵심') && sent && sent.ctx.includes('정답') && n1 === 1 && n2 === 0 && fb.startsWith('https://claude.ai/new?q=') && !errs.length;
+      console.log('저장·질문', ok, { m1, ans, ctx: !!(sent && sent.ctx), n1, n2, fb: fb.slice(0, 30), errs });
+      if (!ok) fail = 1;
       await ctx.close();
     }
     // 오프라인

@@ -11,7 +11,7 @@
 
   /* ---------- 저장 ---------- */
   var KEY = 'hanip-chem-v1', S;
-  function fresh() { return { q: {}, days: {}, seen: {}, best: {}, set: { sound: false, vib: true, auto: false, theme: 'auto', big: false, logo: 'red' }, scope: 'all', tip: 0, made: Date.now() }; }
+  function fresh() { return { q: {}, days: {}, seen: {}, best: {}, mark: {}, set: { sound: false, vib: true, auto: false, theme: 'auto', big: false, logo: 'red' }, scope: 'all', tip: 0, made: Date.now() }; }
   try { S = JSON.parse(localStorage.getItem(KEY) || 'null'); } catch (e) { S = null; }
   if (!S || !S.q) S = fresh();
   if (S.scope === 'u3') S.scope = 'u2';
@@ -130,6 +130,7 @@
     bolt: '<path d="M13 2L4 14h7l-1 8 9-12h-7l1-8z"/>', hex: '<path d="M12 2.5l8.2 4.75v9.5L12 21.5l-8.2-4.75v-9.5z"/><path d="M12 7.5l4 2.3v4.4l-4 2.3-4-2.3V9.8z"/>',
     link: '<path d="M4 7h4l3 5-3 5H4M20 7h-4l-3 5 3 5h4"/>', route: '<circle cx="5" cy="6" r="2.2"/><circle cx="19" cy="18" r="2.2"/><path d="M7 6h7a3.5 3.5 0 0 1 0 7H10a3.5 3.5 0 0 0 0 7h7"/>',
     book: '<path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H20v17H6.5A2.5 2.5 0 0 0 4 21.5z"/><path d="M4 21.5A2.5 2.5 0 0 1 6.5 19H20v3H6.5"/>',
+    mark: '<path d="M6.5 3.5h11v17l-5.5-4-5.5 4z"/>', chat: '<path d="M4 5.5h16v10H9l-5 4z"/><path d="M8.5 10.5h.01M12 10.5h.01M15.5 10.5h.01"/>', send: '<path d="M4 12l16-8-6 16-2.5-6.5z"/>',
     redo: '<path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 3v5h5"/>', check: '<path d="M4.5 12.5l5 5L20 7"/>', play: '<path d="M7 4.5v15l13-7.5z"/>', arrow: '<path d="M5 12h14M13 6l6 6-6 6"/>', flame: '<path d="M12 2c1 4 6 6 6 12a6 6 0 0 1-12 0c0-3 2-5 3-7 0 3 1 4 2 4 0-3-1-6 1-9z"/>',
     leaf: '<path d="M5 19C5 9 11 4 20 4c0 9-5 15-15 15z"/><path d="M5 19l8-8"/>', sprout: '<path d="M12 21V11"/><path d="M12 11C12 7 9 5 4 5c0 4 3 6 8 6zM12 13c0-4 3-6 8-6 0 4-3 6-8 6z"/>', shield: '<path d="M12 2l8 3v7c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V5z"/>', flame2: '<path d="M12 2c1 4 6 6 6 12a6 6 0 0 1-12 0c0-3 2-5 3-7 0 3 1 4 2 4 0-3-1-6 1-9z"/>',
     tower: '<rect x="8" y="2" width="8" height="20" rx="4"/><path d="M16 7h4M16 12h4M16 17h4"/>', tag: '<path d="M3 12V3h9l9 9-9 9z"/><circle cx="7.5" cy="7.5" r="1.5"/>', drop: '<path d="M12 3s7 7.5 7 12a7 7 0 0 1-14 0c0-4.5 7-12 7-12z"/>', flask: '<path d="M9 2h6M10 2v6L4.5 19a2 2 0 0 0 1.8 3h11.4a2 2 0 0 0 1.8-3L14 8V2"/><path d="M7 15h10"/>',
@@ -372,6 +373,8 @@
       mode('chains', 'chain', '이야기 줄', '개념을 이어서 보기', '') +
       mode('wrong', 'redo', '오답 노트', noteQs(qs).length ? noteQs(qs).length + '개' : '틀린 문제 다시', noteQs(qs).some(function (q) { return S.q[q.id].b === 0; }) ? 'hot' : '') +
       mode('notes', 'book', '개념 노트', 'PPT 내용 전부', '') +
+      mode('marks', 'mark', '헷갈리는 문제', markQs().length ? '저장 ' + markQs().length + '개' : '눌러서 모아 두기', '') +
+      mode('ask', 'chat', 'Claude에게 물어보기', '궁금한 걸 바로', '') +
       '</section>';
     h += '</div><div class="hcr">';
     if (bite) h += '<section class="bite card" data-act="note" data-t="' + bite.t.id + '"><span class="bitek">오늘의 한 입 · ' + esc(bite.t.name) + '</span><p>' + fmt(bite.line) + '</p></section>';
@@ -563,6 +566,7 @@
     else if (mode === 'trip') { var tr = TRI[p.id]; list = tr.steps.slice(); title = tr.name; tr.steps.forEach(function (q) { q._o = q._l = q._r = q._bank = null; }); }
     else if (mode === 'ws') { list = Q.filter(function (q) { return q.wa === p.a; }).sort(function (a, b) { return wsCmp(a.ws, b.ws); }); title = '탐구활동 ' + p.a; }
     else if (mode === 'cz') { var czs = Q.filter(function (q) { return q.k === 'cz' && inScope(q); }); czs.sort(function (a, b) { return (box(a.id) - box(b.id)) || (Math.random() - 0.5); }); list = shuffle(czs.slice(0, 20)).slice(0, 10); title = 'PPT 문장'; }
+    else if (mode === 'marks') { list = shuffle(markQs()).slice(0, 12); title = '헷갈리는 문제'; }
     else if (mode === 'bg') { list = shuffle(Q.filter(function (q) { return q.k === 'bg' && inScope(q); })).slice(0, 8); title = '보기 문제'; }
     else list = [];
     if (!list.length) { toast('이 범위에는 아직 문제가 없어요'); return; }
@@ -670,8 +674,25 @@
     if (q.figs) h += '<div class="qfigs">' + q.figs.map(function (f) { return '<figure>' + MOL.svg(f[0], { anim: true }) + '<figcaption>' + esc(f[1]) + '</figcaption></figure>'; }).join('') + '</div>';
     return h;
   }
+  function canMark(q) { return !!(q && QI[q.id]); }
+  function isMarked(q) { return !!(S.mark && S.mark[q.id]); }
+  function markBtn(q, big) {
+    if (!canMark(q)) return '';
+    var on = isMarked(q);
+    return '<button class="mkb' + (on ? ' on' : '') + (big ? ' big2' : '') + '" data-act="mark" data-id="' + q.id + '" aria-pressed="' + on + '">' + ic('mark') + '<span>' + (on ? '저장됨' : '헷갈려요') + '</span></button>';
+  }
+  function toggleMark(id) {
+    S.mark = S.mark || {};
+    if (S.mark[id]) delete S.mark[id]; else S.mark[id] = Date.now();
+    save();
+    var on = !!S.mark[id];
+    $$('.mkb[data-id="' + id + '"]').forEach(function (b) { b.classList.toggle('on', on); b.setAttribute('aria-pressed', on); b.querySelector('span').textContent = on ? '저장됨' : '헷갈려요'; if (on && !reduced) b.animate([{ transform: 'scale(1)' }, { transform: 'scale(1.18)' }, { transform: 'scale(1)' }], { duration: 300, easing: 'cubic-bezier(.3,1.6,.5,1)' }); });
+    vib(8);
+    toast(on ? '헷갈리는 문제에 저장했어요' : '저장을 풀었어요');
+  }
+  function markQs() { S.mark = S.mark || {}; return Object.keys(S.mark).map(function (id) { return QI[id]; }).filter(Boolean).sort(function (a, b) { return S.mark[b.id] - S.mark[a.id]; }); }
   function questionHtml(q) {
-    var t = q.topic, h = '<div class="qhead">' + (q.les ? '<span class="qtag trip">탐험 · ' + esc(R && R.trip ? R.trip.name : '') + '</span>' : q.src ? '<span class="qws ppt">PPT ' + esc(q.src) + '</span>' : q.ws ? '<span class="qws">탐구활동 ' + esc(q.ws) + '</span>' : '<span class="qtag">' + esc(t.hidden ? '연결' : t.name) + '</span>') + '<span class="qkind">' + kindLabel(q.k) + '</span>' + (q.les || S.q[q.id] ? '' : '<span class="qnew">처음</span>') + '</div>';
+    var t = q.topic, h = '<div class="qhead">' + (q.les ? '<span class="qtag trip">탐험 · ' + esc(R && R.trip ? R.trip.name : '') + '</span>' : q.src ? '<span class="qws ppt">PPT ' + esc(q.src) + '</span>' : q.ws ? '<span class="qws">탐구활동 ' + esc(q.ws) + '</span>' : '<span class="qtag">' + esc(t.hidden ? '연결' : t.name) + '</span>') + '<span class="qkind">' + kindLabel(q.k) + '</span>' + (q.les || S.q[q.id] ? '' : '<span class="qnew">처음</span>') + markBtn(q) + '</div>';
     h += '<h2 class="qq' + (q.q.length > 70 ? ' long' : '') + '">' + fmt(q.q) + '</h2>' + extrasHtml(q);
     if (q.fig) h += '<figure class="qfig">' + MOL.svg(q.fig, { anim: true, scale: 1.3 }) + '</figure>';
     var opts;
@@ -778,7 +799,7 @@
     if (!ok && q.k === 'mc' && !(typeof q.a === 'string' && q.a[0] === '@')) body += '<div class="sh-ans"><span>정답</span><div>' + fmt(q.a) + '</div></div>' + (detail && detail.mine ? '<div class="sh-ans mine"><span>내 답</span><div>' + fmt(detail.mine) + '</div></div>' : '');
     if (!ok && q.k === 'mc' && typeof q.a === 'string' && q.a[0] === '@') body += '<div class="sh-ans"><span>정답</span><div>' + MOL.svg(q.a.slice(1)) + '<p>' + esc(MOL.db[q.a.slice(1)].name) + '</p></div></div>';
     if (q.e) body += '<p class="sh-e">' + fmt(q.e) + '</p>';
-    sh.innerHTML = '<div class="sh-in">' + head + body + '<div class="sh-btns">' + (q.topic && !q.topic.hidden ? '<button class="tbtn" data-act="peek" data-t="' + q.t + '">' + ic('book') + '노트</button>' : '') + '<button class="big primary" data-act="next" id="nextb">다음' + ic('arrow') + '</button></div></div>';
+    sh.innerHTML = '<div class="sh-in">' + head + body + '<div class="sh-tools">' + markBtn(q) + '<button class="askb" data-act="askq">' + ic('chat') + '<span>Claude에게 물어보기</span></button></div>' + '<div class="sh-btns">' + (q.topic && !q.topic.hidden ? '<button class="tbtn" data-act="peek" data-t="' + q.t + '">' + ic('book') + '노트</button>' : '') + '<button class="big primary" data-act="next" id="nextb">다음' + ic('arrow') + '</button></div></div>';
     sh.className = 'sheet show ' + (ok ? 'ok' : 'no');
     if (ok && S.set.auto && !q.e) setTimeout(function () { if (R && R.cur && R.cur.done) next(); }, 900);
     else if (ok && S.set.auto) { clearTimeout(R.autoT); R.autoT = setTimeout(function () { if (R && R.cur && R.cur.done && view.name === 'quiz') next(); }, 1800); }
@@ -803,6 +824,7 @@
       if (q._o[j] === q.a) b.classList.add('right');
     });
     if (!ok) el.classList.add('wrongc');
+    R.cur.mine = c;
     answer(ok, el, ok ? null : { mine: c });
   }
   function onOx(v, el) {
@@ -1180,6 +1202,111 @@
     save();
   }
 
+  SCREENS.marks = function () {
+    var list = markQs().filter(inScope);
+    var h = topbar('헷갈리는 문제') + scopeChips();
+    if (!list.length) return h + '<div class="empty"><p>아직 저장한 문제가 없어요.<br>문제를 풀다가 위쪽 <b>헷갈려요</b>를 누르면 여기에 모여요.</p></div>';
+    h += '<div class="wtop"><span>' + list.length + '문제 · 최근에 저장한 순</span><button class="big primary sm" data-act="play" data-mode="marks">' + ic('play') + '모아 풀기</button></div><div class="wlist">';
+    h += list.map(function (q) {
+      var s = S.q[q.id];
+      return '<details class="wcard card" data-id="' + q.id + '"><summary><span class="wd ' + (s && s.b >= 3 ? 'ok' : s && s.b === 0 ? 'no' : 'mid') + '"></span><span class="wq">' + fmt(q.q) + '</span>' + (q.ws ? '<span class="wn">탐구 ' + esc(q.ws) + '</span>' : '') + '</summary><div class="wa">' + extrasHtml(q) + (q.fig ? MOL.svg(q.fig) : '') + '<div class="sh-ans"><span>정답</span><div>' + correctText(q) + '</div></div>' + (q.e ? '<p>' + fmt(q.e) + '</p>' : '') +
+        '<div class="wbtns"><button class="tbtn" data-act="askq" data-id="' + q.id + '">' + ic('chat') + 'Claude에게 물어보기</button><button class="tbtn" data-act="note" data-t="' + q.t + '">' + ic('book') + esc(q.topic.hidden ? '' : q.topic.name) + ' 노트</button><button class="tbtn danger" data-act="mark" data-id="' + q.id + '" data-rm="1">' + ic('x') + '저장 풀기</button></div></div></details>';
+    }).join('');
+    return h + '</div>';
+  };
+
+  /* ---------- Claude에게 물어보기 ---------- */
+  var ASK = { msgs: [], q: null, busy: false };
+  function txt(html) { var d = document.createElement('div'); d.innerHTML = html; return (d.textContent || '').replace(/\s+/g, ' ').trim(); }
+  function qContext(q) {
+    if (!q) return '';
+    var o = [];
+    o.push('주제: ' + (q.topic && !q.topic.hidden ? q.topic.name : '여러 단원') + (q.ws ? ' (탐구활동 ' + q.ws + ')' : q.src ? ' (PPT ' + q.src + ')' : ''));
+    o.push('문제(' + kindLabel(q.k) + '): ' + plain(q.q));
+    if (q.box) o.push('주어진 자료: ' + plain(q.box));
+    if (q.k === 'cz') o.push('문장: ' + plain(q.cs.replace(/\[\[(.+?)\]\]/g, '( ___ )')));
+    if (q.k === 'mc') o.push('보기: ' + [q.a].concat(q.o).map(function (c) { return typeof c === 'string' && c[0] === '@' ? (MOL.db[c.slice(1)] || {}).name : plain(c); }).join(' / '));
+    if (q.k === 'bg') o.push('[보기] ' + q.items.map(function (it, i) { return 'ㄱㄴㄷㄹ'[i] + '. ' + plain(it[0]); }).join(' '));
+    if (q.fig) o.push('그림: ' + ((MOL.db[q.fig] || {}).name || '') + '의 구조식');
+    o.push('정답: ' + txt(correctText(q)).slice(0, 600));
+    if (q.k === 'bg') o.push('보기별 이유: ' + q.items.map(function (it, i) { return 'ㄱㄴㄷㄹ'[i] + ' ' + (it[1] ? 'O' : 'X') + ' - ' + plain(it[2]); }).join(' '));
+    if (q.e) o.push('앱의 해설: ' + plain(q.e));
+    var mine = R && R.cur && R.cur.q === q && R.cur.mine;
+    if (mine) o.push('학생이 고른 답: ' + plain(mine));
+    return o.join('\n');
+  }
+  function askOpen(q) {
+    ASK = { msgs: [], q: q || null, busy: false };
+    var d = $('#askp');
+    if (!d) { d = document.createElement('div'); d.id = 'askp'; d.className = 'peek askp'; document.body.appendChild(d); }
+    paintAsk();
+    requestAnimationFrame(function () { d.classList.add('show'); var i = $('#askin'); if (i && !('ontouchstart' in window)) i.focus(); });
+  }
+  function askClose() { var d = $('#askp'); if (!d) return; d.classList.remove('show'); setTimeout(function () { d.remove(); }, 260); }
+  function askFmt(s) {
+    return esc(s).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').replace(/^#{1,4}\s*(.+)$/gm, '<b>$1</b>').replace(/^\s*[-*]\s+/gm, '• ').replace(/\n/g, '<br>');
+  }
+  var ASK_SUG = { q: ['왜 이게 정답이에요?', '헷갈리는 부분을 쉽게 설명해 줘', '비슷한 문제 하나 내 줘'], g: ['알코올과 카복실산 차이를 정리해 줘', '첨가 중합과 축합 중합 구별법', '은거울 반응을 하는 물질은?'] };
+  function paintAsk() {
+    var d = $('#askp'); if (!d) return;
+    var q = ASK.q, online = navigator.onLine !== false;
+    var h = '<div class="pk-bg" data-act="askx"></div><div class="pk-in"><div class="pk-h"><b>' + ic('chat') + 'Claude에게 물어보기</b><button class="ibtn" data-act="askx" aria-label="닫기">' + ic('x') + '</button></div><div class="pk-b askb-body" id="askbody">';
+    if (q) h += '<div class="askctx card"><small>이 문제를 같이 보내요</small><p>' + fmt(q.q) + '</p></div>';
+    if (!ASK.msgs.length) h += '<p class="asktip">' + (q ? '이 문제에서 궁금한 걸 물어보세요.' : '수업 범위(탄소 화합물, 고분자, 생활 속 산화·환원)에서 궁금한 걸 물어보세요.') + '</p><div class="asksug">' + ASK_SUG[q ? 'q' : 'g'].map(function (t) { return '<button class="chip" data-act="asksug">' + esc(t) + '</button>'; }).join('') + '</div>';
+    ASK.msgs.forEach(function (m) { h += '<div class="amsg ' + m.role + '">' + (m.role === 'assistant' ? askFmt(m.content || '') + (m.wait ? '<span class="adots"><i></i><i></i><i></i></span>' : '') : esc(m.content)) + '</div>'; });
+    if (ASK.err) h += '<div class="askerr">' + ASK.err + '</div>';
+    h += '</div><div class="askbar">' + (online ? '' : '<p class="askoff">인터넷에 연결되어 있지 않아요. 연결되면 물어볼 수 있어요.</p>') +
+      '<textarea id="askin" rows="1" placeholder="궁금한 걸 적어요" maxlength="1500"' + (ASK.busy || !online ? ' disabled' : '') + '></textarea><button class="asksend" data-act="asksend" aria-label="보내기"' + (ASK.busy || !online ? ' disabled' : '') + '>' + ic('send') + '</button></div></div>';
+    var keep = $('#askin') ? $('#askin').value : '';
+    d.innerHTML = h;
+    var i = $('#askin'); if (i) { i.value = keep; i.addEventListener('keydown', function (e) { if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); askSend(); } }); i.addEventListener('input', function () { i.style.height = 'auto'; i.style.height = Math.min(120, i.scrollHeight) + 'px'; }); }
+    var b = $('#askbody'); if (b) b.scrollTop = b.scrollHeight;
+  }
+  function claudeLink(text) {
+    var pre = ASK.q ? '아래 화학 문제에 대해 물어볼게요.\n' + qContext(ASK.q) + '\n\n질문: ' : '';
+    return 'https://claude.ai/new?q=' + encodeURIComponent((pre + text).slice(0, 3500));
+  }
+  function askSend(textIn) {
+    var i = $('#askin'), text = (textIn || (i && i.value) || '').trim();
+    if (!text || ASK.busy) return;
+    if (navigator.onLine === false) { ASK.err = '인터넷에 연결되어 있지 않아요.'; paintAsk(); return; }
+    ASK.err = '';
+    ASK.msgs.push({ role: 'user', content: text });
+    var ans = { role: 'assistant', content: '', wait: true };
+    ASK.msgs.push(ans); ASK.busy = true; if (i) i.value = '';
+    paintAsk();
+    var hist = ASK.msgs.filter(function (m) { return m !== ans; }).map(function (m) { return { role: m.role, content: m.content }; });
+    var headers = { 'content-type': 'application/json' };
+    if (S.set.askCode) headers['x-ask-code'] = S.set.askCode;
+    var lastPaint = 0;
+    fetch('/api/ask', { method: 'POST', headers: headers, body: JSON.stringify({ messages: hist, ctx: qContext(ASK.q) }) }).then(function (res) {
+      if (!res.ok) {
+        return res.json().catch(function () { return {}; }).then(function (j) {
+          var why = j && j.error;
+          ASK.msgs.pop(); ASK.msgs.pop(); ASK.busy = false;
+          if (why === 'code') ASK.err = '질문 코드가 맞지 않아요. 설정 > Claude 질문 코드를 확인해 주세요.';
+          else if (why === 'no-key' || res.status === 404 || res.status === 405) ASK.err = '아직 앱에서 바로 묻는 연결이 설정되지 않았어요. <a href="' + esc(claudeLink(text)) + '" target="_blank" rel="noopener">Claude 앱에서 이 질문 열기</a>';
+          else ASK.err = '지금은 답을 받지 못했어요. <a href="' + esc(claudeLink(text)) + '" target="_blank" rel="noopener">Claude 앱에서 물어보기</a>';
+          paintAsk();
+        });
+      }
+      var rd = res.body.getReader(), dec = new TextDecoder();
+      function pump() {
+        return rd.read().then(function (r) {
+          if (r.done) { ans.wait = false; ASK.busy = false; paintAsk(); return; }
+          ans.content += dec.decode(r.value, { stream: true });
+          var now = Date.now(); if (now - lastPaint > 80) { lastPaint = now; paintAsk(); }
+          return pump();
+        });
+      }
+      return pump();
+    }).catch(function () {
+      ans.wait = false; ASK.busy = false;
+      if (!ans.content) { ASK.msgs.pop(); ASK.err = '연결이 끊겼어요. <a href="' + esc(claudeLink(text)) + '" target="_blank" rel="noopener">Claude 앱에서 물어보기</a>'; }
+      paintAsk();
+    });
+  }
+
   /* ---------- 설정 ---------- */
   SCREENS.settings = function () {
     function sw(k, label, desc) { return '<label class="srow"><span><b>' + label + '</b><small>' + desc + '</small></span><input type="checkbox" data-set="' + k + '"' + (S.set[k] ? ' checked' : '') + '><i class="sw"></i></label>'; }
@@ -1191,6 +1318,7 @@
       sw('big', '글자 크게', '차에서 볼 때 편하게') +
       '<div class="srow logo-row"><span><b>테마 색</b><small>로고와 앱 색이 함께 바뀌어요. 홈 화면 아이콘은 추가할 때 그림이 고정돼서, 색을 바꾼 뒤 아이콘을 지우고 다시 추가해야 바뀌어요.</small></span><span class="logo-pv">' + logoSvg() + '</span></div><div class="swatches">' + LOGO.map(function (x) { return '<button class="sw-c' + ((S.set.logo || 'red') === x[0] ? ' on' : '') + '" data-act="logo" data-v="' + x[0] + '" style="--c:' + x[2] + '" aria-label="' + x[1] + '"><i></i><span>' + x[1] + '</span></button>'; }).join('') + '</div>' +
       '<div class="srow"><span><b>화면</b><small>밝게, 어둡게, 기기 따라</small></span><div class="seg">' + ['auto', 'light', 'dark'].map(function (v) { return '<button data-act="theme" data-v="' + v + '" class="' + (S.set.theme === v ? 'on' : '') + '">' + { auto: '기기', light: '밝게', dark: '어둡게' }[v] + '</button>'; }).join('') + '</div></div>' +
+      '</div><div class="sets card"><label class="srow"><span><b>Claude 질문 코드</b><small>사이트에 질문 코드를 정해 두었다면 같은 코드를 넣어요. 없으면 비워 둬요.</small></span><input class="askcode" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" data-askcode value="' + esc(S.set.askCode || '') + '" placeholder="없음"></label>' +
       '</div><div class="sets card"><div class="srow"><span><b>내 기록</b><small>푼 문제 ' + total + '개 · 이 기기에만 저장</small></span></div>' +
       '<button class="srow danger" data-act="reset"><span><b>전체 초기화</b><small>푼 기록, 오답 노트, 외운 정도, 탐험 별, 번개 최고 기록을 모두 지워요. 설정은 그대로.</small></span></button></div>' +
       '<p class="foot">한 입 화학 · 인터넷 없이도 돼요 · 글꼴 Pretendard(OFL)</p>';
@@ -1274,6 +1402,13 @@
       case 'wsl': go('wsl'); break;
       case 'wsa': startRound('ws', { a: +d.a }); break;
       case 'wsbg': startRound('bg'); break;
+      case 'mark': toggleMark(d.id); if (d.rm && view.name === 'marks') show(view); break;
+      case 'marks': go('marks'); break;
+      case 'ask': askOpen(null); break;
+      case 'askq': askOpen(d.id ? QI[d.id] : (R && R.list[R.i]) || null); break;
+      case 'askx': askClose(); break;
+      case 'asksend': askSend(); break;
+      case 'asksug': askSend(el.textContent); break;
       case 'pptcz': startRound('cz'); break;
       case 'tipx': S.tip = 2; save(); el.closest('.tipcard').remove(); break;
       case 'logo': S.set.logo = d.v; save(); applyLogo(); toast('앱 색이 바뀌었어요. 홈 화면 아이콘은 지우고 다시 추가하면 바뀌어요'); $$('.sw-c').forEach(function (b) { b.classList.toggle('on', b.dataset.v === d.v); }); SND.tap(); vib(8); { var pv = $('.logo-pv svg'); if (pv && !reduced) pv.animate([{ transform: 'scale(1)' }, { transform: 'scale(1.18) rotate(-6deg)' }, { transform: 'scale(1)' }], { duration: 380, easing: 'cubic-bezier(.3,1.6,.5,1)' }); } break;
@@ -1284,6 +1419,7 @@
         break;
     }
   });
+  document.addEventListener('input', function (e) { if (e.target.dataset && e.target.dataset.askcode !== undefined) { S.set.askCode = e.target.value.trim(); save(); } });
   document.addEventListener('change', function (e) {
     var k = e.target.dataset && e.target.dataset.set; if (!k) return;
     S.set[k] = e.target.checked; save(); applyTheme();
@@ -1291,6 +1427,7 @@
   });
   document.addEventListener('keydown', function (e) {
     if (e.metaKey || e.ctrlKey || e.altKey) return;
+    if (e.target && (e.target.tagName === 'TEXTAREA' || e.target.tagName === 'INPUT')) { if (e.key === 'Escape' && $('#askp')) askClose(); return; }
     if (view.name === 'quiz' && R) {
       var it = R.list[R.i];
       if (R.cur && R.cur.done) { if (e.key === 'Enter' || e.key === ' ' || e.key === 'ArrowRight') { e.preventDefault(); next(); } return; }
@@ -1300,7 +1437,7 @@
       if (it && it.k === 'pk' && e.key === 'Enter') { var ok = $('#pkok'); if (ok && !ok.disabled) ok.click(); }
     }
     if (view.name === 'boltrun') { if (e.key === 'ArrowRight' || /^[oO]$/.test(e.key)) boltAnswer(1); if (e.key === 'ArrowLeft' || /^[xX]$/.test(e.key)) boltAnswer(0); }
-    if (e.key === 'Escape') { if ($('.peek')) peekClose(); else if ($('#win')) winClose(); }
+    if (e.key === 'Escape') { if ($('#askp')) askClose(); else if ($('.peek')) peekClose(); else if ($('#win')) winClose(); }
   });
 
   /* ---------- 시작 ---------- */
@@ -1347,7 +1484,7 @@
       navigator.serviceWorker.register('sw.js', { scope: './' }).catch(function () { });
     });
   }
-  window.__chem = { S: S, Q: Q, TRIPS: TRIPS, start: startRound, go: go, R: function () { return R; },
+  window.__chem = { S: S, Q: Q, TRIPS: TRIPS, ask: function () { return ASK; }, start: startRound, go: go, R: function () { return R; },
     play: function (list) { R = { mode: 'mix', p: {}, title: 'test', list: list, i: 0, ok: 0, total: 0, combo: 0, maxc: 0, learned: 0, wrong: [], retried: {}, t0: Date.now(), mols: [] }; go('quiz', {}); },
     gen: function () { return MOLPOOL.map(function (k) { return [genMol('name', k), genMol('pick', k)]; }).reduce(function (a, b) { return a.concat(b); }, []).concat(chainQuestions(null)); } };
 })();

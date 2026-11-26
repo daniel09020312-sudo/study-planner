@@ -1,0 +1,8 @@
+{
+  "name": "study-planner-site",
+  "private": true,
+  "description": "Cloudflare Pages Functions dependencies (functions/api/ask.js)",
+  "dependencies": {
+    "@anthropic-ai/sdk": "1.14.0"
+  }
+}
