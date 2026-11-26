@@ -1017,7 +1017,7 @@
 - **촉매로 인산을 쓰는 이유**: 진한 황산은 **부식성**과 **탈수·산화 작용**이 강해 위험하고 **부반응**이 일어날 수 있어요.
 # 신약 개발
 - 난치성 질병, 새로운 바이러스로 인해 **중요성이 커짐**
-- 후보 물질의 선정 및 **안전성 검증**에 많은 시간 소요 ⇒ **비용 증가**
+- 신약 후보 물질의 선정 및 **안정성 검증**에 많은 시간 소요 ⇒ **비용 증가**
 - 개발 과정 간소화: ==빅데이터 기술, 인공지능 기술== 도입
 @fig:drugdev|신약의 개발 과정
 > 아스피린은 살리실산의 -OH(페놀)가 에스터로 바뀐 것이라, 3단원 에스터화와 같은 원리예요. 단, 에스터화 일반 촉매는 진한 황산, 아스피린 실험 촉매는 인산!`
@@ -1041,7 +1041,7 @@
   mc('아세트산 무수물의 구조식은?', '@anhydride', ['@ethylacetate', '@acetic', '@adipoyl'], '아세트산 2개에서 물 하나가 빠진 꼴.');
   sq('신약의 개발 과정을 순서대로 놓아요.', ['기초 탐색 및 원천 기술 연구', '개발 후보 물질 선정', '전임상(비임상) 시험', '임상 시험', '신약 허가 및 시판'], '');
   pk('신약 개발이 중요해진 이유를 모두 고르세요.', ['난치성 질병', '새로운 바이러스'], ['플라스틱 증가', '원유 고갈'], '');
-  mc('신약 개발 비용이 늘어나는 이유는?', '후보 물질 선정과 안전성 검증에 많은 시간이 걸려서', ['원료가 모두 천연물이라서', '임상 시험이 없어서', '대량 생산이 쉬워서'], '');
+  mc('신약 개발 비용이 늘어나는 이유는?', '후보 물질 선정과 안정성 검증에 많은 시간이 걸려서', ['원료가 모두 천연물이라서', '임상 시험이 없어서', '대량 생산이 쉬워서'], '');
   pk('신약 개발 과정을 간소화하려고 도입하는 기술을 모두 고르세요.', ['빅데이터 기술', '인공지능 기술'], ['분별 증류', '가황'], '');
   mc('사람을 대상으로 하기 전, 동물 등으로 하는 시험 단계는?', '전임상(비임상) 시험', ['임상 시험', '기초 탐색', '시판'], '');
   ox('살리실산은 진통 효과가 뛰어나지만 위장 장애 부작용이 있다.', true, '');
@@ -1157,6 +1157,7 @@
   function tb(q, rows, e, x) { add(ext({ k: 'tb', q: q, rows: rows, e: e }, x)); }
   function bd(q, src, a, tiles, e, x) { add(ext({ k: 'bd', q: q, src: src, a: a, tiles: tiles, e: e }, x)); }
   function bg(q, items, e, x) { add(ext({ k: 'bg', q: q, items: items, e: e }, x)); }
+  function cz(q, s, src, bank) { var a = []; s.replace(/\[\[(.+?)\]\]/g, function (m, v) { a.push(v); return m; }); add({ k: 'cz', q: q, cs: s, a: a, src: src, bank: bank, e: '' }); }
   function so(q, buckets, items, e, x) { add(ext({ k: 'so', q: q, buckets: buckets, items: items, e: e }, x)); }
-  window.CHEM = { UNITS: UNITS, TOPICS: TOPICS, CHAINS: CHAINS, H: { use: use, mc: mc, ox: ox, sq: sq, mt: mt, pk: pk, tb: tb, bd: bd, bg: bg, so: so } };
+  window.CHEM = { UNITS: UNITS, TOPICS: TOPICS, CHAINS: CHAINS, H: { use: use, mc: mc, ox: ox, sq: sq, mt: mt, pk: pk, tb: tb, bd: bd, bg: bg, so: so, cz: cz } };
 })();

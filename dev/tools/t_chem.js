@@ -13,8 +13,8 @@ const SOLVE = `window.__solve = function (q, it) {
   else if (q.k === 'pk') { it._o.forEach((c, i) => { if (q.a.includes(c)) $$('.choices.pk .ch')[i].click(); }); $('#pkok').click(); }
   else if (q.k === 'sq') q.s.forEach(s => { const i = it._o.findIndex((c, j) => c === s && !$('#pool .pc[data-i="' + j + '"]').classList.contains('used')); $('#pool .pc[data-i="' + i + '"]').click(); });
   else if (q.k === 'mt') q.p.forEach((_, i) => { $('.mcol:first-child .mi[data-i="' + i + '"]').click(); $('.mcol:last-child .mi[data-i="' + i + '"]').click(); });
-  else if (q.k === 'tb') {
-    const ans = []; q.rows.forEach(r => r.forEach(c => { if (c[0] === '?') ans.push(c.slice(1).trim()); }));
+  else if (q.k === 'tb' || q.k === 'cz') {
+    const ans = []; if (q.k === 'cz') q.a.forEach(a => ans.push(a.trim())); else q.rows.forEach(r => r.forEach(c => { if (c[0] === '?') ans.push(c.slice(1).trim()); }));
     ans.forEach((a, i) => { $('.tbk[data-b="' + i + '"]').click(); $('.tile[data-v="' + it._bank.indexOf(a) + '"]').click(); });
     $('#chk').click();
   } else if (q.k === 'bd') {

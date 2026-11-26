@@ -333,6 +333,7 @@
         }).join('') + '</div>';
     }).join('') + '</section>';
     h += installTip();
+    h += '<button class="resetlink" data-act="settings">' + ic('gear') + '설정 · 전체 초기화</button>';
     h += '<footer class="foot">모든 내용은 화학 반응의 세계 수업 PPT(Ⅱ-05, Ⅲ-1~4)와 탐구활동지에서 가져왔어요. 기록은 이 기기에만 저장돼요.</footer>';
     return h;
   };
@@ -493,12 +494,13 @@
     var list, title;
     if (mode === 'mix') { list = withLearn(buildMix(10)); title = '한 판'; }
     else if (mode === 'mol') { list = buildMol(10); title = '구조식'; }
-    else if (mode === 'link') { list = buildKinds(['sq', 'mt', 'pk', 'so', 'tb'], 8); title = '순서·짝 맞추기'; }
+    else if (mode === 'link') { list = buildKinds(['sq', 'mt', 'pk', 'so', 'tb', 'cz'], 8); title = '순서·짝 맞추기'; }
     else if (mode === 'topic') { list = buildTopic(p.t); if (!seenTopic(p.t)) list.unshift({ learn: p.t }); title = TI[p.t].name; }
     else if (mode === 'wrong') { var w = noteQs(Q.filter(inScope)).sort(function (a, b) { return S.q[a.id].b - S.q[b.id].b; }); list = shuffle(w.slice(0, 20)).slice(0, 10); title = '오답 다시'; }
     else if (mode === 'chain') { list = shuffle(chainQuestions(p.c)).slice(0, 8); title = '이야기 줄'; }
     else if (mode === 'trip') { var tr = TRI[p.id]; list = tr.steps.slice(); title = tr.name; tr.steps.forEach(function (q) { q._o = q._l = q._r = q._bank = null; }); }
     else if (mode === 'ws') { list = Q.filter(function (q) { return q.wa === p.a; }).sort(function (a, b) { return wsCmp(a.ws, b.ws); }); title = '탐구활동 ' + p.a; }
+    else if (mode === 'cz') { var czs = Q.filter(function (q) { return q.k === 'cz' && inScope(q); }); czs.sort(function (a, b) { return (box(a.id) - box(b.id)) || (Math.random() - 0.5); }); list = shuffle(czs.slice(0, 20)).slice(0, 10); title = 'PPT 문장'; }
     else if (mode === 'bg') { list = shuffle(Q.filter(function (q) { return q.k === 'bg' && inScope(q); })).slice(0, 8); title = '보기 문제'; }
     else list = [];
     if (!list.length) { toast('이 범위에는 아직 문제가 없어요'); return; }
@@ -555,17 +557,30 @@
     if (f.indexOf('fig:') === 0) return FIG[f.slice(4)] ? '<figure class="nfig fig">' + FIG[f.slice(4)]() + '</figure>' : '';
     return '<figure class="qfig">' + MOL.svg(f, { anim: true, scale: 1.2 }) + '</figure>';
   }
-  function kindLabel(k) { return { mc: '고르기', ox: 'O / X', sq: '순서대로', mt: '짝 맞추기', pk: '모두 고르기', tb: '빈 칸 채우기', bd: '구조식 완성', bg: '보기 고르기', so: '분류하기' }[k]; }
+  function kindLabel(k) { return { mc: '고르기', ox: 'O / X', sq: '순서대로', mt: '짝 맞추기', pk: '모두 고르기', tb: '빈 칸 채우기', cz: '문장 빈칸', bd: '구조식 완성', bg: '보기 고르기', so: '분류하기' }[k]; }
   function bankOf(q) {
     if (q._bank) return q._bank;
     var seen = {}, out = [];
     function addv(v) { var k = v.trim(); if (!seen[k]) { seen[k] = 1; out.push(k); } }
-    q.rows.forEach(function (r) { r.forEach(function (c) { if (c[0] === '?') addv(c.slice(1)); }); });
+    tbBlanks(q).forEach(addv);
     (q.bank || []).forEach(addv);
     return (q._bank = shuffle(out));
   }
-  function tbBlanks(q) { var a = []; q.rows.forEach(function (r) { r.forEach(function (c) { if (c[0] === '?') a.push(c.slice(1).trim()); }); }); return a; }
+  function tbBlanks(q) { if (q.k === 'cz') return q.a.slice(); var a = []; q.rows.forEach(function (r) { r.forEach(function (c) { if (c[0] === '?') a.push(c.slice(1).trim()); }); }); return a; }
+  function blankBtn(i, ans, cur, inl) {
+    var v = cur.vals[i], done = cur.done, cls = 'tbk' + (inl ? ' inl' : '') + (v != null ? ' full' : '') + (!done && cur.sel === i ? ' on' : '');
+    if (done) cls += v === ans ? ' right' : ' wrongc';
+    var inner = v != null ? fmt(v) : '<span class="qmk">?</span>';
+    if (done && v !== ans) inner = (v != null ? '<s>' + fmt(v) + '</s>' : '') + '<b>' + fmt(ans) + '</b>';
+    return '<button class="' + cls + '" data-act="tbc" data-b="' + i + '">' + inner + '</button>';
+  }
+  function czHtml(q, cur) {
+    var i = 0, parts = q.cs.split(/\[\[(.+?)\]\]/), h = '<p class="czs">';
+    parts.forEach(function (p, k) { h += k % 2 ? blankBtn(i++, p.trim(), cur, true) : fmt(p); });
+    return h + '</p>';
+  }
   function tbHtml(q, cur) {
+    if (q.k === 'cz') return czHtml(q, cur);
     var b = 0, done = cur.done, h = '<div class="tscroll tbq"><table>';
     q.rows.forEach(function (r, ri) {
       h += '<tr>' + r.map(function (c) {
@@ -594,7 +609,7 @@
     return h;
   }
   function questionHtml(q) {
-    var t = q.topic, h = '<div class="qhead">' + (q.les ? '<span class="qtag trip">탐험 · ' + esc(R && R.trip ? R.trip.name : '') + '</span>' : q.ws ? '<span class="qws">탐구활동 ' + esc(q.ws) + '</span>' : '<span class="qtag">' + esc(t.hidden ? '연결' : t.name) + '</span>') + '<span class="qkind">' + kindLabel(q.k) + '</span>' + (q.les || S.q[q.id] ? '' : '<span class="qnew">처음</span>') + '</div>';
+    var t = q.topic, h = '<div class="qhead">' + (q.les ? '<span class="qtag trip">탐험 · ' + esc(R && R.trip ? R.trip.name : '') + '</span>' : q.src ? '<span class="qws ppt">PPT ' + esc(q.src) + '</span>' : q.ws ? '<span class="qws">탐구활동 ' + esc(q.ws) + '</span>' : '<span class="qtag">' + esc(t.hidden ? '연결' : t.name) + '</span>') + '<span class="qkind">' + kindLabel(q.k) + '</span>' + (q.les || S.q[q.id] ? '' : '<span class="qnew">처음</span>') + '</div>';
     h += '<h2 class="qq' + (q.q.length > 70 ? ' long' : '') + '">' + fmt(q.q) + '</h2>' + extrasHtml(q);
     if (q.fig) h += '<figure class="qfig">' + MOL.svg(q.fig, { anim: true, scale: 1.3 }) + '</figure>';
     var opts;
@@ -625,6 +640,9 @@
         '<div class="mcol">' + q._r.map(function (i) { return '<button class="mi" data-act="mtr" data-i="' + i + '">' + fmt(q.p[i][1]) + '</button>'; }).join('') + '</div></div>';
     } else if (q.k === 'tb') {
       h += '<p class="qhint">빈 칸을 누르고 아래 낱말 카드를 골라요. 같은 카드를 여러 번 써도 돼요.</p><div id="tbw">' + tbHtml(q, { vals: [], sel: 0 }) + '</div>';
+      h += '<div class="tiles" id="tiles">' + bankOf(q).map(function (v, i) { return '<button class="tile" data-act="tbt" data-v="' + i + '">' + fmt(v) + '</button>'; }).join('') + '</div><button class="big primary" data-act="chk" id="chk" disabled>확인</button>';
+    } else if (q.k === 'cz') {
+      h += '<div id="tbw" class="czw">' + czHtml(q, { vals: [], sel: 0 }) + '</div>';
       h += '<div class="tiles" id="tiles">' + bankOf(q).map(function (v, i) { return '<button class="tile" data-act="tbt" data-v="' + i + '">' + fmt(v) + '</button>'; }).join('') + '</div><button class="big primary" data-act="chk" id="chk" disabled>확인</button>';
     } else if (q.k === 'bd') {
       h += '<p class="qhint">물음표(?)나 점선을 누르고 아래 카드로 채워요. 탄소는 결합 4개!</p><div class="bdwrap" id="bdw">' + bdSvg(q, { vals: [], sel: 0 }) + '</div>';
@@ -680,6 +698,7 @@
     if (q.k === 'sq') return q.s.map(fmt).join(' → ');
     if (q.k === 'mt') return q.p.map(function (p) { return fmt(p[0]) + ' – ' + fmt(p[1]); }).join('<br>');
     if (q.k === 'tb') return tbBlanks(q).map(fmt).join(' · ');
+    if (q.k === 'cz') return fmt(q.cs.replace(/\[\[(.+?)\]\]/g, '**$1**'));
     if (q.k === 'bd') return MOL.ascii(q.src, { vals: q.a });
     if (q.k === 'bg') return q.items.map(function (it, i) { return 'ㄱㄴㄷㄹ'[i] + ' ' + (it[1] ? 'O' : 'X'); }).join(' · ');
     if (q.k === 'so') return q.buckets.map(function (b, j) { return '<b>' + fmt(b) + '</b>: ' + q.items.filter(function (x) { return x[1] === j; }).map(function (x) { return fmt(x[0]); }).join(', '); }).join('<br>');
@@ -690,7 +709,8 @@
     var head = ok ? '<div class="sh-h ok">' + ic('check') + '<b>' + pick(['정답', '좋아요', '맞아요', '정확해요']) + '</b>' + (q._retry ? '<small>다시 풀어 맞혔어요</small>' : '') + '</div>'
       : '<div class="sh-h no">' + ic('x') + '<b>' + pick(['아쉬워요', '다시 볼게요', '이건 헷갈리죠']) + '</b><small>이번 판 끝에 한 번 더 나와요</small></div>';
     var body = '';
-    var showAns = (!ok || q.k === 'mt' || q.k === 'sq') && q.k !== 'tb' && q.k !== 'bd' && q.k !== 'bg';
+    var showAns = (!ok || q.k === 'mt' || q.k === 'sq') && q.k !== 'tb' && q.k !== 'bd' && q.k !== 'bg' && q.k !== 'cz';
+    if (q.k === 'cz') body += '<div class="sh-ans"><span>슬라이드</span><div>' + correctText(q) + '</div></div>';
     if (q.k === 'bg') body += '<div class="bgwhy">' + q.items.map(function (it, i) { return '<p><b class="' + (it[1] ? 'o' : 'x') + '">' + 'ㄱㄴㄷㄹ'[i] + ' ' + (it[1] ? 'O' : 'X') + '</b> ' + fmt(it[2]) + '</p>'; }).join('') + '</div>';
     if (showAns && q.k !== 'mc') body += '<div class="sh-ans"><span>정답</span><div>' + correctText(q) + '</div></div>';
     if (!ok && q.k === 'mc' && !(typeof q.a === 'string' && q.a[0] === '@')) body += '<div class="sh-ans"><span>정답</span><div>' + fmt(q.a) + '</div></div>' + (detail && detail.mine ? '<div class="sh-ans mine"><span>내 답</span><div>' + fmt(detail.mine) + '</div></div>' : '');
@@ -805,7 +825,7 @@
     return -1;
   }
   function refreshChk() {
-    var cur = R.cur, q = R.list[R.i], n = q.k === 'tb' ? tbBlanks(q).length : q.k === 'bd' ? q.a.length : q.items.length;
+    var cur = R.cur, q = R.list[R.i], n = q.k === 'tb' || q.k === 'cz' ? tbBlanks(q).length : q.k === 'bd' ? q.a.length : q.items.length;
     var arr = q.k === 'bg' ? cur.bgv : q.k === 'so' ? cur.sov : cur.vals, c = 0;
     for (var i = 0; i < n; i++) if (arr[i] != null) c++;
     var b = $('#chk'); if (b) b.disabled = c < n;
@@ -849,13 +869,13 @@
   function onChk() {
     var cur = R.cur, q = R.list[R.i], ok = true, el = $('#chk');
     if (cur.done) return;
-    if (q.k === 'tb') { tbBlanks(q).forEach(function (a, i) { if ((cur.vals[i] || '').trim() !== a) ok = false; }); cur.done = true; paintTb(); cur.done = false; }
+    if (q.k === 'tb' || q.k === 'cz') { tbBlanks(q).forEach(function (a, i) { if ((cur.vals[i] || '').trim() !== a) ok = false; }); cur.done = true; paintTb(); cur.done = false; }
     else if (q.k === 'bd') { q.a.forEach(function (a, i) { if (cur.vals[i] !== a) ok = false; }); cur.done = true; paintBd(); cur.done = false; }
     else if (q.k === 'bg') { q.items.forEach(function (it, i) { var r = (cur.bgv[i] === 1) === it[1]; if (!r) ok = false; $('.bgi[data-i="' + i + '"]').classList.add(r ? 'right' : 'wrongc'); }); }
     else if (q.k === 'so') { q.items.forEach(function (it, i) { var r = cur.sov[i] === it[1]; if (!r) ok = false; var row = $('.soi[data-i="' + i + '"]'); row.classList.add(r ? 'right' : 'wrongc'); $$('button', row).forEach(function (x) { if (+x.dataset.b === it[1]) x.classList.add('ans'); }); }); }
     $$('#tiles .tile, .bgb button, .sob button').forEach(function (b) { b.disabled = true; });
     if (el) el.disabled = true;
-    answer(ok, q.k === 'tb' ? $('#tbw') : q.k === 'bd' ? $('#bdw') : el);
+    answer(ok, q.k === 'tb' || q.k === 'cz' ? $('#tbw') : q.k === 'bd' ? $('#bdw') : el);
   }
 
   /* ---------- 결과 ---------- */
@@ -918,7 +938,8 @@
   SCREENS.wsl = function () {
     var bgs = Q.filter(function (q) { return q.k === 'bg'; }).length;
     return topbar('탐구활동지') + '<p class="lead">Ⅲ. 탄소 화합물과 반응 탐구활동지의 문제를 같은 말 그대로 옮겼어요. 쓰는 대신 고르고, 채우고, 조립해요.</p>' +
-      '<button class="wsbg card" data-act="wsbg"><b>보기 ㄱㄴㄷ 문제만 모아 풀기</b><small>실전 문제 스타일 ' + bgs + '개</small>' + ic('arrow') + '</button><div class="wslist">' +
+      '<button class="wsbg card" data-act="wsbg"><b>보기 ㄱㄴㄷ 문제만 모아 풀기</b><small>실전 문제 스타일 ' + bgs + '개</small>' + ic('arrow') + '</button>' +
+      '<button class="wsbg card" data-act="pptcz"><b>PPT 문장 빈칸만 모아 풀기</b><small>탄소 화합물 PPT 문장을 글자 그대로 ' + Q.filter(function (q) { return q.k === 'cz'; }).length + '개</small>' + ic('arrow') + '</button><div class="wslist">' +
       WSA.map(function (w) {
         var qs = Q.filter(function (q) { return q.wa === w[0]; }), ln = learnedCount(qs), seen = qs.filter(function (q) { return S.q[q.id]; }).length;
         return '<button class="wsc card" data-act="wsa" data-a="' + w[0] + '"><span class="wsn">' + w[0] + '</span><div><b>' + esc(w[1]) + '</b><small>' + qs.length + '문제 · 푼 것 ' + seen + '</small>' + bar(qs.length ? mastery(qs) : 0, 'c-blue') + '</div></button>';
@@ -1108,7 +1129,7 @@
       sw('big', '글자 크게', '차에서 볼 때 편하게') +
       '<div class="srow"><span><b>화면</b><small>밝게, 어둡게, 기기 따라</small></span><div class="seg">' + ['auto', 'light', 'dark'].map(function (v) { return '<button data-act="theme" data-v="' + v + '" class="' + (S.set.theme === v ? 'on' : '') + '">' + { auto: '기기', light: '밝게', dark: '어둡게' }[v] + '</button>'; }).join('') + '</div></div>' +
       '</div><div class="sets card"><div class="srow"><span><b>내 기록</b><small>푼 문제 ' + total + '개 · 이 기기에만 저장</small></span></div>' +
-      '<button class="srow danger" data-act="reset"><span><b>기록 모두 지우기</b><small>두 번 눌러야 지워져요</small></span></button></div>' +
+      '<button class="srow danger" data-act="reset"><span><b>전체 초기화</b><small>푼 기록, 오답 노트, 외운 정도, 탐험 별, 번개 최고 기록을 모두 지워요. 설정은 그대로.</small></span></button></div>' +
       '<p class="foot">한 입 화학 · 인터넷 없이도 돼요 · 글꼴 Pretendard(OFL)</p>';
   };
 
@@ -1188,11 +1209,12 @@
       case 'wsl': go('wsl'); break;
       case 'wsa': startRound('ws', { a: +d.a }); break;
       case 'wsbg': startRound('bg'); break;
+      case 'pptcz': startRound('cz'); break;
       case 'tipx': S.tip = 2; save(); el.closest('.tipcard').remove(); break;
       case 'theme': S.set.theme = d.v; save(); applyTheme(); show(view); break;
       case 'reset':
-        if (Date.now() - resetArm < 3000) { var keep = S.set; S = fresh(); S.set = keep; saveNow(); toast('기록을 지웠어요'); go('home', {}, true); }
-        else { resetArm = Date.now(); el.querySelector('small').textContent = '한 번 더 누르면 지워져요'; }
+        if (!confirm('정말 전체 초기화할까요? 푼 기록, 오답 노트, 탐험 별이 모두 지워지고 되돌릴 수 없어요.')) break;
+        (function () { var keep = S.set; S = fresh(); S.set = keep; window.__chem.S = S; saveNow(); toast('전체 초기화했어요. 처음부터 시작해요'); go('home', {}, true); })();
         break;
     }
   });
