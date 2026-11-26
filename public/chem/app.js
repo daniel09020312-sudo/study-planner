@@ -279,14 +279,44 @@
     try { if (replace) history.replaceState(stt, ''); else history.pushState(stt, ''); } catch (e) { }
     show(stt);
   }
+  var WIDE = window.matchMedia ? matchMedia('(min-width: 740px)') : { matches: false };
   function show(stt) {
     stopBolt();
     view = stt;
     var f = SCREENS[stt.name] || SCREENS.home;
-    app.innerHTML = '<div class="view v-' + stt.name + '">' + f(stt.p || {}) + '</div>';
-    app.scrollTop = 0; window.scrollTo(0, 0);
+    if (WIDE.matches && stt.name !== 'home') {
+      // 아이패드처럼 넓은 화면: 홈은 뒤에 두고 이 화면을 창으로 띄움
+      if (!$('#app > .v-home')) { app.innerHTML = '<div class="view v-home">' + SCREENS.home({}) + '</div>'; }
+      var w = $('#win'), fresh = false;
+      if (!w) {
+        w = document.createElement('div'); w.id = 'win';
+        w.innerHTML = '<div class="win-bg" data-act="winx"></div><div class="win-box" role="dialog" aria-modal="true"><div class="win-in"></div></div>';
+        document.body.appendChild(w); fresh = true;
+        document.documentElement.classList.add('winopen');
+      }
+      var inn = w.querySelector('.win-in');
+      inn.innerHTML = '<div class="view v-' + stt.name + '">' + f(stt.p || {}) + '</div>';
+      inn.scrollTop = 0;
+      if (fresh) { void w.offsetWidth; w.classList.add('show'); }
+    } else {
+      closeWin();
+      app.innerHTML = '<div class="view v-' + stt.name + '">' + f(stt.p || {}) + '</div>';
+      app.scrollTop = 0; window.scrollTo(0, 0);
+    }
     var after = AFTER[stt.name]; if (after) after(stt.p || {});
   }
+  function closeWin() {
+    var w = $('#win'); if (!w) return;
+    w.id = 'win-old'; w.classList.remove('show'); w.classList.add('hide');
+    document.documentElement.classList.remove('winopen');
+    setTimeout(function () { w.remove(); }, reduced ? 0 : 240);
+  }
+  function winClose() { // 창 바깥이나 Esc: 진행 중인 판이면 그만하기 확인
+    if (view.name === 'quiz') { var q = $('#win [data-act="quit"]'); if (q) q.click(); return; }
+    if (view.name === 'boltrun') { stopBolt(); B = null; }
+    if (history.state && history.state.name !== 'home' && history.length > 1) history.back(); else go('home', {}, true);
+  }
+  try { WIDE.addEventListener('change', function () { show(view); }); } catch (e) { }
   window.addEventListener('popstate', function (e) {
     var stt = e.state || { name: 'home' };
     if (view.name === 'quiz' && R && !R.done && stt.name !== 'quiz') { R = null; }
@@ -322,6 +352,7 @@
     h += '<header class="hhead"><div class="brand"><span class="logo">' + logoSvg() + '</span><div><b>한 입 화학</b><small>화학 반응의 세계</small></div></div>' +
       '<div class="hbtns"><button class="ibtn" data-act="sound" aria-label="소리">' + ic(S.set.sound ? 'snd' : 'mute') + '</button><button class="ibtn" data-act="settings" aria-label="설정">' + ic('gear') + '</button></div></header>';
     h += scopeChips();
+    h += '<div class="hgrid"><div class="hcl">';
     h += '<section class="hero card">' +
       '<div class="hring">' + ring(m, 112, 10, 'hr') + '<div class="hnum"><b><span id="mnum">' + Math.round(m * 100) + '</span><small>%</small></b><span>외운 정도</span></div></div>' +
       '<div class="hstats"><div><b>' + ln + '<small>/' + qs.length + '</small></b><span>완전히 외운 문제</span></div>' +
@@ -342,6 +373,7 @@
       mode('wrong', 'redo', '오답 노트', noteQs(qs).length ? noteQs(qs).length + '개' : '틀린 문제 다시', noteQs(qs).some(function (q) { return S.q[q.id].b === 0; }) ? 'hot' : '') +
       mode('notes', 'book', '개념 노트', 'PPT 내용 전부', '') +
       '</section>';
+    h += '</div><div class="hcr">';
     if (bite) h += '<section class="bite card" data-act="note" data-t="' + bite.t.id + '"><span class="bitek">오늘의 한 입 · ' + esc(bite.t.name) + '</span><p>' + fmt(bite.line) + '</p></section>';
     h += '<section class="units">' + C.UNITS.filter(function (u) { return uIn(u.id); }).map(function (u) {
       var ts = C.TOPICS.filter(function (t) { return t.u === u.id; });
@@ -352,6 +384,7 @@
         }).join('') + '</div>';
     }).join('') + '</section>';
     h += installTip();
+    h += '</div></div>';
     h += '<button class="resetlink" data-act="settings">' + ic('gear') + '설정 · 전체 초기화</button>';
     h += '<footer class="foot">모든 내용은 화학 반응의 세계 수업 PPT(Ⅱ-05, Ⅲ-1~4)와 탐구활동지에서 가져왔어요. 기록은 이 기기에만 저장돼요.</footer>';
     return h;
@@ -1203,6 +1236,7 @@
       case 'wrong': go('wrong'); break;
       case 'notes': go('notes'); break;
       case 'note': if (e.target.closest('details') && el.tagName !== 'BUTTON') return; go('note', { t: d.t }, !!d.r); break;
+      case 'winx': winClose(); break;
       case 'quit': if (R && R.total && !confirm('이번 판을 그만할까요? 푼 문제는 저장돼요.')) return; R = null; go('home', {}, true); break;
       case 'learned': S.seen[d.t] = S.seen[d.t] || Date.now(); save(); next(); break;
       case 'peek': peek(d.t); break;
@@ -1266,7 +1300,7 @@
       if (it && it.k === 'pk' && e.key === 'Enter') { var ok = $('#pkok'); if (ok && !ok.disabled) ok.click(); }
     }
     if (view.name === 'boltrun') { if (e.key === 'ArrowRight' || /^[oO]$/.test(e.key)) boltAnswer(1); if (e.key === 'ArrowLeft' || /^[xX]$/.test(e.key)) boltAnswer(0); }
-    if (e.key === 'Escape' && $('.peek')) peekClose();
+    if (e.key === 'Escape') { if ($('.peek')) peekClose(); else if ($('#win')) winClose(); }
   });
 
   /* ---------- 시작 ---------- */

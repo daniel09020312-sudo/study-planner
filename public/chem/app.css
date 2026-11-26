@@ -677,3 +677,37 @@ html.cov-out .m-body,html.cov-out .m-eyes,html.cov-out .m-at,html.cov-out .m-cru
 .mode:first-child .mic{background:var(--accs);color:var(--accd)}
 .srow input:checked+.sw{background:var(--accd)}
 .ring.sm .rfg{stroke:var(--c)}
+
+/* ===== 넓은 화면(아이패드): 두 칸 홈 + 떠 있는 창 ===== */
+@media (min-width:740px){
+  #app{max-width:1080px;padding:0 28px 40px}
+  .hgrid{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:18px;align-items:start}
+  .hgrid .modes{margin-bottom:0}
+  .hcr .bite{margin-top:0}
+  .hcr .units{gap:14px}
+  .hhead{padding-top:calc(22px + env(safe-area-inset-top,0px))}
+  .brand b{font-size:1.45rem}
+}
+@media (min-width:1100px){ .hgrid{grid-template-columns:minmax(0,1fr) minmax(0,1fr)} }
+html.winopen,html.winopen body{overflow:hidden}
+#win,#win-old{position:fixed;inset:0;z-index:30;display:flex;align-items:center;justify-content:center;padding:calc(20px + env(safe-area-inset-top,0px)) 24px calc(20px + env(safe-area-inset-bottom,0px))}
+.win-bg{position:absolute;inset:0;background:rgba(24,18,12,.3);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);opacity:0;transition:opacity .28s ease}
+.win-box{position:relative;width:min(720px,100%);height:min(100%,1060px);border-radius:30px;overflow:hidden;
+  background-color:var(--bg);background-image:radial-gradient(var(--dot) 1px,transparent 1.3px);background-size:22px 22px;
+  box-shadow:0 30px 80px -20px rgba(20,14,8,.45),0 0 0 1px rgba(0,0,0,.05);
+  transform:translateY(36px) scale(.96);opacity:0;transition:transform .42s cubic-bezier(.2,.9,.25,1.05),opacity .25s ease}
+#win.show .win-bg{opacity:1}
+#win.show .win-box{transform:translateZ(0);opacity:1}
+#win-old .win-box{transform:translateY(24px) scale(.97);opacity:0;transition:transform .22s ease-in,opacity .2s ease-in}
+#win-old .win-bg{opacity:0}
+.win-in{height:100%;overflow:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding:0 26px 26px}
+.win-in .view{min-height:100%}
+.win-in .v-quiz,.win-in .v-boltrun{min-height:100%}
+.win-in .top{padding-top:14px;margin:0 -26px;padding-left:18px;padding-right:18px}
+.win-in .qtop{padding-top:16px}
+.win-in .sheet .sh-in{max-width:none;border-radius:26px 26px 0 0;padding-bottom:18px}
+.win-in .res{padding-top:28px}
+.win-in .chips{margin:0 -26px;padding-left:26px;padding-right:26px}
+.win-in .boltintro{padding-top:30px}
+.win-in .qq{font-size:1.45rem}
+@media (prefers-reduced-motion:reduce){.win-box,.win-bg{transition:none!important}}
