@@ -11,13 +11,13 @@ NOW=datetime.datetime(2026,11,20,12,0,0)
 def seed(mins):
     return "(M)=>{const S=window.__store;M.forEach((m,i)=>{const d=new Date(2026,10,10+i);const k=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');S['days/m1_'+k]={goals:[],mins:{s2:m},in:k+'T00:10:00.000Z'};});window.__fire();}"
 R=Rig()
-# 6일만(하루는 8시간 정각) -> 안 뜸
+# 7시간대인 날이 6번뿐(8시간 넘은 날은 안 셈) -> 안 뜸
 p=R.open(390,844,ls={'gbb_note':'9999999999999'},now=NOW);close_dlg(p)
-p.evaluate(seed(""),[430,440,450,470,420,480,455]);p.wait_for_timeout(1500)
-check('no egg when a day is 8h',not st(p,"!!document.querySelector('#dlg-egg')"))
-# 7일 모두 7시간대 -> 뜸
+p.evaluate(seed(""),[430,440,450,470,419,600,455,100]);p.wait_for_timeout(1500)
+check('no egg with 6 days',not st(p,"!!document.querySelector('#dlg-egg')"))
+# 이어지지 않아도 7시간대인 날 7번 -> 뜸
 q=R.open(390,844,ls={'gbb_note':'9999999999999'},now=NOW);close_dlg(q)
-q.evaluate(seed(""),[430,440,450,470,420,479,455]);q.wait_for_timeout(1800)
+q.evaluate(seed(""),[430,100,440,460,0,450,470,600,420,479]);q.wait_for_timeout(1800)
 check('egg shows',st(q,"!!document.querySelector('#dlg-egg')"))
 click(q,'[data-act="egg-x"] >> nth=0' if False else '#dlg-egg .btn',700)
 check('egg closes and remembered',st(q,"!document.querySelector('#dlg-egg')") and st(q,"!!localStorage.getItem('gbb_egg7')"))
