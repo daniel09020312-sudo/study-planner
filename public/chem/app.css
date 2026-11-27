@@ -753,3 +753,6 @@ html.winopen,html.winopen body{overflow:hidden}
 .askcode{width:120px;min-height:38px;padding:6px 10px;border-radius:10px;border:1.5px solid var(--line2);background:var(--bg);color:var(--ink);font:inherit;font-size:16px;position:static!important;opacity:1!important;pointer-events:auto!important}
 /* 답은 어떤 글자가 올지 몰라서(앱 글꼴은 앱에 쓰는 글자만 있음) 기기 글꼴로 */
 .amsg,.askbar textarea{font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",system-ui,sans-serif}
+/* 같은 곳을 빨리 여러 번 눌러도 화면이 확대되지 않게(두 번 눌러 확대 끄기, 두 손가락 확대는 그대로) */
+html,body,button,a,label,input,textarea,select,summary,[data-act]{touch-action:manipulation}
+.bcard{touch-action:none}
