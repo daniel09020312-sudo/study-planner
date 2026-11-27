@@ -5135,7 +5135,7 @@ document.addEventListener('change',function(e){
 
 /* ---------- 처음 화면 ---------- */
 // 앱이 준비되면 알린다. 그림이 아직이면 다 그린 뒤에 열리고, 그림이 먼저 끝났으면 바로 열린다
-var APP_BUILD='1795588389';
+var APP_BUILD='1795739563';
 function splashDone(){
   var sp=document.getElementById('splash'),st=window.__sp;if(!sp||sp.getAttribute('data-out'))return;
   sp.setAttribute('data-out','1');
@@ -6053,13 +6053,14 @@ function trimGo(){
   flash(subLabel(V,sid)+'에서 '+fmtMins(n)+'을 뺐습니다.');
 }
 
-/* ---------- v48: 숨은 이스터에그: 7일 연속 매일 공부 시간이 7시간대(7시간 이상 8시간 미만) ---------- */
+/* ---------- v48: 숨은 이스터에그 럭키 세븐: 7시간 이상 공부한 날이 7번(이어지지 않아도 됨) ---------- */
 function eggRun(V){
   var g=gcSync(V);if(g.egg!==undefined)return g.egg;
   var t=today(),run=0,res='',rows=V.sc[V.me]||{};
   for(var d=START;d<t&&d<=END;d=addDays(d,1)){
     var m=rows[d]?+rows[d].mins||0:0;
-    if(m>=420&&m<480){run++;if(run>=7){res=d;break;}}else run=0;
+    /* 쉽게 바꿈: 7시간 이상 공부한 날이 모두 7번(이어지지 않아도 됨) */
+    if(m>=420){run++;if(run>=7){res=d;break;}}
   }
   return g.egg=res;
 }
@@ -6076,7 +6077,7 @@ function modalEgg(V){
   var reel='';for(var i=0;i<3;i++)reel+='<div class="eggr" style="--i:'+i+'"><div class="eggs"><b>3</b><b>9</b><b>5</b><b>1</b><b>7</b></div></div>';
   return '<div class="scrim" data-act="egg-x"></div><div class="dialog egg" id="dlg-egg" role="dialog" aria-modal="true" aria-label="숨은 업적" tabindex="-1"><div class="eggbg" aria-hidden="true"></div>'+
     '<div class="eggh">숨은 업적</div><div class="eggreels" aria-label="7 7 7">'+reel+'</div>'+
-    '<h2 class="eggt">럭키 세븐</h2><p class="eggp">일주일 내내, 매일 7시간대로 공부했습니다.<br>이런 꾸준함은 우연이 아닙니다.</p>'+
+    '<h2 class="eggt">럭키 세븐</h2><p class="eggp">7시간 넘게 공부한 날이 7번이 됐습니다.<br>이런 꾸준함은 우연이 아닙니다.</p>'+
     '<div class="eggs7" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>'+
     '<button class="btn primary" data-act="egg-x">고맙습니다</button></div>';
 }
@@ -9895,7 +9896,7 @@ function modalSettings(V){
   [[22,'밤 10시'],[23,'밤 11시'],[24,'자정'],[25,'다음 날 새벽 1시'],[26,'다음 날 새벽 2시'],[27,'다음 날 새벽 3시'],[28,'다음 날 새벽 4시'],[29,'다음 날 새벽 5시']].forEach(function(o){b+='<option value="'+o[0]+'"'+(V.certHour===o[0]?' selected':'')+'>'+o[1]+'</option>';});
   b+='</select>';
   b+='</div>'+spSec()+pokeSec()+noticeSec(V)+periodSec(V)+'<div class="sec"><h3>사용법</h3><div class="row"><button class="btn small" data-act="open" data-modal="help">사용법 보기</button></div></div><div class="sec"><h3>키보드 단축키<small>키보드를 연결했을 때</small></h3><ul class="kbd">'+[['1 ~ 8','달력부터 메시지까지 화면 이동'],['N','할 일 추가'],['D','마감 있는 할 일 추가'],['L','달력, 할 일, 시간표 차례로 바꿔 보기'],['T','타이머 켜기, 끄기'],['F','타이머 크게 보기'],['Esc','창 닫기']].map(function(x){return '<li><kbd>'+x[0]+'</kbd><span>'+x[1]+'</span></li>';}).join('')+'</ul></div><div class="sec"><h3>저장 위치</h3><p class="hint">'+esc(S.net?({claude:'Claude 공유 저장소에 연결되어 있습니다. Claude에 로그인한 참여 인원끼리 실시간으로 같이 봅니다.',firebase:'공유 저장소에 연결되어 있습니다. 참여 코드로 들어온 사람 모두가 실시간으로 같이 봅니다.',local:'지금은 이 기기에만 저장됩니다. 다른 사람과 같이 보려면 공유 저장소 연결이 필요합니다.'}[S.net.mode]):'연결 중입니다.')+'</p>'+(S.net&&S.net.mode==='firebase'&&S.remote?'<div class="row" style="margin-top:10px"><button class="btn small" data-act="import-pick">기록 가져오기</button><button class="btn small" data-act="export-data">기록 파일로 저장</button><button class="del" data-act="setup-reset">'+(S.confirm==='disc'?'한 번 더 누르면 이 방에서 나갑니다':'이 기기에서 이 방 나가기')+'</button></div><p class="hint" style="margin-top:8px">'+esc(S.importMsg||'친구와 내 다른 기기는 위의 친구 초대하기로 들어옵니다. 기록 가져오기는 처음 연결한 뒤 한 번만 하면 됩니다.')+'</p>':'')+'</div>';
-  b+='<p class="hint appver">앱 버전 11월 25일 15:33</p>';
+  b+='<p class="hint appver">앱 버전 11월 27일 09:32</p>';
   return dlg('wide',{id:'settings',t:'설정'},b);
 }
 function modalCheck(V){
