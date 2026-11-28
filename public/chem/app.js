@@ -147,7 +147,7 @@
     if (q.topic.hidden) return S.scope === 'all' && (!q.req || q.req.every(seenTopic));
     return uIn(q.u);
   }
-  function uIn(u) { return S.scope === 'all' || u === S.scope || (S.scope === 'c' && u !== 'u1'); }
+  function uIn(u) { return S.scope === 'all' || u === S.scope || (UI[u] && UI[u].g === S.scope); }
   function scopeTopics() { return C.TOPICS.filter(function (t) { return !t.hidden && uIn(t.u); }); }
   function scopeQs() { return Q.filter(function (q) { return !q.topic.hidden && uIn(q.u); }); }
   function mastery(qs) {
@@ -335,7 +335,7 @@
     return '<header class="top"><button class="ibtn" data-act="back" aria-label="뒤로">' + ic('back') + '</button><h1>' + title + '</h1>' + (opt.right || '<span class="ibsp"></span>') + '</header>';
   }
   function scopeChips() {
-    var items = [{ id: 'all', short: '전체' }, { id: 'c', short: '탄소 화합물' }].concat(C.UNITS);
+    var items = [{ id: 'all', short: '전체' }, { id: 'c', short: '탄소 화합물' }, { id: 'r', short: '산화·환원' }].concat(C.UNITS);
     return '<div class="chips" role="tablist">' + items.map(function (u) {
       return '<button class="chip' + (S.scope === u.id ? ' on' : '') + '" data-act="scope" data-v="' + u.id + '">' + esc(u.short) + '</button>';
     }).join('') + '</div>';
@@ -998,7 +998,7 @@
   AFTER.result = function () { countUp($('#rs'), R ? R.ok : 0, 900); if (R && R.total && R.ok / R.total >= 0.8) setTimeout(function () { burst($('.rscore'), 'ok'); }, 500); };
   function resultMol() { var a = ['glucose', 'aspirin', 'ethylacetate', 'nylon', 'isoprene', 'dipeptide', 'pet']; return a[Math.floor(Math.random() * a.length)]; }
   function uniq(a) { var s = {}, o = []; a.forEach(function (q) { if (!s[q.id]) { s[q.id] = 1; o.push(q); } }); return o; }
-  function scopeName() { return S.scope === 'all' ? '전체' : S.scope === 'c' ? '탄소 화합물' : UI[S.scope].short; }
+  function scopeName() { return S.scope === 'all' ? '전체' : S.scope === 'c' ? '탄소 화합물' : S.scope === 'r' ? '산화·환원' : (UI[S.scope] || {}).short || '전체'; }
 
   function stars(n) { var h = ''; for (var i = 0; i < 3; i++) h += '<i class="st' + (i < n ? ' on' : '') + '" style="--d:' + i + '">' + ic('star') + '</i>'; return h; }
   function tripResult() {

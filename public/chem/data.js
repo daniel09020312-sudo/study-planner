@@ -1159,5 +1159,5 @@
   function bg(q, items, e, x) { add(ext({ k: 'bg', q: q, items: items, e: e }, x)); }
   function cz(q, s, src, bank) { var a = []; s.replace(/\[\[(.+?)\]\]/g, function (m, v) { a.push(v); return m; }); add({ k: 'cz', q: q, cs: s, a: a, src: src, bank: bank, e: '' }); }
   function so(q, buckets, items, e, x) { add(ext({ k: 'so', q: q, buckets: buckets, items: items, e: e }, x)); }
-  window.CHEM = { UNITS: UNITS, TOPICS: TOPICS, CHAINS: CHAINS, H: { use: use, mc: mc, ox: ox, sq: sq, mt: mt, pk: pk, tb: tb, bd: bd, bg: bg, so: so, cz: cz } };
+  window.CHEM = { UNITS: UNITS, TOPICS: TOPICS, CHAINS: CHAINS, H: { topic: topic, use: use, mc: mc, ox: ox, sq: sq, mt: mt, pk: pk, tb: tb, bd: bd, bg: bg, so: so, cz: cz } };
 })();

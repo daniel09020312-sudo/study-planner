@@ -756,3 +756,9 @@ html.winopen,html.winopen body{overflow:hidden}
 /* 같은 곳을 빨리 여러 번 눌러도 화면이 확대되지 않게(두 번 눌러 확대 끄기, 두 손가락 확대는 그대로) */
 html,body,button,a,label,input,textarea,select,summary,[data-act]{touch-action:manipulation}
 .bcard{touch-action:none}
+
+/* Ⅱ-02~04 단원 색 */
+:root{--purple:#7A4FC4;--purple-s:#ECE3FA;--teal:#13827F;--teal-s:#D3EFED;--pink:#C23F7E;--pink-s:#F9DDEA}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--purple:#B697FF;--purple-s:#2B2142;--teal:#4FD1C8;--teal-s:#123331;--pink:#FF7FB6;--pink-s:#3D1A2A}}
+:root[data-theme="dark"]{--purple:#B697FF;--purple-s:#2B2142;--teal:#4FD1C8;--teal-s:#123331;--pink:#FF7FB6;--pink-s:#3D1A2A}
+.c-purple{--c:var(--purple);--cs:var(--purple-s)}.c-teal{--c:var(--teal);--cs:var(--teal-s)}.c-pink{--c:var(--pink);--cs:var(--pink-s)}
